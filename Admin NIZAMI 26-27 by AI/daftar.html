@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Daftar Baru</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root { --primary: #FFD700; --bg: #121212; --text: #e0e0e0; }
+        body { background: var(--bg); color: var(--text); font-family: 'Inter', sans-serif; padding: 20px; }
+        input, select, textarea { width: 100%; padding: 12px; background: #222; border: 1px solid #444; color: white; border-radius: 8px; margin-bottom: 10px; box-sizing: border-box;}
+        .btn-full { width: 100%; padding: 12px; background: var(--primary); font-weight: bold; border: none; border-radius: 8px; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <div style="display:flex; gap:10px; align-items:center; margin-bottom:20px;">
+        <a href="index.html" style="color:white; font-size:1.2rem;"><i class="fas fa-arrow-left"></i></a>
+        <h2>Peserta Baru</h2>
+    </div>
+
+    <div style="background:#1a1a1a; padding:15px; border-radius:10px; margin-bottom:20px; border:1px dashed #444;">
+        <small style="color:#4caf50"><i class="fab fa-whatsapp"></i> Paste WA Disini:</small>
+        <textarea id="waRaw" rows="3"></textarea>
+        <button onclick="parseWA()" style="padding:5px 10px; background:#333; color:white; border:none; border-radius:5px;">Ekstrak</button>
+    </div>
+
+    <form onsubmit="simpan(event)">
+        <input type="text" name="nama" id="pNama" placeholder="Nama Lengkap" required>
+        <input type="text" name="hp" id="pHP" placeholder="No HP" required>
+        <input type="text" name="alamat" id="pAlamat" placeholder="Alamat" required>
+        <select name="mitra" id="pMitra"><option>Loading...</option></select>
+        <select name="paket" id="pPaket"><option>Loading...</option></select>
+        <button type="submit" class="btn-full" id="btnSimpan">DAFTARKAN</button>
+    </form>
+
+    <script src="script.js"></script>
+    <script>
+        async function init() {
+            const mitra = await fetchData('getMitra');
+            const paket = await fetchData('getPaket');
+            const selMitra = document.getElementById('pMitra');
+            const selPaket = document.getElementById('pPaket');
+            
+            selMitra.innerHTML = '<option>Pusat</option>';
+            if(mitra) mitra.forEach(m => selMitra.innerHTML += `<option>${m}</option>`);
+            
+            selPaket.innerHTML = '';
+            if(paket) paket.forEach(p => selPaket.innerHTML += `<option>${p.nama}</option>`);
+        }
+        init();
+
+        function parseWA() {
+            const text = document.getElementById('waRaw').value;
+            const nm = text.match(/Nama\s*[:=]\s*(.*)/i);
+            const hp = text.match(/HP|WA|No\s*[:=]\s*(\d+)/i);
+            const al = text.match(/Alamat\s*[:=]\s*(.*)/i);
+            if(nm) document.getElementById('pNama').value = nm[1].trim();
+            if(hp) document.getElementById('pHP').value = hp[1].trim();
+            if(al) document.getElementById('pAlamat').value = al[1].trim();
+            showToast("Data terekstrak!");
+        }
+
+        async function simpan(e) {
+            e.preventDefault();
+            document.getElementById('btnSimpan').innerText = 'Menyimpan...';
+            const data = Object.fromEntries(new FormData(e.target).entries());
+            const res = await fetchData('tambahPeserta', data);
+            if(res.success) { showToast('Sukses!'); setTimeout(() => location.href='index.html', 1000); }
+        }
+    </script>
+</body>
+</html>

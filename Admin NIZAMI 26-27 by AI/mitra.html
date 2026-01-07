@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Data Mitra</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root { --primary: #FFD700; --bg: #121212; --surface: #1e1e1e; --text: #e0e0e0; --border: #333; }
+        body { background: var(--bg); color: var(--text); font-family: 'Inter', sans-serif; margin: 0; padding: 0; padding-bottom: 80px; }
+
+        /* HEADER & SEARCH */
+        .top-nav {
+            background: rgba(18, 18, 18, 0.95); backdrop-filter: blur(10px);
+            padding: 15px 20px; position: sticky; top: 0; z-index: 50;
+            border-bottom: 1px solid var(--border); display: flex; gap: 15px; align-items: center;
+        }
+        .back-btn { background: #333; color: white; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; text-decoration: none; border: none; cursor: pointer; flex-shrink: 0; }
+        .search-input {
+            width: 100%; padding: 12px 20px; background: #222; border: 1px solid #444; 
+            color: white; border-radius: 25px; outline: none; font-size: 1rem;
+        }
+        .search-input:focus { border-color: var(--primary); }
+
+        /* LIST CARD */
+        #listArea { padding: 15px; display: grid; gap: 12px; }
+        
+        .mitra-card {
+            background: var(--surface); border: 1px solid var(--border);
+            border-radius: 16px; padding: 20px; display: flex; gap: 15px; align-items: center;
+            transition: 0.2s; position: relative; overflow: hidden;
+        }
+        .mitra-card::after {
+            content: ''; position: absolute; right: -20px; top: -20px;
+            width: 80px; height: 80px; background: var(--primary);
+            opacity: 0.05; border-radius: 50%;
+        }
+        
+        .m-avatar {
+            width: 50px; height: 50px; background: #333; color: var(--primary);
+            border-radius: 50%; display: flex; align-items: center; justify-content: center;
+            font-size: 1.2rem; font-weight: bold; border: 1px solid #444; flex-shrink: 0;
+        }
+        .m-info { flex-grow: 1; }
+        .m-info h4 { margin: 0; font-size: 1.1rem; color: #fff; }
+        .m-info small { color: #888; display: block; margin-top: 4px; font-size: 0.85rem; }
+        .m-info .hp { color: #4caf50; font-size: 0.85rem; margin-top: 2px; display: flex; align-items: center; gap: 5px; }
+
+        .btn-wa {
+            background: #25D366; color: #fff; width: 40px; height: 40px;
+            border-radius: 12px; display: flex; align-items: center; justify-content: center;
+            text-decoration: none; font-size: 1.2rem; transition: 0.2s; z-index: 2;
+        }
+        .btn-wa:active { transform: scale(0.9); }
+
+        /* FLOATING ADD BUTTON */
+        .fab-add {
+            position: fixed; bottom: 20px; right: 20px;
+            background: var(--primary); color: #000;
+            width: 55px; height: 55px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.5rem; box-shadow: 0 5px 20px rgba(255, 215, 0, 0.3);
+            cursor: pointer; z-index: 90; transition: 0.2s; border: none;
+        }
+        .fab-add:active { transform: scale(0.9); }
+
+        /* MODAL */
+        #modalAdd {
+            display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 100;
+            align-items: center; justify-content: center; padding: 20px; backdrop-filter: blur(5px);
+        }
+        .modal-card {
+            background: var(--surface); width: 100%; max-width: 400px;
+            padding: 25px; border-radius: 16px; border: 1px solid var(--border);
+            animation: slideUp 0.3s ease;
+        }
+        .modal-title { margin-top: 0; color: var(--primary); text-align: center; margin-bottom: 20px; }
+        .form-group { margin-bottom: 15px; }
+        .form-input {
+            width: 100%; padding: 14px; background: #111; border: 1px solid #444;
+            color: white; border-radius: 10px; box-sizing: border-box; outline: none;
+        }
+        .form-input:focus { border-color: var(--primary); }
+        .btn-full {
+            width: 100%; padding: 14px; background: var(--primary); color: #000;
+            border: none; border-radius: 10px; font-weight: bold; cursor: pointer; margin-top: 10px;
+        }
+        .btn-cancel { background: transparent; color: #888; margin-top: 10px; }
+
+        @keyframes slideUp { from { transform: translateY(50px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+    </style>
+</head>
+<body>
+
+    <div class="top-nav">
+        <a href="index.html" class="back-btn"><i class="fas fa-arrow-left"></i></a>
+        <input type="text" id="searchInput" class="search-input" placeholder="🔍 Cari Mitra..." onkeyup="filterMitra(this.value)">
+    </div>
+
+    <div id="listArea">
+        <div style="text-align:center; padding:50px; color:#555;">
+            <i class="fas fa-spinner fa-spin"></i> Memuat data mitra...
+        </div>
+    </div>
+
+    <button class="fab-add" onclick="toggleModal(true)"><i class="fas fa-user-plus"></i></button>
+
+    <div id="modalAdd">
+        <div class="modal-card">
+            <h3 class="modal-title">Tambah Mitra Baru</h3>
+            
+            <div class="form-group">
+                <input type="text" id="mNama" class="form-input" placeholder="Nama Lengkap">
+            </div>
+            <div class="form-group">
+                <input type="number" id="mHP" class="form-input" placeholder="Nomor HP (08xx)">
+            </div>
+            <div class="form-group">
+                <input type="text" id="mAlamat" class="form-input" placeholder="Alamat / Wilayah">
+            </div>
+
+            <button onclick="simpanMitra()" class="btn-full" id="btnSimpan">SIMPAN DATA</button>
+            <button onclick="toggleModal(false)" class="btn-full btn-cancel">Batal</button>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+    <script>
+        let allMitra = [];
+
+        async function load() {
+            const container = document.getElementById('listArea');
+            const data = await fetchData('getMitra'); // Pastikan fungsi backend sudah diupdate!
+            
+            if(data) {
+                // Handle jika data string sederhana (script lama) atau object (script baru)
+                // Kita normalisasi datanya
+                allMitra = data.map(m => {
+                    if(typeof m === 'object') return m;
+                    return { nama: m, hp: '', alamat: '-' }; // Fallback
+                });
+                
+                renderList(allMitra);
+            } else {
+                container.innerHTML = '<div style="text-align:center; padding:20px; color:#888;">Gagal memuat data.</div>';
+            }
+        }
+
+        function renderList(items) {
+            const container = document.getElementById('listArea');
+            container.innerHTML = '';
+
+            if(items.length === 0) {
+                container.innerHTML = '<div style="text-align:center; padding:30px; color:#555;">Belum ada mitra terdaftar.</div>';
+                return;
+            }
+
+            items.forEach(m => {
+                const initial = m.nama.substring(0, 1).toUpperCase();
+                // Format HP untuk WA (ganti 08 jadi 628)
+                let hpClean = String(m.hp).replace(/\D/g,'');
+                if(hpClean.startsWith('0')) hpClean = '62' + hpClean.substring(1);
+                const waLink = hpClean ? `https://wa.me/${hpClean}` : '#';
+
+                container.innerHTML += `
+                <div class="mitra-card">
+                    <div class="m-avatar">${initial}</div>
+                    <div class="m-info">
+                        <h4>${m.nama}</h4>
+                        <div class="hp"><i class="fab fa-whatsapp"></i> ${m.hp || '-'}</div>
+                        <small><i class="fas fa-map-marker-alt"></i> ${m.alamat || '-'}</small>
+                    </div>
+                    ${m.hp ? `<a href="${waLink}" target="_blank" class="btn-wa"><i class="fab fa-whatsapp"></i></a>` : ''}
+                </div>`;
+            });
+        }
+
+        function filterMitra(q) {
+            const query = q.toLowerCase();
+            const filtered = allMitra.filter(m => 
+                m.nama.toLowerCase().includes(query) || 
+                (m.alamat && m.alamat.toLowerCase().includes(query))
+            );
+            renderList(filtered);
+        }
+
+        async function simpanMitra() {
+            const nama = document.getElementById('mNama').value;
+            const hp = document.getElementById('mHP').value;
+            const alamat = document.getElementById('mAlamat').value;
+
+            if(!nama) return showToast('Nama Mitra wajib diisi!', 'error');
+
+            const btn = document.getElementById('btnSimpan');
+            btn.innerText = 'Menyimpan...'; btn.disabled = true;
+
+            const res = await fetchData('tambahMitra', { nama: nama, hp: hp, alamat: alamat });
+            
+            if(res && res.success) {
+                showToast('✅ Mitra Berhasil Ditambahkan');
+                toggleModal(false);
+                document.getElementById('mNama').value = '';
+                document.getElementById('mHP').value = '';
+                document.getElementById('mAlamat').value = '';
+                load(); // Reload list
+            } else {
+                showToast('Gagal menyimpan', 'error');
+            }
+            btn.innerText = 'SIMPAN DATA'; btn.disabled = false;
+        }
+
+        function toggleModal(show) {
+            document.getElementById('modalAdd').style.display = show ? 'flex' : 'none';
+        }
+
+        load();
+    </script>
+</body>
+</html>

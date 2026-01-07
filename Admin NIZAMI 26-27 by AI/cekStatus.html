@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cek Status Peserta</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root { --primary: #FFD700; --bg: #121212; --surface: #1e1e1e; --text: #e0e0e0; --border: #333; }
+        body { background: var(--bg); color: var(--text); font-family: 'Inter', sans-serif; margin: 0; padding: 0; padding-bottom: 50px; }
+
+        /* HEADER & SEARCH */
+        .top-nav {
+            background: rgba(18, 18, 18, 0.95); backdrop-filter: blur(10px);
+            padding: 15px 20px; position: sticky; top: 0; z-index: 50;
+            border-bottom: 1px solid var(--border);
+        }
+        .header-content { display: flex; align-items: center; gap: 15px; margin-bottom: 15px; }
+        .back-btn { background: #333; color: white; width: 35px; height: 35px; border-radius: 50%; display: flex; align-items: center; justify-content: center; text-decoration: none; border: none; cursor: pointer; }
+        
+        .search-container { position: relative; }
+        .search-input {
+            width: 100%; padding: 12px 20px 12px 45px;
+            background: #222; border: 1px solid #444; color: white;
+            border-radius: 25px; outline: none; font-size: 0.95rem; box-sizing: border-box;
+        }
+        .search-input:focus { border-color: var(--primary); }
+        .search-icon { position: absolute; left: 15px; top: 50%; transform: translateY(-50%); color: #666; }
+
+        /* LIST CARD */
+        #listArea { padding: 20px; }
+        .user-card {
+            background: var(--surface); padding: 15px; border-radius: 12px;
+            border: 1px solid var(--border); margin-bottom: 10px; cursor: pointer;
+            display: flex; justify-content: space-between; align-items: center;
+            transition: 0.2s; position: relative;
+        }
+        .user-card:active { transform: scale(0.98); background: #252525; }
+        .u-avatar { width: 40px; height: 40px; background: #333; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: var(--primary); font-weight: bold; margin-right: 12px; }
+        
+        /* Tombol Kalender Kecil di List */
+        .btn-cal-mini {
+            background: #333; color: var(--primary); border: 1px solid #444;
+            width: 30px; height: 30px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            margin-right: 10px; transition: 0.2s;
+        }
+        .btn-cal-mini:hover { background: var(--primary); color: #000; }
+
+        /* DETAIL VIEW */
+        #detailArea {
+            display: none; position: fixed; inset: 0; background: var(--bg);
+            z-index: 100; overflow-y: auto; animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        
+        /* Member Card */
+        .member-card-box {
+            background: linear-gradient(135deg, #FFD700, #B8860B);
+            color: #000; padding: 25px; border-radius: 20px;
+            margin: 20px; box-shadow: 0 10px 30px rgba(255, 215, 0, 0.2);
+            position: relative; overflow: hidden;
+        }
+        .member-card-box::before {
+            content: ''; position: absolute; top: -50px; right: -50px;
+            width: 150px; height: 150px; background: rgba(255,255,255,0.2); border-radius: 50%;
+        }
+        .mc-label { font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px; opacity: 0.8; }
+        .mc-balance { font-size: 2rem; font-weight: 800; margin: 5px 0 20px 0; letter-spacing: -1px; }
+        .mc-footer { display: flex; justify-content: space-between; align-items: flex-end; }
+        .mc-name { font-weight: 700; font-size: 1.1rem; }
+        .mc-id { font-family: monospace; font-size: 0.9rem; opacity: 0.7; }
+
+        /* Tombol Kalender Besar */
+        .btn-calendar-full {
+            display: flex; align-items: center; justify-content: center; gap: 10px;
+            width: calc(100% - 40px); margin: 0 20px 20px 20px; padding: 15px;
+            background: #222; color: #fff; border: 1px solid #444;
+            border-radius: 12px; font-weight: bold; cursor: pointer;
+            text-decoration: none; transition: 0.2s;
+        }
+        .btn-calendar-full:active { transform: scale(0.98); background: #333; }
+        .btn-calendar-full i { color: var(--primary); }
+
+        /* History */
+        .history-container { padding: 0 20px 40px 20px; }
+        .timeline-item { display: flex; gap: 15px; padding-bottom: 20px; position: relative; }
+        .timeline-item::before { content: ''; position: absolute; left: 7px; top: 25px; bottom: 0; width: 2px; background: #333; z-index: 0; }
+        .timeline-item:last-child::before { display: none; }
+        .t-icon { width: 16px; height: 16px; background: var(--bg); border: 2px solid var(--primary); border-radius: 50%; z-index: 1; flex-shrink: 0; margin-top: 5px; }
+        .t-content { flex-grow: 1; background: var(--surface); padding: 12px; border-radius: 8px; border: 1px solid var(--border); }
+        .t-date { font-size: 0.75rem; color: #888; margin-bottom: 4px; display: block; }
+        .t-amount { font-size: 1rem; font-weight: bold; color: #4caf50; }
+
+        @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+    </style>
+</head>
+<body>
+
+    <div id="searchArea">
+        <div class="top-nav">
+            <div class="header-content">
+                <a href="index.html" class="back-btn"><i class="fas fa-arrow-left"></i></a>
+                <h2 style="margin:0; font-size:1.2rem;">Cek Status</h2>
+            </div>
+            <div class="search-container">
+                <i class="fas fa-search search-icon"></i>
+                <input type="text" class="search-input" placeholder="Cari Nama atau ID..." onkeyup="cari(this.value)" autofocus>
+            </div>
+        </div>
+
+        <div id="listArea">
+            <div style="text-align:center; color:#555; margin-top:50px;">
+                <i class="fas fa-id-card" style="font-size:3rem; margin-bottom:15px; opacity:0.3;"></i>
+                <p>Ketik nama peserta untuk<br>melihat kartu status.</p>
+            </div>
+        </div>
+    </div>
+
+    <div id="detailArea">
+        <div class="top-nav" style="background:transparent; border:none; position:absolute; width:100%; box-sizing:border-box; pointer-events:none;">
+            <button onclick="closeDetail()" class="back-btn" style="background:rgba(0,0,0,0.5); backdrop-filter:blur(5px); pointer-events:auto;"><i class="fas fa-arrow-down"></i></button>
+        </div>
+
+        <div class="member-card-box">
+            <div class="mc-label">Total Tabungan</div>
+            <div class="mc-balance" id="dSaldo">Rp 0</div>
+            <div class="mc-footer">
+                <div>
+                    <div class="mc-name" id="dNama">Loading...</div>
+                    <div style="font-size:0.8rem;" id="dPaket">-</div>
+                </div>
+                <div class="mc-id" id="dID">ID: -</div>
+            </div>
+        </div>
+
+        <a id="btnLihatKalender" href="#" class="btn-calendar-full">
+            <i class="far fa-calendar-alt"></i> LIHAT KALENDER SETORAN
+        </a>
+
+        <div class="history-container">
+            <div style="font-size:0.8rem; color:#888; margin-bottom:15px; text-transform:uppercase;">Riwayat Transaksi</div>
+            <div id="dRiwayat"></div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+    <script>
+        let debounce;
+
+        function cari(q) {
+            clearTimeout(debounce);
+            if(q.length < 3) return;
+            
+            document.getElementById('listArea').innerHTML = '<div style="text-align:center; color:#aaa; padding:20px;">Mencari data...</div>';
+            
+            debounce = setTimeout(async () => {
+                const res = await fetchData('cariPeserta', {q: q});
+                const container = document.getElementById('listArea');
+                container.innerHTML = '';
+                
+                if(!res || res.length === 0) {
+                    container.innerHTML = '<div style="text-align:center; color:#555;">Tidak ditemukan</div>';
+                    return;
+                }
+
+                res.forEach(p => {
+                    const initial = p.nama.substring(0, 2).toUpperCase();
+                    // Link Kalender Cepat
+                    const linkCal = `kalender.html?id=${p.id}&nama=${encodeURIComponent(p.nama)}&paket=${encodeURIComponent(p.paket)}&jumlah=${p.freq || 0}`;
+                    
+                    container.innerHTML += `
+                    <div class="user-card" onclick="openDetail('${p.id}')">
+                        <div style="display:flex; align-items:center;">
+                            <div class="u-avatar">${initial}</div>
+                            <div class="u-info">
+                                <h4>${p.nama}</h4>
+                                <small>${p.paket}</small>
+                            </div>
+                        </div>
+                        <div style="display:flex; align-items:center;">
+                            <a href="${linkCal}" onclick="event.stopPropagation()" class="btn-cal-mini">
+                                <i class="far fa-calendar-alt" style="font-size:0.8rem;"></i>
+                            </a>
+                            <i class="fas fa-chevron-right" style="color:#444;"></i>
+                        </div>
+                    </div>`;
+                });
+            }, 500);
+        }
+
+        async function openDetail(id) {
+            document.getElementById('searchArea').style.display = 'none';
+            document.getElementById('detailArea').style.display = 'block';
+            
+            // Reset UI
+            document.getElementById('dNama').innerText = 'Memuat...';
+            document.getElementById('dSaldo').innerText = '...';
+            document.getElementById('dRiwayat').innerHTML = '<div style="text-align:center; padding:20px; color:#aaa;">Mengambil data...</div>';
+            document.getElementById('btnLihatKalender').style.display = 'none'; // Sembunyikan dulu
+
+            const data = await fetchData('cekStatusDetail', {id: id});
+            
+            if(data && !data.error) {
+                document.getElementById('dNama').innerText = data.nama;
+                document.getElementById('dPaket').innerText = data.paket;
+                document.getElementById('dID').innerText = data.id;
+                document.getElementById('dSaldo').innerText = formatRupiah(data.saldo);
+
+                // Hitung Frekuensi (Jumlah Transaksi)
+                const freq = data.riwayat.length; 
+
+                // Update Link Kalender
+                const linkCal = `kalender.html?id=${data.id}&nama=${encodeURIComponent(data.nama)}&paket=${encodeURIComponent(data.paket)}&jumlah=${freq}`;
+                const btnCal = document.getElementById('btnLihatKalender');
+                btnCal.href = linkCal;
+                btnCal.style.display = 'flex'; // Munculkan tombol
+
+                // Render Timeline
+                const historyBox = document.getElementById('dRiwayat');
+                historyBox.innerHTML = '';
+
+                if(freq === 0) {
+                    historyBox.innerHTML = '<div style="text-align:center; color:#555;">Belum ada transaksi.</div>';
+                } else {
+                    data.riwayat.forEach(r => {
+                        historyBox.innerHTML += `
+                        <div class="timeline-item">
+                            <div class="t-icon"></div>
+                            <div class="t-content">
+                                <span class="t-date"><i class="far fa-clock"></i> ${r.tgl}</span>
+                                <div style="display:flex; justify-content:space-between; align-items:center;">
+                                    <span style="font-size:0.85rem; color:#ccc;">Setoran Tabungan</span>
+                                    <span class="t-amount">+ ${formatRupiah(r.nominal)}</span>
+                                </div>
+                            </div>
+                        </div>`;
+                    });
+                }
+            } else {
+                alert("Gagal mengambil data detail.");
+                closeDetail();
+            }
+        }
+
+        function closeDetail() {
+            document.getElementById('detailArea').style.display = 'none';
+            document.getElementById('searchArea').style.display = 'block';
+        }
+    </script>
+</body>
+</html>

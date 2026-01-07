@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Kalender Setoran 2026</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  
+  <style>
+    /* === 1. GLOBAL STYLE (DARK PREMIUM) === */
+    :root {
+      --primary: #ffd700;
+      --success: #28a745;
+      --dark-bg: #050505;
+      --card-bg: #151515;
+      --border: #333;
+    }
+
+    body {
+      background-color: var(--dark-bg);
+      color: #fff;
+      font-family: 'Poppins', sans-serif;
+      margin: 0; padding: 20px;
+      background-image: radial-gradient(circle at top, #1a2f23 0%, #000 70%);
+      min-height: 100vh;
+    }
+
+    h1 {
+      text-align: center; color: var(--primary);
+      margin-bottom: 30px; font-size: 1.5rem;
+      text-transform: uppercase; letter-spacing: 2px;
+    }
+
+    /* === 2. INFO CARD === */
+    .info-card {
+      background: rgba(21, 21, 21, 0.95);
+      backdrop-filter: blur(10px);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 20px;
+      max-width: 600px; margin: 0 auto 30px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+      position: sticky; top: 10px; z-index: 100;
+    }
+
+    .badge {
+      background: #007bff; color: white;
+      padding: 4px 12px; border-radius: 50px;
+      font-size: 0.75rem; font-weight: bold;
+      text-transform: uppercase;
+    }
+
+    .user-name { font-size: 1.4rem; font-weight: 700; margin: 10px 0 5px; }
+    .user-id { color: #aaa; font-size: 0.9rem; }
+
+    .stats-row {
+      display: flex; justify-content: space-between;
+      margin-top: 20px; padding-top: 15px;
+      border-top: 1px solid var(--border);
+    }
+    .stat-item { text-align: center; width: 48%; }
+    .stat-val { font-size: 1.5rem; font-weight: bold; display: block; }
+    .stat-label { font-size: 0.75rem; color: #888; text-transform: uppercase; }
+    .text-green { color: var(--success); }
+    .text-gold { color: var(--primary); }
+
+    .btn-back {
+      display: block; width: 100%; text-align: center;
+      margin-top: 15px; padding: 10px;
+      background: #333; color: #fff;
+      border-radius: 8px; text-decoration: none;
+      font-size: 0.9rem; font-weight: 600;
+      transition: 0.3s;
+    }
+    .btn-back:hover { background: #444; }
+
+    /* === 3. GRID KALENDER HARIAN === */
+    .calendar-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 20px;
+      max-width: 1200px; margin: 0 auto;
+    }
+
+    .month-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 15px;
+    }
+    .month-title {
+      text-align: center; color: #48dbfb;
+      font-weight: 700; margin-bottom: 15px;
+      text-transform: uppercase; letter-spacing: 1px;
+      border-bottom: 1px solid var(--border); padding-bottom: 10px;
+    }
+    .days-header, .days-body {
+      display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px; text-align: center;
+    }
+    .days-header { margin-bottom: 10px; font-size: 0.8rem; color: #888; }
+    
+    .day-cell {
+      aspect-ratio: 1; display: flex; align-items: center; justify-content: center;
+      border-radius: 6px; font-size: 0.85rem; background: #222; color: #555;
+    }
+    .day-cell.paid { background: var(--success); color: #fff; font-weight: bold; box-shadow: 0 0 10px rgba(40, 167, 69, 0.4); }
+    .day-cell.future { background: rgba(255,255,255,0.05); color: #fff; }
+    .day-cell.disabled { opacity: 0.2; background: transparent; }
+
+    /* === 4. GRID MINGGUAN (KHUSUS) === */
+    .weekly-container {
+      display: grid; 
+      grid-template-columns: repeat(auto-fill, minmax(80px, 1fr)); 
+      gap: 15px; max-width: 800px; margin: 0 auto;
+    }
+    .week-box {
+      aspect-ratio: 1;
+      background: #222; border: 1px solid #333;
+      border-radius: 12px;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      position: relative;
+    }
+    .week-box.paid {
+      background: var(--success); color: #fff;
+      border-color: var(--success);
+      box-shadow: 0 0 15px rgba(40, 167, 69, 0.4);
+    }
+    .week-icon { font-size: 1.5rem; margin-bottom: 5px; }
+    .week-label { font-size: 0.7rem; text-transform: uppercase; }
+    .week-number { font-size: 1.2rem; font-weight: bold; }
+
+    /* Legend */
+    .legend { display: flex; justify-content: center; gap: 15px; margin-bottom: 30px; font-size: 0.8rem; color: #ccc; }
+    .legend span { display: flex; align-items: center; gap: 5px; }
+    .dot { width: 12px; height: 12px; border-radius: 3px; display: inline-block; }
+
+  </style>
+</head>
+<body>
+
+  <h1>Kalender Setoran</h1>
+
+  <div class="info-card">
+    <div style="text-align:center;">
+        <span class="badge" id="uPaket">Loading...</span>
+        <div class="user-name" id="uNama">-</div>
+        <div class="user-id" id="uId">#ID</div>
+    </div>
+    <div class="stats-row">
+      <div class="stat-item">
+        <span class="stat-val text-green" id="uBayar">0</span>
+        <span class="stat-label">Sudah Setor</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-val text-gold" id="uTarget">0</span>
+        <span class="stat-label">Target</span>
+      </div>
+    </div>
+    <a href="javascript:history.back()" class="btn-back"><i class="fas fa-arrow-left"></i> Kembali</a>
+  </div>
+
+  <div class="legend">
+    <span><div class="dot" style="background:#28a745"></div> Sudah Bayar</span>
+    <span><div class="dot" style="background:rgba(255,255,255,0.1)"></div> Belum Bayar</span>
+  </div>
+
+  <div id="calendarContainer"></div>
+
+  <script>
+    // === 1. CONFIG ===
+    const START_DATE = new Date('2026-04-01');
+    const MONTH_NAMES = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
+    
+    // === 2. AMBIL DATA ===
+    const params = new URLSearchParams(window.location.search);
+    const id = params.get('id') || '-';
+    const nama = params.get('nama') || 'Peserta';
+    const paket = params.get('paket') || 'Reguler';
+    const bayar = parseInt(params.get('jumlah')) || 0;
+
+    // Cek Tipe Paket
+    const isMingguan = paket.toLowerCase().includes('mingguan');
+    
+    // Set Target
+    // Harian: 330 (Default) / 300 (Pendek)
+    // Mingguan: 40 Minggu
+    let target = 330;
+    if (isMingguan) target = 40;
+    else if (['munggah','hemat'].some(k => paket.toLowerCase().includes(k))) target = 300;
+
+    // === 3. RENDER INFO ===
+    document.getElementById('uPaket').innerText = paket;
+    document.getElementById('uNama').innerText = nama;
+    document.getElementById('uId').innerText = "#" + id;
+    document.getElementById('uBayar').innerText = bayar + (isMingguan ? " Minggu" : " Hari");
+    document.getElementById('uTarget').innerText = target + (isMingguan ? " Minggu" : " Hari");
+
+    // === 4. RENDER KALENDER ===
+    const container = document.getElementById('calendarContainer');
+
+    if (isMingguan) {
+        // --- MODE MINGGUAN (40 KOTAK) ---
+        container.className = 'weekly-container';
+        
+        for(let i=1; i<=target; i++) {
+            const isPaid = i <= bayar;
+            const item = document.createElement('div');
+            item.className = isPaid ? 'week-box paid' : 'week-box';
+            item.innerHTML = `
+                <div class="week-label">Minggu</div>
+                <div class="week-number">${i}</div>
+                ${isPaid ? '<i class="fas fa-check-circle" style="margin-top:5px;"></i>' : ''}
+            `;
+            container.appendChild(item);
+        }
+
+    } else {
+        // --- MODE HARIAN (KALENDER BULANAN) ---
+        container.className = 'calendar-grid';
+        let currentDate = new Date(START_DATE);
+        let dayCounter = 0;
+        let loopSafety = 0;
+
+        while (dayCounter < target && loopSafety < 24) {
+            loopSafety++;
+            const year = currentDate.getFullYear();
+            const monthIdx = currentDate.getMonth();
+            
+            const monthCard = document.createElement('div');
+            monthCard.className = 'month-card';
+            let html = `
+                <div class="month-title">${MONTH_NAMES[monthIdx]} ${year}</div>
+                <div class="days-header">
+                    <div>Mg</div><div>Sn</div><div>Sl</div><div>Rb</div><div>Km</div><div>Jm</div><div>Sb</div>
+                </div>
+                <div class="days-body">
+            `;
+
+            const firstDay = new Date(year, monthIdx, 1).getDay();
+            const daysInMonth = new Date(year, monthIdx + 1, 0).getDate();
+
+            for(let i=0; i<firstDay; i++) html += `<div class="day-cell disabled"></div>`;
+
+            for(let d=1; d<=daysInMonth; d++) {
+                const thisDate = new Date(year, monthIdx, d);
+                let cellClass = 'day-cell';
+
+                if (thisDate >= START_DATE && dayCounter < target) {
+                    dayCounter++;
+                    if (dayCounter <= bayar) cellClass += ' paid';
+                    else cellClass += ' future';
+                } else {
+                    cellClass += ' disabled';
+                }
+                html += `<div class="${cellClass}">${d}</div>`;
+            }
+            html += `</div>`;
+            monthCard.innerHTML = html;
+            container.appendChild(monthCard);
+            
+            currentDate.setMonth(currentDate.getMonth() + 1);
+            currentDate.setDate(1);
+        }
+    }
+  </script>
+</body>
+</html>

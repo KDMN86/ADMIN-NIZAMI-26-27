@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Galeri Kegiatan</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root { --primary: #FFD700; --bg: #121212; --surface: #1e1e1e; --text: #e0e0e0; --border: #333; }
+        body { background: var(--bg); color: var(--text); font-family: 'Inter', sans-serif; margin: 0; padding: 0; padding-bottom: 80px; }
+
+        /* HEADER */
+        .top-nav {
+            background: rgba(18, 18, 18, 0.95); backdrop-filter: blur(10px);
+            padding: 15px 20px; position: sticky; top: 0; z-index: 50;
+            border-bottom: 1px solid var(--border); display: flex; gap: 15px; align-items: center;
+        }
+        .back-btn { background: #333; color: white; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; text-decoration: none; border: none; cursor: pointer; flex-shrink: 0; }
+        .page-title { margin: 0; font-size: 1.2rem; font-weight: 600; }
+
+        /* GALLERY GRID */
+        #galleryGrid {
+            display: grid; 
+            grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); /* Responsif */
+            gap: 5px; padding: 5px;
+        }
+        
+        .gallery-item {
+            aspect-ratio: 1/1; /* Kotak Persegi */
+            background: #222; border-radius: 4px; overflow: hidden;
+            position: relative; cursor: pointer;
+            border: 1px solid #333;
+        }
+        .gallery-item img {
+            width: 100%; height: 100%; object-fit: cover;
+            transition: transform 0.3s;
+        }
+        .gallery-item:hover img { transform: scale(1.1); }
+        
+        /* Loading Skeleton */
+        .skeleton {
+            background: linear-gradient(90deg, #222 25%, #333 50%, #222 75%);
+            background-size: 200% 100%; animation: loading 1.5s infinite;
+        }
+        @keyframes loading { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+
+        /* FLOATING ADD BUTTON */
+        .fab-add {
+            position: fixed; bottom: 20px; right: 20px;
+            background: var(--primary); color: #000;
+            width: 55px; height: 55px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.5rem; box-shadow: 0 5px 20px rgba(255, 215, 0, 0.3);
+            cursor: pointer; z-index: 90; transition: 0.2s; border: none;
+        }
+        .fab-add:active { transform: scale(0.9); }
+
+        /* MODAL UPLOAD */
+        #modalUpload {
+            display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 100;
+            align-items: center; justify-content: center; padding: 20px; backdrop-filter: blur(5px);
+        }
+        .modal-card {
+            background: var(--surface); width: 100%; max-width: 350px;
+            padding: 25px; border-radius: 16px; border: 1px solid var(--border);
+            text-align: center; animation: slideUp 0.3s ease;
+        }
+        
+        .upload-area {
+            border: 2px dashed #444; border-radius: 12px; padding: 30px 10px;
+            margin-bottom: 20px; position: relative;
+        }
+        .upload-icon { font-size: 3rem; color: #444; margin-bottom: 10px; }
+        
+        /* Custom File Input */
+        input[type="file"] { display: none; }
+        .btn-choose {
+            background: #333; color: var(--primary); padding: 8px 15px;
+            border-radius: 20px; font-size: 0.85rem; cursor: pointer; display: inline-block;
+            border: 1px solid #444;
+        }
+
+        #previewImg {
+            width: 100%; height: 200px; object-fit: contain; 
+            border-radius: 8px; display: none; margin-bottom: 15px;
+            background: #000; border: 1px solid #333;
+        }
+
+        .btn-full {
+            width: 100%; padding: 14px; background: var(--primary); color: #000;
+            border: none; border-radius: 10px; font-weight: bold; cursor: pointer;
+        }
+        .btn-cancel { background: transparent; color: #888; margin-top: 10px; }
+
+        @keyframes slideUp { from { transform: translateY(50px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+
+        /* Lightbox (Zoom View) */
+        #lightbox {
+            display: none; position: fixed; inset: 0; background: #000; z-index: 200;
+            align-items: center; justify-content: center;
+        }
+        #lightbox img { max-width: 100%; max-height: 100%; }
+        .close-lightbox {
+            position: absolute; top: 20px; right: 20px;
+            color: white; font-size: 2rem; cursor: pointer; background: rgba(0,0,0,0.5);
+            width: 40px; height: 40px; border-radius: 50%; text-align: center; line-height: 40px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="top-nav">
+        <a href="index.html" class="back-btn"><i class="fas fa-arrow-left"></i></a>
+        <h2 class="page-title">Galeri</h2>
+    </div>
+
+    <div id="galleryGrid">
+        <div class="gallery-item skeleton"></div>
+        <div class="gallery-item skeleton"></div>
+        <div class="gallery-item skeleton"></div>
+        <div class="gallery-item skeleton"></div>
+    </div>
+
+    <div id="emptyState" style="display:none; text-align:center; padding:50px; color:#555;">
+        <i class="fas fa-images" style="font-size:3rem; margin-bottom:15px;"></i>
+        <p>Belum ada foto.</p>
+    </div>
+
+    <button class="fab-add" onclick="toggleModal(true)"><i class="fas fa-camera"></i></button>
+
+    <div id="modalUpload">
+        <div class="modal-card">
+            <h3 style="margin-top:0; color:var(--primary)">Upload Foto</h3>
+            
+            <div class="upload-area" id="dropZone">
+                <img id="previewImg" src="">
+                <div id="uploadPrompt">
+                    <i class="fas fa-cloud-upload-alt upload-icon"></i>
+                    <p style="color:#888; font-size:0.8rem; margin:10px 0;">Pilih foto dari galeri</p>
+                    <label for="fileInput" class="btn-choose">Pilih File</label>
+                </div>
+            </div>
+            <input type="file" id="fileInput" accept="image/*" onchange="previewFile()">
+            <p id="fileName" style="font-size:0.8rem; color:#aaa; margin-bottom:15px;"></p>
+
+            <button onclick="uploadAction()" class="btn-full" id="btnUpload" disabled>UPLOAD</button>
+            <button onclick="toggleModal(false)" class="btn-full btn-cancel">Batal</button>
+        </div>
+    </div>
+
+    <div id="lightbox" onclick="this.style.display='none'">
+        <div class="close-lightbox">&times;</div>
+        <img id="zoomImg" src="">
+    </div>
+
+    <script src="script.js"></script>
+    <script>
+        // Load data saat halaman dibuka
+        async function loadGallery() {
+            const grid = document.getElementById('galleryGrid');
+            
+            // Panggil API getGallery
+            const data = await fetchData('getGallery'); //
+            
+            grid.innerHTML = ''; // Hapus skeleton
+
+            if(data && data.length > 0) {
+                // Balik urutan agar foto terbaru di atas
+                data.reverse().forEach(img => {
+                    grid.innerHTML += `
+                    <div class="gallery-item" onclick="viewImage('${img.url}')">
+                        <img src="${img.url}" loading="lazy" onerror="this.src='https://via.placeholder.com/150?text=Error'">
+                    </div>`;
+                });
+                document.getElementById('emptyState').style.display = 'none';
+            } else {
+                document.getElementById('emptyState').style.display = 'block';
+            }
+        }
+
+        // --- UPLOAD LOGIC ---
+        function toggleModal(show) {
+            const modal = document.getElementById('modalUpload');
+            modal.style.display = show ? 'flex' : 'none';
+            if(!show) resetForm();
+        }
+
+        function previewFile() {
+            const file = document.getElementById('fileInput').files[0];
+            if(file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    document.getElementById('previewImg').src = e.target.result;
+                    document.getElementById('previewImg').style.display = 'block';
+                    document.getElementById('uploadPrompt').style.display = 'none';
+                    document.getElementById('fileName').innerText = file.name;
+                    
+                    const btn = document.getElementById('btnUpload');
+                    btn.disabled = false;
+                    btn.style.opacity = '1';
+                }
+                reader.readAsDataURL(file);
+            }
+        }
+
+        function resetForm() {
+            document.getElementById('fileInput').value = '';
+            document.getElementById('previewImg').style.display = 'none';
+            document.getElementById('uploadPrompt').style.display = 'block';
+            document.getElementById('fileName').innerText = '';
+            document.getElementById('btnUpload').disabled = true;
+            document.getElementById('btnUpload').innerText = 'UPLOAD';
+        }
+
+        function uploadAction() {
+            const file = document.getElementById('fileInput').files[0];
+            if (!file) return;
+
+            const btn = document.getElementById('btnUpload');
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> MENGUPLOAD...';
+
+            const reader = new FileReader();
+            reader.readAsDataURL(file);
+            reader.onload = async function(e) {
+                const payload = { 
+                    action: 'uploadImage', 
+                    fileData: e.target.result, 
+                    fileName: file.name 
+                };
+
+                try {
+                    // Fetch Manual POST sesuai script galeri lama Anda
+                    const req = await fetch(API_URL, { 
+                        method: "POST", 
+                        body: JSON.stringify(payload) 
+                    });
+                    const res = await req.json();
+
+                    if(res.success) {
+                        showToast("✅ Foto Berhasil Diupload!");
+                        toggleModal(false);
+                        loadGallery(); // Refresh grid
+                    } else {
+                        showToast("Gagal Upload", "error");
+                        btn.disabled = false;
+                        btn.innerText = 'UPLOAD';
+                    }
+                } catch(err) {
+                    showToast("Error Koneksi", "error");
+                    btn.disabled = false;
+                    btn.innerText = 'UPLOAD';
+                }
+            };
+        }
+
+        // --- VIEWER ---
+        function viewImage(url) {
+            document.getElementById('zoomImg').src = url;
+            document.getElementById('lightbox').style.display = 'flex';
+        }
+
+        // Init
+        loadGallery();
+    </script>
+</body>
+</html>

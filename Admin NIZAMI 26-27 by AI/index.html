@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - NIZAMI</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* TEMPLATE CSS DASAR (Copy ini ke setiap halaman jika ingin persis sama) */
+        :root { --primary: #FFD700; --bg: #121212; --surface: #1e1e1e; --text: #e0e0e0; }
+        body { background: var(--bg); color: var(--text); font-family: 'Inter', sans-serif; margin: 0; padding-bottom: 50px; }
+        .hero-card { margin: 20px; padding: 25px; background: linear-gradient(135deg, #2c2c2c, #1a1a1a); border-radius: 20px; text-align: center; border: 1px solid #333; }
+        .menu-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; padding: 0 20px; }
+        .menu-item { background: var(--surface); padding: 20px 10px; border-radius: 16px; border: 1px solid #333; text-align: center; color: #ccc; text-decoration: none; display: flex; flex-direction: column; align-items: center; justify-content: center; aspect-ratio: 1/1; transition: 0.2s; }
+        .menu-item:active { transform: scale(0.95); background: #252525; }
+        .menu-icon { font-size: 1.5rem; color: var(--primary); margin-bottom: 10px; }
+    </style>
+</head>
+<body>
+    <div class="hero-card">
+        <small style="color:#aaa;">Total Uang Masuk</small>
+        <h1 style="color:var(--primary); margin:10px 0;" id="dashUang">Rp 0</h1>
+        <div style="display:flex; justify-content:space-around; margin-top:20px;">
+            <div><b id="dashPeserta">0</b><br><small>Peserta</small></div>
+            <div><b id="dashTrx">0</b><br><small>Transaksi</small></div>
+        </div>
+    </div>
+
+    <div class="menu-grid">
+        <a href="setoran.html" class="menu-item"><i class="fas fa-wallet menu-icon"></i><span>Setoran</span></a>
+        <a href="daftar.html" class="menu-item"><i class="fas fa-user-plus menu-icon"></i><span>Daftar</span></a>
+        <a href="cekStatus.html" class="menu-item"><i class="fas fa-search menu-icon"></i><span>Cek Status</span></a>
+        <a href="barang.html" class="menu-item"><i class="fas fa-box-open menu-icon"></i><span>Barang</span></a>
+        <a href="rekap.html" class="menu-item"><i class="fas fa-clipboard-list menu-icon"></i><span>Rekap</span></a>
+        <a href="mitra.html" class="menu-item"><i class="fas fa-handshake menu-icon"></i><span>Mitra</span></a>
+        <a href="galeri.html" class="menu-item"><i class="fas fa-camera menu-icon"></i><span>Galeri</span></a>
+        <div onclick="location.reload()" class="menu-item" style="cursor:pointer;"><i class="fas fa-sync menu-icon"></i><span>Refresh</span></div>
+    </div>
+
+    <script src="script.js"></script>
+    <script>
+        // Logic Khusus Dashboard
+        async function loadDashboard() {
+            const data = await fetchData('getAdminStats');
+            if(data) {
+                document.getElementById('dashUang').innerText = formatRupiah(data.uang);
+                document.getElementById('dashPeserta').innerText = data.peserta;
+                document.getElementById('dashTrx').innerText = data.trxToday;
+            }
+        }
+        loadDashboard();
+    </script>
+</body>
+</html>
