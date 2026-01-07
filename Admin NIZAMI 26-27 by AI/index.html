@@ -2,53 +2,212 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard - NIZAMI</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Dashboard Admin</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        /* TEMPLATE CSS DASAR (Copy ini ke setiap halaman jika ingin persis sama) */
-        :root { --primary: #FFD700; --bg: #121212; --surface: #1e1e1e; --text: #e0e0e0; }
-        body { background: var(--bg); color: var(--text); font-family: 'Inter', sans-serif; margin: 0; padding-bottom: 50px; }
-        .hero-card { margin: 20px; padding: 25px; background: linear-gradient(135deg, #2c2c2c, #1a1a1a); border-radius: 20px; text-align: center; border: 1px solid #333; }
-        .menu-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; padding: 0 20px; }
-        .menu-item { background: var(--surface); padding: 20px 10px; border-radius: 16px; border: 1px solid #333; text-align: center; color: #ccc; text-decoration: none; display: flex; flex-direction: column; align-items: center; justify-content: center; aspect-ratio: 1/1; transition: 0.2s; }
-        .menu-item:active { transform: scale(0.95); background: #252525; }
-        .menu-icon { font-size: 1.5rem; color: var(--primary); margin-bottom: 10px; }
+        :root { --primary: #FFD700; --bg: #121212; --surface: #1e1e1e; --surface-2: #252525; --text: #e0e0e0; }
+        body { background: var(--bg); color: var(--text); font-family: 'Inter', sans-serif; margin: 0; padding-bottom: 60px; }
+
+        /* HEADER */
+        header {
+            padding: 20px 20px 10px 20px;
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        .greeting { font-size: 0.9rem; color: #aaa; margin: 0; }
+        .brand { font-size: 1.4rem; font-weight: 700; color: #fff; margin: 0; }
+        .brand span { color: var(--primary); }
+        .profile-icon {
+            width: 40px; height: 40px; background: var(--surface); border-radius: 50%;
+            display: flex; align-items: center; justify-content: center; border: 1px solid #333;
+        }
+
+        /* HERO CARD (SALDO) */
+        .hero-container { padding: 10px 20px; }
+        .hero-card {
+            background: linear-gradient(135deg, #FFD700 0%, #B8860B 100%);
+            border-radius: 20px; padding: 25px;
+            color: #000; box-shadow: 0 10px 30px rgba(255, 215, 0, 0.15);
+            position: relative; overflow: hidden;
+        }
+        .hero-card::before {
+            content: ''; position: absolute; top: -30px; right: -30px;
+            width: 120px; height: 120px; background: rgba(255,255,255,0.2);
+            border-radius: 50%;
+        }
+        .hero-label { font-size: 0.85rem; font-weight: 600; opacity: 0.7; text-transform: uppercase; letter-spacing: 1px; }
+        .hero-balance { font-size: 2.2rem; font-weight: 800; margin: 5px 0 15px 0; letter-spacing: -1px; }
+        
+        .hero-stats { display: flex; gap: 20px; border-top: 1px solid rgba(0,0,0,0.1); padding-top: 15px; }
+        .stat-item b { display: block; font-size: 1.2rem; }
+        .stat-item span { font-size: 0.75rem; opacity: 0.7; }
+
+        /* RECENT ACTIVITY */
+        .section-title { padding: 0 20px; margin: 25px 0 10px 0; font-size: 0.9rem; color: #888; text-transform: uppercase; letter-spacing: 1px; display: flex; justify-content: space-between; }
+        .refresh-btn { color: var(--primary); cursor: pointer; font-size: 0.8rem; text-decoration: none; }
+        
+        .recent-list { padding: 0 20px; display: flex; flex-direction: column; gap: 10px; }
+        .recent-item {
+            background: var(--surface); padding: 12px 15px; border-radius: 12px;
+            display: flex; justify-content: space-between; align-items: center;
+            border: 1px solid #333; animation: fadeIn 0.5s ease;
+        }
+        .ri-left { display: flex; gap: 12px; align-items: center; }
+        .ri-icon { width: 35px; height: 35px; background: rgba(76, 175, 80, 0.1); color: #4caf50; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.9rem; }
+        .ri-info h4 { margin: 0; font-size: 0.95rem; color: #fff; }
+        .ri-info span { font-size: 0.75rem; color: #888; }
+        .ri-amount { font-weight: bold; color: var(--primary); font-size: 0.95rem; }
+
+        /* MENU GRID */
+        .menu-container { padding: 20px; }
+        .menu-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; }
+        .menu-item {
+            display: flex; flex-direction: column; align-items: center; gap: 8px;
+            text-decoration: none; color: #ccc; transition: 0.2s;
+        }
+        .menu-item:active { transform: scale(0.95); opacity: 0.8; }
+        .menu-box {
+            width: 100%; aspect-ratio: 1/1; background: var(--surface);
+            border-radius: 16px; border: 1px solid #333;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.4rem; color: var(--primary);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+        }
+        .menu-item span { font-size: 0.75rem; text-align: center; line-height: 1.2; }
+
+        /* SKELETON LOADING */
+        .skeleton { background: #222; height: 60px; border-radius: 12px; animation: pulse 1.5s infinite; }
+        @keyframes pulse { 0% { opacity: 0.5; } 50% { opacity: 1; } 100% { opacity: 0.5; } }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
 <body>
-    <div class="hero-card">
-        <small style="color:#aaa;">Total Uang Masuk</small>
-        <h1 style="color:var(--primary); margin:10px 0;" id="dashUang">Rp 0</h1>
-        <div style="display:flex; justify-content:space-around; margin-top:20px;">
-            <div><b id="dashPeserta">0</b><br><small>Peserta</small></div>
-            <div><b id="dashTrx">0</b><br><small>Transaksi</small></div>
+
+    <header>
+        <div>
+            <p class="greeting" id="greetingText">Halo, Admin</p>
+            <h1 class="brand">NIZAMI <span>2026</span></h1>
+        </div>
+        <div class="profile-icon">
+            <i class="fas fa-user-shield" style="color: #fff;"></i>
+        </div>
+    </header>
+
+    <div class="hero-container">
+        <div class="hero-card">
+            <div class="hero-label">Total Uang Masuk</div>
+            <div class="hero-balance" id="dashUang">Rp ...</div>
+            <div class="hero-stats">
+                <div class="stat-item">
+                    <b id="dashPeserta">...</b>
+                    <span>Peserta</span>
+                </div>
+                <div class="stat-item">
+                    <b id="dashTrx">...</b>
+                    <span>Trx Hari Ini</span>
+                </div>
+            </div>
         </div>
     </div>
 
-    <div class="menu-grid">
-        <a href="setoran.html" class="menu-item"><i class="fas fa-wallet menu-icon"></i><span>Setoran</span></a>
-        <a href="daftar.html" class="menu-item"><i class="fas fa-user-plus menu-icon"></i><span>Daftar</span></a>
-        <a href="cekStatus.html" class="menu-item"><i class="fas fa-search menu-icon"></i><span>Cek Status</span></a>
-        <a href="barang.html" class="menu-item"><i class="fas fa-box-open menu-icon"></i><span>Barang</span></a>
-        <a href="rekap.html" class="menu-item"><i class="fas fa-clipboard-list menu-icon"></i><span>Rekap</span></a>
-        <a href="mitra.html" class="menu-item"><i class="fas fa-handshake menu-icon"></i><span>Mitra</span></a>
-        <a href="galeri.html" class="menu-item"><i class="fas fa-camera menu-icon"></i><span>Galeri</span></a>
-        <div onclick="location.reload()" class="menu-item" style="cursor:pointer;"><i class="fas fa-sync menu-icon"></i><span>Refresh</span></div>
+    <div class="menu-container">
+        <div class="section-title">Menu Utama</div>
+        <div class="menu-grid">
+            <a href="setoran.html" class="menu-item">
+                <div class="menu-box"><i class="fas fa-wallet"></i></div>
+                <span>Setoran</span>
+            </a>
+            <a href="daftar.html" class="menu-item">
+                <div class="menu-box"><i class="fas fa-user-plus"></i></div>
+                <span>Daftar</span>
+            </a>
+            <a href="cekStatus.html" class="menu-item">
+                <div class="menu-box"><i class="fas fa-search"></i></div>
+                <span>Cek Status</span>
+            </a>
+            <a href="rekap.html" class="menu-item">
+                <div class="menu-box"><i class="fas fa-clipboard-list"></i></div>
+                <span>Rekap</span>
+            </a>
+            <a href="barang.html" class="menu-item">
+                <div class="menu-box"><i class="fas fa-box-open"></i></div>
+                <span>Barang</span>
+            </a>
+            <a href="mitra.html" class="menu-item">
+                <div class="menu-box"><i class="fas fa-handshake"></i></div>
+                <span>Mitra</span>
+            </a>
+            <a href="galeri.html" class="menu-item">
+                <div class="menu-box"><i class="fas fa-camera"></i></div>
+                <span>Galeri</span>
+            </a>
+            <div class="menu-item" onclick="location.reload()" style="cursor:pointer">
+                <div class="menu-box" style="background:#222; border-color:#444;"><i class="fas fa-sync-alt" style="color:#fff;"></i></div>
+                <span>Refresh</span>
+            </div>
+        </div>
+    </div>
+
+    <div>
+        <div class="section-title">
+            <span>Aktivitas Terkini</span>
+            <span onclick="loadDashboard()" class="refresh-btn"><i class="fas fa-sync"></i> Update</span>
+        </div>
+        <div class="recent-list" id="recentList">
+            <div class="skeleton"></div>
+            <div class="skeleton"></div>
+            <div class="skeleton"></div>
+        </div>
     </div>
 
     <script src="script.js"></script>
     <script>
-        // Logic Khusus Dashboard
+        // Sapaan Waktu
+        const hour = new Date().getHours();
+        let greet = 'Selamat Pagi';
+        if(hour >= 11) greet = 'Selamat Siang';
+        if(hour >= 15) greet = 'Selamat Sore';
+        if(hour >= 19) greet = 'Selamat Malam';
+        document.getElementById('greetingText').innerText = greet + ", Admin";
+
         async function loadDashboard() {
-            const data = await fetchData('getAdminStats');
+            // Efek loading kecil di saldo
+            document.getElementById('dashUang').style.opacity = '0.5';
+            
+            const data = await fetchData('getAdminStats'); //
+            
             if(data) {
+                // Update Saldo
                 document.getElementById('dashUang').innerText = formatRupiah(data.uang);
+                document.getElementById('dashUang').style.opacity = '1';
                 document.getElementById('dashPeserta').innerText = data.peserta;
                 document.getElementById('dashTrx').innerText = data.trxToday;
+
+                // Update Recent Activity
+                const list = document.getElementById('recentList');
+                list.innerHTML = '';
+                
+                if(data.recent && data.recent.length > 0) {
+                    data.recent.forEach(r => {
+                        list.innerHTML += `
+                        <div class="recent-item">
+                            <div class="ri-left">
+                                <div class="ri-icon"><i class="fas fa-arrow-down"></i></div>
+                                <div class="ri-info">
+                                    <h4>${r.nama}</h4>
+                                    <span>${r.waktu} • Setoran</span>
+                                </div>
+                            </div>
+                            <div class="ri-amount">+ ${formatRupiah(r.nominal)}</div>
+                        </div>`;
+                    });
+                } else {
+                    list.innerHTML = '<div style="text-align:center; padding:20px; color:#555;">Belum ada transaksi hari ini.</div>';
+                }
             }
         }
+        
         loadDashboard();
     </script>
 </body>
