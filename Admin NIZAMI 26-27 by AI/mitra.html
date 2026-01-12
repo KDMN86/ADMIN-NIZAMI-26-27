@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Data Mitra</title>
+    <title>Data Mitra & Progress</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -23,72 +23,132 @@
         }
         .search-input:focus { border-color: var(--primary); }
 
-        /* LIST CARD */
+        /* LIST CARD MITRA */
         #listArea { padding: 15px; display: grid; gap: 12px; }
         
         .mitra-card {
             background: var(--surface); border: 1px solid var(--border);
-            border-radius: 16px; padding: 20px; display: flex; gap: 15px; align-items: center;
-            transition: 0.2s; position: relative; overflow: hidden;
-        }
-        .mitra-card::after {
-            content: ''; position: absolute; right: -20px; top: -20px;
-            width: 80px; height: 80px; background: var(--primary);
-            opacity: 0.05; border-radius: 50%;
+            border-radius: 16px; padding: 20px; 
+            position: relative; overflow: hidden;
+            display: flex; flex-direction: column; gap: 10px;
         }
         
+        .mitra-header { display: flex; gap: 15px; align-items: center; }
+
         .m-avatar {
             width: 50px; height: 50px; background: #333; color: var(--primary);
             border-radius: 50%; display: flex; align-items: center; justify-content: center;
             font-size: 1.2rem; font-weight: bold; border: 1px solid #444; flex-shrink: 0;
         }
         .m-info { flex-grow: 1; }
-        .m-info h4 { margin: 0; font-size: 1.1rem; color: #fff; }
+        .m-info h4 { margin: 0; font-size: 1.1rem; color: #fff; display: flex; justify-content: space-between; align-items: center;}
         .m-info small { color: #888; display: block; margin-top: 4px; font-size: 0.85rem; }
-        .m-info .hp { color: #4caf50; font-size: 0.85rem; margin-top: 2px; display: flex; align-items: center; gap: 5px; }
-
-        .btn-wa {
-            background: #25D366; color: #fff; width: 40px; height: 40px;
-            border-radius: 12px; display: flex; align-items: center; justify-content: center;
-            text-decoration: none; font-size: 1.2rem; transition: 0.2s; z-index: 2;
+        .badge-count {
+            background: #333; color: var(--primary); padding: 2px 8px; 
+            border-radius: 10px; font-size: 0.75rem; font-weight: bold; border: 1px solid #444;
         }
-        .btn-wa:active { transform: scale(0.9); }
 
-        /* FLOATING ADD BUTTON */
+        /* SUMMARY & DETAIL */
+        .summary-box { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 5px; }
+        .paket-badge {
+            background: #252525; border: 1px solid #444; color: #ccc;
+            font-size: 0.7rem; padding: 4px 10px; border-radius: 15px;
+            display: flex; align-items: center; gap: 5px;
+        }
+        .paket-badge span { color: var(--primary); font-weight: bold; }
+
+        .btn-toggle-detail {
+            background: transparent; border: 1px solid var(--border);
+            color: var(--primary); width: 100%; padding: 8px;
+            border-radius: 8px; cursor: pointer; font-size: 0.85rem;
+            transition: 0.2s; display: flex; align-items: center; justify-content: center; gap: 5px;
+        }
+
+        .detail-area {
+            display: none; margin-top: 5px; border-top: 1px dashed #333; padding-top: 10px;
+            animation: fadeIn 0.3s ease;
+        }
+        .detail-area.show { display: block; }
+        
+        /* ITEM PESERTA (CLICKABLE) */
+        .p-item {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 10px; border-bottom: 1px solid #2a2a2a;
+            border-radius: 8px; cursor: pointer; transition: 0.2s;
+        }
+        .p-item:hover { background: #252525; }
+        .p-item:last-child { border-bottom: none; }
+        .p-main { font-weight: bold; color: #ddd; display: block; font-size: 0.9rem; }
+        .p-sub { font-size: 0.75rem; color: #888; }
+        .stat-badge {
+            display: inline-block; padding: 2px 6px; border-radius: 4px;
+            background: rgba(255, 215, 0, 0.1); color: var(--primary); font-weight: bold; font-size: 0.75rem;
+        }
+        .stat-sisa { color: #ff6b6b; font-size: 0.7rem; margin-top: 2px; display: block; text-align: right;}
+
+        /* MODAL DETAIL PESERTA */
+        #modalMember {
+            display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.95); z-index: 200;
+            align-items: center; justify-content: center; padding: 20px; backdrop-filter: blur(5px);
+        }
+        .mem-card {
+            background: #1e1e1e; width: 100%; max-width: 350px;
+            border-radius: 20px; border: 1px solid #444; overflow: hidden;
+            animation: slideUp 0.3s ease;
+        }
+        .mem-header {
+            background: linear-gradient(135deg, #FFD700, #FFA500);
+            padding: 20px; color: #000; text-align: center;
+        }
+        .mem-header h2 { margin: 0; font-size: 1.4rem; }
+        .mem-header p { margin: 5px 0 0; opacity: 0.8; font-size: 0.9rem; }
+        
+        .mem-body { padding: 20px; }
+        .info-row { display: flex; justify-content: space-between; margin-bottom: 10px; border-bottom: 1px solid #333; padding-bottom: 10px; font-size: 0.9rem; }
+        .info-label { color: #888; }
+        .info-val { color: #fff; font-weight: bold; }
+
+        .btn-kalender {
+            background: #333; color: var(--primary); border: 1px solid var(--primary);
+            width: 100%; padding: 12px; border-radius: 10px; font-weight: bold;
+            margin-top: 15px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px;
+        }
+        .btn-kalender:hover { background: var(--primary); color: #000; }
+        
+        .btn-close-mem {
+            background: transparent; border: none; color: #888; width: 100%; padding: 10px; margin-top: 5px; cursor: pointer;
+        }
+
+        /* FAB ADD */
         .fab-add {
             position: fixed; bottom: 20px; right: 20px;
             background: var(--primary); color: #000;
             width: 55px; height: 55px; border-radius: 50%;
             display: flex; align-items: center; justify-content: center;
             font-size: 1.5rem; box-shadow: 0 5px 20px rgba(255, 215, 0, 0.3);
-            cursor: pointer; z-index: 90; transition: 0.2s; border: none;
+            cursor: pointer; z-index: 90; border: none;
         }
-        .fab-add:active { transform: scale(0.9); }
 
-        /* MODAL */
+        /* MODAL ADD MITRA */
         #modalAdd {
             display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 100;
-            align-items: center; justify-content: center; padding: 20px; backdrop-filter: blur(5px);
+            align-items: center; justify-content: center; padding: 20px;
         }
         .modal-card {
             background: var(--surface); width: 100%; max-width: 400px;
             padding: 25px; border-radius: 16px; border: 1px solid var(--border);
-            animation: slideUp 0.3s ease;
         }
-        .modal-title { margin-top: 0; color: var(--primary); text-align: center; margin-bottom: 20px; }
-        .form-group { margin-bottom: 15px; }
         .form-input {
             width: 100%; padding: 14px; background: #111; border: 1px solid #444;
-            color: white; border-radius: 10px; box-sizing: border-box; outline: none;
+            color: white; border-radius: 10px; box-sizing: border-box; outline: none; margin-bottom: 15px;
         }
-        .form-input:focus { border-color: var(--primary); }
         .btn-full {
             width: 100%; padding: 14px; background: var(--primary); color: #000;
-            border: none; border-radius: 10px; font-weight: bold; cursor: pointer; margin-top: 10px;
+            border: none; border-radius: 10px; font-weight: bold; cursor: pointer;
         }
-        .btn-cancel { background: transparent; color: #888; margin-top: 10px; }
 
         @keyframes slideUp { from { transform: translateY(50px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
     </style>
 </head>
 <body>
@@ -96,7 +156,7 @@
     <div class="top-nav">
         <a href="index.html" class="back-btn"><i class="fas fa-arrow-left"></i></a>
         <input type="text" id="searchInput" class="search-input" placeholder="🔍 Cari Mitra..." onkeyup="filterMitra(this.value)">
-    </div>
+    </div >
 
     <div id="listArea">
         <div style="text-align:center; padding:50px; color:#555;">
@@ -104,24 +164,26 @@
         </div>
     </div>
 
-    <button class="fab-add" onclick="toggleModal(true)"><i class="fas fa-user-plus"></i></button>
+    <div id="modalMember">
+        <div class="mem-card">
+            <div id="memContent">
+                <div style="padding:40px; text-align:center; color:#fff;">
+                    <i class="fas fa-spinner fa-spin fa-2x"></i><br><br>Mengambil Data...
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <button class="fab-add" onclick="toggleAddModal(true)"><i class="fas fa-user-plus"></i></button>
 
     <div id="modalAdd">
         <div class="modal-card">
-            <h3 class="modal-title">Tambah Mitra Baru</h3>
-            
-            <div class="form-group">
-                <input type="text" id="mNama" class="form-input" placeholder="Nama Lengkap">
-            </div>
-            <div class="form-group">
-                <input type="number" id="mHP" class="form-input" placeholder="Nomor HP (08xx)">
-            </div>
-            <div class="form-group">
-                <input type="text" id="mAlamat" class="form-input" placeholder="Alamat / Wilayah">
-            </div>
-
+            <h3 style="margin-top:0; color:var(--primary); text-align:center;">Tambah Mitra Baru</h3>
+            <input type="text" id="mNama" class="form-input" placeholder="Nama Lengkap">
+            <input type="number" id="mHP" class="form-input" placeholder="Nomor HP (08xx)">
+            <input type="text" id="mAlamat" class="form-input" placeholder="Alamat / Wilayah">
             <button onclick="simpanMitra()" class="btn-full" id="btnSimpan">SIMPAN DATA</button>
-            <button onclick="toggleModal(false)" class="btn-full btn-cancel">Batal</button>
+            <button onclick="toggleAddModal(false)" class="btn-full" style="background:transparent; color:#888; margin-top:10px;">Batal</button>
         </div>
     </div>
 
@@ -131,16 +193,10 @@
 
         async function load() {
             const container = document.getElementById('listArea');
-            const data = await fetchData('getMitra'); // Pastikan fungsi backend sudah diupdate!
+            const data = await fetchData('getMitra');
             
-            if(data) {
-                // Handle jika data string sederhana (script lama) atau object (script baru)
-                // Kita normalisasi datanya
-                allMitra = data.map(m => {
-                    if(typeof m === 'object') return m;
-                    return { nama: m, hp: '', alamat: '-' }; // Fallback
-                });
-                
+            if(Array.isArray(data)) {
+                allMitra = data;
                 renderList(allMitra);
             } else {
                 container.innerHTML = '<div style="text-align:center; padding:20px; color:#888;">Gagal memuat data.</div>';
@@ -156,24 +212,167 @@
                 return;
             }
 
-            items.forEach(m => {
+            items.forEach((m, index) => {
                 const initial = m.nama.substring(0, 1).toUpperCase();
-                // Format HP untuk WA (ganti 08 jadi 628)
                 let hpClean = String(m.hp).replace(/\D/g,'');
                 if(hpClean.startsWith('0')) hpClean = '62' + hpClean.substring(1);
                 const waLink = hpClean ? `https://wa.me/${hpClean}` : '#';
 
+                // --- 1. Rangkuman Paket ---
+                let paketSummary = {};
+                let totalPeserta = 0;
+                if(m.list_peserta && m.list_peserta.length > 0) {
+                    totalPeserta = m.list_peserta.length;
+                    m.list_peserta.forEach(p => {
+                        let namaPaket = p.paket || 'Tanpa Paket';
+                        if(!paketSummary[namaPaket]) paketSummary[namaPaket] = 0;
+                        paketSummary[namaPaket]++;
+                    });
+                }
+                let htmlSummary = '';
+                for (const [nama, jumlah] of Object.entries(paketSummary)) {
+                    htmlSummary += `<div class="paket-badge">${nama} <span>${jumlah}</span></div>`;
+                }
+
+                // --- 2. Detail Peserta (List) ---
+                let htmlDetail = '';
+                if(totalPeserta > 0) {
+                    htmlDetail = `<div class="peserta-list-mini">`;
+                    m.list_peserta.forEach(p => {
+                        // KITA TAMBAHKAN ONCLICK DISINI KE MODAL DETAIL
+                        htmlDetail += `
+                        <div class="p-item" onclick="openMemberDetail('${p.id}')">
+                            <div>
+                                <span class="p-main">${p.nama} <i class="fas fa-chevron-right" style="font-size:0.7rem; color:#444; margin-left:5px;"></i></span>
+                                <span class="p-sub">${p.paket}</span>
+                            </div>
+                            <div class="p-stat">
+                                <span class="stat-badge">Ke-${p.ke}</span>
+                                <span class="stat-sisa">Sisa: ${p.sisa}x</span>
+                            </div>
+                        </div>`;
+                    });
+                    htmlDetail += `</div>`;
+                } else {
+                    htmlDetail = `<div style="text-align:center; color:#555; font-size:0.8rem; padding:10px;">Belum ada peserta</div>`;
+                }
+
+                const detailId = `detail-${index}`;
+                const btnId = `btn-${index}`;
+
                 container.innerHTML += `
                 <div class="mitra-card">
-                    <div class="m-avatar">${initial}</div>
-                    <div class="m-info">
-                        <h4>${m.nama}</h4>
-                        <div class="hp"><i class="fab fa-whatsapp"></i> ${m.hp || '-'}</div>
-                        <small><i class="fas fa-map-marker-alt"></i> ${m.alamat || '-'}</small>
+                    <div class="mitra-header">
+                        <div class="m-avatar">${initial}</div>
+                        <div class="m-info">
+                            <h4>${m.nama} <span class="badge-count">${totalPeserta}</span></h4>
+                            <small><i class="fas fa-map-marker-alt"></i> ${m.alamat || '-'}</small>
+                        </div>
+                        ${m.hp ? `<a href="${waLink}" target="_blank" style="color:#25D366; font-size:1.5rem;"><i class="fab fa-whatsapp"></i></a>` : ''}
                     </div>
-                    ${m.hp ? `<a href="${waLink}" target="_blank" class="btn-wa"><i class="fab fa-whatsapp"></i></a>` : ''}
+                    
+                    <div class="summary-box">${htmlSummary}</div>
+
+                    ${totalPeserta > 0 ? 
+                        `<button onclick="toggleDetail('${detailId}', '${btnId}')" id="${btnId}" class="btn-toggle-detail">
+                            <i class="fas fa-chevron-down"></i> Lihat Detail Peserta
+                        </button>` : ''
+                    }
+
+                    <div id="${detailId}" class="detail-area">
+                        ${htmlDetail}
+                    </div>
                 </div>`;
             });
+        }
+
+        // --- LOGIKA MODAL DETAIL PESERTA ---
+        async function openMemberDetail(id) {
+            const modal = document.getElementById('modalMember');
+            const content = document.getElementById('memContent');
+            
+            modal.style.display = 'flex';
+            content.innerHTML = `
+                <div style="padding:40px; text-align:center; color:#fff;">
+                    <i class="fas fa-spinner fa-spin fa-2x"></i><br><br>Mengambil Data...
+                </div>`;
+
+            // Panggil API Backend cekStatusDetail (Sama seperti cek-status.html)
+            const data = await fetchData('cekStatusDetail', {id: id});
+            
+            if(data && !data.error) {
+                // Render Riwayat Singkat (3 Terakhir)
+                let historyHtml = '<div style="margin-top:10px; font-size:0.8rem; color:#aaa;">Riwayat Terakhir:</div>';
+                if(data.riwayat && data.riwayat.length > 0) {
+                    data.riwayat.slice(0, 3).forEach(r => {
+                        historyHtml += `
+                        <div style="display:flex; justify-content:space-between; padding:5px 0; border-bottom:1px solid #333; font-size:0.8rem;">
+                            <span>${r.tgl}</span>
+                            <span style="color:#fff;">${formatRupiah(r.nominal)}</span>
+                        </div>`;
+                    });
+                } else {
+                    historyHtml += '<div style="font-style:italic; padding:5px;">Belum ada transaksi</div>';
+                }
+
+                content.innerHTML = `
+                <div class="mem-header">
+                    <h2>${data.nama}</h2>
+                    <p>${data.paket}</p>
+                </div>
+                <div class="mem-body">
+                    <div class="info-row">
+                        <span class="info-label">Total Saldo Masuk</span>
+                        <span class="info-val" style="color:#4caf50;">${formatRupiah(data.saldo)}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Progress Angsuran</span>
+                        <span class="info-val">${data.progress_text || '-'}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Sisa Angsuran</span>
+                        <span class="info-val" style="color:#ff6b6b;">${data.sisa_angsuran}x Lagi</span>
+                    </div>
+
+                    ${historyHtml}
+
+                    <button onclick="bukaKalender('${data.id}')" class="btn-kalender">
+                        <i class="far fa-calendar-alt"></i> LIHAT KALENDER FULL
+                    </button>
+                    <button onclick="closeMemberModal()" class="btn-close-mem">Tutup</button>
+                </div>`;
+            } else {
+                content.innerHTML = `
+                <div style="padding:30px; text-align:center;">
+                    <i class="fas fa-exclamation-triangle" style="color:#ff6b6b; font-size:2rem;"></i>
+                    <p>Gagal memuat data.</p>
+                    <button onclick="closeMemberModal()" class="btn-close-mem">Tutup</button>
+                </div>`;
+            }
+        }
+
+        function closeMemberModal() {
+            document.getElementById('modalMember').style.display = 'none';
+        }
+
+        function bukaKalender(id) {
+            // Arahkan ke halaman kalender dengan membawa ID
+            window.location.href = `kalender.html?id=${id}`;
+        }
+
+        // --- Helper Lainnya ---
+        function toggleDetail(areaId, btnId) {
+            const area = document.getElementById(areaId);
+            const btn = document.getElementById(btnId);
+            if (area.classList.contains('show')) {
+                area.classList.remove('show');
+                btn.innerHTML = '<i class="fas fa-chevron-down"></i> Lihat Detail Peserta';
+                btn.style.color = 'var(--primary)';
+            } else {
+                area.classList.add('show');
+                btn.innerHTML = '<i class="fas fa-chevron-up"></i> Tutup Detail';
+                btn.style.color = '#fff';
+            }
         }
 
         function filterMitra(q) {
@@ -185,33 +384,29 @@
             renderList(filtered);
         }
 
+        function toggleAddModal(show) {
+            document.getElementById('modalAdd').style.display = show ? 'flex' : 'none';
+        }
+
         async function simpanMitra() {
             const nama = document.getElementById('mNama').value;
             const hp = document.getElementById('mHP').value;
             const alamat = document.getElementById('mAlamat').value;
-
-            if(!nama) return showToast('Nama Mitra wajib diisi!', 'error');
+            if(!nama) return alert('Nama Mitra wajib diisi!');
 
             const btn = document.getElementById('btnSimpan');
             btn.innerText = 'Menyimpan...'; btn.disabled = true;
 
-            const res = await fetchData('tambahMitra', { nama: nama, hp: hp, alamat: alamat });
+            const res = await fetchData('tambahMitra', { nama, hp, alamat });
             
             if(res && res.success) {
-                showToast('✅ Mitra Berhasil Ditambahkan');
-                toggleModal(false);
-                document.getElementById('mNama').value = '';
-                document.getElementById('mHP').value = '';
-                document.getElementById('mAlamat').value = '';
-                load(); // Reload list
+                alert('✅ Mitra Berhasil Ditambahkan');
+                toggleAddModal(false);
+                load();
             } else {
-                showToast('Gagal menyimpan', 'error');
+                alert('Gagal menyimpan');
             }
             btn.innerText = 'SIMPAN DATA'; btn.disabled = false;
-        }
-
-        function toggleModal(show) {
-            document.getElementById('modalAdd').style.display = show ? 'flex' : 'none';
         }
 
         load();
