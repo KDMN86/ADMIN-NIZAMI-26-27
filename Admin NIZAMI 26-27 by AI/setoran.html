@@ -47,7 +47,20 @@
         }
         .btn-qty { width: 32px; height: 32px; background: #333; border: none; color: white; border-radius: 6px; font-weight: bold; font-size: 1.2rem; cursor: pointer; }
         .btn-qty:active { transform: scale(0.9); }
-        .input-qty { width: 35px; text-align: center; background: transparent; border: none; color: var(--primary); font-weight: bold; font-size: 1.1rem; }
+        
+        /* Update Input agar terlihat bisa diedit */
+        .input-qty { 
+            width: 45px; text-align: center; background: #111; 
+            border: 1px solid #444; border-radius: 4px;
+            color: var(--primary); font-weight: bold; font-size: 1.1rem; 
+            padding: 2px;
+            -moz-appearance: textfield; /* Hilangkan spinner di Firefox */
+        }
+        .input-qty::-webkit-outer-spin-button,
+        .input-qty::-webkit-inner-spin-button {
+            -webkit-appearance: none; margin: 0; /* Hilangkan spinner di Chrome */
+        }
+        .input-qty:focus { border-color: var(--primary); outline: none; }
 
         /* Bottom Action */
         .bottom-action {
@@ -165,14 +178,12 @@
                 }
 
                 activeResults.forEach(p => {
-                    // Cek apakah sudah ada di cart
                     const inCart = cart[p.id];
                     const qty = inCart ? inCart.qty : 0;
                     const activeClass = qty > 0 ? 'active' : '';
-                    
-                    // Hitung tabungan ke berapa
                     const nextFreq = p.freq + 1;
                     
+                    // Kita gunakan formatRupiah untuk menampilkan harga satuan yang benar (dari backend)
                     const html = `
                     <div class="card ${activeClass}" id="card-${p.id}">
                         <div class="p-info">
@@ -181,11 +192,14 @@
                             <span class="p-detail" style="color:#888;">
                                 Tabungan ke: <b style="color:#fff;">${nextFreq}</b> (Sebelumnya: ${p.freq}x)
                             </span>
-                            <span class="p-price">Harga: ${formatRupiah(p.harga)}</span>
+                            <span class="p-price">Nominal: ${formatRupiah(p.harga)}</span>
                         </div>
                         <div class="counter-box">
                             <button class="btn-qty" onclick="updateQty('${p.id}', -1)">-</button>
-                            <input readonly class="input-qty" id="qty-${p.id}" value="${qty}">
+                            
+                            <input type="number" class="input-qty" id="qty-${p.id}" value="${qty}" 
+                                   oninput="manualInput('${p.id}', this.value)" placeholder="0">
+                            
                             <button class="btn-qty" onclick="updateQty('${p.id}', 1)">+</button>
                         </div>
                     </div>`;
@@ -194,33 +208,41 @@
             }, 500);
         }
 
+        // FUNGSI BARU: Menangani ketikan manual di keyboard
+        function manualInput(id, valStr) {
+            let val = parseInt(valStr);
+            if(isNaN(val) || val < 0) val = 0;
+            updateCartLogic(id, val);
+        }
+
+        // Update tombol + dan -
         function updateQty(id, change) {
             const input = document.getElementById(`qty-${id}`);
+            let currentVal = parseInt(input.value || 0);
+            let newVal = currentVal + change;
+            
+            if(newVal < 0) newVal = 0;
+            input.value = newVal; // Update tampilan
+
+            updateCartLogic(id, newVal);
+        }
+
+        // LOGIKA UPDATE CART (Dipisah agar rapi)
+        function updateCartLogic(id, val) {
             const card = document.getElementById(`card-${id}`);
             
-            // Cari data peserta (bisa dari hasil pencarian aktif atau cart yg sudah ada)
+            // Cari data peserta (Prioritas dari hasil pencarian, kalau gak ada cari di cart)
             let pData = activeResults.find(p => p.id === id);
+            if (!pData && cart[id]) pData = cart[id].data;
             
-            // Jika tidak ada di hasil pencarian (misal user ganti search), ambil dari cart
-            if (!pData && cart[id]) {
-                pData = cart[id].data;
-            }
-            
-            // Safety check: Jika pData masih null (harusnya mustahil kecuali error parah)
             if(!pData) return;
 
-            // Update nilai visual
-            let val = parseInt(input.value || 0) + change;
-            if(val < 0) val = 0;
-            input.value = val;
-
-            // Update Logic Cart
             if(val > 0) {
-                cart[id] = { qty: val, data: pData }; // SIMPAN DATA LENGKAP DI SINI
-                card.classList.add('active');
+                cart[id] = { qty: val, data: pData }; 
+                if(card) card.classList.add('active');
             } else {
                 delete cart[id];
-                card.classList.remove('active');
+                if(card) card.classList.remove('active');
             }
 
             updateSummary();
@@ -232,13 +254,27 @@
             
             for(let key in cart) {
                 const item = cart[key];
-                count += item.qty; // Hitung total transaksi (lembar)
-                total += (item.qty * item.data.harga);
+                // Pastikan harga ada (default 0 jika error)
+                const harga = item.data.harga || 0;
+                
+                count += item.qty; 
+                total += (item.qty * harga);
             }
 
             document.getElementById('countItem').innerText = Object.keys(cart).length + " Peserta (" + count + "x)";
             document.getElementById('totalMoney').innerText = formatRupiah(total);
-            document.getElementById('btnProses').disabled = total === 0;
+            
+            // Tombol aktif HANYA JIKA total uang > 0
+            const btn = document.getElementById('btnProses');
+            if (total > 0) {
+                btn.disabled = false;
+                btn.style.opacity = "1";
+                btn.style.cursor = "pointer";
+            } else {
+                btn.disabled = true;
+                btn.style.opacity = "0.5";
+                btn.style.cursor = "not-allowed";
+            }
         }
 
         async function prosesSemua() {
@@ -261,15 +297,11 @@
                 const p = item.data;
                 const nominal = item.qty * p.harga;
                 
-                // Pastikan nominal valid
                 if(nominal > 0) {
                     try {
                         // Kirim ke Server
                         await fetchData('inputSetoran', {idPeserta: id, nominal: nominal});
                         
-                        // Tambah ke Struk
-                        // Format: Nama (3x @ 5.000)
-                        // Sub: Total 15.000
                         rList.innerHTML += `
                         <div class="r-row" style="margin-bottom:2px;">
                             <span>${p.nama}</span>
@@ -290,7 +322,7 @@
             document.getElementById('rGrandTotal').innerText = formatRupiah(grandTotal);
 
             if(successCount > 0) {
-                // Generate Gambar
+                // Generate Gambar Struk
                 const canvas = await html2canvas(document.getElementById('receiptArea'), {scale: 2});
                 const imgData = canvas.toDataURL("image/png");
                 
@@ -298,7 +330,7 @@
                 document.getElementById('modalResult').style.display = 'flex';
                 window.currentImgData = imgData;
             } else {
-                alert("Gagal memproses transaksi. Periksa harga paket.");
+                alert("Gagal memproses transaksi. Periksa koneksi atau harga paket.");
                 location.reload();
             }
         }
