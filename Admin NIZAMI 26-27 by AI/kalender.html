@@ -11,7 +11,7 @@
     /* === 1. GLOBAL STYLE (DARK PREMIUM) === */
     :root {
       --primary: #ffd700;
-      --success: #28a745;
+      --success: #00E676;
       --dark-bg: #050505;
       --card-bg: #151515;
       --border: #333;
@@ -42,17 +42,18 @@
       max-width: 600px; margin: 0 auto 30px;
       box-shadow: 0 10px 30px rgba(0,0,0,0.5);
       position: sticky; top: 10px; z-index: 100;
+      text-align: center;
     }
 
     .badge {
-      background: #007bff; color: white;
-      padding: 4px 12px; border-radius: 50px;
+      background: #333; color: var(--primary);
+      padding: 4px 12px; border-radius: 50px; border: 1px solid #444;
       font-size: 0.75rem; font-weight: bold;
-      text-transform: uppercase;
+      text-transform: uppercase; display: inline-block; margin-bottom: 10px;
     }
 
-    .user-name { font-size: 1.4rem; font-weight: 700; margin: 10px 0 5px; }
-    .user-id { color: #aaa; font-size: 0.9rem; }
+    .user-name { font-size: 1.4rem; font-weight: 700; margin: 0; line-height: 1.2; }
+    .user-id { color: #888; font-size: 0.9rem; margin-top: 5px; font-family: monospace; }
 
     .stats-row {
       display: flex; justify-content: space-between;
@@ -67,10 +68,10 @@
 
     .btn-back {
       display: block; width: 100%; text-align: center;
-      margin-top: 15px; padding: 10px;
-      background: #333; color: #fff;
+      margin-top: 15px; padding: 12px;
+      background: #333; color: #fff; border: none;
       border-radius: 8px; text-decoration: none;
-      font-size: 0.9rem; font-weight: 600;
+      font-size: 0.9rem; font-weight: 600; cursor: pointer;
       transition: 0.3s;
     }
     .btn-back:hover { background: #444; }
@@ -90,7 +91,7 @@
       padding: 15px;
     }
     .month-title {
-      text-align: center; color: #48dbfb;
+      text-align: center; color: var(--primary);
       font-weight: 700; margin-bottom: 15px;
       text-transform: uppercase; letter-spacing: 1px;
       border-bottom: 1px solid var(--border); padding-bottom: 10px;
@@ -104,7 +105,12 @@
       aspect-ratio: 1; display: flex; align-items: center; justify-content: center;
       border-radius: 6px; font-size: 0.85rem; background: #222; color: #555;
     }
-    .day-cell.paid { background: var(--success); color: #fff; font-weight: bold; box-shadow: 0 0 10px rgba(40, 167, 69, 0.4); }
+    
+    /* LOGIKA WARNA BARU */
+    .day-cell.paid { 
+      background: var(--success); color: #000; font-weight: bold; 
+      box-shadow: 0 0 10px rgba(0, 230, 118, 0.4); 
+    }
     .day-cell.future { background: rgba(255,255,255,0.05); color: #fff; }
     .day-cell.disabled { opacity: 0.2; background: transparent; }
 
@@ -123,147 +129,197 @@
       position: relative;
     }
     .week-box.paid {
-      background: var(--success); color: #fff;
+      background: var(--success); color: #000;
       border-color: var(--success);
-      box-shadow: 0 0 15px rgba(40, 167, 69, 0.4);
+      box-shadow: 0 0 15px rgba(0, 230, 118, 0.4);
     }
-    .week-icon { font-size: 1.5rem; margin-bottom: 5px; }
-    .week-label { font-size: 0.7rem; text-transform: uppercase; }
+    .week-label { font-size: 0.7rem; text-transform: uppercase; margin-bottom: 5px;}
     .week-number { font-size: 1.2rem; font-weight: bold; }
 
-    /* Legend */
+    /* Legend & Loading */
     .legend { display: flex; justify-content: center; gap: 15px; margin-bottom: 30px; font-size: 0.8rem; color: #ccc; }
-    .legend span { display: flex; align-items: center; gap: 5px; }
-    .dot { width: 12px; height: 12px; border-radius: 3px; display: inline-block; }
-
+    .dot { width: 12px; height: 12px; border-radius: 3px; display: inline-block; margin-right: 5px;}
+    
+    #loadingState { text-align: center; margin-top: 50px; }
+    #mainContent { display: none; } /* Sembunyi dulu sampai data siap */
   </style>
 </head>
 <body>
 
   <h1>Kalender Setoran</h1>
 
-  <div class="info-card">
-    <div style="text-align:center;">
-        <span class="badge" id="uPaket">Loading...</span>
-        <div class="user-name" id="uNama">-</div>
-        <div class="user-id" id="uId">#ID</div>
-    </div>
-    <div class="stats-row">
-      <div class="stat-item">
-        <span class="stat-val text-green" id="uBayar">0</span>
-        <span class="stat-label">Sudah Setor</span>
-      </div>
-      <div class="stat-item">
-        <span class="stat-val text-gold" id="uTarget">0</span>
-        <span class="stat-label">Target</span>
-      </div>
-    </div>
-    <a href="javascript:history.back()" class="btn-back"><i class="fas fa-arrow-left"></i> Kembali</a>
+  <div id="loadingState">
+      <i class="fas fa-spinner fa-spin fa-2x" style="color:var(--primary)"></i>
+      <p style="color:#666; margin-top:10px;">Menyinkronkan data...</p>
   </div>
 
-  <div class="legend">
-    <span><div class="dot" style="background:#28a745"></div> Sudah Bayar</span>
-    <span><div class="dot" style="background:rgba(255,255,255,0.1)"></div> Belum Bayar</span>
+  <div id="mainContent">
+      <div class="info-card">
+        <div>
+            <span class="badge" id="uPaket">-</span>
+            <div class="user-name" id="uNama">Nama Peserta</div>
+            <div class="user-id" id="uId">#ID</div>
+        </div>
+        <div class="stats-row">
+          <div class="stat-item">
+            <span class="stat-val text-green" id="uBayar">0</span>
+            <span class="stat-label">Sudah Setor</span>
+          </div>
+          <div class="stat-item">
+            <span class="stat-val text-gold" id="uTarget">0</span>
+            <span class="stat-label">Target Total</span>
+          </div>
+        </div>
+        <button onclick="window.history.back()" class="btn-back"><i class="fas fa-arrow-left"></i> KEMBALI</button>
+      </div>
+
+      <div class="legend">
+        <span><div class="dot" style="background:var(--success)"></div> Sudah Bayar</span>
+        <span><div class="dot" style="background:rgba(255,255,255,0.1)"></div> Belum Bayar</span>
+      </div>
+
+      <div id="calendarContainer"></div>
   </div>
 
-  <div id="calendarContainer"></div>
-
+  <script src="script.js"></script>
   <script>
-    // === 1. CONFIG ===
-    const START_DATE = new Date('2026-04-01');
-    const MONTH_NAMES = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
+    // === CONFIGURASI ===
+    // Sesuai kode lama Anda: Mulai 1 April 2026
+    const START_DATE = new Date('2026-04-01'); 
+    const MONTH_NAMES = ["JANUARI", "FEBRUARI", "MARET", "APRIL", "MEI", "JUNI", "JULI", "AGUSTUS", "SEPTEMBER", "OKTOBER", "NOVEMBER", "DESEMBER"];
     
-    // === 2. AMBIL DATA ===
-    const params = new URLSearchParams(window.location.search);
-    const id = params.get('id') || '-';
-    const nama = params.get('nama') || 'Peserta';
-    const paket = params.get('paket') || 'Reguler';
-    const bayar = parseInt(params.get('jumlah')) || 0;
+    async function init() {
+        // 1. Ambil ID dari URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const id = urlParams.get('id');
 
-    // Cek Tipe Paket
-    const isMingguan = paket.toLowerCase().includes('mingguan');
-    
-    // Set Target
-    // Harian: 330 (Default) / 300 (Pendek)
-    // Mingguan: 40 Minggu
-    let target = 330;
-    if (isMingguan) target = 40;
-    else if (['munggah','hemat'].some(k => paket.toLowerCase().includes(k))) target = 300;
+        if(!id) return alert("ID Tidak Ditemukan");
 
-    // === 3. RENDER INFO ===
-    document.getElementById('uPaket').innerText = paket;
-    document.getElementById('uNama').innerText = nama;
-    document.getElementById('uId').innerText = "#" + id;
-    document.getElementById('uBayar').innerText = bayar + (isMingguan ? " Minggu" : " Hari");
-    document.getElementById('uTarget').innerText = target + (isMingguan ? " Minggu" : " Hari");
-
-    // === 4. RENDER KALENDER ===
-    const container = document.getElementById('calendarContainer');
-
-    if (isMingguan) {
-        // --- MODE MINGGUAN (40 KOTAK) ---
-        container.className = 'weekly-container';
-        
-        for(let i=1; i<=target; i++) {
-            const isPaid = i <= bayar;
-            const item = document.createElement('div');
-            item.className = isPaid ? 'week-box paid' : 'week-box';
-            item.innerHTML = `
-                <div class="week-label">Minggu</div>
-                <div class="week-number">${i}</div>
-                ${isPaid ? '<i class="fas fa-check-circle" style="margin-top:5px;"></i>' : ''}
-            `;
-            container.appendChild(item);
-        }
-
-    } else {
-        // --- MODE HARIAN (KALENDER BULANAN) ---
-        container.className = 'calendar-grid';
-        let currentDate = new Date(START_DATE);
-        let dayCounter = 0;
-        let loopSafety = 0;
-
-        while (dayCounter < target && loopSafety < 24) {
-            loopSafety++;
-            const year = currentDate.getFullYear();
-            const monthIdx = currentDate.getMonth();
+        try {
+            // 2. FETCH DATA DARI SERVER (Agar Sinkron!)
+            const data = await fetchData('cekStatusDetail', {id: id});
             
-            const monthCard = document.createElement('div');
-            monthCard.className = 'month-card';
-            let html = `
-                <div class="month-title">${MONTH_NAMES[monthIdx]} ${year}</div>
-                <div class="days-header">
-                    <div>Mg</div><div>Sn</div><div>Sl</div><div>Rb</div><div>Km</div><div>Jm</div><div>Sb</div>
-                </div>
-                <div class="days-body">
-            `;
-
-            const firstDay = new Date(year, monthIdx, 1).getDay();
-            const daysInMonth = new Date(year, monthIdx + 1, 0).getDate();
-
-            for(let i=0; i<firstDay; i++) html += `<div class="day-cell disabled"></div>`;
-
-            for(let d=1; d<=daysInMonth; d++) {
-                const thisDate = new Date(year, monthIdx, d);
-                let cellClass = 'day-cell';
-
-                if (thisDate >= START_DATE && dayCounter < target) {
-                    dayCounter++;
-                    if (dayCounter <= bayar) cellClass += ' paid';
-                    else cellClass += ' future';
-                } else {
-                    cellClass += ' disabled';
-                }
-                html += `<div class="${cellClass}">${d}</div>`;
+            if(data && !data.error) {
+                renderAll(data);
+                document.getElementById('loadingState').style.display = 'none';
+                document.getElementById('mainContent').style.display = 'block';
+            } else {
+                alert("Data peserta tidak ditemukan");
+                window.history.back();
             }
-            html += `</div>`;
-            monthCard.innerHTML = html;
-            container.appendChild(monthCard);
-            
-            currentDate.setMonth(currentDate.getMonth() + 1);
-            currentDate.setDate(1);
+        } catch(e) {
+            console.error(e);
+            alert("Gagal koneksi server");
         }
     }
+
+    function renderAll(data) {
+        // === VARIABEL DATA ===
+        const nama = data.nama;
+        const paket = data.paket;
+        const bayar = parseInt(data.tercapai) || 0; // Ambil dari server
+        const target = parseInt(data.target) || 330; // Ambil dari server
+
+        const isMingguan = paket.toLowerCase().includes('mingguan');
+        const satuan = isMingguan ? " Minggu" : " Hari";
+
+        // === UPDATE INFO CARD ===
+        document.getElementById('uPaket').innerText = paket;
+        document.getElementById('uNama').innerText = nama;
+        document.getElementById('uId').innerText = "#" + data.id;
+        document.getElementById('uBayar').innerText = bayar + satuan;
+        document.getElementById('uTarget').innerText = target + satuan;
+
+        // === RENDER KALENDER ===
+        const container = document.getElementById('calendarContainer');
+        container.innerHTML = ''; // Reset
+
+        if (isMingguan) {
+            // --- MODE MINGGUAN (KOTAK) ---
+            container.className = 'weekly-container';
+            for(let i=1; i<=target; i++) {
+                const isPaid = i <= bayar;
+                const item = document.createElement('div');
+                item.className = isPaid ? 'week-box paid' : 'week-box';
+                item.innerHTML = `
+                    <div class="week-label">Minggu</div>
+                    <div class="week-number">${i}</div>
+                    ${isPaid ? '<i class="fas fa-check-circle" style="margin-top:5px; font-size:0.8rem;"></i>' : ''}
+                `;
+                container.appendChild(item);
+            }
+
+        } else {
+            // --- MODE HARIAN (KALENDER) ---
+            container.className = 'calendar-grid';
+            
+            // Logika Counter: Mulai dari 0, bertambah tiap hari yang valid
+            let currentDate = new Date(START_DATE);
+            let dayCounter = 0;
+            let loopSafety = 0;
+
+            // Loop per bulan sampai target tercapai
+            // Safety break: 15 bulan maks (biar gak infinite loop)
+            while (dayCounter < target && loopSafety < 15) {
+                loopSafety++;
+                const year = currentDate.getFullYear();
+                const monthIdx = currentDate.getMonth();
+                
+                const monthCard = document.createElement('div');
+                monthCard.className = 'month-card';
+                
+                let html = `
+                    <div class="month-title">${MONTH_NAMES[monthIdx]} ${year}</div>
+                    <div class="days-header">
+                        <div>M</div><div>S</div><div>S</div><div>R</div><div>K</div><div>J</div><div>S</div>
+                    </div>
+                    <div class="days-body">
+                `;
+
+                // Padding Hari Kosong di Awal Bulan
+                const firstDay = new Date(year, monthIdx, 1).getDay();
+                const daysInMonth = new Date(year, monthIdx + 1, 0).getDate();
+
+                for(let i=0; i<firstDay; i++) html += `<div class="day-cell disabled"></div>`;
+
+                // Render Tanggal 1 s/d 30/31
+                for(let d=1; d<=daysInMonth; d++) {
+                    let cellClass = 'day-cell';
+                    
+                    // Kita hanya menghitung hari SETELAH start date
+                    // Cek tanggal asli kalender vs Start Date program
+                    const thisDate = new Date(year, monthIdx, d);
+
+                    if (thisDate >= START_DATE && dayCounter < target) {
+                        dayCounter++; // Ini adalah hari ke-1, ke-2, dst dari program
+                        
+                        if (dayCounter <= bayar) {
+                            // Jika hari ke-X ini <= jumlah yang sudah dibayar -> HIJAU
+                            cellClass += ' paid';
+                        } else {
+                            // Jika belum dibayar -> ABU
+                            cellClass += ' future';
+                        }
+                        
+                        html += `<div class="${cellClass}">${d}</div>`;
+                    } else {
+                        // Tanggal sebelum program mulai / sudah lewat target
+                        cellClass += ' disabled';
+                        html += `<div class="${cellClass}">${d}</div>`;
+                    }
+                }
+                html += `</div>`;
+                monthCard.innerHTML = html;
+                container.appendChild(monthCard);
+                
+                // Pindah ke bulan berikutnya
+                currentDate.setMonth(currentDate.getMonth() + 1);
+                currentDate.setDate(1);
+            }
+        }
+    }
+
+    init();
   </script>
 </body>
 </html>
