@@ -2,7 +2,7 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Input Peserta Smart</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -49,13 +49,26 @@
         .card-num { background: var(--primary); color: #000; font-weight: bold; padding: 2px 8px; border-radius: 4px; font-size: 0.8rem; }
         .btn-del { color: #ff6b6b; background: none; border: none; cursor: pointer; font-size: 0.9rem; }
 
+        /* GRID SYSTEM (Responsive Fix) */
         .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
         .form-group { margin-bottom: 10px; }
+        
+        /* INPUT & SELECT STYLING (Mobile Fix) */
         .form-input {
-            width: 100%; padding: 10px; background: #111; border: 1px solid #444;
-            color: white; border-radius: 8px; box-sizing: border-box; outline: none; font-size: 0.9rem;
+            width: 100%; padding: 12px; background: #111; border: 1px solid #444;
+            color: white; border-radius: 8px; box-sizing: border-box; outline: none; 
+            font-size: 1rem; /* Font size 16px prevents zoom on iOS */
+            color-scheme: dark; /* WAJIB: Agar native picker di HP jadi gelap */
         }
         .form-input:focus { border-color: var(--primary); }
+        
+        /* Fallback untuk browser lama */
+        select.form-input option { background-color: #111; color: white; }
+
+        /* RESPONSIF HP: Ubah jadi 1 kolom agar lega */
+        @media (max-width: 480px) {
+            .form-grid { grid-template-columns: 1fr; }
+        }
 
         /* BUTTONS */
         .btn-item-select {
@@ -202,26 +215,46 @@
         let formCount = 0;
         let masterMitra = [], masterPaket = [], masterBarang = [];
         let currentEditingRowId = null; 
-        let rowData = {}; // Simpan state belanjaan
-        let currentMode = 'normal'; // 'mingguan', 'cookies', 'normal'
+        let rowData = {}; 
+        let currentMode = 'normal'; 
 
         async function init() {
-            masterMitra = await fetchData('getMitra');
-            masterPaket = await fetchData('getPaket');
-            masterBarang = await fetchData('getBarang'); 
-            if(formCount === 0) addParticipantRow();
+            try {
+                // Tampilkan loading placeholder jika perlu
+                masterMitra = await fetchData('getMitra');
+                masterPaket = await fetchData('getPaket');
+                masterBarang = await fetchData('getBarang'); 
+                
+                // Cek data
+                if(!Array.isArray(masterPaket)) masterPaket = [];
+                if(!Array.isArray(masterMitra)) masterMitra = [];
+                
+                if(formCount === 0) addParticipantRow();
+            } catch(e) {
+                alert("Gagal memuat data dari server. Coba refresh.");
+            }
         }
 
         // --- RENDER FORM ---
         function addParticipantRow() {
             formCount++;
+            
+            // Build Mitra Options
             let mitraOptions = '<option value="">Pilih Mitra...</option>';
-            if(masterMitra) {
+            if(masterMitra.length > 0) {
                 mitraOptions += `<option value="Pusat">Pusat (Langsung)</option>`;
                 masterMitra.forEach(m => { if(m.nama !== 'Pusat') mitraOptions += `<option value="${m.nama}">${m.nama}</option>`; });
+            } else {
+                mitraOptions = '<option value="">Gagal memuat data (Refresh)</option>';
             }
+
+            // Build Paket Options
             let paketOptions = '<option value="">Pilih Paket...</option>';
-            if(masterPaket) masterPaket.forEach(p => paketOptions += `<option value="${p.nama}">${p.nama}</option>`);
+            if(masterPaket.length > 0) {
+                masterPaket.forEach(p => paketOptions += `<option value="${p.nama}">${p.nama}</option>`);
+            } else {
+                paketOptions = '<option value="">Gagal memuat data (Refresh)</option>';
+            }
 
             const html = `
             <div class="p-card" id="row_${formCount}">
@@ -484,8 +517,8 @@
                             successData.push({ 
                                 nama, mitra, paket, 
                                 id: res.id,
-                                rincian: rincian, // Masukkan rincian ke data struk
-                                setoran: setoranText // Masukkan nilai setoran ke data struk
+                                rincian: rincian, 
+                                setoran: setoranText 
                             }); 
                             card.remove();
                         }
@@ -511,7 +544,6 @@
             data.forEach(d => {
                 let extraHtml = '';
                 
-                // Jika ada rincian barang, tampilkan di struk
                 if(d.rincian) {
                     extraHtml += `
                     <div class="r-row-detail">
@@ -520,7 +552,6 @@
                     </div>`;
                 }
 
-                // Jika ada info setoran, tampilkan di struk
                 if(d.setoran) {
                     extraHtml += `
                     <div class="r-item" style="border-bottom:none; margin-bottom:5px;">
