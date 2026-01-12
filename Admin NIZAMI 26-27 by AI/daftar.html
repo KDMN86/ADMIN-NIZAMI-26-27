@@ -3,71 +3,564 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Daftar Baru</title>
+    <title>Input Peserta Smart</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <style>
-        :root { --primary: #FFD700; --bg: #121212; --text: #e0e0e0; }
-        body { background: var(--bg); color: var(--text); font-family: 'Inter', sans-serif; padding: 20px; }
-        input, select, textarea { width: 100%; padding: 12px; background: #222; border: 1px solid #444; color: white; border-radius: 8px; margin-bottom: 10px; box-sizing: border-box;}
-        .btn-full { width: 100%; padding: 12px; background: var(--primary); font-weight: bold; border: none; border-radius: 8px; cursor: pointer; }
+        :root { --primary: #FFD700; --bg: #121212; --surface: #1e1e1e; --text: #e0e0e0; --border: #333; }
+        body { background: var(--bg); color: var(--text); font-family: 'Inter', sans-serif; margin: 0; padding: 0; padding-bottom: 100px; }
+
+        /* HEADER */
+        .top-nav {
+            background: rgba(18, 18, 18, 0.95); backdrop-filter: blur(10px);
+            padding: 15px 20px; position: sticky; top: 0; z-index: 50;
+            border-bottom: 1px solid var(--border); display: flex; gap: 15px; align-items: center;
+        }
+        .back-btn { background: #333; color: white; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; text-decoration: none; border: 1px solid #444; }
+        .page-title { margin: 0; font-size: 1.1rem; font-weight: 600; }
+
+        .container { padding: 15px; max-width: 600px; margin: 0 auto; }
+
+        /* WA EXTRACTOR */
+        .wa-box {
+            background: linear-gradient(135deg, #075e54, #128c7e);
+            border-radius: 12px; padding: 15px; margin-bottom: 20px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3); border: 1px solid #25d366;
+        }
+        .wa-textarea {
+            width: 100%; height: 60px; border-radius: 8px; border: none; padding: 10px;
+            font-size: 0.8rem; background: rgba(255,255,255,0.9); font-family: monospace;
+            box-sizing: border-box; resize: vertical;
+        }
+        .btn-extract {
+            background: #25d366; color: #fff; border: none; padding: 8px 15px;
+            border-radius: 6px; font-weight: bold; font-size: 0.85rem; cursor: pointer;
+            margin-top: 10px; width: 100%; display: flex; align-items: center; justify-content: center; gap: 5px;
+        }
+
+        /* FORM CARD */
+        .p-card {
+            background: var(--surface); border: 1px solid var(--border);
+            border-radius: 12px; padding: 15px; margin-bottom: 15px;
+            position: relative; animation: slideIn 0.3s ease;
+        }
+        .p-card-header { display: flex; justify-content: space-between; margin-bottom: 10px; border-bottom: 1px dashed #333; padding-bottom: 8px; }
+        .card-num { background: var(--primary); color: #000; font-weight: bold; padding: 2px 8px; border-radius: 4px; font-size: 0.8rem; }
+        .btn-del { color: #ff6b6b; background: none; border: none; cursor: pointer; font-size: 0.9rem; }
+
+        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .form-group { margin-bottom: 10px; }
+        .form-input {
+            width: 100%; padding: 10px; background: #111; border: 1px solid #444;
+            color: white; border-radius: 8px; box-sizing: border-box; outline: none; font-size: 0.9rem;
+        }
+        .form-input:focus { border-color: var(--primary); }
+
+        /* BUTTONS */
+        .btn-item-select {
+            width: 100%; background: #2a2a2a; border: 1px dashed var(--primary); color: var(--primary);
+            padding: 12px; border-radius: 8px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px;
+            font-size: 0.9rem; margin-top: 5px; font-weight: bold;
+        }
+        .summary-text { font-size: 0.75rem; color: #aaa; margin-top: 5px; display: block; line-height: 1.4; }
+        .fab-add {
+            width: 100%; background: #333; color: #fff; border: 1px dashed #666;
+            padding: 15px; border-radius: 12px; cursor: pointer; font-size: 1rem;
+            display: flex; align-items: center; justify-content: center; gap: 10px;
+            margin-bottom: 20px;
+        }
+        .bottom-bar {
+            position: fixed; bottom: 0; left: 0; right: 0; background: #1a1a1a;
+            padding: 15px; border-top: 1px solid #333; display: flex; gap: 10px; z-index: 90;
+        }
+        .btn-save-all {
+            flex: 1; background: var(--primary); color: #000; border: none;
+            padding: 12px; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 1rem;
+        }
+
+        /* MODAL ITEM & CATEGORY */
+        #modalItems { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.95); z-index: 100; padding: 10px; }
+        .item-card {
+            background: var(--surface); width: 100%; height: 100%; max-width: 500px; margin: 0 auto;
+            border-radius: 16px; border: 1px solid var(--border); display: flex; flex-direction: column;
+        }
+        .item-header { padding: 15px; border-bottom: 1px solid #333; display: flex; justify-content: space-between; align-items: center; }
+        .item-body { padding: 10px; overflow-y: auto; flex-grow: 1; }
+        
+        .cat-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+        .cat-btn {
+            background: #252525; color: #fff; border: 1px solid #444; padding: 20px;
+            border-radius: 12px; font-weight: bold; cursor: pointer; text-align: center;
+            transition: 0.2s;
+        }
+        .cat-btn:hover { background: var(--primary); color: #000; border-color: var(--primary); }
+        .cat-back { margin-bottom: 15px; background: #333; color: #fff; border: none; padding: 8px 15px; border-radius: 20px; cursor: pointer; display: flex; align-items: center; gap: 5px; }
+
+        .item-row { display: flex; justify-content: space-between; align-items: center; padding: 12px 5px; border-bottom: 1px solid #2a2a2a; }
+        .qty-control { display: flex; align-items: center; gap: 5px; }
+        .btn-qty { width: 30px; height: 30px; background: #333; color: #fff; border: 1px solid #555; border-radius: 6px; cursor: pointer; font-weight: bold; }
+        .qty-val { width: 35px; text-align: center; font-size: 0.9rem; background: transparent; border: none; color: #fff; }
+
+        /* STRUK (HIDDEN) */
+        #receiptArea {
+            position: fixed; top: -9999px; left: -9999px; width: 380px;
+            background: #fff; color: #000; padding: 25px; font-family: 'Courier New', monospace;
+            border: 1px solid #ccc;
+        }
+        .r-header { text-align: center; border-bottom: 2px dashed #000; padding-bottom: 10px; margin-bottom: 15px; }
+        .r-title { font-size: 1.4rem; font-weight: bold; }
+        .r-item { margin-bottom: 15px; border-bottom: 1px dashed #ccc; padding-bottom: 15px; }
+        .r-label { font-size: 0.8rem; color: #555; }
+        .r-val { font-size: 1rem; font-weight: bold; margin-bottom: 4px;}
+        
+        /* Tambahan Struk Detail */
+        .r-row-detail { margin-top: 5px; padding-top: 5px; border-top: 1px dotted #ddd; }
+        .r-val-small { font-size: 0.85rem; color: #333; white-space: pre-wrap; line-height: 1.2; }
+        .r-highlight { color: #000; font-weight: bold; font-size: 1rem; margin-top: 2px; display:block; }
+
+        /* MODAL RESULT */
+        #modalResult { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 200; flex-direction: column; align-items: center; justify-content: center; padding: 20px; }
+        #resImg { max-width: 100%; border: 5px solid #fff; border-radius: 8px; margin-bottom: 20px; max-height: 70vh; }
+
+        @keyframes slideIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
 <body>
-    <div style="display:flex; gap:10px; align-items:center; margin-bottom:20px;">
-        <a href="index.html" style="color:white; font-size:1.2rem;"><i class="fas fa-arrow-left"></i></a>
-        <h2>Peserta Baru</h2>
+
+    <div class="top-nav">
+        <a href="index.html" class="back-btn"><i class="fas fa-arrow-left"></i></a>
+        <h2 class="page-title">Pendaftaran Peserta</h2>
+        <div style="width:40px;"></div>
     </div>
 
-    <div style="background:#1a1a1a; padding:15px; border-radius:10px; margin-bottom:20px; border:1px dashed #444;">
-        <small style="color:#4caf50"><i class="fab fa-whatsapp"></i> Paste WA Disini:</small>
-        <textarea id="waRaw" rows="3"></textarea>
-        <button onclick="parseWA()" style="padding:5px 10px; background:#333; color:white; border:none; border-radius:5px;">Ekstrak</button>
+    <div class="container">
+        <div class="wa-box">
+            <div style="color:#fff; font-weight:bold; margin-bottom:5px;"><i class="fab fa-whatsapp"></i> Isi Cepat dari WA</div>
+            <textarea id="waRaw" class="wa-textarea" placeholder="Paste chat disini..."></textarea>
+            <button onclick="parseWA()" class="btn-extract"><i class="fas fa-magic"></i> EKSTRAK DATA</button>
+        </div>
+
+        <div id="formsContainer"></div>
+
+        <button class="fab-add" onclick="addParticipantRow()"><i class="fas fa-plus"></i> Tambah Peserta Lain</button>
     </div>
 
-    <form onsubmit="simpan(event)">
-        <input type="text" name="nama" id="pNama" placeholder="Nama Lengkap" required>
-        <input type="text" name="hp" id="pHP" placeholder="No HP" required>
-        <input type="text" name="alamat" id="pAlamat" placeholder="Alamat" required>
-        <select name="mitra" id="pMitra"><option>Loading...</option></select>
-        <select name="paket" id="pPaket"><option>Loading...</option></select>
-        <button type="submit" class="btn-full" id="btnSimpan">DAFTARKAN</button>
-    </form>
+    <div class="bottom-bar">
+        <button class="btn-save-all" id="btnSaveAll" onclick="saveAll()">
+            <i class="fas fa-save"></i> SIMPAN & CETAK STRUK
+        </button>
+    </div>
+
+    <div id="modalItems">
+        <div class="item-card">
+            <div class="item-header">
+                <h3 style="margin:0; color:var(--primary)" id="modalTitle">Pilih Barang</h3>
+                <button onclick="closeModal()" style="background:none; border:none; color:#fff; font-size:1.5rem;">&times;</button>
+            </div>
+            
+            <div class="item-body" id="itemBody"></div>
+
+            <div style="padding:15px; background:#1a1a1a; border-top:1px solid #333;">
+                <div style="display:flex; justify-content:space-between; color:#aaa; font-size:0.8rem;">
+                    <span>Total Belanja:</span>
+                    <span id="txtTotalReal" style="color:#fff;">Rp 0</span>
+                </div>
+                <div style="display:flex; justify-content:space-between; margin:5px 0 15px; font-weight:bold; font-size:1.1rem;">
+                    <span id="lblTarget">Setoran:</span>
+                    <span id="txtTarget" style="color:var(--primary)">Rp 0 /hari</span>
+                </div>
+                <button onclick="confirmSelection()" class="btn-save-all">SELESAI PILIH</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="modalResult">
+        <h3 style="color:#fff;">Pendaftaran Berhasil!</h3>
+        <p style="color:#aaa; font-size:0.9rem;">Kirim bukti ini ke Mitra/Peserta</p>
+        <img id="resImg" src="">
+        <div style="display:flex; gap:10px; width:100%; max-width:350px;">
+            <button onclick="downloadStruk()" class="btn-save-all"><i class="fas fa-download"></i> Simpan Gambar</button>
+            <button onclick="location.reload()" class="btn-save-all" style="background:#333;">Tutup</button>
+        </div>
+    </div>
+
+    <div id="receiptArea">
+        <div class="r-header">
+            <div class="r-title">NIZAMI 2026</div>
+            <div style="font-size:0.9rem;">BUKTI PENDAFTARAN</div>
+            <div style="font-size:0.7rem;" id="rDate"></div>
+        </div>
+        <div id="rContent"></div>
+        <div style="text-align:center; margin-top:20px; font-size:0.7rem;">
+            Simpan bukti ini sebagai arsip.<br>Terima Kasih.
+        </div>
+    </div>
 
     <script src="script.js"></script>
     <script>
-        async function init() {
-            const mitra = await fetchData('getMitra');
-            const paket = await fetchData('getPaket');
-            const selMitra = document.getElementById('pMitra');
-            const selPaket = document.getElementById('pPaket');
-            
-            selMitra.innerHTML = '<option>Pusat</option>';
-            if(mitra) mitra.forEach(m => selMitra.innerHTML += `<option>${m}</option>`);
-            
-            selPaket.innerHTML = '';
-            if(paket) paket.forEach(p => selPaket.innerHTML += `<option>${p.nama}</option>`);
-        }
-        init();
+        let formCount = 0;
+        let masterMitra = [], masterPaket = [], masterBarang = [];
+        let currentEditingRowId = null; 
+        let rowData = {}; // Simpan state belanjaan
+        let currentMode = 'normal'; // 'mingguan', 'cookies', 'normal'
 
+        async function init() {
+            masterMitra = await fetchData('getMitra');
+            masterPaket = await fetchData('getPaket');
+            masterBarang = await fetchData('getBarang'); 
+            if(formCount === 0) addParticipantRow();
+        }
+
+        // --- RENDER FORM ---
+        function addParticipantRow() {
+            formCount++;
+            let mitraOptions = '<option value="">Pilih Mitra...</option>';
+            if(masterMitra) {
+                mitraOptions += `<option value="Pusat">Pusat (Langsung)</option>`;
+                masterMitra.forEach(m => { if(m.nama !== 'Pusat') mitraOptions += `<option value="${m.nama}">${m.nama}</option>`; });
+            }
+            let paketOptions = '<option value="">Pilih Paket...</option>';
+            if(masterPaket) masterPaket.forEach(p => paketOptions += `<option value="${p.nama}">${p.nama}</option>`);
+
+            const html = `
+            <div class="p-card" id="row_${formCount}">
+                <div class="p-card-header">
+                    <span class="card-num">Peserta #${formCount}</span>
+                    <button class="btn-del" onclick="removeRow(${formCount})"><i class="fas fa-trash"></i></button>
+                </div>
+                <div class="form-group"><input type="text" class="form-input inp-nama" placeholder="Nama Lengkap"></div>
+                <div class="form-grid">
+                    <input type="number" class="form-input inp-hp" placeholder="No HP/WA">
+                    <input type="text" class="form-input inp-alamat" placeholder="Alamat">
+                </div>
+                <div class="form-grid" style="margin-top:10px;">
+                    <select class="form-input inp-mitra">${mitraOptions}</select>
+                    <select class="form-input inp-paket" onchange="checkPaket(this, ${formCount})">${paketOptions}</select>
+                </div>
+                <div id="customArea_${formCount}" style="display:none; margin-top:10px;">
+                    <button class="btn-item-select" onclick="openItemModal(${formCount})">
+                        <i class="fas fa-shopping-basket"></i> <span id="btnText_${formCount}">Pilih Barang</span>
+                    </button>
+                    <small class="summary-text" id="summary_${formCount}"></small>
+                    <input type="hidden" class="inp-harga-custom" id="valHarga_${formCount}" value="0">
+                    <input type="hidden" class="inp-rincian" id="valRincian_${formCount}" value="">
+                </div>
+            </div>`;
+            document.getElementById('formsContainer').insertAdjacentHTML('beforeend', html);
+            
+            if(formCount > 1) {
+                const prev = document.getElementById(`row_${formCount-1}`);
+                if(prev) document.getElementById(`row_${formCount}`).querySelector('.inp-mitra').value = prev.querySelector('.inp-mitra').value;
+            }
+        }
+
+        function removeRow(id) {
+            document.getElementById(`row_${id}`).remove();
+            delete rowData[`row_${id}`];
+        }
+
+        // --- LOGIC PAKET & MODAL ---
+        function checkPaket(selectEl, rowId) {
+            const val = selectEl.value.toLowerCase();
+            const area = document.getElementById(`customArea_${rowId}`);
+            const btn = document.getElementById(`btnText_${rowId}`);
+            
+            document.getElementById(`valHarga_${rowId}`).value = 0;
+            document.getElementById(`valRincian_${rowId}`).value = "";
+            document.getElementById(`summary_${rowId}`).innerText = "";
+            rowData[`row_${rowId}`] = { items: {}, total: 0 };
+
+            if(val.includes('mingguan')) {
+                area.style.display = 'block';
+                btn.innerText = "Pilih Sembako (Mingguan)";
+                selectEl.dataset.mode = 'mingguan';
+            } else if(val.includes('cookies')) {
+                area.style.display = 'block';
+                btn.innerText = "Pilih Kue (Cookies)";
+                selectEl.dataset.mode = 'cookies';
+            } else {
+                area.style.display = 'none';
+                selectEl.dataset.mode = 'normal';
+            }
+        }
+
+        function openItemModal(rowId) {
+            currentEditingRowId = rowId;
+            const row = document.getElementById(`row_${rowId}`);
+            const mode = row.querySelector('.inp-paket').dataset.mode;
+            currentMode = mode;
+
+            document.getElementById('modalItems').style.display = 'flex';
+            
+            if (mode === 'mingguan') {
+                renderCategories();
+            } else if (mode === 'cookies') {
+                renderItems('Cookies');
+            } else {
+                renderItems(null);
+            }
+            updateModalTotal();
+        }
+
+        function renderCategories() {
+            const body = document.getElementById('itemBody');
+            document.getElementById('modalTitle').innerText = "Pilih Kategori";
+            const categories = [...new Set(masterBarang.map(item => item.kategori))];
+            
+            let html = `<div class="cat-grid">`;
+            categories.forEach(cat => {
+                if(cat) html += `<div class="cat-btn" onclick="renderItems('${cat}')">${cat}</div>`;
+            });
+            html += `</div>`;
+            body.innerHTML = html;
+        }
+
+        function renderItems(filterCategory) {
+            const body = document.getElementById('itemBody');
+            document.getElementById('modalTitle').innerText = filterCategory ? filterCategory : "Pilih Barang";
+            
+            let html = '';
+            if(currentMode === 'mingguan' && filterCategory) {
+                html += `<button class="cat-back" onclick="renderCategories()"><i class="fas fa-arrow-left"></i> Kembali ke Kategori</button>`;
+            }
+
+            const savedItems = (rowData[`row_${currentEditingRowId}`] || {}).items || {};
+
+            masterBarang.forEach(b => {
+                let show = true;
+                if (filterCategory && b.kategori !== filterCategory) show = false;
+                
+                if(show) {
+                    const qty = savedItems[b.nama] || 0;
+                    html += `
+                    <div class="item-row">
+                        <div>
+                            <div style="font-weight:bold; color:#fff;">${b.nama}</div>
+                            <div style="font-size:0.75rem; color:#aaa;">${formatRupiah(b.harga)} / ${b.satuan}</div>
+                        </div>
+                        <div class="qty-control">
+                            <button class="btn-qty" onclick="changeQty(this, -1)">-</button>
+                            <input type="number" readonly class="qty-val" data-name="${b.nama}" data-price="${b.harga}" value="${qty}">
+                            <button class="btn-qty" onclick="changeQty(this, 1)">+</button>
+                        </div>
+                    </div>`;
+                }
+            });
+            body.innerHTML = html;
+        }
+
+        function changeQty(btn, change) {
+            const input = btn.parentElement.querySelector('.qty-val');
+            let val = parseInt(input.value) + change;
+            if(val < 0) val = 0;
+            input.value = val;
+            
+            const name = input.dataset.name;
+            if(!rowData[`row_${currentEditingRowId}`]) rowData[`row_${currentEditingRowId}`] = { items: {}, total: 0 };
+            rowData[`row_${currentEditingRowId}`].items[name] = val;
+            
+            updateModalTotal();
+        }
+
+        function updateModalTotal() {
+            let total = 0;
+            const currentRowData = rowData[`row_${currentEditingRowId}`] || { items: {} };
+            
+            for (const [name, qty] of Object.entries(currentRowData.items)) {
+                const item = masterBarang.find(b => b.nama === name);
+                if(item) total += (item.harga * qty);
+            }
+
+            document.getElementById('txtTotalReal').innerText = formatRupiah(total);
+            
+            let targetLabel = "Total:";
+            let targetVal = formatRupiah(total);
+
+            if(currentMode === 'mingguan') {
+                targetLabel = "Setoran per Minggu (40x):";
+                targetVal = formatRupiah(Math.ceil(total / 40));
+            } else if (currentMode === 'cookies') {
+                targetLabel = "Setoran per Hari (330x):";
+                targetVal = formatRupiah(Math.ceil(total / 330));
+            }
+
+            document.getElementById('lblTarget').innerText = targetLabel;
+            document.getElementById('txtTarget').innerText = targetVal;
+            
+            currentRowData.total = total; 
+        }
+
+        function confirmSelection() {
+            const rowId = currentEditingRowId;
+            const data = rowData[`row_${rowId}`];
+            
+            if(data && data.total > 0) {
+                let itemsList = [];
+                for (const [name, qty] of Object.entries(data.items)) {
+                    if(qty > 0) itemsList.push(`${name} (${qty})`);
+                }
+                
+                let displayText = itemsList.join(', ');
+                let displayTotal = formatRupiah(data.total);
+                
+                if(currentMode === 'mingguan') displayTotal += ` (Setoran: ${formatRupiah(Math.ceil(data.total/40))}/mgg)`;
+                if(currentMode === 'cookies') displayTotal += ` (Setoran: ${formatRupiah(Math.ceil(data.total/330))}/hr)`;
+
+                document.getElementById(`btnText_${rowId}`).innerText = `${itemsList.length} Item Terpilih`;
+                document.getElementById(`summary_${rowId}`).innerText = `${displayText}\nTotal: ${displayTotal}`;
+                
+                document.getElementById(`valHarga_${rowId}`).value = data.total; 
+                document.getElementById(`valRincian_${rowId}`).value = itemsList.join(', ');
+            }
+            closeModal();
+        }
+        
+        function closeModal() { document.getElementById('modalItems').style.display = 'none'; }
+
+        // --- WA PARSER ---
         function parseWA() {
             const text = document.getElementById('waRaw').value;
-            const nm = text.match(/Nama\s*[:=]\s*(.*)/i);
-            const hp = text.match(/HP|WA|No\s*[:=]\s*(\d+)/i);
-            const al = text.match(/Alamat\s*[:=]\s*(.*)/i);
-            if(nm) document.getElementById('pNama').value = nm[1].trim();
-            if(hp) document.getElementById('pHP').value = hp[1].trim();
-            if(al) document.getElementById('pAlamat').value = al[1].trim();
-            showToast("Data terekstrak!");
+            if(!text) return;
+            let entries = text.split(/(?:\r\n|\r|\n)(?=\d+[\.\)]\s*Nama|Nama\s*[:=])/i);
+            if(entries.length === 1 && text.match(/Nama/i)) entries = [text];
+
+            entries.forEach(entry => {
+                const nm = entry.match(/Nama\s*[:=]\s*([^\n,]+)/i);
+                const hp = entry.match(/(?:HP|WA|No|Nomor)\s*[:=]\s*(\d+)/i);
+                const al = entry.match(/Alamat\s*[:=]\s*([^\n,]+)/i);
+                if(nm) {
+                    addParticipantRow();
+                    const row = document.getElementById(`row_${formCount}`);
+                    row.querySelector('.inp-nama').value = nm[1].trim();
+                    if(hp) row.querySelector('.inp-hp').value = hp[1].trim();
+                    if(al) row.querySelector('.inp-alamat').value = al[1].trim();
+                }
+            });
+            document.getElementById('waRaw').value = '';
         }
 
-        async function simpan(e) {
-            e.preventDefault();
-            document.getElementById('btnSimpan').innerText = 'Menyimpan...';
-            const data = Object.fromEntries(new FormData(e.target).entries());
-            const res = await fetchData('tambahPeserta', data);
-            if(res.success) { showToast('Sukses!'); setTimeout(() => location.href='index.html', 1000); }
+        // --- SAVE & GENERATE STRUK ---
+        async function saveAll() {
+            const cards = document.querySelectorAll('.p-card');
+            if(cards.length === 0) return;
+            if(!confirm(`Simpan ${cards.length} data peserta?`)) return;
+
+            const btn = document.getElementById('btnSaveAll');
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> MEMPROSES...';
+            btn.disabled = true;
+
+            let successData = [];
+            
+            for (const card of cards) {
+                const nama = card.querySelector('.inp-nama').value;
+                const hp = card.querySelector('.inp-hp').value;
+                const alamat = card.querySelector('.inp-alamat').value;
+                const mitra = card.querySelector('.inp-mitra').value;
+                const paket = card.querySelector('.inp-paket').value;
+                let harga = 0, rincian = '';
+
+                // Ambil custom data
+                const customArea = card.querySelector('div[id^="customArea_"]');
+                if(customArea && customArea.style.display !== 'none') {
+                    harga = card.querySelector('.inp-harga-custom').value;
+                    rincian = card.querySelector('.inp-rincian').value;
+                }
+
+                // --- HITUNG KALKULASI SETORAN UNTUK STRUK ---
+                let setoranText = "";
+                if (harga > 0) {
+                    if (paket.toLowerCase().includes('mingguan')) {
+                        setoranText = formatRupiah(Math.ceil(harga / 40)) + " /minggu";
+                    } else if (paket.toLowerCase().includes('cookies')) {
+                        setoranText = formatRupiah(Math.ceil(harga / 330)) + " /hari";
+                    }
+                }
+
+                if(nama && mitra && paket) {
+                    try {
+                        const res = await fetchData('tambahPeserta', { nama, hp, alamat, mitra, paket, harga, rincian });
+                        if(res.success) {
+                            successData.push({ 
+                                nama, mitra, paket, 
+                                id: res.id,
+                                rincian: rincian, // Masukkan rincian ke data struk
+                                setoran: setoranText // Masukkan nilai setoran ke data struk
+                            }); 
+                            card.remove();
+                        }
+                    } catch(e) {}
+                }
+            }
+
+            btn.innerHTML = 'SIMPAN & CETAK STRUK';
+            btn.disabled = false;
+
+            if(successData.length > 0) {
+                generateReceipt(successData); 
+            } else {
+                alert("Gagal menyimpan atau data tidak lengkap.");
+            }
         }
+
+        async function generateReceipt(data) {
+            const rContent = document.getElementById('rContent');
+            document.getElementById('rDate').innerText = new Date().toLocaleString('id-ID');
+            rContent.innerHTML = '';
+
+            data.forEach(d => {
+                let extraHtml = '';
+                
+                // Jika ada rincian barang, tampilkan di struk
+                if(d.rincian) {
+                    extraHtml += `
+                    <div class="r-row-detail">
+                        <div class="r-label">Rincian Barang:</div>
+                        <div class="r-val-small">${d.rincian}</div>
+                    </div>`;
+                }
+
+                // Jika ada info setoran, tampilkan di struk
+                if(d.setoran) {
+                    extraHtml += `
+                    <div class="r-item" style="border-bottom:none; margin-bottom:5px;">
+                        <div class="r-label">Target Setoran:</div>
+                        <span class="r-highlight">${d.setoran}</span>
+                    </div>`;
+                }
+
+                rContent.innerHTML += `
+                <div class="r-item">
+                    <div class="r-label">Nama:</div>
+                    <div class="r-val">${d.nama}</div>
+                    <div class="r-label">ID Peserta:</div>
+                    <div class="r-val">${d.id}</div>
+                    <div class="r-label">Paket:</div>
+                    <div class="r-val">${d.paket}</div>
+                    <div class="r-label">Mitra:</div>
+                    <div class="r-val">${d.mitra}</div>
+                    ${extraHtml}
+                </div>`;
+            });
+
+            const canvas = await html2canvas(document.getElementById('receiptArea'), { scale: 2 });
+            const imgData = canvas.toDataURL("image/png");
+            
+            document.getElementById('resImg').src = imgData;
+            document.getElementById('modalResult').style.display = 'flex';
+            window.currentStruk = imgData;
+            
+            if(document.querySelectorAll('.p-card').length === 0) addParticipantRow();
+        }
+
+        function downloadStruk() {
+            const link = document.createElement('a');
+            link.download = 'PENDAFTARAN-BARU-' + Date.now() + '.png';
+            link.href = window.currentStruk;
+            link.click();
+        }
+
+        init();
     </script>
 </body>
 </html>
