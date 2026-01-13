@@ -11,6 +11,7 @@ const CONFIG = {
   sheetMitra: 'MASTER_MITRA',
   sheetRekap: 'REKAP_BELANJA',
   sheetGallery: 'GALLERY',
+  sheetDetail: 'DATA_PESANAN_DETAIL',
   folderGalleryID: '1a_hi_qgfrvLxhB1TaX6IpPe9f7YJreiK' 
 };
 
@@ -69,27 +70,50 @@ function doPost(e) {
 function daftarPeserta(data) {
   const ss = SpreadsheetApp.getActiveSpreadsheet();
   const sheet = ss.getSheetByName(CONFIG.sheetPeserta);
+  const sheetDetail = ss.getSheetByName(CONFIG.sheetDetail); // Sheet baru
   
-  // === LOGIKA BARU ID PESERTA (NAMA DEPAN + 4 DIGIT HP) ===
-  
-  // 1. Bersihkan Nama (Ambil nama depan, uppercase, hapus simbol aneh)
+  // === LOGIKA ID PESERTA ===
   let namaClean = data.nama.trim().toUpperCase().replace(/[^A-Z0-9 ]/g, '');
-  let namaDepan = namaClean.split(' ')[0]; // Ambil kata pertama saja
-
-  // 2. Ambil 4 Digit Terakhir HP
-  let hpString = String(data.hp).replace(/\D/g, ''); // Pastikan hanya angka
+  let namaDepan = namaClean.split(' ')[0];
+  let hpString = String(data.hp).replace(/\D/g, '');
   let last4 = hpString.length >= 4 ? hpString.slice(-4) : hpString.padEnd(4, '0');
-
-  // 3. Gabungkan Jadi ID
   const idPeserta = namaDepan + "-" + last4;
 
-  // ========================================================
-  
-  // Format: ID, Tgl, Nama, HP, Alamat, Mitra, Paket, Harga, Status, Rincian
+  // 1. SIMPAN DATA UTAMA (Seperti Biasa)
   sheet.appendRow([
     idPeserta, new Date(), data.nama, "'" + data.hp, data.alamat, 
     data.mitra, data.paket, data.harga || 0, 'Aktif', data.rincian || '-'
   ]);
+  
+  // 2. SIMPAN RINCIAN BARANG (LOOPING KE SHEET BARU)
+  // Kita terima data JSON string dari HTML, lalu kita urai
+  if (data.items_json && sheetDetail) {
+    try {
+      const items = JSON.parse(data.items_json); // { "Minyak": 2, "Gula": 1 }
+      const tgl = new Date();
+      
+      // Ambil harga barang dari Master Barang untuk akurasi (Opsional, tapi bagus)
+      const dataBarang = ss.getSheetByName(CONFIG.sheetBarang).getDataRange().getValues();
+      let mapHarga = {};
+      for(let i=1; i<dataBarang.length; i++) {
+        mapHarga[dataBarang[i][1]] = dataBarang[i][2]; // Nama -> Harga
+      }
+
+      for (const [namaBarang, qty] of Object.entries(items)) {
+        if (qty > 0) {
+          let hargaSatuan = mapHarga[namaBarang] || 0;
+          let subtotal = hargaSatuan * qty;
+          
+          // Simpan: ID Peserta, Nama, Barang, Qty, Harga, Total, Tanggal
+          sheetDetail.appendRow([
+            idPeserta, data.nama, namaBarang, qty, hargaSatuan, subtotal, tgl
+          ]);
+        }
+      }
+    } catch (e) {
+      // Error handling jika JSON rusak
+    }
+  }
   
   return responseJSON({success: true, id: idPeserta, nama: data.nama});
 }
@@ -138,23 +162,88 @@ function inputSetoran(data) {
 function tambahPesertaBaru(data) {
   const ss = SpreadsheetApp.getActiveSpreadsheet();
   const sheet = ss.getSheetByName(CONFIG.sheetPeserta);
+  const sheetDetail = ss.getSheetByName(CONFIG.sheetDetail); 
 
-  // === LOGIKA BARU ID PESERTA (NAMA DEPAN + 4 DIGIT HP) ===
-  
-  // 1. Bersihkan Nama
+  // === 1. LOGIKA ID PESERTA ===
   let namaClean = data.nama.trim().toUpperCase().replace(/[^A-Z0-9 ]/g, '');
   let namaDepan = namaClean.split(' ')[0];
-
-  // 2. Ambil 4 Digit Terakhir HP
   let hpString = String(data.hp).replace(/\D/g, '');
   let last4 = hpString.length >= 4 ? hpString.slice(-4) : hpString.padEnd(4, '0');
-
-  // 3. Gabungkan
   const idPeserta = namaDepan + "-" + last4;
 
-  // ========================================================
+  // === 2. HITUNG CICILAN (PER MINGGU / PER HARI) ===
+  let pembagi = 1;
+  let suffix = "";
+  const paketNama = String(data.paket).toLowerCase();
+  
+  if (paketNama.includes('mingguan')) {
+    pembagi = 40;
+    suffix = " /minggu";
+  } else if (paketNama.includes('cookies') || paketNama.includes('harian')) {
+    pembagi = 330;
+    suffix = " /hari";
+  }
 
-  sheet.appendRow([idPeserta, new Date(), data.nama, "'" + data.hp, data.alamat, data.mitra, data.paket, 0, 'Aktif', 'Input Admin']);
+  // Format Angka Rupiah untuk Sheet
+  const formatRp = (num) => new Intl.NumberFormat('id-ID').format(num);
+
+  let hargaTotal = Number(data.harga) || 0;
+  let hargaCicilan = Math.ceil(hargaTotal / pembagi);
+  
+  // Tentukan apa yang ditulis di Kolom Harga Paket
+  // Jika paket cicilan, tulis "17.500 /minggu". Jika cash/biasa, tulis angka total.
+  let displayHarga = (hargaTotal > 0 && pembagi > 1) 
+    ? formatRp(hargaCicilan) + suffix 
+    : hargaTotal;
+
+  // === 3. SIMPAN DATA UTAMA ===
+  sheet.appendRow([
+    idPeserta, 
+    new Date(), 
+    data.nama, 
+    "'" + data.hp, 
+    data.alamat, 
+    data.mitra, 
+    data.paket, 
+    displayHarga,         // <--- HARGA SUDAH FORMAT CICILAN
+    'Aktif', 
+    data.rincian || '-'
+  ]);
+
+  // === 4. SIMPAN DETAIL BARANG ===
+  if (data.items_json && sheetDetail) {
+    try {
+      const items = JSON.parse(data.items_json);
+      const tgl = new Date();
+      const dataBarang = ss.getSheetByName(CONFIG.sheetBarang).getDataRange().getValues();
+      let mapHarga = {};
+      for(let i=1; i<dataBarang.length; i++) mapHarga[dataBarang[i][1]] = dataBarang[i][2];
+
+      for (const [namaBarang, qty] of Object.entries(items)) {
+        if (qty > 0) {
+          let hargaSatuan = mapHarga[namaBarang] || 0;
+          let subtotal = hargaSatuan * qty;
+          
+          // Hitung cicilan PER ITEM
+          let cicilanItem = Math.ceil(subtotal / pembagi);
+          let displayCicilanItem = (pembagi > 1) ? formatRp(cicilanItem) + suffix : "-";
+
+          // Simpan: ID, Nama, Barang, Qty, HargaCash, TotalCash, HARGA_CICILAN, Tanggal
+          sheetDetail.appendRow([
+            idPeserta, 
+            data.nama, 
+            namaBarang, 
+            qty, 
+            hargaSatuan, 
+            subtotal, 
+            displayCicilanItem, // <--- KOLOM BARU DI DETAIL
+            tgl
+          ]);
+        }
+      }
+    } catch (e) { /* Ignore */ }
+  }
+  
   return responseJSON({success: true, id: idPeserta});
 }
 
@@ -382,14 +471,13 @@ function cariPeserta(query) {
   const sheetPaket = ss.getSheetByName(CONFIG.sheetPaket);
   const sheetTrx = ss.getSheetByName(CONFIG.sheetTransaksi);
   
-  // 1. Ambil Data Referensi Harga (Nominal Per Setoran) dari MASTER PAKET
-  // Kolom A (0) = Nama Paket, Kolom E (4) = Nominal Per Setoran
+  // 1. Ambil Data Referensi Harga dari MASTER PAKET (Sebagai Cadangan/Fallback)
   const dataPaket = sheetPaket.getDataRange().getValues();
-  let mapHargaPaket = {};
+  let mapHargaMaster = {};
   for(let i=1; i<dataPaket.length; i++){
     let namaP = String(dataPaket[i][0]).trim();
     let nominal = Number(dataPaket[i][4]); // Kolom E
-    mapHargaPaket[namaP] = nominal;
+    mapHargaMaster[namaP] = nominal;
   }
 
   // 2. Cache Frekuensi Setoran
@@ -413,14 +501,26 @@ function cariPeserta(query) {
     let id = String(dataPeserta[i][0]);
     let nama = String(dataPeserta[i][2]).toLowerCase();
     let mitra = String(dataPeserta[i][5]).toLowerCase(); 
-    let namaPaket = String(dataPeserta[i][6]); // Nama Paket Peserta
+    let namaPaket = String(dataPeserta[i][6]); 
+    let rawHargaPersonal = dataPeserta[i][7]; // Kolom H (Harga Paket di Sheet Peserta)
 
     // Logika pencarian (Nama ATAU Mitra)
     if(nama.includes(q) || mitra.includes(q)) {
       
-      // AMBIL HARGA DARI MAP MASTER PAKET
-      // Jika paket tidak ditemukan di map, default ke 0
-      let hargaPerSetor = mapHargaPaket[namaPaket.trim()] || 0;
+      // === LOGIKA BARU: PRIORITAS HARGA PERSONAL ===
+      let hargaFinal = 0;
+
+      // Cek apakah ada harga khusus di data peserta (Kolom H)
+      if (rawHargaPersonal) {
+        // Ambil angkanya saja. Contoh: "17.750 /minggu" -> "17750"
+        let angkaSaja = String(rawHargaPersonal).replace(/\D/g, ''); 
+        hargaFinal = Number(angkaSaja);
+      }
+
+      // Jika di data peserta 0 atau kosong, baru ambil dari Master Paket
+      if (!hargaFinal) {
+        hargaFinal = mapHargaMaster[namaPaket.trim()] || 0;
+      }
 
       let frekuensi = freqMap[id] || 0;
 
@@ -429,12 +529,12 @@ function cariPeserta(query) {
         nama: dataPeserta[i][2],
         mitra: dataPeserta[i][5],
         paket: namaPaket,
-        harga: hargaPerSetor, // Ini yang dikirim ke Frontend
+        harga: hargaFinal, // Kirim harga hasil ekstraksi
         freq: frekuensi  
       });
       
       countFound++;
-      if(countFound >= 50) break; // Limit pencarian biar gak berat
+      if(countFound >= 50) break; 
     }
   }
   return responseJSON(hasil);
@@ -450,6 +550,7 @@ function cekStatusDetail(id) {
   // 1. Ambil Info Peserta & Paketnya
   const dataP = ss.getSheetByName(CONFIG.sheetPeserta).getDataRange().getValues();
   let info = null;
+  let hargaPersonal = 0; // Variabel untuk harga khusus
   
   for(let i=1; i<dataP.length; i++){
     if(String(dataP[i][0]) === String(id)) {
@@ -459,28 +560,37 @@ function cekStatusDetail(id) {
         mitra: dataP[i][5], 
         paket: dataP[i][6]
       };
+      
+      // AMBIL HARGA CUSTOM DARI KOLOM H (Index 7)
+      let rawHarga = dataP[i][7];
+      if(rawHarga) {
+        // Bersihkan teks jadi angka (misal "17.750 /minggu" jadi 17750)
+        hargaPersonal = Number(String(rawHarga).replace(/\D/g, ''));
+      }
       break;
     }
   }
   
   if(!info) return responseJSON({error: "ID Peserta Tidak Ditemukan"});
 
-  // 2. Ambil Data Harga & Target dari MASTER PAKET
-  // Kita butuh ini untuk membagi (Total Uang / Harga Per Setor)
+  // 2. Ambil Data Harga & Target dari MASTER PAKET (Sebagai Fallback/Cadangan)
   const sheetPaket = ss.getSheetByName(CONFIG.sheetPaket);
   const dataPaket = sheetPaket.getDataRange().getValues();
   
-  let hargaPerSetor = 0;
+  let hargaMaster = 0;
   let targetTotal = 0;
 
   for(let i=1; i<dataPaket.length; i++){
-    // Kolom A (0) = Nama Paket
     if(String(dataPaket[i][0]) === String(info.paket)) {
-       hargaPerSetor = Number(dataPaket[i][4]); // Kolom E (Nominal Per Setoran)
-       targetTotal = Number(dataPaket[i][5]);   // Kolom F (Total Kali Setor)
+       hargaMaster = Number(dataPaket[i][4]); 
+       targetTotal = Number(dataPaket[i][5]);
        break;
     }
   }
+
+  // === LOGIKA PENENTUAN HARGA ===
+  // Jika ada harga personal (Dudung), pakai itu. Jika tidak, pakai harga Master.
+  let hargaFinal = (hargaPersonal > 0) ? hargaPersonal : hargaMaster;
 
   // 3. Hitung Total Saldo Masuk dari Transaksi
   const sheetTrx = ss.getSheetByName(CONFIG.sheetTransaksi);
@@ -489,43 +599,36 @@ function cekStatusDetail(id) {
   let totalMasuk = 0; 
   let riwayat = [];
   
-  // Loop dari bawah (terbaru)
   for(let i=dataT.length-1; i>=1; i--){
-    // Cek ID Peserta (Kolom I / index 8)
     if(String(dataT[i][8]) === String(id) && dataT[i][2] === 'MASUK') { 
-      
-      let nominal = Number(dataT[i][6]); // Ambil Nilai Efektif (Kolom G)
+      let nominal = Number(dataT[i][6]); 
       totalMasuk += nominal;
 
-      // Riwayat (Limit 10)
       if(riwayat.length < 10) {
         riwayat.push({
           tgl: new Date(dataT[i][1]).toLocaleDateString('id-ID'), 
           nominal: nominal,
-          ket: dataT[i][7] // Keterangan
+          ket: dataT[i][7]
         });
       }
     }
   }
   
-  // 4. LOGIKA UTAMA (PERBAIKAN)
-  // Hitung "Tercapai" berdasarkan Uang, BUKAN jumlah baris
+  // 4. HITUNG PENCAPAIAN (Dengan Harga Final yang benar)
   let tercapai = 0;
-  if(hargaPerSetor > 0) {
-    tercapai = Math.floor(totalMasuk / hargaPerSetor);
-  } else {
-    tercapai = 0; // Jaga-jaga jika harga 0/error
+  if(hargaFinal > 0) {
+    // Math.floor(35500 / 17750) = 2. Hasilnya benar 2.
+    tercapai = Math.floor(totalMasuk / hargaFinal);
   }
 
   let sisaAngsuran = targetTotal - tercapai;
-  if(sisaAngsuran < 0) sisaAngsuran = 0; // Jangan sampai minus
+  if(sisaAngsuran < 0) sisaAngsuran = 0; 
 
-  // Masukkan data ke object response
   info.saldo = totalMasuk; 
   info.sisa_angsuran = sisaAngsuran;
   info.progress_text = `${tercapai} dari ${targetTotal}`;
   info.target = targetTotal; 
-  info.tercapai = tercapai; // Ini yang akan membuat Kalender hijau sebanyak 10 kotak!
+  info.tercapai = tercapai; 
   info.riwayat = riwayat;
   
   return responseJSON(info);
