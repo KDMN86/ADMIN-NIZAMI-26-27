@@ -290,6 +290,7 @@
             
             let grandTotal = 0;
             let successCount = 0;
+            let failCount = 0; // Menghitung yang gagal
 
             // Loop semua item di Cart
             for (let id in cart) {
@@ -299,29 +300,43 @@
                 
                 if(nominal > 0) {
                     try {
-                        // Kirim ke Server
-                        await fetchData('inputSetoran', {idPeserta: id, nominal: nominal});
+                        // === PERBAIKAN: TAMPUNG JAWABAN SERVER ===
+                        const response = await fetchData('inputSetoran', {idPeserta: id, nominal: nominal});
                         
-                        rList.innerHTML += `
-                        <div class="r-row" style="margin-bottom:2px;">
-                            <span>${p.nama}</span>
-                            <span>${formatRupiah(nominal)}</span>
-                        </div>
-                        <div class="r-row" style="margin-bottom:8px; color:#555; font-size:12px;">
-                            <span style="margin-left:10px;">${item.qty}x @ ${formatRupiah(p.harga)} (Tabungan ke-${p.freq + item.qty})</span>
-                        </div>`;
-                        
-                        grandTotal += nominal;
-                        successCount++;
+                        // Cek apakah server bilang {success: true}?
+                        if (response && response.success) {
+                            rList.innerHTML += `
+                            <div class="r-row" style="margin-bottom:2px;">
+                                <span>${p.nama}</span>
+                                <span>${formatRupiah(nominal)}</span>
+                            </div>
+                            <div class="r-row" style="margin-bottom:8px; color:#555; font-size:12px;">
+                                <span style="margin-left:10px;">${item.qty}x @ ${formatRupiah(p.harga)} (Tabungan ke-${p.freq + item.qty})</span>
+                            </div>`;
+                            
+                            grandTotal += nominal;
+                            successCount++;
+                        } else {
+                            // Jika server kirim error (misal: Script belum deploy)
+                            console.error("Gagal simpan DB (Server Error): " + p.nama);
+                            failCount++;
+                        }
                     } catch(e) {
-                        console.error("Gagal stor: " + p.nama);
+                        console.error("Koneksi Error: " + p.nama);
+                        failCount++;
                     }
                 }
             }
 
             document.getElementById('rGrandTotal').innerText = formatRupiah(grandTotal);
 
+            // Tampilkan hasil HANYA jika ada yang sukses
             if(successCount > 0) {
+                // Info jika ada sebagian yang gagal
+                if(failCount > 0) {
+                    alert(`Peringatan: ${successCount} berhasil, tapi ${failCount} GAGAL disimpan. \nKemungkinan ID salah atau koneksi putus.`);
+                }
+
                 // Generate Gambar Struk
                 const canvas = await html2canvas(document.getElementById('receiptArea'), {scale: 2});
                 const imgData = canvas.toDataURL("image/png");
@@ -330,8 +345,12 @@
                 document.getElementById('modalResult').style.display = 'flex';
                 window.currentImgData = imgData;
             } else {
-                alert("Gagal memproses transaksi. Periksa koneksi atau harga paket.");
-                location.reload();
+                // Jika Gagal Semua (Biasanya karena lupa Deploy)
+                alert("GAGAL MENYIMPAN DATA!\n\nKemungkinan Script Backend belum di-Deploy ulang (New Version).\nSilakan cek Google Apps Script Anda.");
+                
+                // Reset tombol agar bisa coba lagi
+                btn.innerHTML = 'SIMPAN & CETAK <i class="fas fa-print"></i>';
+                btn.disabled = false;
             }
         }
 
