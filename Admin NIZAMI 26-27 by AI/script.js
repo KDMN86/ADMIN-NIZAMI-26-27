@@ -3,7 +3,7 @@
 // ===========================================
 
 // ⚠️ PASTIIN URL INI BENAR ⚠️
-const API_URL = 'https://script.google.com/macros/s/AKfycbzvuJfytjhJSN4741TComHwIbUVZ40MhmjL1Ifio8z0x7TWAiMHSAwpnAQpnoxNtB8yaQ/exec'; 
+const API_URL = 'https://script.google.com/macros/s/AKfycbwMAcND_S-MHSxrszJ3podTNh_eFoETOL9vBzHrzF88rWejZjT-v520iiMD17Y-1slj/exec'; 
 
 // 1. Format Rupiah
 const formatRupiah = (angka) => {
