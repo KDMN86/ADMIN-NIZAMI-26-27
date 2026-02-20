@@ -1,0 +1,401 @@
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+    />
+    <title>Riwayat Transaksi</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <style>
+      :root {
+        --primary: #ffd700;
+        --bg: #121212;
+        --surface: #1e1e1e;
+        --text: #e0e0e0;
+        --border: #333;
+      }
+      body {
+        background: var(--bg);
+        color: var(--text);
+        font-family: "Inter", sans-serif;
+        margin: 0;
+        padding-bottom: 30px;
+      }
+
+      /* HEADER & SEARCH */
+      header {
+        background: rgba(18, 18, 18, 0.95);
+        backdrop-filter: blur(5px);
+        padding: 15px;
+        position: sticky;
+        top: 0;
+        z-index: 50;
+        border-bottom: 1px solid var(--border);
+      }
+      .header-top {
+        display: flex;
+        gap: 10px;
+        align-items: center;
+        margin-bottom: 10px;
+      }
+      .back-btn {
+        background: #333;
+        color: white;
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-decoration: none;
+        flex-shrink: 0;
+      }
+      .header-title {
+        flex-grow: 1;
+        font-weight: 600;
+        font-size: 1.1rem;
+        color: #fff;
+        margin: 0;
+      }
+
+      .search-bar {
+        width: 100%;
+        padding: 12px 20px;
+        border-radius: 15px;
+        border: 1px solid #444;
+        background: #222;
+        color: white;
+        outline: none;
+        font-size: 1rem;
+        box-sizing: border-box;
+      }
+      .search-bar:focus {
+        border-color: var(--primary);
+      }
+
+      /* CONTAINER & CARD */
+      #containerList {
+        padding: 15px;
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+      }
+
+      .trx-card {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 15px;
+        position: relative;
+        overflow: hidden;
+      }
+      .trx-card::before {
+        content: "";
+        position: absolute;
+        left: 0;
+        top: 0;
+        bottom: 0;
+        width: 4px;
+        background: var(--primary);
+      }
+
+      .trx-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+      }
+      .trx-header h4 {
+        margin: 0;
+        font-size: 1.05rem;
+        color: #fff;
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+      }
+      .badge-id {
+        background: #333;
+        color: #ccc;
+        padding: 2px 6px;
+        border-radius: 4px;
+        font-size: 0.7rem;
+        font-weight: normal;
+        width: fit-content;
+      }
+      .badge-mitra {
+        background: rgba(255, 215, 0, 0.1);
+        color: var(--primary);
+        padding: 4px 8px;
+        border-radius: 6px;
+        font-size: 0.75rem;
+        border: 1px solid rgba(255, 215, 0, 0.3);
+      }
+
+      .trx-paket {
+        font-size: 0.85rem;
+        color: #aaa;
+        margin-top: 10px;
+        display: block;
+      }
+
+      /* HISTORY LIST IN CARD */
+      .trx-history {
+        background: #151515;
+        padding: 12px;
+        border-radius: 8px;
+        margin: 12px 0;
+        border: 1px solid #2a2a2a;
+        max-height: 200px;
+        overflow-y: auto;
+      }
+      .th-title {
+        font-size: 0.75rem;
+        color: #888;
+        margin-bottom: 10px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        font-weight: bold;
+      }
+      .h-item {
+        border-bottom: 1px dashed #333;
+        padding-bottom: 8px;
+        margin-bottom: 8px;
+      }
+      .h-item:last-child {
+        border-bottom: none;
+        padding-bottom: 0;
+        margin-bottom: 0;
+      }
+      .h-date {
+        font-size: 0.75rem;
+        color: #aaa;
+        margin-bottom: 4px;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+      }
+      .h-detail {
+        display: flex;
+        justify-content: space-between;
+        font-size: 0.85rem;
+        color: #fff;
+      }
+      .h-amount {
+        color: #4caf50;
+        font-weight: 600;
+      }
+
+      /* FOOTER / TOTAL */
+      .trx-footer {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+        background: #1a1a1a;
+        padding: 12px;
+        border-radius: 8px;
+        border: 1px dashed #444;
+      }
+      .f-row {
+        display: flex;
+        justify-content: space-between;
+        font-size: 0.85rem;
+      }
+      .f-row span:first-child {
+        color: #888;
+      }
+      .f-row span:last-child {
+        color: #ddd;
+        font-weight: 600;
+      }
+      .f-row.total span:last-child {
+        color: #4caf50;
+        font-size: 1rem;
+      }
+      .f-row.admin span:last-child {
+        color: #ff5252;
+      }
+
+      /* EMPTY STATE */
+      .empty-state {
+        text-align: center;
+        padding: 40px 20px;
+        color: #aaa;
+        line-height: 1.5;
+      }
+      .empty-state i {
+        font-size: 3rem;
+        margin-bottom: 15px;
+        opacity: 0.5;
+        color: var(--primary);
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <div class="header-top">
+        <a href="index.html" class="back-btn"
+          ><i class="fas fa-arrow-left"></i
+        ></a>
+        <h2 class="header-title">Data Transaksi</h2>
+        <div
+          onclick="initData()"
+          style="color: var(--primary); cursor: pointer"
+          title="Sinkron Ulang"
+        >
+          <i class="fas fa-sync-alt"></i>
+        </div>
+      </div>
+      <input
+        type="text"
+        id="cari"
+        class="search-bar"
+        placeholder="🔍 Cari Nama / ID Peserta atau Mitra..."
+        oninput="filterData()"
+        autocomplete="off"
+      />
+    </header>
+
+    <div id="containerList">
+      <div class="empty-state">
+        <i class="fas fa-spinner fa-spin"></i><br />
+        Memuat database transaksi...
+      </div>
+    </div>
+
+    <script src="script.js"></script>
+    <script>
+      let groupedData = [];
+
+      async function initData() {
+        const container = document.getElementById("containerList");
+        container.innerHTML =
+          '<div class="empty-state"><i class="fas fa-spinner fa-spin"></i><br>Memuat database transaksi...</div>';
+
+        const res = await fetchData("getTransaksi");
+        if (res && res.length > 0) {
+          // 1. KELOMPOKKAN DATA BERDASARKAN ID PESERTA
+          const map = {};
+          res.forEach((t) => {
+            if (!map[t.id]) {
+              map[t.id] = {
+                id: t.id,
+                nama: t.nama,
+                mitra: t.mitra,
+                paket: t.paket,
+                totalKotor: 0,
+                totalAdmin: 0,
+                totalBersih: 0,
+                history: [],
+              };
+            }
+            // Tambahkan nominal ke total peserta
+            map[t.id].totalKotor += Number(t.kotor) || 0;
+            map[t.id].totalAdmin += Number(t.admin) || 0;
+            map[t.id].totalBersih += Number(t.bersih) || 0;
+            // Masukkan data riwayat
+            map[t.id].history.push(t);
+          });
+
+          // Ubah Object Map menjadi Array
+          groupedData = Object.values(map);
+
+          // 2. TAMPILAN AWAL (KOSONG, MENUNGGU PENCARIAN)
+          container.innerHTML =
+            '<div class="empty-state"><i class="fas fa-search"></i><br>Database Siap!<br>Silakan ketik Nama / ID untuk mencari riwayat peserta.</div>';
+        } else {
+          container.innerHTML =
+            '<div class="empty-state"><i class="fas fa-folder-open"></i><br>Belum ada riwayat transaksi sama sekali.</div>';
+        }
+      }
+
+      function filterData() {
+        const teks = document.getElementById("cari").value.toLowerCase().trim();
+        const container = document.getElementById("containerList");
+
+        // Jika kotak pencarian kosong, sembunyikan kembali datanya
+        if (teks.length === 0) {
+          container.innerHTML =
+            '<div class="empty-state"><i class="fas fa-search"></i><br>Silakan ketik Nama / ID untuk mencari riwayat peserta.</div>';
+          return;
+        }
+
+        // Cari berdasarkan Nama Peserta, ID Peserta, atau Nama Mitra
+        const hasil = groupedData.filter(
+          (p) =>
+            (p.nama || "").toLowerCase().includes(teks) ||
+            (p.id || "").toLowerCase().includes(teks) ||
+            (p.mitra || "").toLowerCase().includes(teks),
+        );
+
+        renderList(hasil);
+      }
+
+      function renderList(dataArr) {
+        const container = document.getElementById("containerList");
+        container.innerHTML = "";
+
+        if (dataArr.length === 0) {
+          container.innerHTML =
+            '<div class="empty-state"><i class="fas fa-box-open" style="color:#ff5252;"></i><br>Data transaksi tidak ditemukan.</div>';
+          return;
+        }
+
+        let html = "";
+        dataArr.forEach((p) => {
+          // Generate list riwayat untuk orang ini
+          let historyHtml = "";
+          p.history.forEach((h) => {
+            historyHtml += `
+            <div class="h-item">
+                <div class="h-date"><i class="far fa-clock"></i> ${h.waktu}</div>
+                <div class="h-detail">
+                    <span>Setoran Ke-${h.ke} (Jml: ${h.qty}x)</span>
+                    <span class="h-amount">+ ${formatRupiah(h.kotor)}</span>
+                </div>
+            </div>`;
+          });
+
+          // Tampilkan baris potongan admin HANYA jika nilainya lebih dari 0
+          let adminRow = "";
+          if (p.totalAdmin > 0) {
+            adminRow = `<div class="f-row admin"><span>Total Potongan Admin</span><span>- ${formatRupiah(p.totalAdmin)}</span></div>`;
+          }
+
+          // Rangkai HTML Kartu Peserta
+          html += `
+          <div class="trx-card">
+            <div class="trx-header">
+              <h4>${p.nama} <span class="badge-id">${p.id}</span></h4>
+              <span class="badge-mitra"><i class="fas fa-handshake"></i> ${p.mitra || "Pusat"}</span>
+            </div>
+            <span class="trx-paket">${p.paket}</span>
+
+            <div class="trx-history">
+              <div class="th-title">Rincian Transaksi (${p.history.length}x):</div>
+              ${historyHtml}
+            </div>
+
+            <div class="trx-footer">
+              <div class="f-row"><span>Total Masuk (Kotor)</span><span>${formatRupiah(p.totalKotor)}</span></div>
+              ${adminRow}
+              <div class="f-row total"><span>Total Saldo Aktif</span><span>${formatRupiah(p.totalBersih)}</span></div>
+            </div>
+          </div>`;
+        });
+
+        container.innerHTML = html;
+      }
+
+      // Mulai tarik data saat halaman dimuat
+      document.addEventListener("DOMContentLoaded", initData);
+    </script>
+  </body>
+</html>
