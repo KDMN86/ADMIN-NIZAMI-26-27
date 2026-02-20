@@ -1,314 +1,705 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="id">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Cek Status Peserta</title>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
     <style>
-        :root { --primary: #FFD700; --bg: #050505; --surface: #151515; --text: #e0e0e0; --border: #333; }
-        body { background: var(--bg); color: var(--text); font-family: 'Poppins', sans-serif; margin: 0; padding: 0; padding-bottom: 50px; }
+      :root {
+        --primary: #ffd700;
+        --bg: #050505;
+        --surface: #151515;
+        --text: #e0e0e0;
+        --border: #333;
+      }
+      body {
+        background: var(--bg);
+        color: var(--text);
+        font-family: "Poppins", sans-serif;
+        margin: 0;
+        padding: 0;
+        padding-bottom: 50px;
+      }
 
-        /* HEADER & SEARCH */
-        .top-nav {
-            background: rgba(5, 5, 5, 0.9); backdrop-filter: blur(10px);
-            padding: 15px 20px; position: sticky; top: 0; z-index: 50;
-            border-bottom: 1px solid var(--border);
-        }
-        .header-content { display: flex; align-items: center; gap: 15px; margin-bottom: 15px; }
-        .back-btn { background: #222; color: white; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; text-decoration: none; border: 1px solid #333; cursor: pointer; transition: 0.2s; }
-        .back-btn:active { transform: scale(0.9); }
-        
-        .search-container { position: relative; }
-        .search-input {
-            width: 100%; padding: 14px 20px 14px 50px;
-            background: #1a1a1a; border: 1px solid #333; color: white;
-            border-radius: 12px; outline: none; font-size: 1rem; box-sizing: border-box;
-            transition: 0.3s;
-        }
-        .search-input:focus { border-color: var(--primary); box-shadow: 0 0 15px rgba(255, 215, 0, 0.1); }
-        .search-icon { position: absolute; left: 18px; top: 50%; transform: translateY(-50%); color: #666; font-size: 1.1rem; }
+      /* HEADER & SEARCH */
+      .top-nav {
+        background: rgba(5, 5, 5, 0.95);
+        backdrop-filter: blur(10px);
+        padding: 15px 20px;
+        position: sticky;
+        top: 0;
+        z-index: 50;
+        border-bottom: 1px solid var(--border);
+      }
+      .header-content {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        margin-bottom: 15px;
+      }
+      .back-btn {
+        background: #222;
+        color: white;
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-decoration: none;
+        border: 1px solid #333;
+        cursor: pointer;
+        transition: 0.2s;
+      }
+      .back-btn:active {
+        transform: scale(0.9);
+      }
 
-        /* LIST CARD */
-        #listArea { padding: 20px; min-height: 80vh; }
-        .user-card {
-            background: var(--surface); padding: 15px; border-radius: 16px;
-            border: 1px solid var(--border); margin-bottom: 12px; cursor: pointer;
-            display: flex; justify-content: space-between; align-items: center;
-            transition: 0.2s; position: relative; overflow: hidden;
-        }
-        .user-card:active { transform: scale(0.98); background: #222; }
-        .u-avatar { 
-            width: 45px; height: 45px; background: linear-gradient(45deg, #333, #444); 
-            border-radius: 50%; display: flex; align-items: center; justify-content: center; 
-            color: var(--primary); font-weight: bold; margin-right: 15px; font-size: 1.1rem;
-            border: 1px solid #555;
-        }
-        .u-info h4 { margin: 0; font-size: 1rem; color: #fff; }
-        .u-info small { color: #888; font-size: 0.8rem; }
-        
-        /* DETAIL VIEW (FULL SCREEN OVERLAY) */
-        #detailArea {
-            display: none; position: fixed; inset: 0; background: #000;
-            z-index: 100; overflow-y: auto; animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-        }
-        
-        /* MEMBER CARD PREMIUM */
-        .card-container { padding: 20px; padding-top: 60px; position: relative; }
-        .member-card-box {
-            background: linear-gradient(135deg, #FFD700 0%, #FDB931 50%, #B8860B 100%);
-            color: #000; padding: 25px; border-radius: 20px;
-            box-shadow: 0 10px 40px rgba(255, 215, 0, 0.15);
-            position: relative; overflow: hidden; border: 1px solid #FFEDA6;
-        }
-        /* Pattern Overlay */
-        .member-card-box::after {
-            content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0;
-            background-image: radial-gradient(circle, rgba(0,0,0,0.05) 1px, transparent 1px);
-            background-size: 10px 10px; pointer-events: none;
-        }
-        
-        .mc-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px; }
-        .chip-sim { width: 40px; height: 30px; background: linear-gradient(135deg, #ddd, #aaa); border-radius: 5px; border: 1px solid #888; position: relative; }
-        .chip-sim::before { content: ''; position: absolute; top: 50%; left: 0; right: 0; height: 1px; background: #888; }
-        .chip-sim::after { content: ''; position: absolute; top: 0; bottom: 0; left: 33%; width: 33%; border-left: 1px solid #888; border-right: 1px solid #888; }
+      .search-input {
+        width: 100%;
+        padding: 12px 20px 12px 45px;
+        background: #1a1a1a;
+        border: 1px solid #333;
+        color: white;
+        border-radius: 12px;
+        outline: none;
+        font-size: 0.95rem;
+        box-sizing: border-box;
+        transition: 0.3s;
+      }
+      .search-input:focus {
+        border-color: var(--primary);
+      }
+      .search-icon {
+        position: absolute;
+        left: 15px;
+        top: 12px;
+        color: #666;
+        font-size: 1.1rem;
+      }
 
-        .mc-label { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1.5px; opacity: 0.7; font-weight: 600; }
-        .mc-balance { font-size: 2.2rem; font-weight: 800; margin: 0; letter-spacing: -1px; text-shadow: 0 2px 0 rgba(255,255,255,0.3); }
-        
-        .mc-footer { display: flex; justify-content: space-between; align-items: flex-end; margin-top: 20px; }
-        .mc-name { font-weight: 800; font-size: 1.1rem; text-transform: uppercase; letter-spacing: 1px; }
-        .mc-id { font-family: monospace; font-size: 1rem; font-weight: 600; opacity: 0.8; }
+      .filter-select {
+        appearance: none;
+        margin-top: 10px;
+        padding-left: 15px;
+        font-size: 0.9rem;
+        background: #1a1a1a
+          url('data:image/svg+xml;utf8,<svg fill="white" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M7 10l5 5 5-5z"/></svg>')
+          no-repeat right 15px center;
+      }
 
-        /* PROGRESS SECTION */
-        .stats-grid {
-            display: grid; grid-template-columns: 1fr 1fr; gap: 15px;
-            padding: 0 20px 20px 20px;
+      /* LIST CARD */
+      #listArea {
+        padding: 15px;
+        min-height: 80vh;
+      }
+      .user-card {
+        background: var(--surface);
+        padding: 15px;
+        border-radius: 16px;
+        border: 1px solid var(--border);
+        margin-bottom: 12px;
+        cursor: pointer;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        transition: 0.2s;
+        position: relative;
+        overflow: hidden;
+      }
+      .user-card:active {
+        transform: scale(0.98);
+        background: #222;
+        border-color: var(--primary);
+      }
+      .u-avatar {
+        width: 45px;
+        height: 45px;
+        background: linear-gradient(45deg, #333, #444);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--primary);
+        font-weight: bold;
+        margin-right: 15px;
+        font-size: 1.1rem;
+        border: 1px solid #555;
+        flex-shrink: 0;
+      }
+      .u-info h4 {
+        margin: 0;
+        font-size: 0.95rem;
+        color: #fff;
+        display: flex;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 5px;
+      }
+      .u-info small {
+        color: #888;
+        font-size: 0.8rem;
+        display: block;
+        margin-top: 3px;
+      }
+      .badge-mitra {
+        background: rgba(255, 215, 0, 0.1);
+        color: var(--primary);
+        padding: 2px 8px;
+        border-radius: 6px;
+        font-size: 0.7rem;
+        border: 1px solid rgba(255, 215, 0, 0.3);
+        font-weight: normal;
+      }
+
+      /* DETAIL VIEW (FULL SCREEN OVERLAY) */
+      #detailArea {
+        display: none;
+        position: fixed;
+        inset: 0;
+        background: #000;
+        z-index: 100;
+        overflow-y: auto;
+        animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+      }
+
+      /* MEMBER CARD PREMIUM */
+      .card-container {
+        padding: 20px;
+        padding-top: 60px;
+        position: relative;
+      }
+      .member-card-box {
+        background: linear-gradient(
+          135deg,
+          #ffd700 0%,
+          #fdb931 50%,
+          #b8860b 100%
+        );
+        color: #000;
+        padding: 25px;
+        border-radius: 20px;
+        box-shadow: 0 10px 40px rgba(255, 215, 0, 0.15);
+        position: relative;
+        overflow: hidden;
+        border: 1px solid #ffeda6;
+      }
+      .member-card-box::after {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-image: radial-gradient(
+          circle,
+          rgba(0, 0, 0, 0.05) 1px,
+          transparent 1px
+        );
+        background-size: 10px 10px;
+        pointer-events: none;
+      }
+
+      .mc-top {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 20px;
+      }
+      .chip-sim {
+        width: 40px;
+        height: 30px;
+        background: linear-gradient(135deg, #ddd, #aaa);
+        border-radius: 5px;
+        border: 1px solid #888;
+        position: relative;
+      }
+      .chip-sim::before {
+        content: "";
+        position: absolute;
+        top: 50%;
+        left: 0;
+        right: 0;
+        height: 1px;
+        background: #888;
+      }
+      .chip-sim::after {
+        content: "";
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        left: 33%;
+        width: 33%;
+        border-left: 1px solid #888;
+        border-right: 1px solid #888;
+      }
+
+      .mc-label {
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 1.5px;
+        opacity: 0.7;
+        font-weight: 600;
+      }
+      .mc-balance {
+        font-size: 2.2rem;
+        font-weight: 800;
+        margin: 0;
+        letter-spacing: -1px;
+        text-shadow: 0 2px 0 rgba(255, 255, 255, 0.3);
+      }
+
+      .mc-footer {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-end;
+        margin-top: 20px;
+      }
+      .mc-name {
+        font-weight: 800;
+        font-size: 1.1rem;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+      }
+      .mc-id {
+        font-family: monospace;
+        font-size: 1rem;
+        font-weight: 600;
+        opacity: 0.8;
+      }
+
+      /* PROGRESS SECTION */
+      .stats-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 15px;
+        padding: 0 20px 20px 20px;
+      }
+      .stat-box {
+        background: #1a1a1a;
+        padding: 15px;
+        border-radius: 12px;
+        border: 1px solid #333;
+        text-align: center;
+      }
+      .stat-val {
+        font-size: 1.2rem;
+        font-weight: bold;
+        color: var(--primary);
+      }
+      .stat-label {
+        font-size: 0.75rem;
+        color: #888;
+        margin-top: 2px;
+      }
+
+      .progress-container {
+        padding: 0 20px 20px 20px;
+      }
+      .progress-bg {
+        background: #222;
+        height: 10px;
+        border-radius: 5px;
+        overflow: hidden;
+        margin-bottom: 5px;
+      }
+      .progress-fill {
+        background: var(--primary);
+        height: 100%;
+        width: 0%;
+        transition: width 1s ease;
+        box-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+      }
+      .progress-text {
+        display: flex;
+        justify-content: space-between;
+        font-size: 0.8rem;
+        color: #aaa;
+      }
+
+      /* BUTTONS */
+      .action-area {
+        padding: 0 20px 20px 20px;
+        display: flex;
+        gap: 10px;
+      }
+      .btn-action {
+        flex: 1;
+        padding: 15px;
+        border-radius: 12px;
+        border: none;
+        font-weight: bold;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        font-size: 0.9rem;
+        transition: 0.2s;
+        text-decoration: none;
+      }
+      .btn-cal {
+        background: #222;
+        color: var(--primary);
+        border: 1px solid var(--primary);
+      }
+      .btn-cal:active {
+        background: var(--primary);
+        color: #000;
+      }
+
+      /* HISTORY */
+      .history-container {
+        background: #111;
+        margin: 0 20px 40px 20px;
+        padding: 20px;
+        border-radius: 16px;
+        border: 1px solid #222;
+      }
+      .h-title {
+        font-size: 0.9rem;
+        font-weight: bold;
+        color: #fff;
+        margin-bottom: 20px;
+        border-bottom: 1px solid #333;
+        padding-bottom: 10px;
+      }
+
+      .timeline-item {
+        display: flex;
+        gap: 15px;
+        padding-bottom: 20px;
+        position: relative;
+      }
+      .timeline-item::before {
+        content: "";
+        position: absolute;
+        left: 6px;
+        top: 25px;
+        bottom: 0;
+        width: 2px;
+        background: #333;
+      }
+      .timeline-item:last-child::before {
+        display: none;
+      }
+
+      .t-dot {
+        width: 14px;
+        height: 14px;
+        background: #000;
+        border: 2px solid var(--primary);
+        border-radius: 50%;
+        z-index: 1;
+        flex-shrink: 0;
+        margin-top: 5px;
+      }
+      .t-content {
+        flex-grow: 1;
+      }
+      .t-top {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 2px;
+      }
+      .t-date {
+        color: #888;
+        font-size: 0.8rem;
+      }
+      .t-amount {
+        color: #4caf50;
+        font-weight: bold;
+        font-size: 0.95rem;
+      }
+      .t-desc {
+        color: #ccc;
+        font-size: 0.85rem;
+      }
+
+      .btn-close-float {
+        position: absolute;
+        top: 20px;
+        left: 20px;
+        z-index: 101;
+        background: rgba(0, 0, 0, 0.6);
+        backdrop-filter: blur(5px);
+        color: #fff;
+        border: 1px solid #555;
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+      }
+
+      @keyframes slideUp {
+        from {
+          transform: translateY(100%);
+          opacity: 0;
         }
-        .stat-box {
-            background: #1a1a1a; padding: 15px; border-radius: 12px;
-            border: 1px solid #333; text-align: center;
+        to {
+          transform: translateY(0);
+          opacity: 1;
         }
-        .stat-val { font-size: 1.2rem; font-weight: bold; color: var(--primary); }
-        .stat-label { font-size: 0.75rem; color: #888; margin-top: 2px; }
-
-        .progress-container { padding: 0 20px 20px 20px; }
-        .progress-bg { background: #222; height: 10px; border-radius: 5px; overflow: hidden; margin-bottom: 5px; }
-        .progress-fill { background: var(--primary); height: 100%; width: 0%; transition: width 1s ease; box-shadow: 0 0 10px rgba(255, 215, 0, 0.5); }
-        .progress-text { display: flex; justify-content: space-between; font-size: 0.8rem; color: #aaa; }
-
-        /* BUTTONS */
-        .action-area { padding: 0 20px 20px 20px; display: flex; gap: 10px; }
-        .btn-action {
-            flex: 1; padding: 15px; border-radius: 12px; border: none; font-weight: bold; cursor: pointer;
-            display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 0.9rem;
-            transition: 0.2s; text-decoration: none;
-        }
-        .btn-cal { background: #222; color: var(--primary); border: 1px solid var(--primary); }
-        .btn-cal:active { background: var(--primary); color: #000; }
-
-        /* HISTORY */
-        .history-container { 
-            background: #111; margin: 0 20px 40px 20px; padding: 20px; border-radius: 16px; border: 1px solid #222;
-        }
-        .h-title { font-size: 0.9rem; font-weight: bold; color: #fff; margin-bottom: 20px; border-bottom: 1px solid #333; padding-bottom: 10px; }
-        
-        .timeline-item { display: flex; gap: 15px; padding-bottom: 20px; position: relative; }
-        .timeline-item::before { content: ''; position: absolute; left: 6px; top: 25px; bottom: 0; width: 2px; background: #333; }
-        .timeline-item:last-child::before { display: none; }
-        
-        .t-dot { width: 14px; height: 14px; background: #000; border: 2px solid var(--primary); border-radius: 50%; z-index: 1; flex-shrink: 0; margin-top: 5px; }
-        .t-content { flex-grow: 1; }
-        .t-top { display: flex; justify-content: space-between; margin-bottom: 2px; }
-        .t-date { color: #888; font-size: 0.8rem; }
-        .t-amount { color: #4caf50; font-weight: bold; font-size: 0.95rem; }
-        .t-desc { color: #ccc; font-size: 0.85rem; }
-
-        /* CLOSE BUTTON FLOAT */
-        .btn-close-float {
-            position: absolute; top: 20px; left: 20px; z-index: 101;
-            background: rgba(0,0,0,0.6); backdrop-filter: blur(5px);
-            color: #fff; border: 1px solid #555; width: 40px; height: 40px;
-            border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer;
-        }
-
-        @keyframes slideUp { from { transform: translateY(100%); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+      }
     </style>
-</head>
-<body>
-
+  </head>
+  <body>
     <div id="searchArea">
-        <div class="top-nav">
-            <div class="header-content">
-                <a href="index.html" class="back-btn"><i class="fas fa-arrow-left"></i></a>
-                <h2 style="margin:0; font-size:1.2rem; font-weight:600;">Cek Tabungan</h2>
-            </div>
-            <div class="search-container">
-                <i class="fas fa-search search-icon"></i>
-                <input type="text" class="search-input" placeholder="Ketik nama peserta..." onkeyup="cari(this.value)" autofocus autocomplete="off">
-            </div>
+      <div class="top-nav">
+        <div class="header-content">
+          <a href="index.html" class="back-btn"
+            ><i class="fas fa-arrow-left"></i
+          ></a>
+          <h2 style="margin: 0; font-size: 1.2rem; font-weight: 600">
+            Cek Tabungan
+          </h2>
         </div>
+        <div style="position: relative">
+          <i class="fas fa-search search-icon"></i>
+          <input
+            type="text"
+            id="cari"
+            class="search-input"
+            placeholder="Ketik nama atau ID peserta..."
+            oninput="filterLokal()"
+            autocomplete="off"
+          />
+        </div>
+        <select
+          id="filterMitra"
+          class="search-input filter-select"
+          onchange="filterLokal()"
+        >
+          <option value="">📁 Tampilkan Semua Mitra</option>
+        </select>
+      </div>
 
-        <div id="listArea">
-            <div style="text-align:center; color:#555; margin-top:80px; animation: fadeIn 0.5s;">
-                <i class="fas fa-wallet" style="font-size:3rem; margin-bottom:15px; opacity:0.3;"></i>
-                <p>Cari data peserta untuk<br>melihat kartu & progress.</p>
-            </div>
+      <div id="listArea">
+        <div style="text-align: center; color: #666; margin-top: 80px">
+          <i
+            class="fas fa-spinner fa-spin fa-3x"
+            style="color: var(--primary); margin-bottom: 15px"
+          ></i>
+          <p>Memuat database peserta...</p>
         </div>
+      </div>
     </div>
 
     <div id="detailArea">
-        <button onclick="closeDetail()" class="btn-close-float"><i class="fas fa-arrow-left"></i></button>
+      <button onclick="closeDetail()" class="btn-close-float">
+        <i class="fas fa-arrow-left"></i>
+      </button>
 
-        <div class="card-container">
-            <div class="member-card-box">
-                <div class="mc-top">
-                    <div class="chip-sim"></div>
-                    <div class="mc-label">Nizami Card</div>
-                </div>
-                <div class="mc-label" style="margin-bottom:5px;">Saldo Terkumpul</div>
-                <div class="mc-balance" id="dSaldo">Rp 0</div>
-                <div class="mc-footer">
-                    <div>
-                        <div class="mc-label">Pemilik</div>
-                        <div class="mc-name" id="dNama">Loading...</div>
-                    </div>
-                    <div class="mc-id" id="dID">...</div>
-                </div>
+      <div class="card-container">
+        <div class="member-card-box">
+          <div class="mc-top">
+            <div class="chip-sim"></div>
+            <div class="mc-label">Nizami Card</div>
+          </div>
+          <div class="mc-label" style="margin-bottom: 5px">Saldo Terkumpul</div>
+          <div class="mc-balance" id="dSaldo">Rp 0</div>
+          <div class="mc-footer">
+            <div>
+              <div class="mc-label">Pemilik</div>
+              <div class="mc-name" id="dNama">Loading...</div>
             </div>
+            <div class="mc-id" id="dID">...</div>
+          </div>
         </div>
+      </div>
 
-        <div style="text-align:center; margin-bottom:20px;">
-            <span id="dPaket" style="background:#222; color:#aaa; padding:5px 15px; border-radius:20px; font-size:0.8rem; border:1px solid #333;">-</span>
-        </div>
+      <div style="text-align: center; margin-bottom: 20px">
+        <span
+          id="dPaket"
+          style="
+            background: #222;
+            color: #aaa;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            border: 1px solid #333;
+          "
+          >-</span
+        >
+      </div>
 
-        <div class="progress-container">
-            <div class="progress-text">
-                <span id="progText">0 dari 0</span>
-                <span id="progPercent">0%</span>
-            </div>
-            <div class="progress-bg">
-                <div class="progress-fill" id="progFill"></div>
-            </div>
+      <div class="progress-container">
+        <div class="progress-text">
+          <span id="progText">0 dari 0</span>
+          <span id="progPercent">0%</span>
         </div>
+        <div class="progress-bg">
+          <div class="progress-fill" id="progFill"></div>
+        </div>
+      </div>
 
-        <div class="stats-grid">
-            <div class="stat-box">
-                <div class="stat-val" id="dSetoranKe">0</div>
-                <div class="stat-label">Setoran Ke</div>
-            </div>
-            <div class="stat-box">
-                <div class="stat-val" id="dSisa" style="color:#ff6b6b">0</div>
-                <div class="stat-label">Kurang (Kali)</div>
-            </div>
+      <div class="stats-grid">
+        <div class="stat-box">
+          <div class="stat-val" id="dSetoranKe">0</div>
+          <div class="stat-label">Setoran Ke</div>
         </div>
+        <div class="stat-box">
+          <div class="stat-val" id="dSisa" style="color: #ff6b6b">0</div>
+          <div class="stat-label">Kurang (Kali)</div>
+        </div>
+      </div>
 
-        <div class="action-area">
-            <a href="#" id="btnLihatKalender" class="btn-action btn-cal">
-                <i class="far fa-calendar-alt"></i> LIHAT KALENDER
-            </a>
-        </div>
+      <div class="action-area">
+        <a href="#" id="btnLihatKalender" class="btn-action btn-cal">
+          <i class="far fa-calendar-alt"></i> LIHAT KALENDER
+        </a>
+      </div>
 
-        <div class="history-container">
-            <div class="h-title"><i class="fas fa-history"></i> Riwayat Transaksi Terakhir</div>
-            <div id="dRiwayat"></div>
+      <div class="history-container">
+        <div class="h-title">
+          <i class="fas fa-history"></i> Riwayat Transaksi Terakhir
         </div>
+        <div id="dRiwayat"></div>
+      </div>
     </div>
 
     <script src="script.js"></script>
     <script>
-        let debounce;
+      let semuaPeserta = [];
 
-        function cari(q) {
-            clearTimeout(debounce);
-            const container = document.getElementById('listArea');
-            
-            if(q.length < 3) return;
-            
-            container.innerHTML = '<div style="text-align:center; color:#666; padding:40px;"><i class="fas fa-circle-notch fa-spin"></i> Mencari...</div>';
-            
-            debounce = setTimeout(async () => {
-                const res = await fetchData('cariPeserta', {q: q});
-                container.innerHTML = '';
-                
-                if(!res || res.length === 0) {
-                    container.innerHTML = '<div style="text-align:center; color:#555; padding:40px;">Data tidak ditemukan</div>';
-                    return;
-                }
+      // 1. Ambil data HANYA SEKALI saat halaman dimuat
+      document.addEventListener("DOMContentLoaded", async () => {
+        const res = await fetchData("cariPeserta", { q: "" });
 
-                res.forEach((p, index) => {
-                    const initial = p.nama.substring(0, 1).toUpperCase();
-                    // Animasi delay per item
-                    const delay = index * 0.05;
-                    
-                    container.innerHTML += `
-                    <div class="user-card" onclick="openDetail('${p.id}')" style="animation: fadeIn 0.5s ease forwards; animation-delay: ${delay}s;">
-                        <div style="display:flex; align-items:center;">
-                            <div class="u-avatar">${initial}</div>
-                            <div class="u-info">
-                                <h4>${p.nama}</h4>
-                                <small>${p.paket}</small>
-                            </div>
-                        </div>
-                        <i class="fas fa-chevron-right" style="color:#444;"></i>
-                    </div>`;
-                });
-            }, 500);
+        const container = document.getElementById("listArea");
+        if (res && res.length > 0) {
+          semuaPeserta = res;
+          buatDropdownMitra();
+          renderList(semuaPeserta); // Tampilkan semua di awal
+        } else {
+          container.innerHTML =
+            '<div style="text-align:center; color:#555; padding:40px;">Data kosong atau gagal dimuat</div>';
+        }
+      });
+
+      // 2. Buat opsi dropdown Mitra secara otomatis
+      function buatDropdownMitra() {
+        const mitras = [...new Set(semuaPeserta.map((p) => p.mitra))].filter(
+          Boolean,
+        );
+        const select = document.getElementById("filterMitra");
+        mitras.sort().forEach((m) => {
+          select.innerHTML += `<option value="${m}">${m}</option>`;
+        });
+      }
+
+      // 3. Pencarian & Filter Instan tanpa delay (Lokal)
+      function filterLokal() {
+        const teks = document.getElementById("cari").value.toLowerCase();
+        const mitraTerpilih = document
+          .getElementById("filterMitra")
+          .value.toLowerCase();
+
+        const hasilFilter = semuaPeserta.filter((p) => {
+          const cocokTeks =
+            p.nama.toLowerCase().includes(teks) ||
+            p.id.toLowerCase().includes(teks);
+          const cocokMitra =
+            mitraTerpilih === "" ||
+            (p.mitra || "").toLowerCase() === mitraTerpilih;
+          return cocokTeks && cocokMitra;
+        });
+
+        renderList(hasilFilter);
+      }
+
+      // 4. Render Kartu HTML
+      function renderList(dataArr) {
+        const container = document.getElementById("listArea");
+        container.innerHTML = "";
+
+        if (dataArr.length === 0) {
+          container.innerHTML =
+            '<div style="text-align:center; color:#555; padding:40px;">Data tidak ditemukan</div>';
+          return;
         }
 
-        async function openDetail(id) {
-            document.getElementById('searchArea').style.display = 'none';
-            document.getElementById('detailArea').style.display = 'block';
-            window.scrollTo(0,0);
-            
-            // Reset UI
-            document.getElementById('dNama').innerText = '...';
-            document.getElementById('dSaldo').innerText = 'Rp ...';
-            document.getElementById('progFill').style.width = '0%';
-            document.getElementById('dRiwayat').innerHTML = '<div style="text-align:center; padding:20px; color:#666;">Mengambil data terbaru...</div>';
+        let html = "";
+        dataArr.forEach((p) => {
+          const initial = p.nama.substring(0, 1).toUpperCase();
+          html += `
+                <div class="user-card" onclick="openDetail('${p.id}')">
+                    <div style="display:flex; align-items:center;">
+                        <div class="u-avatar">${initial}</div>
+                        <div class="u-info">
+                            <h4>${p.nama} <span class="badge-mitra"><i class="fas fa-handshake"></i> ${p.mitra || "Pusat"}</span></h4>
+                            <small>${p.paket}</small>
+                        </div>
+                    </div>
+                    <i class="fas fa-chevron-right" style="color:#444;"></i>
+                </div>`;
+        });
+        container.innerHTML = html;
+      }
 
-            // Panggil API
-            const data = await fetchData('cekStatusDetail', {id: id});
-            
-            if(data && !data.error) {
-                // Isi Data Utama
-                document.getElementById('dNama').innerText = data.nama;
-                document.getElementById('dPaket').innerText = data.paket;
-                document.getElementById('dID').innerText = data.id;
-                document.getElementById('dSaldo').innerText = formatRupiah(data.saldo);
+      // =====================================
+      // LOGIKA DETAIL KARTU (TETAP SAMA)
+      // =====================================
+      async function openDetail(id) {
+        document.getElementById("searchArea").style.display = "none";
+        document.getElementById("detailArea").style.display = "block";
+        window.scrollTo(0, 0);
 
-                // Isi Statistik & Progress (Dari update script sebelumnya)
-                const tercapai = parseInt(data.tercapai) || 0;
-                const target = parseInt(data.target) || 1; // Hindari bagi nol
-                const sisa = parseInt(data.sisa_angsuran) || 0;
+        document.getElementById("dNama").innerText = "...";
+        document.getElementById("dSaldo").innerText = "Rp ...";
+        document.getElementById("progFill").style.width = "0%";
+        document.getElementById("dRiwayat").innerHTML =
+          '<div style="text-align:center; padding:20px; color:#666;">Mengambil data terbaru...</div>';
 
-                // Update UI Stats
-                document.getElementById('dSetoranKe').innerText = tercapai;
-                document.getElementById('dSisa').innerText = sisa;
-                document.getElementById('progText').innerText = `${tercapai} dari ${target} Setoran`;
-                
-                // Hitung Persentase
-                let percent = Math.round((tercapai / target) * 100);
-                if(percent > 100) percent = 100;
-                document.getElementById('progPercent').innerText = percent + "%";
-                setTimeout(() => {
-                    document.getElementById('progFill').style.width = percent + "%";
-                }, 100); // Delay dikit biar ada animasi
+        const data = await fetchData("getDetailAdmin", { id: id });
 
-                // Update Link Kalender (HANYA ID)
-                document.getElementById('btnLihatKalender').href = `kalender.html?id=${data.id}`;
+        if (data && !data.error) {
+          document.getElementById("dNama").innerText = data.nama;
+          document.getElementById("dPaket").innerText = data.paket;
+          document.getElementById("dID").innerText = data.id;
+          document.getElementById("dSaldo").innerText = formatRupiah(
+            data.saldo,
+          );
 
-                // Render Timeline Riwayat
-                const historyBox = document.getElementById('dRiwayat');
-                historyBox.innerHTML = '';
+          const tercapai = parseInt(data.tercapai) || 0;
+          const target = parseInt(data.target) || 1;
+          const sisa = parseInt(data.sisa_angsuran) || 0;
 
-                if(data.riwayat.length === 0) {
-                    historyBox.innerHTML = '<div style="text-align:center; color:#555; padding:20px;">Belum ada transaksi.</div>';
-                } else {
-                    data.riwayat.forEach(r => {
-                        historyBox.innerHTML += `
+          document.getElementById("dSetoranKe").innerText = tercapai;
+          document.getElementById("dSisa").innerText = sisa;
+          document.getElementById("progText").innerText =
+            `${tercapai} dari ${target} Setoran`;
+
+          let percent = Math.round((tercapai / target) * 100);
+          if (percent > 100) percent = 100;
+          document.getElementById("progPercent").innerText = percent + "%";
+          setTimeout(() => {
+            document.getElementById("progFill").style.width = percent + "%";
+          }, 100);
+
+          document.getElementById("btnLihatKalender").href =
+            `kalender.html?id=${encodeURIComponent(data.id)}&nama=${encodeURIComponent(data.nama)}&paket=${encodeURIComponent(data.paket)}&jumlah=${tercapai}`;
+
+          const historyBox = document.getElementById("dRiwayat");
+          historyBox.innerHTML = "";
+
+          if (data.riwayat.length === 0) {
+            historyBox.innerHTML =
+              '<div style="text-align:center; color:#555; padding:20px;">Belum ada transaksi.</div>';
+          } else {
+            data.riwayat.forEach((r) => {
+              historyBox.innerHTML += `
                         <div class="timeline-item">
                             <div class="t-dot"></div>
                             <div class="t-content">
@@ -319,18 +710,18 @@
                                 <div class="t-desc">${r.ket}</div>
                             </div>
                         </div>`;
-                    });
-                }
-            } else {
-                alert("Gagal mengambil data detail.");
-                closeDetail();
-            }
+            });
+          }
+        } else {
+          alert("Gagal mengambil data detail.");
+          closeDetail();
         }
+      }
 
-        function closeDetail() {
-            document.getElementById('detailArea').style.display = 'none';
-            document.getElementById('searchArea').style.display = 'block';
-        }
+      function closeDetail() {
+        document.getElementById("detailArea").style.display = "none";
+        document.getElementById("searchArea").style.display = "block";
+      }
     </script>
-</body>
+  </body>
 </html>
