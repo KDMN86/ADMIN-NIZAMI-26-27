@@ -242,7 +242,7 @@
         z-index: 9999;
         flex-direction: column;
         align-items: center;
-        justify-content: center; /* Kunci vertikal ke tengah */
+        justify-content: center;
         padding: 20px;
         box-sizing: border-box;
         text-align: center;
@@ -329,9 +329,9 @@
 
       /* STRUK */
       #receiptArea {
-        position: absolute; /* BERUBAH DARI FIXED */
+        position: absolute;
         top: 0;
-        left: -9999px; /* Tetap tersembunyi di luar layar */
+        left: -9999px;
         width: 380px;
         background: #fff;
         color: #000;
@@ -383,8 +383,8 @@
 
       #resImg {
         max-width: 100%;
-        max-height: 55vh; /* Batasi maksimal 55% dari tinggi layar */
-        object-fit: contain; /* Pastikan seluruh area gambar masuk layar */
+        max-height: 55vh;
+        object-fit: contain;
         border: 4px solid #fff;
         border-radius: 8px;
         margin: 15px 0;
@@ -418,7 +418,7 @@
         <textarea
           id="waRaw"
           class="wa-textarea"
-          placeholder="Paste chat lengkap disini (termasuk Rincian Barang)..."
+          placeholder="Paste chat lengkap disini (Mendukung copy-paste pesan yang terpisah)..."
         ></textarea>
         <button onclick="parseWA()" class="btn-extract">
           <i class="fas fa-magic"></i> EKSTRAK DATA SEKARANG
@@ -463,9 +463,7 @@
             &times;
           </button>
         </div>
-
         <div class="item-body" id="itemBody"></div>
-
         <div
           style="padding: 15px; background: #1a1a1a; border-top: 1px solid #333"
         >
@@ -533,7 +531,6 @@
 
     <script src="script.js"></script>
     <script>
-      // === VARIABEL GLOBAL ===
       let formCount = 0;
       let masterMitra = [],
         masterPaket = [],
@@ -542,61 +539,52 @@
       let rowData = {};
       let currentMode = "normal";
 
-      // === FUNGSI INIT (LOAD DATA DARI SERVER) ===
       async function init(retryCount = 0) {
         const loading = document.getElementById("loadingInfo");
         loading.style.display = "block";
-
         try {
-          // Pastikan script.js sudah memuat fungsi fetchData
           const [mitra, paket, barang] = await Promise.all([
             fetchData("getMitra"),
             fetchData("getPaket"),
             fetchData("getBarang"),
           ]);
-
           masterMitra = Array.isArray(mitra) ? mitra : [];
           masterPaket = Array.isArray(paket) ? paket : [];
           masterBarang = Array.isArray(barang) ? barang : [];
-
           loading.style.display = "none";
-
           if (formCount === 0) addParticipantRow();
           else refreshDropdowns();
         } catch (e) {
-          console.error("Fetch Error:", e);
           if (retryCount < 3) {
             loading.innerText = `Gagal memuat. Mencoba lagi (${retryCount + 1}/3)...`;
             setTimeout(() => init(retryCount + 1), 2000);
           } else {
-            loading.innerHTML = `
-                        <span style="color:#ff6b6b">Gagal memuat data. Koneksi lambat?</span>
-                        <button onclick="init()" style="background:#333; color:#fff; border:1px solid #fff; padding:5px 10px; border-radius:5px; margin-left:10px;">Coba Manual</button>
-                    `;
+            loading.innerHTML = `<span style="color:#ff6b6b">Gagal memuat data.</span> <button onclick="init()" style="background:#333; color:#fff; border:1px solid #fff; padding:5px 10px; border-radius:5px; margin-left:10px;">Coba Manual</button>`;
           }
         }
       }
 
-      // === FUNGSI PARSE WA (VERSI TERBARU & TERKUAT) ===
+      // ========================================================
+      // FUNGSI EKSTRAK WA BARU (SUPER CERDAS)
+      // ========================================================
       function parseWA() {
         const text = document.getElementById("waRaw").value;
         if (!text) return alert("Tempelkan teks WhatsApp dulu!");
 
-        // Cek Ketersediaan Data
-        if (masterBarang.length === 0) {
+        if (masterBarang.length === 0 || masterPaket.length === 0) {
           return alert(
-            "Data Barang belum dimuat. Tunggu sebentar atau Refresh halaman.",
+            "Data Barang/Paket belum siap. Tunggu sebentar atau Refresh halaman.",
           );
         }
 
-        // 1. Pecah Pesan (Split per peserta jika ada banyak)
-        let entries = text.split(
-          /(?:\r\n|\r|\n)(?=\d+[\.\)]\s*Nama|Nama\s*[:=])/i,
-        );
-        if (entries.length === 1 && text.match(/Nama/i)) entries = [text];
+        // Pecah blok jika ada banyak tulisan "Nama:". Jika tidak, anggap semua text itu milik 1 orang.
+        let entries = text.split(/(?=Nama\s*[:=])/i);
+        entries = entries.filter((e) => e.trim().length > 5);
+        if (entries.length === 0) entries = [text];
 
         let successCount = 0;
-        // Bersihkan form yang kosong dulu jika masih kosong
+
+        // Bersihkan form kosong
         if (formCount === 1) {
           const fName = document.querySelector(".inp-nama");
           if (fName && fName.value === "") {
@@ -606,103 +594,135 @@
         }
 
         entries.forEach((entry) => {
-          // Regex Ekstraksi Dasar
-          const nm = entry.match(/Nama\s*[:=]\s*([^\n,]+)/i);
-          const hp = entry.match(/(?:HP|WA|No|Nomor)\s*[:=]\s*(\d+)/i);
-          const al = entry.match(/Alamat\s*[:=]\s*([^\n]+)/i);
-          const mt = entry.match(/Mitra\s*[:=]\s*([^\n]+)/i);
-
-          // Regex Paket: Support strip(-), bullet(•), bintang(*), atau spasi
-          const pk = entry.match(
-            /Paket\s*[:=][\s\S]*?(?:-|•|\*|\.)?\s*\d*\s*x?\s*([^\n\r]+)/i,
+          // 1. Tangkap Profil Dasar
+          const nmMatch = entry.match(/Nama\s*[:=]\s*([^\n]+)/i);
+          const hpMatch = entry.match(
+            /(?:HP|WA|No|Nomor)\s*[:=]\s*([\d\+\-\s]+)/i,
           );
+          const alMatch = entry.match(/Alamat\s*[:=]\s*([^\n]+)/i);
+          const mtMatch = entry.match(/Mitra\s*[:=]\s*([^\n]+)/i);
 
-          if (nm) {
+          let nm = nmMatch ? nmMatch[1].trim() : "";
+          let hp = hpMatch ? hpMatch[1].replace(/\D/g, "") : "";
+          let al = alMatch ? alMatch[1].trim() : "";
+          let mt = mtMatch ? mtMatch[1].trim() : "";
+
+          // 2. Deteksi Paket (Bisa Lebih Dari 1 Paket)
+          let matchedPakets = [];
+
+          // Cari nama paket langsung dari database yang disebut di teks
+          masterPaket.forEach((p) => {
+            const safeName = p.nama.replace(/[-/\\^$*+?.()|[\]{}]/g, "\\$&"); // Bersihkan simbol regex
+            const regex = new RegExp(safeName, "i");
+            if (regex.test(entry)) {
+              matchedPakets.push(p);
+            }
+          });
+
+          // Fallback: Jika tidak terdeteksi pakai nama langsung, gunakan Regex Paket:
+          if (matchedPakets.length === 0) {
+            const pkRegex = entry.match(/Paket\s*[:=]\s*([^\n]+)/i);
+            if (pkRegex) {
+              const found = masterPaket.find((p) =>
+                p.nama.toLowerCase().includes(pkRegex[1].trim().toLowerCase()),
+              );
+              if (found) matchedPakets.push(found);
+            }
+          }
+
+          // Jika tetap kosong paketnya, siapkan 1 wadah dummy untuk render form saja
+          if (matchedPakets.length === 0) matchedPakets.push({ nama: "" });
+
+          // 3. Render Form Sesuai Jumlah Paket yang Dipilih
+          matchedPakets.forEach((paket) => {
+            // Abaikan jika tidak ada nama DAN tidak ada paket yang ditemukan (Pesan sampah)
+            if (!nm && !paket.nama) return;
+
             addParticipantRow();
             const rowId = formCount;
             const row = document.getElementById(`row_${rowId}`);
 
-            // Isi Data Teks
-            row.querySelector(".inp-nama").value = nm[1].trim();
-            if (hp) row.querySelector(".inp-hp").value = hp[1].trim();
-            if (al) row.querySelector(".inp-alamat").value = al[1].trim();
-
-            // Isi Mitra (Auto Select)
-            if (mt) {
-              const selMitra = row.querySelector(".inp-mitra");
-              setDropdownByText(selMitra, mt[1]);
-            }
+            // Isi Data Diri
+            row.querySelector(".inp-nama").value = nm;
+            if (hp) row.querySelector(".inp-hp").value = hp;
+            if (al) row.querySelector(".inp-alamat").value = al;
+            if (mt) setDropdownByText(row.querySelector(".inp-mitra"), mt);
 
             // Isi Paket & Barang
-            if (pk) {
+            if (paket.nama) {
               const selPaket = row.querySelector(".inp-paket");
-              const paketName = pk[1].trim();
+              const found = setDropdownByText(selPaket, paket.nama);
 
-              // Cari Paket di Dropdown
-              const foundPaket = setDropdownByText(selPaket, paketName);
-
-              if (foundPaket) {
-                // Munculkan tombol pilih barang sesuai paket
-                checkPaket(selPaket, rowId);
-
-                // Ekstrak Rincian Barang
-                parseRincianBarang(entry, rowId);
+              if (found) {
+                checkPaket(selPaket, rowId); // Buka keranjang jika itu Sembako/Kue
+                smartExtractItems(entry, rowId); // Jalankan Ekstrak Barang
               }
             }
             successCount++;
-          }
+          });
         });
 
         if (successCount > 0) {
           document.getElementById("waRaw").value = "";
           alert(
-            `Berhasil mengekstrak ${successCount} peserta! Cek rincian barang otomatis.`,
+            `Berhasil mengekstrak ${successCount} form pendaftaran! Silakan periksa kembali rincian dan nama yang mungkin kosong.`,
           );
         } else {
           alert(
-            "Format tidak terbaca. Pastikan ada tulisan 'Nama:', 'Paket:', dan 'Rincian:'.",
+            "Sistem tidak mendeteksi data yang valid. Silakan input manual.",
           );
         }
       }
 
-      function parseRincianBarang(textEntry, rowId) {
-        const rincianMatch = textEntry.match(
-          /Rincian\s*[:=]([\s\S]*?)(?=Mitra|Total|$)/i,
-        );
-        if (!rincianMatch) return;
-
-        const rincianBlock = rincianMatch[1];
-        const itemLines = rincianBlock.matchAll(
-          /(?:-|•|\*|\d+\.)?\s*(\d+)\s*x?\s+([^\n\r]+)/gi,
-        );
-
+      function smartExtractItems(textEntry, rowId) {
         if (!rowData[`row_${rowId}`])
           rowData[`row_${rowId}`] = { items: {}, total: 0 };
         const currentRowData = rowData[`row_${rowId}`];
-
         let matchCount = 0;
 
-        for (const match of itemLines) {
-          const qty = parseInt(match[1]);
-          const waItemName = match[2].trim().toLowerCase();
+        // Pecah teks berdasarkan enter (baris baru)
+        const lines = textEntry.split("\n");
 
-          const dbItem = masterBarang.find((barang) => {
-            const dbName = barang.nama.toLowerCase();
-            return waItemName.includes(dbName) || dbName.includes(waItemName);
-          });
+        lines.forEach((line) => {
+          const lowerLine = line.toLowerCase();
 
-          if (dbItem) {
-            currentRowData.items[dbItem.nama] = qty;
-            matchCount++;
+          for (let b of masterBarang) {
+            const bNameLower = b.nama.toLowerCase();
+
+            // Jika nama barang disebut di baris ini
+            if (lowerLine.includes(bNameLower)) {
+              let qty = 1;
+
+              // Teknik 1: Angka dalam kurung (cth: (2 Bal), (1 Karung))
+              const parenMatch = line.match(/\(\s*(\d+)\s*[a-zA-Z]*\s*\)/);
+              // Teknik 2: Angka diikuti X (cth: 1x, 2 x)
+              const xMatch = line.match(/(\d+)\s*x/i);
+              // Teknik 3: Angka setelah strip/bullet di awal (cth: - 2 Beras Super)
+              const startMatch = line.match(/^(?:-|\*|\•|\d+\.)?\s*(\d+)/);
+
+              if (parenMatch) qty = parseInt(parenMatch[1]);
+              else if (xMatch) qty = parseInt(xMatch[1]);
+              else if (startMatch) qty = parseInt(startMatch[1]);
+
+              if (currentRowData.items[b.nama]) {
+                currentRowData.items[b.nama] += qty;
+              } else {
+                currentRowData.items[b.nama] = qty;
+              }
+              matchCount++;
+              break; // Jika sudah ketemu 1 barang di baris ini, lanjut ke baris berikutnya
+            }
           }
-        }
+        });
 
         if (matchCount > 0) {
           recalculateRowTotal(rowId);
         }
       }
 
-      // Helper Dropdown Select
+      // ========================================================
+      // FUNGSI LAINNYA (TIDAK BERUBAH)
+      // ========================================================
       function setDropdownByText(selectElement, textToFind) {
         const cleanText = textToFind.toLowerCase().trim();
         for (let i = 0; i < selectElement.options.length; i++) {
@@ -715,8 +735,6 @@
         return false;
       }
 
-      // Helper Hitung Total Otomatis
-      // Helper Hitung Total Otomatis
       function recalculateRowTotal(rowId) {
         const data = rowData[`row_${rowId}`];
         const selectEl = document.querySelector(`#row_${rowId} .inp-paket`);
@@ -763,14 +781,12 @@
           itemsList.join(", ") + `\nTotal: ${displayTotal}`;
 
         document.getElementById(`valHarga_${rowId}`).value = total;
-        // PERBAIKAN: Gunakan \n (Enter) bukan koma untuk data rincian
         document.getElementById(`valRincian_${rowId}`).value =
           itemsList.join("\n");
         document.getElementById(`valItemsJson_${rowId}`).value =
           JSON.stringify(itemsForDB);
       }
 
-      // === FUNGSI STANDARD UI ===
       function addParticipantRow() {
         formCount++;
         const html = `
@@ -859,7 +875,6 @@
         const area = document.getElementById(`customArea_${rowId}`);
         const btn = document.getElementById(`btnText_${rowId}`);
 
-        // Reset state saat ganti paket
         document.getElementById(`valHarga_${rowId}`).value = 0;
         document.getElementById(`valRincian_${rowId}`).value = "";
         document.getElementById(`valItemsJson_${rowId}`).value = "";
@@ -890,13 +905,10 @@
         const row = document.getElementById(`row_${rowId}`);
         const mode = row.querySelector(".inp-paket").dataset.mode;
         currentMode = mode;
-
         document.getElementById("modalItems").style.display = "flex";
-
         if (mode === "mingguan") renderCategories();
         else if (mode === "cookies") renderItems("Cookies");
         else renderItems(null);
-
         updateModalTotal();
       }
 
@@ -906,7 +918,6 @@
         const categories = [
           ...new Set(masterBarang.map((item) => item.kategori)),
         ];
-
         let html = `<div class="cat-grid">`;
         categories.forEach((cat) => {
           if (cat)
@@ -921,19 +932,15 @@
         document.getElementById("modalTitle").innerText = filterCategory
           ? filterCategory
           : "Pilih Barang";
-
         let html = "";
-        if (currentMode === "mingguan" && filterCategory) {
+        if (currentMode === "mingguan" && filterCategory)
           html += `<button class="cat-back" onclick="renderCategories()"><i class="fas fa-arrow-left"></i> Kembali ke Kategori</button>`;
-        }
-
         const savedItems =
           (rowData[`row_${currentEditingRowId}`] || {}).items || {};
 
         masterBarang.forEach((b) => {
           let show = true;
           if (filterCategory && b.kategori !== filterCategory) show = false;
-
           if (show) {
             const qty = savedItems[b.nama] || 0;
             html += `
@@ -958,12 +965,10 @@
         let val = parseInt(input.value) + change;
         if (val < 0) val = 0;
         input.value = val;
-
         const name = input.dataset.name;
         if (!rowData[`row_${currentEditingRowId}`])
           rowData[`row_${currentEditingRowId}`] = { items: {}, total: 0 };
         rowData[`row_${currentEditingRowId}`].items[name] = val;
-
         updateModalTotal();
       }
 
@@ -972,17 +977,13 @@
         const currentRowData = rowData[`row_${currentEditingRowId}`] || {
           items: {},
         };
-
         for (const [name, qty] of Object.entries(currentRowData.items)) {
           const item = masterBarang.find((b) => b.nama === name);
           if (item) total += item.harga * qty;
         }
-
         document.getElementById("txtTotalReal").innerText = formatRupiah(total);
-
         let targetLabel = "Total:";
         let targetVal = formatRupiah(total);
-
         if (currentMode === "mingguan") {
           targetLabel = "Setoran per Minggu (40x):";
           targetVal = formatRupiah(Math.ceil(total / 40));
@@ -990,23 +991,19 @@
           targetLabel = "Setoran per Hari (330x):";
           targetVal = formatRupiah(Math.ceil(total / 330));
         }
-
         document.getElementById("lblTarget").innerText = targetLabel;
         document.getElementById("txtTarget").innerText = targetVal;
         currentRowData.total = total;
       }
 
       function confirmSelection() {
-        const rowId = currentEditingRowId;
-        recalculateRowTotal(rowId);
+        recalculateRowTotal(currentEditingRowId);
         closeModal();
       }
-
       function closeModal() {
         document.getElementById("modalItems").style.display = "none";
       }
 
-      // === SIMPAN & CETAK ===
       async function saveAll() {
         const cards = document.querySelectorAll(".p-card");
         if (cards.length === 0) return;
@@ -1015,7 +1012,6 @@
         const btn = document.getElementById("btnSaveAll");
         btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> MEMPROSES...';
         btn.disabled = true;
-
         let successData = [];
 
         for (const card of cards) {
@@ -1072,12 +1068,8 @@
 
         btn.innerHTML = '<i class="fas fa-save"></i> SIMPAN & CETAK STRUK';
         btn.disabled = false;
-
-        if (successData.length > 0) {
-          generateReceipt(successData);
-        } else {
-          alert("Gagal menyimpan. Cek koneksi atau data input.");
-        }
+        if (successData.length > 0) generateReceipt(successData);
+        else alert("Gagal menyimpan. Cek koneksi atau data input.");
       }
 
       async function generateReceipt(data) {
@@ -1090,14 +1082,12 @@
         data.forEach((d) => {
           let extraHtml = "";
           if (d.rincian) {
-            // PERBAIKAN: Ubah \n menjadi <br> dan tambahkan bullet (•) agar rapi
             let formatRincian = d.rincian
               .split("\n")
               .map((item) => `• ${item}`)
               .join("<br>");
             extraHtml += `<div class="r-row-detail"><div class="r-label">Rincian Barang:</div><div class="r-val-small" style="margin-top:5px; line-height:1.5;">${formatRincian}</div></div>`;
           }
-
           if (d.setoran)
             extraHtml += `<div class="r-item" style="border-bottom:none; margin-bottom:5px;"><div class="r-label">Target Setoran:</div><span class="r-highlight">${d.setoran}</span></div>`;
 
