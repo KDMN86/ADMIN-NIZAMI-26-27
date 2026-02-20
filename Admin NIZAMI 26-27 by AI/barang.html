@@ -1,257 +1,535 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="id">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+    />
     <title>Master Barang</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
     <style>
-        :root { --primary: #FFD700; --bg: #121212; --surface: #1e1e1e; --text: #e0e0e0; --border: #333; }
-        body { background: var(--bg); color: var(--text); font-family: 'Inter', sans-serif; margin: 0; padding: 0; padding-bottom: 80px; }
+      :root {
+        --primary: #ffd700;
+        --bg: #121212;
+        --surface: #1e1e1e;
+        --text: #e0e0e0;
+        --border: #333;
+      }
+      body {
+        background: var(--bg);
+        color: var(--text);
+        font-family: "Inter", sans-serif;
+        margin: 0;
+        padding: 0;
+        padding-bottom: 90px;
+      }
 
-        /* HEADER & SEARCH */
-        .top-nav {
-            background: rgba(18, 18, 18, 0.95); backdrop-filter: blur(10px);
-            padding: 15px 20px; position: sticky; top: 0; z-index: 50;
-            border-bottom: 1px solid var(--border); display: flex; gap: 15px; align-items: center;
-        }
-        .back-btn { background: #333; color: white; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; text-decoration: none; border: none; cursor: pointer; flex-shrink: 0; }
-        .search-input {
-            width: 100%; padding: 12px 20px; background: #222; border: 1px solid #444; 
-            color: white; border-radius: 25px; outline: none; font-size: 1rem;
-        }
-        .search-input:focus { border-color: var(--primary); }
+      /* HEADER & SEARCH AREA */
+      .header-area {
+        background: rgba(18, 18, 18, 0.95);
+        backdrop-filter: blur(10px);
+        padding: 15px 20px;
+        position: sticky;
+        top: 0;
+        z-index: 50;
+        border-bottom: 1px solid var(--border);
+      }
+      .top-nav {
+        display: flex;
+        gap: 15px;
+        align-items: center;
+        margin-bottom: 12px;
+      }
+      .back-btn {
+        background: #333;
+        color: white;
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-decoration: none;
+        border: none;
+        flex-shrink: 0;
+      }
+      .page-title {
+        margin: 0;
+        font-size: 1.1rem;
+        font-weight: 600;
+      }
 
-        /* ITEM LIST */
-        #listArea { padding: 15px; display: grid; gap: 12px; }
-        
-        .item-card {
-            background: var(--surface); border: 1px solid var(--border);
-            border-radius: 12px; padding: 15px; display: flex; flex-direction: column; gap: 10px;
-            transition: 0.2s;
-        }
-        .item-header { display: flex; gap: 12px; align-items: center; }
-        .item-icon { 
-            width: 40px; height: 40px; background: rgba(255, 215, 0, 0.1); 
-            color: var(--primary); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 1.2rem;
-        }
-        .item-info { flex-grow: 1; }
-        .item-info h4 { margin: 0; font-size: 1rem; color: #fff; }
-        .item-info small { color: #888; display: block; margin-top: 2px; }
-        .badge { background: #333; padding: 2px 8px; border-radius: 4px; font-size: 0.75rem; color: #aaa; border: 1px solid #444; }
+      .filter-group {
+        display: flex;
+        gap: 10px;
+      }
+      .search-input {
+        flex: 2;
+        padding: 10px 15px;
+        background: #222;
+        border: 1px solid #444;
+        color: white;
+        border-radius: 10px;
+        outline: none;
+        font-size: 0.9rem;
+      }
+      .filter-select {
+        flex: 1;
+        padding: 10px;
+        background: #222;
+        border: 1px solid #444;
+        color: var(--primary);
+        border-radius: 10px;
+        outline: none;
+        font-size: 0.85rem;
+        appearance: none;
+        text-align: center;
+        font-weight: bold;
+      }
+      .search-input:focus,
+      .filter-select:focus {
+        border-color: var(--primary);
+      }
 
-        .item-action { 
-            display: flex; gap: 10px; align-items: center; margin-top: 5px; 
-            background: #111; padding: 8px; border-radius: 8px; border: 1px solid #333;
-        }
-        .price-label { font-size: 0.8rem; color: #666; padding-left: 5px; }
-        .price-input { 
-            flex-grow: 1; background: transparent; border: none; color: var(--primary); 
-            font-weight: bold; font-size: 1.1rem; text-align: right; outline: none;
-        }
-        .btn-save-mini {
-            background: var(--primary); color: #000; border: none;
-            width: 35px; height: 35px; border-radius: 6px; cursor: pointer;
-            display: flex; align-items: center; justify-content: center;
-        }
-        .btn-save-mini:active { transform: scale(0.9); }
+      /* ITEM LIST SIMPEL */
+      #listArea {
+        padding: 15px;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+      }
 
-        /* FLOATING ADD BUTTON */
-        .fab-add {
-            position: fixed; bottom: 20px; right: 20px;
-            background: var(--primary); color: #000;
-            width: 55px; height: 55px; border-radius: 50%;
-            display: flex; align-items: center; justify-content: center;
-            font-size: 1.5rem; box-shadow: 0 5px 20px rgba(255, 215, 0, 0.3);
-            cursor: pointer; z-index: 90; transition: 0.2s; border: none;
-        }
-        .fab-add:active { transform: scale(0.9); }
+      .item-card {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 15px;
+        transition: 0.2s;
+      }
+      .item-card:focus-within {
+        border-color: var(--primary);
+        background: #222;
+      }
 
-        /* MODAL */
-        #modalAdd {
-            display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 100;
-            align-items: center; justify-content: center; padding: 20px; backdrop-filter: blur(5px);
-        }
-        .modal-card {
-            background: var(--surface); width: 100%; max-width: 400px;
-            padding: 25px; border-radius: 16px; border: 1px solid var(--border);
-            animation: slideUp 0.3s ease;
-        }
-        .modal-title { margin-top: 0; color: var(--primary); text-align: center; }
-        .form-group { margin-bottom: 15px; }
-        .form-group label { display: block; color: #aaa; margin-bottom: 5px; font-size: 0.9rem; }
-        .form-input {
-            width: 100%; padding: 12px; background: #111; border: 1px solid #444;
-            color: white; border-radius: 8px; box-sizing: border-box; outline: none;
-        }
-        .form-input:focus { border-color: var(--primary); }
-        .btn-full {
-            width: 100%; padding: 14px; background: var(--primary); color: #000;
-            border: none; border-radius: 10px; font-weight: bold; cursor: pointer; margin-top: 10px;
-        }
-        .btn-cancel {
-            background: transparent; color: #888; margin-top: 10px;
-        }
+      .item-top {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 10px;
+      }
+      .item-name {
+        margin: 0;
+        font-size: 1rem;
+        color: #fff;
+        font-weight: 600;
+      }
+      .badge-cat {
+        background: rgba(255, 255, 255, 0.1);
+        padding: 3px 8px;
+        border-radius: 6px;
+        font-size: 0.7rem;
+        color: #aaa;
+        border: 1px solid #444;
+        white-space: nowrap;
+      }
 
-        @keyframes slideUp { from { transform: translateY(50px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+      /* INFO PEMAKAIAN PAKET */
+      .used-in {
+        background: #111;
+        padding: 8px 10px;
+        border-radius: 6px;
+        font-size: 0.75rem;
+        color: #888;
+        margin-bottom: 12px;
+        border-left: 2px solid #555;
+        line-height: 1.4;
+      }
+      .used-in b {
+        color: #ccc;
+      }
+      .used-in .hl {
+        color: #48dbfb;
+        font-weight: 600;
+      }
+
+      .item-action {
+        display: flex;
+        gap: 10px;
+        align-items: center;
+      }
+      .price-wrapper {
+        flex-grow: 1;
+        display: flex;
+        align-items: center;
+        background: #111;
+        border: 1px solid #333;
+        border-radius: 8px;
+        padding: 5px 10px;
+      }
+      .price-label {
+        font-size: 0.8rem;
+        color: #666;
+        margin-right: 5px;
+      }
+      .price-input {
+        flex-grow: 1;
+        background: transparent;
+        border: none;
+        color: var(--primary);
+        font-weight: bold;
+        font-size: 1.1rem;
+        outline: none;
+        width: 100%;
+      }
+      .unit-label {
+        font-size: 0.8rem;
+        color: #888;
+        margin-left: 5px;
+      }
+
+      .btn-save-mini {
+        background: #333;
+        color: #fff;
+        border: 1px solid #555;
+        padding: 0 15px;
+        height: 38px;
+        border-radius: 8px;
+        cursor: pointer;
+        font-weight: bold;
+        font-size: 0.85rem;
+        transition: 0.2s;
+      }
+      .btn-save-mini:active {
+        transform: scale(0.95);
+        background: var(--primary);
+        color: #000;
+      }
+
+      /* FLOATING ADD BUTTON & MODAL (Sama seperti sebelumnya) */
+      .fab-add {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        background: var(--primary);
+        color: #000;
+        width: 55px;
+        height: 55px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        box-shadow: 0 5px 20px rgba(255, 215, 0, 0.3);
+        cursor: pointer;
+        z-index: 90;
+        border: none;
+      }
+      #modalAdd {
+        display: none;
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.9);
+        z-index: 100;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+        backdrop-filter: blur(5px);
+      }
+      .modal-card {
+        background: var(--surface);
+        width: 100%;
+        max-width: 400px;
+        padding: 25px;
+        border-radius: 16px;
+        border: 1px solid var(--border);
+      }
+      .modal-title {
+        margin-top: 0;
+        color: var(--primary);
+        text-align: center;
+        font-size: 1.2rem;
+      }
+      .form-group {
+        margin-bottom: 15px;
+      }
+      .form-group label {
+        display: block;
+        color: #aaa;
+        margin-bottom: 5px;
+        font-size: 0.85rem;
+      }
+      .form-input {
+        width: 100%;
+        padding: 12px;
+        background: #111;
+        border: 1px solid #444;
+        color: white;
+        border-radius: 8px;
+        box-sizing: border-box;
+        outline: none;
+      }
+      .btn-full {
+        width: 100%;
+        padding: 14px;
+        background: var(--primary);
+        color: #000;
+        border: none;
+        border-radius: 10px;
+        font-weight: bold;
+        cursor: pointer;
+        margin-top: 10px;
+      }
+      .btn-cancel {
+        background: transparent;
+        color: #888;
+        margin-top: 5px;
+      }
     </style>
-</head>
-<body>
-
-    <div class="top-nav">
-        <a href="index.html" class="back-btn"><i class="fas fa-arrow-left"></i></a>
-        <input type="text" id="searchInput" class="search-input" placeholder="🔍 Cari barang..." onkeyup="filterBarang(this.value)">
+  </head>
+  <body>
+    <div class="header-area">
+      <div class="top-nav">
+        <a href="index.html" class="back-btn"
+          ><i class="fas fa-arrow-left"></i
+        ></a>
+        <h2 class="page-title">Master Barang</h2>
+      </div>
+      <div class="filter-group">
+        <input
+          type="text"
+          id="searchInput"
+          class="search-input"
+          placeholder="🔍 Cari nama barang..."
+          onkeyup="filterLokal()"
+        />
+        <select id="catFilter" class="filter-select" onchange="filterLokal()">
+          <option value="">Semua Kategori</option>
+        </select>
+      </div>
     </div>
 
     <div id="listArea">
-        <div style="text-align:center; padding:50px; color:#555;">
-            <i class="fas fa-spinner fa-spin"></i> Memuat data...
-        </div>
+      <div style="text-align: center; padding: 50px; color: #555">
+        <i
+          class="fas fa-spinner fa-spin fa-2x"
+          style="color: var(--primary); margin-bottom: 10px"
+        ></i
+        ><br />Memuat database barang...
+      </div>
     </div>
 
-    <button class="fab-add" onclick="toggleModal(true)"><i class="fas fa-plus"></i></button>
+    <button class="fab-add" onclick="toggleModal(true)">
+      <i class="fas fa-plus"></i>
+    </button>
 
     <div id="modalAdd">
-        <div class="modal-card">
-            <h2 class="modal-title">Tambah Barang</h2>
-            
-            <div class="form-group">
-                <label>Kategori</label>
-                <input type="text" id="k" class="form-input" placeholder="Contoh: Sembako">
-            </div>
-            <div class="form-group">
-                <label>Nama Barang</label>
-                <input type="text" id="n" class="form-input" placeholder="Contoh: Beras 5kg">
-            </div>
-            <div class="form-group">
-                <div style="display:flex; gap:10px;">
-                    <div style="flex:2;">
-                        <label>Harga (Rp)</label>
-                        <input type="number" id="h" class="form-input" placeholder="0">
-                    </div>
-                    <div style="flex:1;">
-                        <label>Satuan</label>
-                        <input type="text" id="s" class="form-input" placeholder="Pcs/Kg">
-                    </div>
-                </div>
-            </div>
-
-            <button onclick="tambah()" class="btn-full" id="btnSimpan">SIMPAN</button>
-            <button onclick="toggleModal(false)" class="btn-full btn-cancel">Batal</button>
+      <div class="modal-card">
+        <h2 class="modal-title">Tambah Barang Baru</h2>
+        <div class="form-group">
+          <label>Kategori</label>
+          <input
+            type="text"
+            id="k"
+            class="form-input"
+            placeholder="Contoh: Sembako"
+          />
         </div>
+        <div class="form-group">
+          <label>Nama Barang</label>
+          <input
+            type="text"
+            id="n"
+            class="form-input"
+            placeholder="Contoh: Beras Super 5Kg"
+          />
+        </div>
+        <div class="form-group" style="display: flex; gap: 10px">
+          <div style="flex: 2">
+            <label>Harga Beli (Rp)</label>
+            <input type="number" id="h" class="form-input" placeholder="0" />
+          </div>
+          <div style="flex: 1">
+            <label>Satuan</label>
+            <input type="text" id="s" class="form-input" placeholder="Pcs/Kg" />
+          </div>
+        </div>
+        <button onclick="tambah()" class="btn-full" id="btnSimpan">
+          SIMPAN BARANG
+        </button>
+        <button onclick="toggleModal(false)" class="btn-full btn-cancel">
+          Batal
+        </button>
+      </div>
     </div>
 
     <script src="script.js"></script>
     <script>
-        let allItems = []; // Menyimpan semua data barang untuk fitur search
+      let allItems = [];
 
-        async function load() {
-            const container = document.getElementById('listArea');
-            const data = await fetchData('getBarang');
-            
-            if(data) {
-                allItems = data; // Simpan ke variabel global
-                renderList(allItems);
-            } else {
-                container.innerHTML = '<div style="text-align:center; padding:20px; color:#888;">Gagal memuat data.</div>';
-            }
+      async function load() {
+        const container = document.getElementById("listArea");
+        const data = await fetchData("getBarang");
+
+        if (data) {
+          allItems = data;
+          buatDropdownKategori();
+          renderList(allItems);
+        } else {
+          container.innerHTML =
+            '<div style="text-align:center; padding:20px; color:#ff6b6b;">Gagal memuat data koneksi terputus.</div>';
+        }
+      }
+
+      function buatDropdownKategori() {
+        // Mengambil daftar kategori unik yang tidak kosong
+        const categories = [
+          ...new Set(allItems.map((item) => item.kategori)),
+        ].filter(Boolean);
+        const select = document.getElementById("catFilter");
+        select.innerHTML = '<option value="">Semua Kategori</option>'; // Reset
+
+        categories.sort().forEach((c) => {
+          select.innerHTML += `<option value="${c}">${c}</option>`;
+        });
+      }
+
+      function filterLokal() {
+        const qTeks = document
+          .getElementById("searchInput")
+          .value.toLowerCase();
+        const qKat = document.getElementById("catFilter").value.toLowerCase();
+
+        const filtered = allItems.filter((item) => {
+          const cocokTeks = item.nama.toLowerCase().includes(qTeks);
+          const cocokKat =
+            qKat === "" || (item.kategori || "").toLowerCase() === qKat;
+          return cocokTeks && cocokKat;
+        });
+
+        renderList(filtered);
+      }
+
+      function renderList(items) {
+        const container = document.getElementById("listArea");
+        container.innerHTML = "";
+
+        if (items.length === 0) {
+          container.innerHTML =
+            '<div style="text-align:center; padding:40px; color:#666;"><i class="fas fa-box-open" style="font-size:2rem; margin-bottom:10px;"></i><br>Barang tidak ditemukan.</div>';
+          return;
         }
 
-        function renderList(items) {
-            const container = document.getElementById('listArea');
-            container.innerHTML = '';
+        let html = "";
+        items.forEach((b) => {
+          const idEl = `price-${b.nama.replace(/\s+/g, "")}`;
 
-            if(items.length === 0) {
-                container.innerHTML = '<div style="text-align:center; padding:20px; color:#555;">Tidak ada barang ditemukan.</div>';
-                return;
-            }
+          // Susun info dipakai di paket mana
+          let infoPaket = "";
+          if (b.dipakai && b.dipakai.length > 0) {
+            const listPaket = b.dipakai
+              .map((p) => `<span class="hl">${p}</span>`)
+              .join(", ");
+            infoPaket = `<div class="used-in"><b><i class="fas fa-link"></i> Terikat di:</b> ${listPaket}</div>`;
+          } else {
+            infoPaket = `<div class="used-in" style="border-color:#444;">Barang Bebas / Belum masuk resep paket utama.</div>`;
+          }
 
-            items.forEach(b => {
-                // ID unik untuk input harga
-                const idEl = `price-${b.nama.replace(/\s+/g, '')}`;
-                
-                // Tentukan icon berdasarkan kategori (Simple Logic)
-                let icon = 'fa-box';
-                const kat = b.kategori.toLowerCase();
-                if(kat.includes('sembako') || kat.includes('beras') || kat.includes('minyak')) icon = 'fa-utensils';
-                if(kat.includes('sabun') || kat.includes('cuci')) icon = 'fa-pump-soap';
-
-                const html = `
+          html += `
                 <div class="item-card">
-                    <div class="item-header">
-                        <div class="item-icon"><i class="fas ${icon}"></i></div>
-                        <div class="item-info">
-                            <h4>${b.nama}</h4>
-                            <small><span class="badge">${b.kategori}</span> • ${b.satuan}</small>
-                        </div>
+                    <div class="item-top">
+                        <h4 class="item-name">${b.nama}</h4>
+                        <span class="badge-cat">${b.kategori}</span>
                     </div>
+                    
+                    ${infoPaket}
+
                     <div class="item-action">
-                        <span class="price-label">Rp</span>
-                        <input type="number" id="${idEl}" class="price-input" value="${b.harga}">
+                        <div class="price-wrapper">
+                            <span class="price-label">Rp</span>
+                            <input type="number" id="${idEl}" class="price-input" value="${b.harga}">
+                            <span class="unit-label">/ ${b.satuan}</span>
+                        </div>
                         <button class="btn-save-mini" onclick="upd('${b.nama}', '${idEl}')">
-                            <i class="fas fa-save"></i>
+                            UPDATE
                         </button>
                     </div>
                 </div>`;
-                container.innerHTML += html;
-            });
+        });
+        container.innerHTML = html;
+      }
+
+      async function upd(nm, idEl) {
+        const hrg = document.getElementById(idEl).value;
+        showToast("Menyimpan harga baru...", "success");
+
+        const res = await fetchData("updateHarga", {
+          nama: nm,
+          hargaBaru: hrg,
+        });
+        if (res && !res.error) {
+          showToast("✅ Harga berhasil diperbarui!");
+          // Update memori lokal agar tidak reset saat difilter lagi
+          let item = allItems.find((i) => i.nama === nm);
+          if (item) item.harga = hrg;
+        } else {
+          showToast("Gagal update harga", "error");
+        }
+      }
+
+      async function tambah() {
+        const k = document.getElementById("k").value;
+        const n = document.getElementById("n").value;
+        const h = document.getElementById("h").value;
+        const s = document.getElementById("s").value;
+
+        if (!n || !h) return showToast("Nama dan Harga wajib diisi!", "error");
+
+        const btn = document.getElementById("btnSimpan");
+        btn.innerText = "Menyimpan...";
+        btn.disabled = true;
+
+        const res = await fetchData("tambahBarang", {
+          kategori: k,
+          nama: n,
+          harga: h,
+          satuan: s,
+        });
+
+        if (res && !res.error) {
+          showToast("✅ Barang Baru Ditambahkan");
+          toggleModal(false);
+
+          // Reset Form
+          document.getElementById("k").value = "";
+          document.getElementById("n").value = "";
+          document.getElementById("h").value = "";
+          document.getElementById("s").value = "";
+
+          // Langsung load ulang data dari server
+          load();
+        } else {
+          showToast("Gagal menambah barang", "error");
         }
 
-        // Fitur Pencarian Client-Side (Cepat)
-        function filterBarang(query) {
-            const q = query.toLowerCase();
-            const filtered = allItems.filter(item => 
-                item.nama.toLowerCase().includes(q) || 
-                item.kategori.toLowerCase().includes(q)
-            );
-            renderList(filtered);
-        }
-        
-        async function upd(nm, idEl) {
-            const hrg = document.getElementById(idEl).value;
-            // Tampilkan loading visual kecil di tombol (opsional) atau langsung toast
-            showToast('Menyimpan...', 'success');
-            
-            await fetchData('updateHarga', {nama: nm, hargaBaru: hrg});
-            showToast('✅ Harga Berhasil Diupdate!');
-        }
+        btn.innerText = "SIMPAN BARANG";
+        btn.disabled = false;
+      }
 
-        async function tambah() {
-            const k = document.getElementById('k').value;
-            const n = document.getElementById('n').value;
-            const h = document.getElementById('h').value;
-            const s = document.getElementById('s').value;
+      function toggleModal(show) {
+        document.getElementById("modalAdd").style.display = show
+          ? "flex"
+          : "none";
+      }
 
-            if(!n || !h) return showToast('Nama dan Harga wajib diisi!', 'error');
-
-            document.getElementById('btnSimpan').innerText = 'Menyimpan...';
-            document.getElementById('btnSimpan').disabled = true;
-
-            const d = { kategori: k, nama: n, harga: h, satuan: s };
-            await fetchData('tambahBarang', d);
-            
-            showToast('✅ Barang Ditambahkan');
-            toggleModal(false);
-            
-            // Reset Form
-            document.getElementById('k').value = '';
-            document.getElementById('n').value = '';
-            document.getElementById('h').value = '';
-            document.getElementById('s').value = '';
-            document.getElementById('btnSimpan').innerText = 'SIMPAN';
-            document.getElementById('btnSimpan').disabled = false;
-
-            load(); // Reload data
-        }
-
-        function toggleModal(show) {
-            const modal = document.getElementById('modalAdd');
-            modal.style.display = show ? 'flex' : 'none';
-        }
-
-        // Load data saat halaman dibuka
-        load();
+      load();
     </script>
-</body>
+  </body>
 </html>
