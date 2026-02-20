@@ -1,325 +1,480 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="id">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Kalender Setoran 2026</title>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-  
-  <style>
-    /* === 1. GLOBAL STYLE (DARK PREMIUM) === */
-    :root {
-      --primary: #ffd700;
-      --success: #00E676;
-      --dark-bg: #050505;
-      --card-bg: #151515;
-      --border: #333;
-    }
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+    />
+    <title>Kalender Setoran - Nizami</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+    />
+    <style>
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        background-color: #071a10;
+        color: #fff;
+        font-family: "Poppins", sans-serif;
+        margin: 0;
+        padding-bottom: 50px;
+      }
 
-    body {
-      background-color: var(--dark-bg);
-      color: #fff;
-      font-family: 'Poppins', sans-serif;
-      margin: 0; padding: 20px;
-      background-image: radial-gradient(circle at top, #1a2f23 0%, #000 70%);
-      min-height: 100vh;
-    }
+      header {
+        padding: 20px;
+        text-align: center;
+        position: sticky;
+        top: 0;
+        z-index: 50;
+        background: rgba(7, 26, 16, 0.95);
+        backdrop-filter: blur(10px);
+        border-bottom: 1px solid #113320;
+      }
+      .title {
+        color: #ffd700;
+        margin: 0;
+        font-size: 1.4rem;
+        font-weight: 800;
+        letter-spacing: 1px;
+        text-transform: uppercase;
+      }
+      .container {
+        padding: 15px 20px;
+        max-width: 600px;
+        margin: 0 auto;
+      }
 
-    h1 {
-      text-align: center; color: var(--primary);
-      margin-bottom: 30px; font-size: 1.5rem;
-      text-transform: uppercase; letter-spacing: 2px;
-    }
+      .info-card {
+        background: #111;
+        border-radius: 16px;
+        padding: 20px;
+        text-align: center;
+        border: 1px solid #222;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+        margin-bottom: 20px;
+      }
+      .badge-paket {
+        display: inline-block;
+        background: #007bff;
+        color: #fff;
+        padding: 4px 15px;
+        border-radius: 20px;
+        font-size: 0.75rem;
+        font-weight: bold;
+        margin-bottom: 10px;
+      }
+      .info-name {
+        font-size: 1.4rem;
+        font-weight: 800;
+        margin: 0 0 5px 0;
+        text-transform: uppercase;
+      }
 
-    /* === 2. INFO CARD === */
-    .info-card {
-      background: rgba(21, 21, 21, 0.95);
-      backdrop-filter: blur(10px);
-      border: 1px solid var(--border);
-      border-radius: 16px;
-      padding: 20px;
-      max-width: 600px; margin: 0 auto 30px;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-      position: sticky; top: 10px; z-index: 100;
-      text-align: center;
-    }
+      .stats-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 15px;
+        margin-top: 15px;
+        border-top: 1px solid #222;
+        padding-top: 15px;
+      }
+      .stat-box {
+        display: flex;
+        flex-direction: column;
+      }
+      .stat-val {
+        font-size: 1.5rem;
+        font-weight: 800;
+        line-height: 1;
+      }
+      .stat-val.green {
+        color: #4ade80;
+      }
+      .stat-val.gold {
+        color: #ffd700;
+      }
+      .stat-label {
+        font-size: 0.65rem;
+        color: #888;
+        margin-top: 5px;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+      }
 
-    .badge {
-      background: #333; color: var(--primary);
-      padding: 4px 12px; border-radius: 50px; border: 1px solid #444;
-      font-size: 0.75rem; font-weight: bold;
-      text-transform: uppercase; display: inline-block; margin-bottom: 10px;
-    }
+      .target-detail-box {
+        background: #0a0a0a;
+        border: 1px dashed #333;
+        border-radius: 10px;
+        padding: 10px;
+        margin-top: 15px;
+        display: flex;
+        justify-content: space-around;
+        font-size: 0.75rem;
+      }
+      .td-item i {
+        margin-right: 5px;
+      }
 
-    .user-name { font-size: 1.4rem; font-weight: 700; margin: 0; line-height: 1.2; }
-    .user-id { color: #888; font-size: 0.9rem; margin-top: 5px; font-family: monospace; }
+      .btn-back {
+        width: 100%;
+        padding: 12px;
+        background: #222;
+        color: #fff;
+        border: none;
+        border-radius: 10px;
+        font-weight: bold;
+        margin-top: 15px;
+        cursor: pointer;
+        transition: 0.2s;
+      }
+      .btn-back:active {
+        background: #333;
+      }
 
-    .stats-row {
-      display: flex; justify-content: space-between;
-      margin-top: 20px; padding-top: 15px;
-      border-top: 1px solid var(--border);
-    }
-    .stat-item { text-align: center; width: 48%; }
-    .stat-val { font-size: 1.5rem; font-weight: bold; display: block; }
-    .stat-label { font-size: 0.75rem; color: #888; text-transform: uppercase; }
-    .text-green { color: var(--success); }
-    .text-gold { color: var(--primary); }
+      .legend-box {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 10px;
+        margin-bottom: 20px;
+        font-size: 0.7rem;
+        color: #aaa;
+      }
+      .lg-item {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+      }
+      .lg-box {
+        width: 14px;
+        height: 14px;
+        border-radius: 3px;
+      }
+      .lg-b-done {
+        background: #4ade80;
+      }
+      .lg-u-done {
+        background: #ffd700;
+      }
+      .lg-b-pend {
+        border: 1px solid #4ade80;
+      }
+      .lg-u-pend {
+        border: 1px solid #ffd700;
+      }
 
-    .btn-back {
-      display: block; width: 100%; text-align: center;
-      margin-top: 15px; padding: 12px;
-      background: #333; color: #fff; border: none;
-      border-radius: 8px; text-decoration: none;
-      font-size: 0.9rem; font-weight: 600; cursor: pointer;
-      transition: 0.3s;
-    }
-    .btn-back:hover { background: #444; }
+      .month-card {
+        background: #111;
+        border-radius: 16px;
+        padding: 15px;
+        border: 1px solid #222;
+        margin-bottom: 20px;
+      }
+      .month-title {
+        text-align: center;
+        color: #48dbfb;
+        font-weight: bold;
+        margin-bottom: 15px;
+        font-size: 1rem;
+        letter-spacing: 1px;
+        text-transform: uppercase;
+      }
 
-    /* === 3. GRID KALENDER HARIAN === */
-    .calendar-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-      gap: 20px;
-      max-width: 1200px; margin: 0 auto;
-    }
+      .cal-grid {
+        display: grid;
+        grid-template-columns: repeat(7, 1fr);
+        gap: 6px;
+      }
+      .cal-head {
+        text-align: center;
+        font-size: 0.7rem;
+        color: #888;
+        font-weight: 600;
+        padding-bottom: 8px;
+      }
+      .cal-cell {
+        aspect-ratio: 1/1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.85rem;
+        font-weight: bold;
+        border-radius: 6px;
+      }
+      .cal-cell.empty {
+        background: transparent;
+      }
 
-    .month-card {
-      background: var(--card-bg);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 15px;
-    }
-    .month-title {
-      text-align: center; color: var(--primary);
-      font-weight: 700; margin-bottom: 15px;
-      text-transform: uppercase; letter-spacing: 1px;
-      border-bottom: 1px solid var(--border); padding-bottom: 10px;
-    }
-    .days-header, .days-body {
-      display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px; text-align: center;
-    }
-    .days-header { margin-bottom: 10px; font-size: 0.8rem; color: #888; }
-    
-    .day-cell {
-      aspect-ratio: 1; display: flex; align-items: center; justify-content: center;
-      border-radius: 6px; font-size: 0.85rem; background: #222; color: #555;
-    }
-    
-    /* LOGIKA WARNA BARU */
-    .day-cell.paid { 
-      background: var(--success); color: #000; font-weight: bold; 
-      box-shadow: 0 0 10px rgba(0, 230, 118, 0.4); 
-    }
-    .day-cell.future { background: rgba(255,255,255,0.05); color: #fff; }
-    .day-cell.disabled { opacity: 0.2; background: transparent; }
+      .cal-grid-weekly {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 10px;
+      }
+      .weekly-cell {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 10px 5px;
+        border-radius: 8px;
+        text-align: center;
+      }
+      .w-tgl {
+        font-size: 0.65rem;
+        opacity: 0.8;
+        margin-bottom: 4px;
+      }
+      .w-mg {
+        font-size: 0.95rem;
+        font-weight: bold;
+      }
 
-    /* === 4. GRID MINGGUAN (KHUSUS) === */
-    .weekly-container {
-      display: grid; 
-      grid-template-columns: repeat(auto-fill, minmax(80px, 1fr)); 
-      gap: 15px; max-width: 800px; margin: 0 auto;
-    }
-    .week-box {
-      aspect-ratio: 1;
-      background: #222; border: 1px solid #333;
-      border-radius: 12px;
-      display: flex; flex-direction: column;
-      align-items: center; justify-content: center;
-      position: relative;
-    }
-    .week-box.paid {
-      background: var(--success); color: #000;
-      border-color: var(--success);
-      box-shadow: 0 0 15px rgba(0, 230, 118, 0.4);
-    }
-    .week-label { font-size: 0.7rem; text-transform: uppercase; margin-bottom: 5px;}
-    .week-number { font-size: 1.2rem; font-weight: bold; }
+      .done-barang {
+        background: #4ade80;
+        color: #000;
+        box-shadow: 0 0 8px rgba(74, 222, 128, 0.4);
+      }
+      .done-uang {
+        background: #ffd700;
+        color: #000;
+        box-shadow: 0 0 8px rgba(255, 215, 0, 0.4);
+      }
+      .pend-barang {
+        border: 1px solid #2b5c3b;
+        color: #4ade80;
+        background: #0a1f12;
+      }
+      .pend-uang {
+        border: 1px solid #665600;
+        color: #ffd700;
+        background: #1f1a00;
+      }
+      .loader {
+        text-align: center;
+        padding: 50px;
+        color: #ffd700;
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <h1 class="title">Kalender Setoran</h1>
+    </header>
 
-    /* Legend & Loading */
-    .legend { display: flex; justify-content: center; gap: 15px; margin-bottom: 30px; font-size: 0.8rem; color: #ccc; }
-    .dot { width: 12px; height: 12px; border-radius: 3px; display: inline-block; margin-right: 5px;}
-    
-    #loadingState { text-align: center; margin-top: 50px; }
-    #mainContent { display: none; } /* Sembunyi dulu sampai data siap */
-  </style>
-</head>
-<body>
-
-  <h1>Kalender Setoran</h1>
-
-  <div id="loadingState">
-      <i class="fas fa-spinner fa-spin fa-2x" style="color:var(--primary)"></i>
-      <p style="color:#666; margin-top:10px;">Menyinkronkan data...</p>
-  </div>
-
-  <div id="mainContent">
-      <div class="info-card">
-        <div>
-            <span class="badge" id="uPaket">-</span>
-            <div class="user-name" id="uNama">Nama Peserta</div>
-            <div class="user-id" id="uId">#ID</div>
-        </div>
-        <div class="stats-row">
-          <div class="stat-item">
-            <span class="stat-val text-green" id="uBayar">0</span>
-            <span class="stat-label">Sudah Setor</span>
-          </div>
-          <div class="stat-item">
-            <span class="stat-val text-gold" id="uTarget">0</span>
-            <span class="stat-label">Target Total</span>
-          </div>
-        </div>
-        <button onclick="window.history.back()" class="btn-back"><i class="fas fa-arrow-left"></i> KEMBALI</button>
+    <div class="container" id="main-content">
+      <div class="loader">
+        <i class="fas fa-spinner fa-spin fa-2x"></i>
+        <p style="font-size: 0.8rem; margin-top: 10px; color: #aaa">
+          Memuat kalender...
+        </p>
       </div>
+    </div>
 
-      <div class="legend">
-        <span><div class="dot" style="background:var(--success)"></div> Sudah Bayar</span>
-        <span><div class="dot" style="background:rgba(255,255,255,0.1)"></div> Belum Bayar</span>
-      </div>
+    <script src="script.js"></script>
+    <script>
+      // Ambil Parameter dari URL dengan aman
+      const urlParams = new URLSearchParams(window.location.search);
+      const paramId = urlParams.get("id") || "Anonim";
+      const paramNama = urlParams.get("nama") || "Peserta";
+      const paramPaket = urlParams.get("paket") || "Paket Default";
+      const paramJumlah = parseInt(urlParams.get("jumlah")) || 0;
 
-      <div id="calendarContainer"></div>
-  </div>
+      // Gunakan String() agar tidak terjadi error toLowerCase jika parameternya kosong
+      const isMingguan = String(paramPaket).toLowerCase().includes("mingguan");
 
-  <script src="script.js"></script>
-  <script>
-    // === CONFIGURASI ===
-    // Sesuai kode lama Anda: Mulai 1 April 2026
-    const START_DATE = new Date('2026-04-01'); 
-    const MONTH_NAMES = ["JANUARI", "FEBRUARI", "MARET", "APRIL", "MEI", "JUNI", "JULI", "AGUSTUS", "SEPTEMBER", "OKTOBER", "NOVEMBER", "DESEMBER"];
-    
-    async function init() {
-        // 1. Ambil ID dari URL
-        const urlParams = new URLSearchParams(window.location.search);
-        const id = urlParams.get('id');
-
-        if(!id) return alert("ID Tidak Ditemukan");
-
+      async function loadData() {
         try {
-            // 2. FETCH DATA DARI SERVER (Agar Sinkron!)
-            const data = await fetchData('cekStatusDetail', {id: id});
-            
-            if(data && !data.error) {
-                renderAll(data);
-                document.getElementById('loadingState').style.display = 'none';
-                document.getElementById('mainContent').style.display = 'block';
-            } else {
-                alert("Data peserta tidak ditemukan");
-                window.history.back();
-            }
-        } catch(e) {
-            console.error(e);
-            alert("Gagal koneksi server");
+          // Gunakan fetchData bawaan script.js Admin
+          const dataPaket = await fetchData("getPaket");
+
+          let detailPaket = dataPaket.find(
+            (p) =>
+              String(p.nama).trim().toLowerCase() ===
+              String(paramPaket).trim().toLowerCase(),
+          );
+
+          if (!detailPaket) {
+            detailPaket = isMingguan
+              ? { target_total: 40, target_barang: 40, target_uang: 0 }
+              : { target_total: 330, target_barang: 130, target_uang: 200 };
+          }
+
+          renderUI(detailPaket);
+        } catch (e) {
+          console.error(e);
+          alert("Gagal memuat target paket. Menampilkan mode default.");
+          renderUI(
+            isMingguan
+              ? { target_total: 40, target_barang: 40, target_uang: 0 }
+              : { target_total: 330, target_barang: 130, target_uang: 200 },
+          );
         }
-    }
+      }
 
-    function renderAll(data) {
-        // === VARIABEL DATA ===
-        const nama = data.nama;
-        const paket = data.paket;
-        const bayar = parseInt(data.tercapai) || 0; // Ambil dari server
-        const target = parseInt(data.target) || 330; // Ambil dari server
+      function renderUI(paketInfo) {
+        let tTotal =
+          parseInt(paketInfo.target_total) || (isMingguan ? 40 : 330);
+        const tBarang = parseInt(paketInfo.target_barang) || 0;
+        const tUang = parseInt(paketInfo.target_uang) || 0;
 
-        const isMingguan = paket.toLowerCase().includes('mingguan');
-        const satuan = isMingguan ? " Minggu" : " Hari";
-
-        // === UPDATE INFO CARD ===
-        document.getElementById('uPaket').innerText = paket;
-        document.getElementById('uNama').innerText = nama;
-        document.getElementById('uId').innerText = "#" + data.id;
-        document.getElementById('uBayar').innerText = bayar + satuan;
-        document.getElementById('uTarget').innerText = target + satuan;
-
-        // === RENDER KALENDER ===
-        const container = document.getElementById('calendarContainer');
-        container.innerHTML = ''; // Reset
-
-        if (isMingguan) {
-            // --- MODE MINGGUAN (KOTAK) ---
-            container.className = 'weekly-container';
-            for(let i=1; i<=target; i++) {
-                const isPaid = i <= bayar;
-                const item = document.createElement('div');
-                item.className = isPaid ? 'week-box paid' : 'week-box';
-                item.innerHTML = `
-                    <div class="week-label">Minggu</div>
-                    <div class="week-number">${i}</div>
-                    ${isPaid ? '<i class="fas fa-check-circle" style="margin-top:5px; font-size:0.8rem;"></i>' : ''}
-                `;
-                container.appendChild(item);
-            }
-
-        } else {
-            // --- MODE HARIAN (KALENDER) ---
-            container.className = 'calendar-grid';
-            
-            // Logika Counter: Mulai dari 0, bertambah tiap hari yang valid
-            let currentDate = new Date(START_DATE);
-            let dayCounter = 0;
-            let loopSafety = 0;
-
-            // Loop per bulan sampai target tercapai
-            // Safety break: 15 bulan maks (biar gak infinite loop)
-            while (dayCounter < target && loopSafety < 15) {
-                loopSafety++;
-                const year = currentDate.getFullYear();
-                const monthIdx = currentDate.getMonth();
+        let html = `
+            <div class="info-card">
+                <div class="badge-paket">${paramPaket}</div>
+                <h2 class="info-name">${paramNama}</h2>
+                <div style="font-size:0.7rem; color:#666; font-family:monospace;">#${paramId}</div>
                 
-                const monthCard = document.createElement('div');
-                monthCard.className = 'month-card';
-                
-                let html = `
-                    <div class="month-title">${MONTH_NAMES[monthIdx]} ${year}</div>
-                    <div class="days-header">
-                        <div>M</div><div>S</div><div>S</div><div>R</div><div>K</div><div>J</div><div>S</div>
+                <div class="target-detail-box">
+                    <div class="td-item" style="color:#4ade80;"><i class="fas fa-box"></i> Brg: <b>${tBarang}x</b></div>
+                    <div class="td-item" style="color:#ffd700;"><i class="fas fa-wallet"></i> Uang: <b>${tUang}x</b></div>
+                </div>
+
+                <div class="stats-grid">
+                    <div class="stat-box">
+                        <span class="stat-val green">${paramJumlah}</span>
+                        <span class="stat-label">Sudah Setor</span>
                     </div>
-                    <div class="days-body">
-                `;
+                    <div class="stat-box">
+                        <span class="stat-val gold">${tTotal}</span>
+                        <span class="stat-label">Total Target</span>
+                    </div>
+                </div>
+                <button class="btn-back" onclick="window.history.back()"><i class="fas fa-arrow-left"></i> Kembali</button>
+            </div>
 
-                // Padding Hari Kosong di Awal Bulan
-                const firstDay = new Date(year, monthIdx, 1).getDay();
-                const daysInMonth = new Date(year, monthIdx + 1, 0).getDate();
+            <div class="legend-box">
+                <div class="lg-item"><div class="lg-box lg-b-done"></div> Lunas (Barang)</div>
+                <div class="lg-item"><div class="lg-box lg-u-done"></div> Lunas (Uang)</div>
+                <div class="lg-item"><div class="lg-box lg-b-pend"></div> Belum (Barang)</div>
+                <div class="lg-item"><div class="lg-box lg-u-pend"></div> Belum (Uang)</div>
+            </div>
+            
+            <div id="calendar-area"></div>
+        `;
 
-                for(let i=0; i<firstDay; i++) html += `<div class="day-cell disabled"></div>`;
+        document.getElementById("main-content").innerHTML = html;
 
-                // Render Tanggal 1 s/d 30/31
-                for(let d=1; d<=daysInMonth; d++) {
-                    let cellClass = 'day-cell';
-                    
-                    // Kita hanya menghitung hari SETELAH start date
-                    // Cek tanggal asli kalender vs Start Date program
-                    const thisDate = new Date(year, monthIdx, d);
+        if (isMingguan) generateWeeklyCalendar(paramJumlah, tBarang, tTotal);
+        else generateDailyCalendar(paramJumlah, tBarang, tTotal);
+      }
 
-                    if (thisDate >= START_DATE && dayCounter < target) {
-                        dayCounter++; // Ini adalah hari ke-1, ke-2, dst dari program
-                        
-                        if (dayCounter <= bayar) {
-                            // Jika hari ke-X ini <= jumlah yang sudah dibayar -> HIJAU
-                            cellClass += ' paid';
-                        } else {
-                            // Jika belum dibayar -> ABU
-                            cellClass += ' future';
-                        }
-                        
-                        html += `<div class="${cellClass}">${d}</div>`;
-                    } else {
-                        // Tanggal sebelum program mulai / sudah lewat target
-                        cellClass += ' disabled';
-                        html += `<div class="${cellClass}">${d}</div>`;
-                    }
-                }
-                html += `</div>`;
-                monthCard.innerHTML = html;
-                container.appendChild(monthCard);
-                
-                // Pindah ke bulan berikutnya
-                currentDate.setMonth(currentDate.getMonth() + 1);
-                currentDate.setDate(1);
+      function generateWeeklyCalendar(setoranMasuk, targetBarang, totalTarget) {
+        let html = "";
+        let currentDate = new Date(2026, 3, 1, 12, 0, 0);
+        let currentMonth = -1;
+        let monthHtml = "";
+
+        const namaBulan = [
+          "JANUARI",
+          "FEBRUARI",
+          "MARET",
+          "APRIL",
+          "MEI",
+          "JUNI",
+          "JULI",
+          "AGUSTUS",
+          "SEPTEMBER",
+          "OKTOBER",
+          "NOVEMBER",
+          "DESEMBER",
+        ];
+
+        for (let i = 1; i <= totalTarget; i++) {
+          if (currentDate.getMonth() !== currentMonth) {
+            if (currentMonth !== -1) {
+              monthHtml += `</div></div>`;
+              html += monthHtml;
             }
-        }
-    }
+            currentMonth = currentDate.getMonth();
+            let titleBulan = `${namaBulan[currentMonth]} ${currentDate.getFullYear()}`;
+            monthHtml = `<div class="month-card"><div class="month-title">${titleBulan}</div><div class="cal-grid-weekly">`;
+          }
 
-    init();
-  </script>
-</body>
+          let isDone = i <= setoranMasuk;
+          let isBarang = i <= targetBarang;
+          let cellClass = "weekly-cell ";
+
+          if (isDone) cellClass += isBarang ? "done-barang" : "done-uang";
+          else cellClass += isBarang ? "pend-barang" : "pend-uang";
+
+          let tglStr = `${currentDate.getDate()} ${namaBulan[currentMonth].substring(0, 3)}`;
+          monthHtml += `<div class="${cellClass}"><div class="w-tgl">${tglStr}</div><div class="w-mg">Mg-${i}</div></div>`;
+          currentDate.setDate(currentDate.getDate() + 7);
+        }
+
+        if (monthHtml !== "") {
+          monthHtml += `</div></div>`;
+          html += monthHtml;
+        }
+        document.getElementById("calendar-area").innerHTML = html;
+      }
+
+      function generateDailyCalendar(setoranMasuk, targetBarang, totalTarget) {
+        let html = "";
+        let currentDate = new Date(2026, 3, 1, 12, 0, 0);
+        let currentMonth = -1;
+        let monthHtml = "";
+
+        const namaBulan = [
+          "JANUARI",
+          "FEBRUARI",
+          "MARET",
+          "APRIL",
+          "MEI",
+          "JUNI",
+          "JULI",
+          "AGUSTUS",
+          "SEPTEMBER",
+          "OKTOBER",
+          "NOVEMBER",
+          "DESEMBER",
+        ];
+        const hariArr = ["Mg", "Sn", "Sl", "Rb", "Km", "Jm", "Sb"];
+
+        for (let i = 1; i <= totalTarget; i++) {
+          if (currentDate.getMonth() !== currentMonth) {
+            if (currentMonth !== -1) {
+              monthHtml += `</div></div>`;
+              html += monthHtml;
+            }
+            currentMonth = currentDate.getMonth();
+            let titleBulan = `${namaBulan[currentMonth]} ${currentDate.getFullYear()}`;
+            monthHtml = `<div class="month-card"><div class="month-title">${titleBulan}</div><div class="cal-grid">`;
+            hariArr.forEach((d) => {
+              monthHtml += `<div class="cal-head">${d}</div>`;
+            });
+
+            let firstDayIndex = currentDate.getDay();
+            for (let e = 0; e < firstDayIndex; e++) {
+              monthHtml += `<div class="cal-cell empty"></div>`;
+            }
+          }
+
+          let isDone = i <= setoranMasuk;
+          let isBarang = i <= targetBarang;
+          let cellClass = "cal-cell ";
+
+          if (isDone) cellClass += isBarang ? "done-barang" : "done-uang";
+          else cellClass += isBarang ? "pend-barang" : "pend-uang";
+
+          monthHtml += `<div class="${cellClass}">${currentDate.getDate()}</div>`;
+          currentDate.setDate(currentDate.getDate() + 1);
+        }
+
+        if (monthHtml !== "") {
+          monthHtml += `</div></div>`;
+          html += monthHtml;
+        }
+        document.getElementById("calendar-area").innerHTML = html;
+      }
+
+      window.onload = loadData;
+    </script>
+  </body>
 </html>
