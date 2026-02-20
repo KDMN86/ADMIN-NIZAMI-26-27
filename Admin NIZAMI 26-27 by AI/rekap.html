@@ -1,255 +1,530 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="id">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+    />
     <title>Rekap Belanja</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
     <style>
-        :root { --primary: #FFD700; --bg: #121212; --surface: #1e1e1e; --text: #e0e0e0; --border: #333; }
-        body { background: var(--bg); color: var(--text); font-family: 'Inter', sans-serif; margin: 0; padding: 0; padding-bottom: 90px; }
+      :root {
+        --primary: #ffd700;
+        --bg: #121212;
+        --surface: #1e1e1e;
+        --text: #e0e0e0;
+        --border: #333;
+      }
+      body {
+        background: var(--bg);
+        color: var(--text);
+        font-family: "Inter", sans-serif;
+        margin: 0;
+        padding: 0;
+        padding-bottom: 100px;
+      }
 
-        /* HEADER */
-        .top-nav {
-            background: rgba(18, 18, 18, 0.95); backdrop-filter: blur(10px);
-            padding: 15px 20px; position: sticky; top: 0; z-index: 50;
-            border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center;
-        }
-        .nav-left { display: flex; align-items: center; gap: 15px; }
-        .back-btn { background: #333; color: white; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; text-decoration: none; border: none; cursor: pointer; }
-        .btn-refresh { background: transparent; color: var(--primary); border: 1px solid var(--primary); padding: 8px 15px; border-radius: 20px; cursor: pointer; font-size: 0.8rem; display: flex; gap: 5px; align-items: center; }
-        
-        /* SEARCH BAR */
-        .search-container { padding: 15px 20px 0 20px; }
-        .search-input {
-            width: 100%; padding: 12px 20px; background: #222; border: 1px solid #444; 
-            color: white; border-radius: 12px; outline: none; font-size: 1rem; box-sizing: border-box;
-        }
-        .search-input:focus { border-color: var(--primary); }
+      /* HEADER */
+      .top-nav {
+        background: rgba(18, 18, 18, 0.95);
+        backdrop-filter: blur(10px);
+        padding: 15px 20px;
+        position: sticky;
+        top: 0;
+        z-index: 50;
+        border-bottom: 1px solid var(--border);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+      .nav-left {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+      }
+      .back-btn {
+        background: #333;
+        color: white;
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-decoration: none;
+      }
+      .btn-refresh {
+        background: #222;
+        color: var(--primary);
+        border: 1px solid #444;
+        padding: 8px 15px;
+        border-radius: 20px;
+        cursor: pointer;
+        font-size: 0.8rem;
+        display: flex;
+        gap: 5px;
+        align-items: center;
+      }
 
-        /* STATS PAKET (Horizontal Scroll) */
-        .stats-scroll {
-            display: flex; gap: 12px; overflow-x: auto; padding: 20px;
-            scrollbar-width: none; /* Hide scrollbar Firefox */
-        }
-        .stats-scroll::-webkit-scrollbar { display: none; /* Hide scrollbar Chrome */ }
-        
-        .stat-card {
-            background: linear-gradient(135deg, #333, #222);
-            border: 1px solid #444; border-radius: 12px;
-            padding: 15px; min-width: 140px; flex-shrink: 0;
-            position: relative; overflow: hidden;
-        }
-        .stat-card::after {
-            content: ''; position: absolute; right: -10px; bottom: -10px;
-            width: 40px; height: 40px; background: var(--primary);
-            opacity: 0.1; border-radius: 50%;
-        }
-        .stat-val { font-size: 1.5rem; font-weight: bold; color: var(--primary); display: block; margin-bottom: 5px; }
-        .stat-label { font-size: 0.8rem; color: #ccc; line-height: 1.2; display: block; }
+      /* SEARCH BAR */
+      .search-container {
+        padding: 15px 20px 0 20px;
+      }
+      .search-input {
+        width: 100%;
+        padding: 12px 20px;
+        background: #222;
+        border: 1px solid #444;
+        color: white;
+        border-radius: 12px;
+        outline: none;
+        font-size: 1rem;
+        box-sizing: border-box;
+      }
+      .search-input:focus {
+        border-color: var(--primary);
+      }
 
-        /* SHOPPING LIST */
-        .list-container { padding: 0 20px 20px 20px; }
-        .section-title { font-size: 0.9rem; color: #888; margin-bottom: 10px; text-transform: uppercase; letter-spacing: 1px; }
+      /* STATS PAKET (Horizontal Scroll) */
+      .stats-scroll {
+        display: flex;
+        gap: 12px;
+        overflow-x: auto;
+        padding: 15px 20px;
+        scrollbar-width: none;
+      }
+      .stats-scroll::-webkit-scrollbar {
+        display: none;
+      }
 
-        .shop-item {
-            background: var(--surface); border-bottom: 1px solid var(--border);
-            padding: 15px; display: flex; justify-content: space-between; align-items: center;
-            transition: 0.2s;
-        }
-        .shop-item:first-child { border-top-left-radius: 12px; border-top-right-radius: 12px; }
-        .shop-item:last-child { border-bottom-left-radius: 12px; border-bottom-right-radius: 12px; border-bottom: none; }
-        
-        .item-left { display: flex; gap: 15px; align-items: center; }
-        .check-circle { 
-            width: 24px; height: 24px; border: 2px solid #555; border-radius: 50%; 
-            display: flex; align-items: center; justify-content: center; color: transparent; transition: 0.2s;
-        }
-        .shop-item.checked .check-circle { background: var(--primary); border-color: var(--primary); color: #000; }
-        .shop-item.checked .item-name { text-decoration: line-through; color: #666; }
-        
-        .item-name { font-size: 1rem; font-weight: 500; color: #fff; }
-        .item-qty { font-size: 1.1rem; font-weight: bold; color: var(--primary); text-align: right; }
-        .item-unit { font-size: 0.8rem; color: #888; font-weight: normal; }
+      .stat-card {
+        background: linear-gradient(135deg, #333, #222);
+        border: 1px solid #444;
+        border-radius: 12px;
+        padding: 12px 15px;
+        min-width: 120px;
+        flex-shrink: 0;
+        position: relative;
+        overflow: hidden;
+      }
+      .stat-card::after {
+        content: "";
+        position: absolute;
+        right: -10px;
+        bottom: -10px;
+        width: 40px;
+        height: 40px;
+        background: var(--primary);
+        opacity: 0.1;
+        border-radius: 50%;
+      }
+      .stat-val {
+        font-size: 1.3rem;
+        font-weight: bold;
+        color: var(--primary);
+        display: block;
+        margin-bottom: 2px;
+      }
+      .stat-label {
+        font-size: 0.75rem;
+        color: #ccc;
+        line-height: 1.2;
+        display: block;
+      }
 
-        /* BOTTOM ACTION */
-        .bottom-bar {
-            position: fixed; bottom: 0; left: 0; right: 0;
-            background: #1a1a1a; padding: 15px 20px;
-            border-top: 1px solid #333; z-index: 100;
-        }
-        .btn-copy {
-            width: 100%; padding: 14px; background: var(--primary); color: #000;
-            border: none; border-radius: 30px; font-weight: bold; font-size: 1rem;
-            cursor: pointer; display: flex; justify-content: center; align-items: center; gap: 10px;
-            box-shadow: 0 5px 20px rgba(255, 215, 0, 0.2);
-        }
-        .btn-copy:active { transform: scale(0.98); }
+      /* PROGRESS BELANJA */
+      .progress-box {
+        padding: 0 20px;
+        margin-bottom: 15px;
+      }
+      .p-text {
+        display: flex;
+        justify-content: space-between;
+        font-size: 0.8rem;
+        color: #aaa;
+        margin-bottom: 5px;
+      }
+      .p-track {
+        width: 100%;
+        height: 8px;
+        background: #222;
+        border-radius: 4px;
+        overflow: hidden;
+      }
+      .p-fill {
+        height: 100%;
+        background: #4caf50;
+        width: 0%;
+        transition: width 0.3s;
+      }
 
-        /* LOADING */
-        #loading { text-align: center; padding: 50px; color: #666; }
+      /* SHOPPING LIST */
+      .list-container {
+        padding: 0 20px 20px 20px;
+      }
+      .section-title {
+        font-size: 0.9rem;
+        color: #888;
+        margin-bottom: 10px;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-end;
+      }
+      .clear-btn {
+        color: #ff6b6b;
+        font-size: 0.75rem;
+        text-transform: none;
+        cursor: pointer;
+        text-decoration: underline;
+      }
+
+      .shop-item {
+        background: var(--surface);
+        border-bottom: 1px solid var(--border);
+        padding: 15px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        transition: 0.2s;
+        cursor: pointer;
+      }
+      .shop-item:first-child {
+        border-top-left-radius: 12px;
+        border-top-right-radius: 12px;
+      }
+      .shop-item:last-child {
+        border-bottom-left-radius: 12px;
+        border-bottom-right-radius: 12px;
+        border-bottom: none;
+      }
+
+      .item-left {
+        display: flex;
+        gap: 15px;
+        align-items: center;
+      }
+      .check-circle {
+        width: 22px;
+        height: 22px;
+        border: 2px solid #555;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: transparent;
+        transition: 0.2s;
+      }
+
+      /* STATE KETIKA DICENTANG */
+      .shop-item.checked .check-circle {
+        background: #4caf50;
+        border-color: #4caf50;
+        color: #000;
+      }
+      .shop-item.checked .item-name {
+        text-decoration: line-through;
+        color: #666;
+      }
+      .shop-item.checked .item-qty {
+        color: #666;
+      }
+
+      .item-name {
+        font-size: 0.95rem;
+        font-weight: 600;
+        color: #fff;
+        transition: 0.2s;
+      }
+      .item-qty {
+        font-size: 1.05rem;
+        font-weight: bold;
+        color: var(--primary);
+        text-align: right;
+        transition: 0.2s;
+      }
+      .item-unit {
+        font-size: 0.75rem;
+        color: #888;
+        font-weight: normal;
+      }
+
+      /* BOTTOM ACTION */
+      .bottom-bar {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: #1a1a1a;
+        padding: 15px 20px;
+        border-top: 1px solid #333;
+        z-index: 100;
+      }
+      .btn-copy {
+        width: 100%;
+        padding: 14px;
+        background: var(--primary);
+        color: #000;
+        border: none;
+        border-radius: 30px;
+        font-weight: bold;
+        font-size: 1rem;
+        cursor: pointer;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 10px;
+      }
+
+      #loading {
+        text-align: center;
+        padding: 50px;
+        color: #666;
+      }
     </style>
-</head>
-<body>
-
+  </head>
+  <body>
     <div class="top-nav">
-        <div class="nav-left">
-            <a href="index.html" class="back-btn"><i class="fas fa-arrow-left"></i></a>
-            <h2 style="margin:0; font-size:1.2rem;">Rekap Belanja</h2>
-        </div>
-        <button onclick="loadRekap()" class="btn-refresh"><i class="fas fa-sync-alt"></i> Refresh</button>
+      <div class="nav-left">
+        <a href="index.html" class="back-btn"
+          ><i class="fas fa-arrow-left"></i
+        ></a>
+        <h2 style="margin: 0; font-size: 1.1rem">Rekap Belanja</h2>
+      </div>
+      <button onclick="loadRekap()" class="btn-refresh">
+        <i class="fas fa-sync-alt"></i> Refresh
+      </button>
     </div>
 
     <div id="loading">
-        <i class="fas fa-spinner fa-spin fa-2x"></i><br><br>Menghitung data terbaru...
+      <i
+        class="fas fa-spinner fa-spin fa-2x"
+        style="color: var(--primary); margin-bottom: 10px"
+      ></i
+      ><br />Menghitung Kebutuhan...
     </div>
 
-    <div id="content" style="display:none;">
-        <div class="stats-scroll" id="paketList"></div>
+    <div id="content" style="display: none">
+      <div class="stats-scroll" id="paketList"></div>
 
-        <div class="search-container">
-            <input type="text" id="filterInput" class="search-input" placeholder="🔍 Cari barang..." onkeyup="filterItems(this.value)">
+      <div class="progress-box">
+        <div class="p-text">
+          <span>Progress Belanja</span>
+          <span><b id="lblDone">0</b> / <span id="lblTotal">0</span></span>
         </div>
+        <div class="p-track">
+          <div class="p-fill" id="barFill"></div>
+        </div>
+      </div>
 
-        <div class="list-container">
-            <div class="section-title" style="margin-top:20px;">Daftar Kebutuhan</div>
-            <div id="belanjaList" style="border: 1px solid var(--border); border-radius: 12px; overflow: hidden;">
-                </div>
-            <div style="text-align:center; margin-top:20px; color:#555; font-size:0.8rem;">
-                Total item ditampilkan: <span id="itemCount">0</span>
-            </div>
+      <div class="search-container" style="padding-top: 0">
+        <input
+          type="text"
+          id="filterInput"
+          class="search-input"
+          placeholder="🔍 Cari nama barang..."
+          onkeyup="filterItems(this.value)"
+        />
+      </div>
+
+      <div class="list-container">
+        <div class="section-title" style="margin-top: 15px">
+          <span>Daftar Kebutuhan</span>
+          <span class="clear-btn" onclick="resetChecks()"
+            ><i class="fas fa-undo"></i> Reset Centang</span
+          >
         </div>
+        <div
+          id="belanjaList"
+          style="
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            overflow: hidden;
+          "
+        ></div>
+      </div>
     </div>
 
     <div class="bottom-bar">
-        <button onclick="copyToClipboard()" class="btn-copy">
-            <i class="far fa-copy"></i> SALIN KE WHATSAPP
-        </button>
+      <button onclick="copyToClipboard()" class="btn-copy" id="btnCopy">
+        <i class="fab fa-whatsapp" style="font-size: 1.2rem"></i> SALIN DAFTAR
+        (WA)
+      </button>
     </div>
 
     <script src="script.js"></script>
     <script>
-        let rawBelanja = []; // Simpan data mentah untuk filter & copy
+      let rawBelanja = [];
+      let checkedItems = new Set(); // Memori pintar untuk menyimpan barang yang dicentang
 
-        async function loadRekap() {
-            document.getElementById('content').style.display = 'none';
-            document.getElementById('loading').style.display = 'block';
+      async function loadRekap() {
+        document.getElementById("content").style.display = "none";
+        document.getElementById("loading").style.display = "block";
 
-            const data = await fetchData('getRekapBelanja');
-            
-            if(data) {
-                // 1. Render Stats Paket (Chip Card)
-                const paketBox = document.getElementById('paketList');
-                paketBox.innerHTML = '';
-                let totalPeserta = 0;
+        const data = await fetchData("getRekapBelanja");
 
-                for(let pkt in data.paketCount) {
-                    const count = data.paketCount[pkt];
-                    if(count > 0) {
-                        totalPeserta += count;
-                        paketBox.innerHTML += `
+        if (data) {
+          // 1. Render Stats Paket
+          const paketBox = document.getElementById("paketList");
+          paketBox.innerHTML = "";
+          let totalPeserta = 0;
+
+          for (let pkt in data.paketCount) {
+            const count = data.paketCount[pkt];
+            if (count > 0) {
+              totalPeserta += count;
+              paketBox.innerHTML += `
                         <div class="stat-card">
                             <span class="stat-val">${count}</span>
                             <span class="stat-label">${pkt}</span>
                         </div>`;
-                    }
-                }
-                
-                // Tambahkan total card di awal
-                paketBox.insertAdjacentHTML('afterbegin', `
+            }
+          }
+
+          paketBox.insertAdjacentHTML(
+            "afterbegin",
+            `
                 <div class="stat-card" style="border-color:var(--primary); background:rgba(255,215,0,0.05);">
                     <span class="stat-val">${totalPeserta}</span>
-                    <span class="stat-label">Total Peserta</span>
-                </div>`);
+                    <span class="stat-label">Total Peserta Aktif</span>
+                </div>`,
+          );
 
-                // 2. Render List Belanja
-                rawBelanja = data.belanja; // Simpan ke global
-                renderList(rawBelanja);
+          // 2. Render List Belanja
+          rawBelanja = data.belanja;
+          document.getElementById("lblTotal").innerText = rawBelanja.length;
 
-                document.getElementById('loading').style.display = 'none';
-                document.getElementById('content').style.display = 'block';
-                showToast("Data berhasil diperbarui");
-            }
+          // Hapus centangan lama jika itemnya sudah tidak ada di data baru
+          const validNames = rawBelanja.map((b) => b.barang);
+          for (let item of checkedItems) {
+            if (!validNames.includes(item)) checkedItems.delete(item);
+          }
+
+          renderList(rawBelanja);
+          updateProgress();
+
+          document.getElementById("loading").style.display = "none";
+          document.getElementById("content").style.display = "block";
+        }
+      }
+
+      function renderList(items) {
+        const container = document.getElementById("belanjaList");
+        container.innerHTML = "";
+
+        if (items.length === 0) {
+          container.innerHTML =
+            '<div style="padding:30px; text-align:center; color:#555;">Semua kebutuhan sudah terpenuhi / kosong.</div>';
+          return;
         }
 
-        function renderList(items) {
-            const container = document.getElementById('belanjaList');
-            container.innerHTML = '';
-            document.getElementById('itemCount').innerText = items.length;
+        items.forEach((b) => {
+          const isChecked = checkedItems.has(b.barang) ? "checked" : "";
 
-            if(items.length === 0) {
-                container.innerHTML = '<div style="padding:20px; text-align:center; color:#555;">Tidak ada barang yang perlu dibeli.</div>';
-                return;
-            }
-
-            items.forEach((b, index) => {
-                // ID unik untuk checkbox visual
-                const id = `item-${index}`;
-                
-                container.innerHTML += `
-                <div class="shop-item" onclick="toggleCheck(this)">
+          container.innerHTML += `
+                <div class="shop-item ${isChecked}" onclick="toggleCheck(this, '${b.barang}')">
                     <div class="item-left">
-                        <div class="check-circle"><i class="fas fa-check" style="font-size:0.8rem;"></i></div>
+                        <div class="check-circle"><i class="fas fa-check" style="font-size:0.7rem;"></i></div>
                         <div class="item-name">${b.barang}</div>
                     </div>
                     <div class="item-qty">
                         ${b.total} <span class="item-unit">${b.satuan}</span>
                     </div>
                 </div>`;
-            });
+        });
+      }
+
+      function toggleCheck(el, barangName) {
+        el.classList.toggle("checked");
+
+        if (el.classList.contains("checked")) {
+          checkedItems.add(barangName);
+        } else {
+          checkedItems.delete(barangName);
+        }
+        updateProgress();
+      }
+
+      function resetChecks() {
+        if (confirm("Yakin ingin mereset semua centangan belanja?")) {
+          checkedItems.clear();
+          filterItems(document.getElementById("filterInput").value); // Re-render current view
+          updateProgress();
+        }
+      }
+
+      function updateProgress() {
+        const total = rawBelanja.length;
+        const done = checkedItems.size;
+        document.getElementById("lblDone").innerText = done;
+
+        const percent = total === 0 ? 0 : Math.round((done / total) * 100);
+        document.getElementById("barFill").style.width = percent + "%";
+      }
+
+      function filterItems(query) {
+        const q = query.toLowerCase();
+        const filtered = rawBelanja.filter((item) =>
+          item.barang.toLowerCase().includes(q),
+        );
+        renderList(filtered);
+      }
+
+      function copyToClipboard() {
+        if (rawBelanja.length === 0) return alert("Daftar kosong!");
+
+        const today = new Date().toLocaleDateString("id-ID", {
+          weekday: "long",
+          year: "numeric",
+          month: "long",
+          day: "numeric",
+        });
+
+        let text = `🛒 *DAFTAR BELANJA NIZAMI*\n📅 ${today}\n\n`;
+
+        // Pisahkan yang belum dibeli dan sudah dibeli
+        let blmBeli = [],
+          sdhBeli = [];
+        rawBelanja.forEach((b) => {
+          if (checkedItems.has(b.barang)) sdhBeli.push(b);
+          else blmBeli.push(b);
+        });
+
+        if (blmBeli.length > 0) {
+          text += `*DAFTAR KEBUTUHAN:*\n`;
+          blmBeli.forEach(
+            (b) => (text += `• ${b.barang}: ${b.total} ${b.satuan}\n`),
+          );
         }
 
-        // Fitur Checklist Visual (Klik item jadi tercoret)
-        function toggleCheck(el) {
-            el.classList.toggle('checked');
-        }
+        text += `\n_Total Item: ${rawBelanja.length}_`;
 
-        // Fitur Pencarian
-        function filterItems(query) {
-            const q = query.toLowerCase();
-            const filtered = rawBelanja.filter(item => item.barang.toLowerCase().includes(q));
-            renderList(filtered);
-        }
+        navigator.clipboard.writeText(text).then(() => {
+          const btn = document.getElementById("btnCopy");
+          const oriText = btn.innerHTML;
+          btn.innerHTML =
+            '<i class="fas fa-check-circle"></i> BERHASIL DISALIN';
+          btn.style.background = "#4caf50";
+          btn.style.color = "#fff";
 
-        // Fitur Salin ke Clipboard (Format WA)
-        function copyToClipboard() {
-            if(rawBelanja.length === 0) return showToast("Daftar kosong!", "error");
+          setTimeout(() => {
+            btn.innerHTML = oriText;
+            btn.style.background = "";
+            btn.style.color = "";
+          }, 2000);
+        });
+      }
 
-            const today = new Date().toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
-            
-            let text = `*DAFTAR BELANJA NIZAMI*\n📅 ${today}\n\n`;
-            
-            rawBelanja.forEach(b => {
-                text += `- ${b.barang}: ${b.total} ${b.satuan}\n`;
-            });
-            
-            text += `\n_Total Item: ${rawBelanja.length}_`;
-
-            // API Copy
-            navigator.clipboard.writeText(text).then(() => {
-                showToast("✅ Berhasil Disalin!");
-                
-                // Efek visual tombol
-                const btn = document.querySelector('.btn-copy');
-                const oriText = btn.innerHTML;
-                btn.innerHTML = '<i class="fas fa-check"></i> TERSALIN';
-                btn.style.background = '#4caf50';
-                btn.style.color = '#fff';
-                
-                setTimeout(() => {
-                    btn.innerHTML = oriText;
-                    btn.style.background = '';
-                    btn.style.color = '';
-                }, 2000);
-
-            }).catch(err => {
-                showToast("Gagal menyalin text", "error");
-            });
-        }
-
-        // Load saat buka
-        loadRekap();
+      loadRekap();
     </script>
-</body>
+  </body>
 </html>
