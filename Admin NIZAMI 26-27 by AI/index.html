@@ -1,214 +1,516 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="id">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+    />
     <title>Dashboard Admin</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
     <style>
-        :root { --primary: #FFD700; --bg: #121212; --surface: #1e1e1e; --surface-2: #252525; --text: #e0e0e0; }
-        body { background: var(--bg); color: var(--text); font-family: 'Inter', sans-serif; margin: 0; padding-bottom: 60px; }
+      :root {
+        --primary: #ffd700;
+        --bg: #121212;
+        --surface: #1e1e1e;
+        --text: #e0e0e0;
+      }
+      body {
+        background: var(--bg);
+        color: var(--text);
+        font-family: "Inter", sans-serif;
+        margin: 0;
+        padding-bottom: 60px;
+      }
 
-        /* HEADER */
-        header {
-            padding: 20px 20px 10px 20px;
-            display: flex; justify-content: space-between; align-items: center;
-        }
-        .greeting { font-size: 0.9rem; color: #aaa; margin: 0; }
-        .brand { font-size: 1.4rem; font-weight: 700; color: #fff; margin: 0; }
-        .brand span { color: var(--primary); }
-        .profile-icon {
-            width: 40px; height: 40px; background: var(--surface); border-radius: 50%;
-            display: flex; align-items: center; justify-content: center; border: 1px solid #333;
-        }
+      header {
+        padding: 20px 20px 10px 20px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+      .greeting {
+        font-size: 0.9rem;
+        color: #aaa;
+        margin: 0;
+      }
+      .brand {
+        font-size: 1.4rem;
+        font-weight: 700;
+        color: #fff;
+        margin: 0;
+      }
+      .brand span {
+        color: var(--primary);
+      }
+      .profile-icon {
+        width: 40px;
+        height: 40px;
+        background: var(--surface);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border: 1px solid #333;
+        cursor: pointer;
+      }
 
-        /* HERO CARD (SALDO) */
-        .hero-container { padding: 10px 20px; }
-        .hero-card {
-            background: linear-gradient(135deg, #FFD700 0%, #B8860B 100%);
-            border-radius: 20px; padding: 25px;
-            color: #000; box-shadow: 0 10px 30px rgba(255, 215, 0, 0.15);
-            position: relative; overflow: hidden;
-        }
-        .hero-card::before {
-            content: ''; position: absolute; top: -30px; right: -30px;
-            width: 120px; height: 120px; background: rgba(255,255,255,0.2);
-            border-radius: 50%;
-        }
-        .hero-label { font-size: 0.85rem; font-weight: 600; opacity: 0.7; text-transform: uppercase; letter-spacing: 1px; }
-        .hero-balance { font-size: 2.2rem; font-weight: 800; margin: 5px 0 15px 0; letter-spacing: -1px; }
-        
-        .hero-stats { display: flex; gap: 20px; border-top: 1px solid rgba(0,0,0,0.1); padding-top: 15px; }
-        .stat-item b { display: block; font-size: 1.2rem; }
-        .stat-item span { font-size: 0.75rem; opacity: 0.7; }
+      .hero-container {
+        padding: 10px 20px;
+      }
+      .hero-card {
+        background: linear-gradient(135deg, #ffd700 0%, #b8860b 100%);
+        border-radius: 20px;
+        padding: 25px;
+        color: #000;
+        box-shadow: 0 10px 30px rgba(255, 215, 0, 0.15);
+        position: relative;
+        overflow: hidden;
+      }
+      .hero-card::before {
+        content: "";
+        position: absolute;
+        top: -30px;
+        right: -30px;
+        width: 120px;
+        height: 120px;
+        background: rgba(255, 255, 255, 0.2);
+        border-radius: 50%;
+      }
+      .hero-label {
+        font-size: 0.85rem;
+        font-weight: 600;
+        opacity: 0.7;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+      }
+      .hero-balance {
+        font-size: 2.2rem;
+        font-weight: 800;
+        margin: 5px 0 15px 0;
+        letter-spacing: -1px;
+      }
 
-        /* RECENT ACTIVITY */
-        .section-title { padding: 0 20px; margin: 25px 0 10px 0; font-size: 0.9rem; color: #888; text-transform: uppercase; letter-spacing: 1px; display: flex; justify-content: space-between; }
-        .refresh-btn { color: var(--primary); cursor: pointer; font-size: 0.8rem; text-decoration: none; }
-        
-        .recent-list { padding: 0 20px; display: flex; flex-direction: column; gap: 10px; }
-        .recent-item {
-            background: var(--surface); padding: 12px 15px; border-radius: 12px;
-            display: flex; justify-content: space-between; align-items: center;
-            border: 1px solid #333; animation: fadeIn 0.5s ease;
-        }
-        .ri-left { display: flex; gap: 12px; align-items: center; }
-        .ri-icon { width: 35px; height: 35px; background: rgba(76, 175, 80, 0.1); color: #4caf50; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.9rem; }
-        .ri-info h4 { margin: 0; font-size: 0.95rem; color: #fff; }
-        .ri-info span { font-size: 0.75rem; color: #888; }
-        .ri-amount { font-weight: bold; color: var(--primary); font-size: 0.95rem; }
+      .hero-stats {
+        display: flex;
+        gap: 20px;
+        border-top: 1px solid rgba(0, 0, 0, 0.1);
+        padding-top: 15px;
+      }
+      .stat-item b {
+        display: block;
+        font-size: 1.2rem;
+      }
+      .stat-item span {
+        font-size: 0.75rem;
+        opacity: 0.7;
+        font-weight: 600;
+      }
 
-        /* MENU GRID */
-        .menu-container { padding: 20px; }
-        .menu-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; }
-        .menu-item {
-            display: flex; flex-direction: column; align-items: center; gap: 8px;
-            text-decoration: none; color: #ccc; transition: 0.2s;
-        }
-        .menu-item:active { transform: scale(0.95); opacity: 0.8; }
-        .menu-box {
-            width: 100%; aspect-ratio: 1/1; background: var(--surface);
-            border-radius: 16px; border: 1px solid #333;
-            display: flex; align-items: center; justify-content: center;
-            font-size: 1.4rem; color: var(--primary);
-            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
-        }
-        .menu-item span { font-size: 0.75rem; text-align: center; line-height: 1.2; }
+      .section-title {
+        padding: 0 20px;
+        margin: 25px 0 15px 0;
+        font-size: 0.9rem;
+        color: #888;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+      }
+      .menu-container {
+        padding: 0 20px;
+      }
+      .menu-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 15px;
+      }
+      .menu-item {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 8px;
+        text-decoration: none;
+        color: #ccc;
+        transition: 0.2s;
+      }
+      .menu-item:active {
+        transform: scale(0.95);
+        opacity: 0.8;
+      }
+      .menu-box {
+        width: 100%;
+        aspect-ratio: 1/1;
+        background: var(--surface);
+        border-radius: 16px;
+        border: 1px solid #333;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.4rem;
+        color: var(--primary);
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+      }
+      .menu-item span {
+        font-size: 0.75rem;
+        text-align: center;
+        line-height: 1.2;
+      }
 
-        /* SKELETON LOADING */
-        .skeleton { background: #222; height: 60px; border-radius: 12px; animation: pulse 1.5s infinite; }
-        @keyframes pulse { 0% { opacity: 0.5; } 50% { opacity: 1; } 100% { opacity: 0.5; } }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+      .paket-container {
+        padding: 10px 20px;
+        margin-top: 10px;
+      }
+      .paket-list {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+      }
+
+      /* PAKET ITEM DIBUAT CLICKABLE */
+      .paket-item {
+        background: var(--surface);
+        border: 1px solid #333;
+        padding: 12px 15px;
+        border-radius: 12px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        color: #fff;
+        font-size: 0.9rem;
+        cursor: pointer;
+        transition: 0.2s;
+      }
+      .paket-item:active {
+        transform: scale(0.98);
+        background: #25251a;
+        border-color: var(--primary);
+      }
+      .paket-item b {
+        color: var(--primary);
+        background: rgba(255, 215, 0, 0.1);
+        padding: 4px 10px;
+        border-radius: 8px;
+        font-size: 0.85rem;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+      }
+
+      /* MODAL / POPUP CSS */
+      #modalDetail {
+        display: none;
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.85);
+        backdrop-filter: blur(5px);
+        z-index: 1000;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+      }
+      .modal-content {
+        background: var(--surface);
+        width: 100%;
+        max-width: 400px;
+        border-radius: 16px;
+        border: 1px solid #444;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+        max-height: 80vh;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+      }
+      .modal-header {
+        padding: 15px 20px;
+        border-bottom: 1px dashed #333;
+        background: #1a1a1a;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+      .modal-header h3 {
+        margin: 0;
+        color: var(--primary);
+        font-size: 1.05rem;
+      }
+      .close-btn {
+        color: #aaa;
+        cursor: pointer;
+        font-size: 1.3rem;
+        padding: 5px;
+      }
+      .modal-body {
+        padding: 15px 20px;
+        overflow-y: auto;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+      }
+
+      /* KARTU PESERTA DI DALAM MODAL */
+      .detail-item {
+        background: #111;
+        padding: 12px 15px;
+        border-radius: 10px;
+        border: 1px solid #2a2a2a;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+      .detail-info h4 {
+        margin: 0 0 5px 0;
+        font-size: 0.95rem;
+        color: #fff;
+        display: flex;
+        gap: 5px;
+        align-items: center;
+      }
+      .detail-info span {
+        font-size: 0.75rem;
+        color: #aaa;
+        background: #222;
+        padding: 2px 6px;
+        border-radius: 4px;
+        border: 1px solid #333;
+      }
+      .detail-mitra {
+        text-align: right;
+        font-size: 0.75rem;
+        color: var(--primary);
+        display: flex;
+        flex-direction: column;
+        align-items: flex-end;
+      }
+      .detail-mitra i {
+        margin-bottom: 3px;
+      }
+
+      .skeleton {
+        background: #222;
+        height: 45px;
+        border-radius: 12px;
+        animation: pulse 1.5s infinite;
+      }
+      @keyframes pulse {
+        0% {
+          opacity: 0.5;
+        }
+        50% {
+          opacity: 1;
+        }
+        100% {
+          opacity: 0.5;
+        }
+      }
     </style>
-</head>
-<body>
-
+  </head>
+  <body>
     <header>
-        <div>
-            <p class="greeting" id="greetingText">Halo, Admin</p>
-            <h1 class="brand">NIZAMI <span>2026</span></h1>
-        </div>
-        <div class="profile-icon">
-            <i class="fas fa-user-shield" style="color: #fff;"></i>
-        </div>
+      <div>
+        <p class="greeting" id="greetingText">Halo, Admin</p>
+        <h1 class="brand">NIZAMI <span>2026-2027</span></h1>
+      </div>
+      <div class="profile-icon" onclick="logout()">
+        <i class="fas fa-sign-out-alt" style="color: #ff5252"></i>
+      </div>
     </header>
 
     <div class="hero-container">
-        <div class="hero-card">
-            <div class="hero-label">Total Uang Masuk</div>
-            <div class="hero-balance" id="dashUang">Rp ...</div>
-            <div class="hero-stats">
-                <div class="stat-item">
-                    <b id="dashPeserta">...</b>
-                    <span>Peserta</span>
-                </div>
-                <div class="stat-item">
-                    <b id="dashTrx">...</b>
-                    <span>Trx Hari Ini</span>
-                </div>
-            </div>
+      <div class="hero-card">
+        <div class="hero-label">Total Uang Masuk</div>
+        <div class="hero-balance" id="dashUang">Rp ...</div>
+        <div class="hero-stats">
+          <div class="stat-item">
+            <b id="dashPeserta">...</b><span>Total Peserta</span>
+          </div>
+          <div class="stat-item">
+            <b id="dashLunas">...</b><span>Lunas Barang</span>
+          </div>
         </div>
+      </div>
     </div>
 
     <div class="menu-container">
-        <div class="section-title">Menu Utama</div>
-        <div class="menu-grid">
-            <a href="setoran.html" class="menu-item">
-                <div class="menu-box"><i class="fas fa-wallet"></i></div>
-                <span>Setoran</span>
-            </a>
-            <a href="daftar.html" class="menu-item">
-                <div class="menu-box"><i class="fas fa-user-plus"></i></div>
-                <span>Daftar</span>
-            </a>
-            <a href="cekStatus.html" class="menu-item">
-                <div class="menu-box"><i class="fas fa-search"></i></div>
-                <span>Cek Status</span>
-            </a>
-            <a href="rekap.html" class="menu-item">
-                <div class="menu-box"><i class="fas fa-clipboard-list"></i></div>
-                <span>Rekap</span>
-            </a>
-            <a href="barang.html" class="menu-item">
-                <div class="menu-box"><i class="fas fa-box-open"></i></div>
-                <span>Barang</span>
-            </a>
-            <a href="mitra.html" class="menu-item">
-                <div class="menu-box"><i class="fas fa-handshake"></i></div>
-                <span>Mitra</span>
-            </a>
-            <a href="galeri.html" class="menu-item">
-                <div class="menu-box"><i class="fas fa-camera"></i></div>
-                <span>Galeri</span>
-            </a>
-            <div class="menu-item" onclick="location.reload()" style="cursor:pointer">
-                <div class="menu-box" style="background:#222; border-color:#444;"><i class="fas fa-sync-alt" style="color:#fff;"></i></div>
-                <span>Refresh</span>
-            </div>
-        </div>
+      <div class="section-title">Menu Utama</div>
+      <div class="menu-grid">
+        <a href="setoran.html" class="menu-item"
+          ><div class="menu-box"><i class="fas fa-wallet"></i></div>
+          <span>Setoran</span></a
+        >
+        <a href="daftar.html" class="menu-item"
+          ><div class="menu-box"><i class="fas fa-user-plus"></i></div>
+          <span>Daftar</span></a
+        >
+        <a href="cekStatus.html" class="menu-item"
+          ><div class="menu-box"><i class="fas fa-search"></i></div>
+          <span>Cek Status</span></a
+        >
+        <a href="rekap.html" class="menu-item"
+          ><div class="menu-box"><i class="fas fa-clipboard-list"></i></div>
+          <span>Rekap</span></a
+        >
+        <a href="barang.html" class="menu-item"
+          ><div class="menu-box"><i class="fas fa-box-open"></i></div>
+          <span>Barang</span></a
+        >
+        <a href="mitra.html" class="menu-item"
+          ><div class="menu-box"><i class="fas fa-handshake"></i></div>
+          <span>Mitra</span></a
+        >
+        <a href="galeri.html" class="menu-item"
+          ><div class="menu-box"><i class="fas fa-camera"></i></div>
+          <span>Galeri</span></a
+        >
+        <a href="transaksi.html" class="menu-item">
+          <div
+            class="menu-box"
+            style="background: #25251a; border-color: var(--primary)"
+          >
+            <i class="fas fa-history" style="color: var(--primary)"></i>
+          </div>
+          <span style="color: var(--primary); font-weight: bold"
+            >Transaksi</span
+          >
+        </a>
+      </div>
     </div>
 
-    <div>
-        <div class="section-title">
-            <span>Aktivitas Terkini</span>
-            <span onclick="loadDashboard()" class="refresh-btn"><i class="fas fa-sync"></i> Update</span>
+    <div class="paket-container">
+      <div class="section-title" style="padding: 0; margin-top: 10px">
+        Statistik Peserta (Klik detail)
+      </div>
+      <div class="paket-list" id="paketList">
+        <div class="skeleton"></div>
+        <div class="skeleton"></div>
+        <div class="skeleton"></div>
+      </div>
+    </div>
+
+    <div id="modalDetail">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3 id="modalTitle">Detail Peserta</h3>
+          <i class="fas fa-times close-btn" onclick="tutupModal()"></i>
         </div>
-        <div class="recent-list" id="recentList">
-            <div class="skeleton"></div>
-            <div class="skeleton"></div>
-            <div class="skeleton"></div>
-        </div>
+        <div class="modal-body" id="modalBody"></div>
+      </div>
     </div>
 
     <script src="script.js"></script>
     <script>
-        // Sapaan Waktu
+      let globalPaketData = {}; // Menyimpan data peserta secara global
+
+      const setGreeting = () => {
         const hour = new Date().getHours();
-        let greet = 'Selamat Pagi';
-        if(hour >= 11) greet = 'Selamat Siang';
-        if(hour >= 15) greet = 'Selamat Sore';
-        if(hour >= 19) greet = 'Selamat Malam';
-        document.getElementById('greetingText').innerText = greet + ", Admin";
+        let greet = "Selamat Pagi";
+        if (hour >= 11) greet = "Selamat Siang";
+        if (hour >= 15) greet = "Selamat Sore";
+        if (hour >= 19) greet = "Selamat Malam";
+        document.getElementById("greetingText").innerText = greet + ", Admin";
+      };
 
-        async function loadDashboard() {
-            // Efek loading kecil di saldo
-            document.getElementById('dashUang').style.opacity = '0.5';
-            
-            const data = await fetchData('getAdminStats'); //
-            
-            if(data) {
-                // Update Saldo
-                document.getElementById('dashUang').innerText = formatRupiah(data.uang);
-                document.getElementById('dashUang').style.opacity = '1';
-                document.getElementById('dashPeserta').innerText = data.peserta;
-                document.getElementById('dashTrx').innerText = data.trxToday;
+      async function loadDashboard() {
+        const dashUang = document.getElementById("dashUang");
+        const pktList = document.getElementById("paketList");
 
-                // Update Recent Activity
-                const list = document.getElementById('recentList');
-                list.innerHTML = '';
-                
-                if(data.recent && data.recent.length > 0) {
-                    data.recent.forEach(r => {
-                        list.innerHTML += `
-                        <div class="recent-item">
-                            <div class="ri-left">
-                                <div class="ri-icon"><i class="fas fa-arrow-down"></i></div>
-                                <div class="ri-info">
-                                    <h4>${r.nama}</h4>
-                                    <span>${r.waktu} • Setoran</span>
-                                </div>
-                            </div>
-                            <div class="ri-amount">+ ${formatRupiah(r.nominal)}</div>
-                        </div>`;
-                    });
-                } else {
-                    list.innerHTML = '<div style="text-align:center; padding:20px; color:#555;">Belum ada transaksi hari ini.</div>';
-                }
+        dashUang.style.opacity = "0.5";
+
+        try {
+          const data = await fetchData("getAdminStats");
+
+          if (data) {
+            dashUang.innerText = formatRupiah(data.uang || 0);
+            document.getElementById("dashPeserta").innerText =
+              data.peserta || 0;
+            document.getElementById("dashLunas").innerText =
+              data.lunasBarang || 0;
+
+            // Simpan data paket untuk dipakai saat diklik
+            globalPaketData = data.paketBreakdown || {};
+
+            pktList.innerHTML = "";
+            if (Object.keys(globalPaketData).length > 0) {
+              let htmlPkt = "";
+              const sortedPaket = Object.keys(globalPaketData).sort();
+
+              sortedPaket.forEach((pkt) => {
+                // Berikan fungsi onClick pada setiap kartu
+                htmlPkt += `
+                <div class="paket-item" onclick="bukaModal('${pkt}')">
+                  <span>${pkt}</span>
+                  <b>${globalPaketData[pkt].length} Orang <i class="fas fa-chevron-right"></i></b>
+                </div>`;
+              });
+              pktList.innerHTML = htmlPkt;
+            } else {
+              pktList.innerHTML =
+                '<div style="text-align:center; padding:20px; color:#555;">Belum ada data peserta.</div>';
             }
+          }
+        } catch (error) {
+          dashUang.innerText = "Rp 0";
+          document.getElementById("dashPeserta").innerText = "0";
+          document.getElementById("dashLunas").innerText = "0";
+          pktList.innerHTML =
+            '<div style="text-align:center; padding:20px; color:#ff4444;">Gagal memuat data.</div>';
+        } finally {
+          dashUang.style.opacity = "1";
         }
-        
+      }
+
+      // FUNGSI UNTUK MEMBUKA MODAL & MERENDER LIST
+      function bukaModal(paketName) {
+        document.getElementById("modalTitle").innerText = paketName;
+        const body = document.getElementById("modalBody");
+        body.innerHTML = "";
+
+        const listPeserta = globalPaketData[paketName];
+
+        if (listPeserta && listPeserta.length > 0) {
+          listPeserta.forEach((p, index) => {
+            body.innerHTML += `
+            <div class="detail-item">
+              <div class="detail-info">
+                <h4><span style="color:#aaa;">${index + 1}.</span> ${p.nama}</h4>
+                <span><i class="far fa-id-badge"></i> ${p.id}</span>
+              </div>
+              <div class="detail-mitra">
+                <i class="fas fa-handshake"></i>
+                <span>${p.mitra}</span>
+              </div>
+            </div>`;
+          });
+        } else {
+          body.innerHTML =
+            '<div style="text-align:center; color:#888;">Data tidak ditemukan.</div>';
+        }
+
+        document.getElementById("modalDetail").style.display = "flex";
+      }
+
+      // FUNGSI MENUTUP MODAL
+      function tutupModal() {
+        document.getElementById("modalDetail").style.display = "none";
+      }
+
+      // Tutup modal jika user klik di area luar kotak
+      window.onclick = function (event) {
+        const modal = document.getElementById("modalDetail");
+        if (event.target == modal) {
+          modal.style.display = "none";
+        }
+      };
+
+      document.addEventListener("DOMContentLoaded", () => {
+        setGreeting();
         loadDashboard();
+      });
     </script>
-</body>
+  </body>
 </html>
