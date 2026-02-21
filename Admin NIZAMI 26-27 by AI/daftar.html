@@ -503,6 +503,19 @@
         Kirim bukti ini ke Mitra/Peserta
       </p>
       <img id="resImg" src="" />
+
+      <div
+        id="waActionContainer"
+        style="
+          display: flex;
+          flex-direction: column;
+          gap: 10px;
+          width: 100%;
+          max-width: 350px;
+          margin-bottom: 15px;
+        "
+      ></div>
+
       <div style="display: flex; gap: 10px; width: 100%; max-width: 350px">
         <button onclick="downloadStruk()" class="btn-save-all">
           <i class="fas fa-download"></i> Simpan Gambar
@@ -720,9 +733,6 @@
         }
       }
 
-      // ========================================================
-      // FUNGSI LAINNYA (TIDAK BERUBAH)
-      // ========================================================
       function setDropdownByText(selectElement, textToFind) {
         const cleanText = textToFind.toLowerCase().trim();
         for (let i = 0; i < selectElement.options.length; i++) {
@@ -1016,7 +1026,7 @@
 
         for (const card of cards) {
           const nama = card.querySelector(".inp-nama").value;
-          const hp = card.querySelector(".inp-hp").value;
+          const hp = card.querySelector(".inp-hp").value; // Pastikan ambil variabel HP
           const alamat = card.querySelector(".inp-alamat").value;
           const mitra = card.querySelector(".inp-mitra").value;
           const paket = card.querySelector(".inp-paket").value;
@@ -1052,8 +1062,10 @@
                 items_json: items_json,
               });
               if (res.success) {
+                // TAMBAHKAN 'hp' KE DALAM ARRAY SUCCESS DATA UNTUK WA
                 successData.push({
                   nama,
+                  hp,
                   mitra,
                   paket,
                   id: res.id,
@@ -1074,12 +1086,16 @@
 
       async function generateReceipt(data) {
         const rContent = document.getElementById("rContent");
+        const waContainer = document.getElementById("waActionContainer");
+
         document.getElementById("rDate").innerText = new Date().toLocaleString(
           "id-ID",
         );
         rContent.innerHTML = "";
+        waContainer.innerHTML = ""; // Bersihkan tombol WA lama
 
         data.forEach((d) => {
+          // --- 1. RENDER HTML STRUK GAMBAR ---
           let extraHtml = "";
           if (d.rincian) {
             let formatRincian = d.rincian
@@ -1099,6 +1115,49 @@
                     <div class="r-label">Mitra:</div><div class="r-val">${d.mitra}</div>
                     ${extraHtml}
                 </div>`;
+
+          // --- 2. RENDER TOMBOL & TEKS WHATSAPP ---
+          let hpClean = String(d.hp).replace(/\D/g, "");
+          if (hpClean.startsWith("0")) hpClean = "62" + hpClean.substring(1);
+
+          if (hpClean.length > 8) {
+            let waText = `Halo *${d.nama}*,\n`;
+            waText += `Pendaftaran Tabungan NIZAMI 2026-2027 Anda telah berhasil! 🎉\n\n`;
+            waText += `*RINCIAN PENDAFTARAN*\n`;
+            waText += `👤 Nama: ${d.nama}\n`;
+            waText += `📦 Paket: ${d.paket}\n`;
+            waText += `🤝 Mitra: ${d.mitra}\n\n`;
+
+            // BLOK ID PESERTA (Diisolasi agar mudah di-copy dan sangat jelas)
+            waText += `👇 *ID PESERTA ANDA* 👇\n\n`;
+            waText += `\`${d.id}\`\n\n`;
+            waText += `_(Sentuh / tahan teks ID di atas untuk menyalin)_\n\n`;
+
+            if (d.rincian) {
+              waText += `*Rincian Barang:*\n`;
+              let formatRincianWA = d.rincian
+                .split("\n")
+                .map((item) => `- ${item}`)
+                .join("\n");
+              waText += `${formatRincianWA}\n\n`;
+            }
+
+            if (d.setoran) {
+              waText += `🎯 Target Setoran: *${d.setoran}*\n\n`;
+            }
+
+            waText += `Untuk mengecek status setoran dan kalender tabungan Anda, silakan buka aplikasi peserta dan masukkan ID Anda di link berikut:\n`;
+            waText += `🌐 https://nizami-26-27-fix.vercel.app/\n\n`;
+            waText += `Terima kasih! 🙏`;
+
+            const waLink = `https://wa.me/${hpClean}?text=${encodeURIComponent(waText)}`;
+
+            waContainer.innerHTML += `
+                <a href="${waLink}" target="_blank" style="background:#25D366; color:#fff; text-decoration:none; padding:12px; border-radius:8px; font-weight:bold; display:flex; align-items:center; justify-content:center; gap:8px;">
+                    <i class="fab fa-whatsapp" style="font-size:1.3rem;"></i> Kirim WA ke ${d.nama}
+                </a>
+             `;
+          }
         });
 
         const canvas = await html2canvas(
