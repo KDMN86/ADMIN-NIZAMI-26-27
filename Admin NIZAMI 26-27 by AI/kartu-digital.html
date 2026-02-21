@@ -1,0 +1,298 @@
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>Kartu Tabungan Digital - Nizami</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700;800&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <style>
+      * { box-sizing: border-box; }
+      body { background-color: #071a10; color: #fff; font-family: "Poppins", sans-serif; margin: 0; padding-bottom: 30px; }
+
+      /* HEADER */
+      header {
+        padding: 20px; text-align: center; position: sticky; top: 0; z-index: 50;
+        background: rgba(7, 26, 16, 0.95); backdrop-filter: blur(10px); border-bottom: 1px solid #113320;
+      }
+      .title { color: #ffd700; margin: 0; font-size: 1.2rem; font-weight: 800; letter-spacing: 1px; text-transform: uppercase; }
+      .subtitle { font-size: 0.75rem; color: #aaa; margin-top: 2px; }
+
+      .container { padding: 20px; max-width: 500px; margin: 0 auto; }
+
+      /* KARTU EMAS NIZAMI */
+      .card-container { margin-bottom: 25px; perspective: 1000px; }
+      .member-card-box {
+        background: linear-gradient(135deg, #FFD700 0%, #FDB931 50%, #B8860B 100%);
+        color: #000; padding: 25px; border-radius: 20px;
+        box-shadow: 0 15px 35px rgba(255, 215, 0, 0.2); position: relative; overflow: hidden;
+        border: 1px solid #FFEDA6; animation: slideDown 0.5s ease-out;
+      }
+      .member-card-box::after {
+        content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+        background-image: radial-gradient(circle, rgba(0,0,0,0.05) 1px, transparent 1px); background-size: 10px 10px; pointer-events: none;
+      }
+      .mc-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 15px; }
+      .chip-sim { width: 45px; height: 32px; background: linear-gradient(135deg, #ddd, #aaa); border-radius: 6px; border: 1px solid #888; position: relative; }
+      .chip-sim::before { content: ''; position: absolute; top: 50%; left: 0; right: 0; height: 1px; background: #888; }
+      .chip-sim::after { content: ''; position: absolute; top: 0; bottom: 0; left: 33%; width: 33%; border-left: 1px solid #888; border-right: 1px solid #888; }
+      
+      .mc-label { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 1px; opacity: 0.8; font-weight: 700; }
+      .mc-balance { font-size: 2.2rem; font-weight: 800; margin: 0; letter-spacing: -1px; text-shadow: 0 2px 0 rgba(255,255,255,0.3); }
+      .mc-paket { background: rgba(0,0,0,0.1); padding: 4px 10px; border-radius: 20px; font-size: 0.75rem; font-weight: bold; display: inline-block; margin-bottom: 10px; border: 1px solid rgba(0,0,0,0.2); }
+      
+      .mc-footer { display: flex; justify-content: space-between; align-items: flex-end; margin-top: 20px; }
+      .mc-name { font-weight: 800; font-size: 1.1rem; text-transform: uppercase; letter-spacing: 1px; }
+      .mc-id { font-family: monospace; font-size: 1rem; font-weight: 700; opacity: 0.8; background: rgba(255,255,255,0.3); padding: 3px 8px; border-radius: 6px;}
+
+      /* STATS SINGKAT */
+      .stats-box { background: #111; border: 1px solid #222; border-radius: 15px; padding: 15px; display: flex; justify-content: space-around; margin-bottom: 25px; text-align: center; }
+      .sb-item { display: flex; flex-direction: column; }
+      .sb-val { font-size: 1.4rem; font-weight: 800; color: #4ade80; }
+      .sb-label { font-size: 0.7rem; color: #888; text-transform: uppercase; margin-top: 4px; }
+
+      /* KALENDER */
+      .section-title { font-size: 1rem; color: #fff; margin-bottom: 15px; font-weight: bold; border-left: 3px solid #ffd700; padding-left: 10px; }
+      .legend-box { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; margin-bottom: 20px; font-size: 0.7rem; color: #aaa; }
+      .lg-item { display: flex; align-items: center; gap: 5px; }
+      .lg-box { width: 14px; height: 14px; border-radius: 3px; }
+      .lg-b-done { background: #4ade80; } .lg-u-done { background: #ffd700; }
+      .lg-b-pend { border: 1px solid #4ade80; } .lg-u-pend { border: 1px solid #ffd700; }
+
+      .month-card { background: #111; border-radius: 16px; padding: 15px; border: 1px solid #222; margin-bottom: 20px; }
+      .month-title { text-align: center; color: #48dbfb; font-weight: bold; margin-bottom: 15px; font-size: 0.9rem; letter-spacing: 1px; text-transform: uppercase; }
+
+      /* Grid Mingguan & Harian (Dari referensi kalender lama) */
+      .cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; }
+      .cal-head { text-align: center; font-size: 0.7rem; color: #888; font-weight: 600; padding-bottom: 8px; }
+      .cal-cell { aspect-ratio: 1/1; display: flex; align-items: center; justify-content: center; font-size: 0.85rem; font-weight: bold; border-radius: 6px; }
+      .cal-cell.empty { background: transparent; }
+
+      .cal-grid-weekly { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+      .weekly-cell { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 10px 5px; border-radius: 8px; text-align: center; }
+      .w-tgl { font-size: 0.65rem; opacity: 0.8; margin-bottom: 4px; }
+      .w-mg { font-size: 0.95rem; font-weight: bold; }
+
+      .done-barang { background: #4ade80; color: #000; box-shadow: 0 0 8px rgba(74, 222, 128, 0.4); }
+      .done-uang { background: #ffd700; color: #000; box-shadow: 0 0 8px rgba(255, 215, 0, 0.4); }
+      .pend-barang { border: 1px solid #2b5c3b; color: #4ade80; background: #0a1f12; }
+      .pend-uang { border: 1px solid #665600; color: #ffd700; background: #1f1a00; }
+
+      /* TOMBOL UPSELL / KATALOG */
+      .btn-upsell {
+        display: flex; align-items: center; justify-content: center; gap: 10px; width: 100%;
+        background: linear-gradient(45deg, #128c7e, #075e54); color: #fff; padding: 18px;
+        border-radius: 15px; text-decoration: none; font-weight: bold; font-size: 1rem;
+        margin-top: 30px; box-shadow: 0 10px 20px rgba(7, 94, 84, 0.4); border: 1px solid #25d366;
+        animation: pulseBtn 2s infinite; text-align: center;
+      }
+      
+      /* FORM PENCARIAN (Jika dibuka tanpa ID) */
+      .search-box { background: #111; padding: 25px; border-radius: 16px; border: 1px solid #333; text-align: center; }
+      .s-input { width: 100%; padding: 15px; background: #222; border: 1px solid #444; color: #fff; border-radius: 10px; font-size: 1rem; text-align: center; margin-bottom: 15px; outline: none;}
+      .s-input:focus { border-color: #ffd700; }
+      .s-btn { background: #ffd700; color: #000; width: 100%; padding: 15px; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; font-size: 1rem;}
+
+      .loader { text-align: center; padding: 50px 20px; color: #ffd700; }
+
+      @keyframes slideDown { from { opacity: 0; transform: translateY(-30px); } to { opacity: 1; transform: translateY(0); } }
+      @keyframes pulseBtn { 0% { transform: scale(1); } 50% { transform: scale(1.02); box-shadow: 0 15px 25px rgba(7, 94, 84, 0.6); } 100% { transform: scale(1); } }
+    </style>
+  </head>
+  <body>
+    <header>
+      <h1 class="title">Kartu Setoran</h1>
+      <div class="subtitle">NIZAMI 2026-2027</div>
+    </header>
+
+    <div class="container" id="main-content">
+      <div class="loader">
+        <i class="fas fa-circle-notch fa-spin fa-3x"></i>
+        <p style="font-size: 0.9rem; margin-top: 15px; color: #aaa">Menarik data tabungan Anda...</p>
+      </div>
+    </div>
+
+    <script src="script.js"></script>
+    <script>
+      const urlParams = new URLSearchParams(window.location.search);
+      const paramId = urlParams.get("id");
+
+      async function initPage() {
+        if (!paramId) {
+            // Jika dibuka langsung tanpa URL khusus, tampilkan kotak pencarian
+            document.getElementById("main-content").innerHTML = `
+                <div class="search-box">
+                    <i class="fas fa-id-card" style="font-size:3rem; color:#ffd700; margin-bottom:15px;"></i>
+                    <h3 style="margin-top:0;">Masukkan ID Peserta</h3>
+                    <p style="font-size:0.8rem; color:#aaa; margin-bottom:20px;">ID Anda terdapat pada pesan WhatsApp pendaftaran.</p>
+                    <input type="text" id="inputId" class="s-input" placeholder="Contoh: AHMAD-7577">
+                    <button class="s-btn" onclick="cariID()">CARI KARTU SAYA</button>
+                </div>
+            `;
+            return;
+        }
+
+        try {
+          // Ambil data User secara spesifik (Gunakan fungsi cekStatusDetail yang sudah ada)
+          const dataUser = await fetchData("cekStatusDetail", { id: paramId });
+          
+          if (dataUser && !dataUser.error) {
+              // Ambil data Master Paket untuk kalender
+              const dataPaket = await fetchData("getPaket");
+              let detailPaket = { target_total: 330, target_barang: 130, target_uang: 200 }; // Fallback Default
+              
+              if(Array.isArray(dataPaket)) {
+                  const found = dataPaket.find(p => String(p.nama).trim().toLowerCase() === String(dataUser.paket).trim().toLowerCase());
+                  if(found) detailPaket = found;
+              }
+
+              renderCard(dataUser, detailPaket);
+          } else {
+              throw new Error("ID Tidak Ditemukan");
+          }
+        } catch (e) {
+          document.getElementById("main-content").innerHTML = `
+            <div style="text-align:center; padding:40px 20px;">
+                <i class="fas fa-times-circle" style="font-size:3rem; color:#ff6b6b; margin-bottom:15px;"></i>
+                <h3>Data Tidak Ditemukan</h3>
+                <p style="color:#aaa; font-size:0.85rem;">Pastikan link yang Anda klik dari WhatsApp sudah benar, atau ID salah.</p>
+                <button onclick="window.location.href='kartu-digital.html'" style="background:#333; color:#fff; padding:10px 20px; border:none; border-radius:8px; margin-top:15px;">Coba Lagi</button>
+            </div>
+          `;
+        }
+      }
+
+      function cariID() {
+          const val = document.getElementById('inputId').value.trim().toUpperCase();
+          if(val) window.location.href = `kartu-digital.html?id=${val}`;
+      }
+
+      function renderCard(user, paketInfo) {
+        const isMingguan = String(user.paket).toLowerCase().includes("mingguan");
+        
+        let tTotal = parseInt(paketInfo.target_total) || (isMingguan ? 40 : 330);
+        const tBarang = parseInt(paketInfo.target_barang) || (isMingguan ? 40 : 130);
+        const tUang = parseInt(paketInfo.target_uang) || 0;
+        const setoranMasuk = parseInt(user.tercapai) || 0;
+
+        let html = `
+            <div class="card-container">
+                <div class="member-card-box">
+                    <div class="mc-top">
+                        <div class="chip-sim"></div>
+                        <div class="mc-label">Nizami Digital Card</div>
+                    </div>
+                    
+                    <div class="mc-paket">${user.paket}</div>
+                    <div class="mc-label" style="margin-bottom:5px;">Saldo Aktif / Terkumpul</div>
+                    <div class="mc-balance">${formatRupiah(user.saldo)}</div>
+                    
+                    <div class="mc-footer">
+                        <div>
+                            <div class="mc-label">Pemilik</div>
+                            <div class="mc-name">${user.nama}</div>
+                        </div>
+                        <div class="mc-id">${user.id}</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="stats-box">
+                <div class="sb-item">
+                    <span class="sb-val">${setoranMasuk}</span>
+                    <span class="sb-label">Sudah Setor</span>
+                </div>
+                <div style="width:1px; background:#333;"></div>
+                <div class="sb-item">
+                    <span class="sb-val" style="color:#ffd700;">${tTotal}</span>
+                    <span class="sb-label">Total Target</span>
+                </div>
+                <div style="width:1px; background:#333;"></div>
+                <div class="sb-item">
+                    <span class="sb-val" style="color:#ff6b6b;">${tTotal - setoranMasuk}</span>
+                    <span class="sb-label">Sisa Kali</span>
+                </div>
+            </div>
+
+            <div class="section-title"><i class="fas fa-calendar-check"></i> Kalender Bukti Setoran</div>
+
+            <div class="legend-box">
+                <div class="lg-item"><div class="lg-box lg-b-done"></div> Lunas (Barang)</div>
+                <div class="lg-item"><div class="lg-box lg-u-done"></div> Lunas (Uang)</div>
+                <div class="lg-item"><div class="lg-box lg-b-pend"></div> Belum (Barang)</div>
+                <div class="lg-item"><div class="lg-box lg-u-pend"></div> Belum (Uang)</div>
+            </div>
+            
+            <div id="calendar-area"></div>
+
+            <a href="index.html" class="btn-upsell">
+                <i class="fas fa-shopping-basket" style="font-size:1.3rem;"></i> 
+                Lihat Katalog Promo & Berita Nizami
+            </a>
+        `;
+
+        document.getElementById("main-content").innerHTML = html;
+
+        // Render Kalender sesuai jenis paket
+        if (isMingguan) generateWeeklyCalendar(setoranMasuk, tBarang, tTotal);
+        else generateDailyCalendar(setoranMasuk, tBarang, tTotal);
+      }
+
+      // --- LOGIKA KALENDER SAMA PERSIS DENGAN REFERENSI ---
+      function generateWeeklyCalendar(setoranMasuk, targetBarang, totalTarget) {
+        let html = ""; let currentDate = new Date(2026, 3, 1, 12, 0, 0); let currentMonth = -1; let monthHtml = "";
+        const namaBulan = ["JANUARI", "FEBRUARI", "MARET", "APRIL", "MEI", "JUNI", "JULI", "AGUSTUS", "SEPTEMBER", "OKTOBER", "NOVEMBER", "DESEMBER"];
+
+        for (let i = 1; i <= totalTarget; i++) {
+          if (currentDate.getMonth() !== currentMonth) {
+            if (currentMonth !== -1) { monthHtml += `</div></div>`; html += monthHtml; }
+            currentMonth = currentDate.getMonth();
+            let titleBulan = `${namaBulan[currentMonth]} ${currentDate.getFullYear()}`;
+            monthHtml = `<div class="month-card"><div class="month-title">${titleBulan}</div><div class="cal-grid-weekly">`;
+          }
+
+          let isDone = i <= setoranMasuk; let isBarang = i <= targetBarang; let cellClass = "weekly-cell ";
+          if (isDone) cellClass += isBarang ? "done-barang" : "done-uang"; else cellClass += isBarang ? "pend-barang" : "pend-uang";
+
+          let tglStr = `${currentDate.getDate()} ${namaBulan[currentMonth].substring(0, 3)}`;
+          monthHtml += `<div class="${cellClass}"><div class="w-tgl">${tglStr}</div><div class="w-mg">Mg-${i}</div></div>`;
+          currentDate.setDate(currentDate.getDate() + 7);
+        }
+
+        if (monthHtml !== "") { monthHtml += `</div></div>`; html += monthHtml; }
+        document.getElementById("calendar-area").innerHTML = html;
+      }
+
+      function generateDailyCalendar(setoranMasuk, targetBarang, totalTarget) {
+        let html = ""; let currentDate = new Date(2026, 3, 1, 12, 0, 0); let currentMonth = -1; let monthHtml = "";
+        const namaBulan = ["JANUARI", "FEBRUARI", "MARET", "APRIL", "MEI", "JUNI", "JULI", "AGUSTUS", "SEPTEMBER", "OKTOBER", "NOVEMBER", "DESEMBER"];
+        const hariArr = ["Mg", "Sn", "Sl", "Rb", "Km", "Jm", "Sb"];
+
+        for (let i = 1; i <= totalTarget; i++) {
+          if (currentDate.getMonth() !== currentMonth) {
+            if (currentMonth !== -1) { monthHtml += `</div></div>`; html += monthHtml; }
+            currentMonth = currentDate.getMonth();
+            let titleBulan = `${namaBulan[currentMonth]} ${currentDate.getFullYear()}`;
+            monthHtml = `<div class="month-card"><div class="month-title">${titleBulan}</div><div class="cal-grid">`;
+            hariArr.forEach((d) => { monthHtml += `<div class="cal-head">${d}</div>`; });
+
+            let firstDayIndex = currentDate.getDay();
+            for (let e = 0; e < firstDayIndex; e++) { monthHtml += `<div class="cal-cell empty"></div>`; }
+          }
+
+          let isDone = i <= setoranMasuk; let isBarang = i <= targetBarang; let cellClass = "cal-cell ";
+          if (isDone) cellClass += isBarang ? "done-barang" : "done-uang"; else cellClass += isBarang ? "pend-barang" : "pend-uang";
+
+          monthHtml += `<div class="${cellClass}">${currentDate.getDate()}</div>`;
+          currentDate.setDate(currentDate.getDate() + 1);
+        }
+
+        if (monthHtml !== "") { monthHtml += `</div></div>`; html += monthHtml; }
+        document.getElementById("calendar-area").innerHTML = html;
+      }
+
+      // Mulai inisialisasi saat halaman dibuka
+      initPage();
+    </script>
+  </body>
+</html>
