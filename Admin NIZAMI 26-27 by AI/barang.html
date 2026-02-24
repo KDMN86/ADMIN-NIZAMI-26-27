@@ -16,6 +16,11 @@
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
     />
     <style>
+      /* MANTRA ANTI-BOCOR (Wajib ada agar elemen tidak melewati batas layar) */
+      * {
+        box-sizing: border-box;
+      }
+
       :root {
         --primary: #ffd700;
         --bg: #121212;
@@ -30,6 +35,7 @@
         margin: 0;
         padding: 0;
         padding-bottom: 90px;
+        overflow-x: hidden; /* Mencegah layar tergeser ke kanan */
       }
 
       /* HEADER & SEARCH AREA */
@@ -80,6 +86,7 @@
         border-radius: 10px;
         outline: none;
         font-size: 0.9rem;
+        width: 100%;
       }
       .filter-select {
         flex: 1;
@@ -90,21 +97,18 @@
         border-radius: 10px;
         outline: none;
         font-size: 0.85rem;
-        appearance: none;
         text-align: center;
         font-weight: bold;
-      }
-      .search-input:focus,
-      .filter-select:focus {
-        border-color: var(--primary);
+        width: 100%;
       }
 
-      /* ITEM LIST SIMPEL */
+      /* ITEM LIST */
       #listArea {
         padding: 15px;
-        display: flex;
-        flex-direction: column;
-        gap: 12px;
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 15px;
+        width: 100%;
       }
 
       .item-card {
@@ -112,43 +116,80 @@
         border: 1px solid var(--border);
         border-radius: 12px;
         padding: 15px;
-        transition: 0.2s;
+        display: flex;
+        gap: 12px;
+        position: relative;
+        width: 100%;
       }
-      .item-card:focus-within {
-        border-color: var(--primary);
-        background: #222;
+      .item-img {
+        width: 70px;
+        height: 70px;
+        border-radius: 10px;
+        background: #111;
+        border: 1px dashed #444;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+        flex-shrink: 0;
+      }
+      .item-img img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
       }
 
+      .item-info {
+        flex-grow: 1;
+        min-width: 0; /* PENTING: Mencegah flexbox membesar melewati batas */
+      }
       .item-top {
         display: flex;
         justify-content: space-between;
         align-items: flex-start;
-        margin-bottom: 10px;
+        margin-bottom: 5px;
       }
       .item-name {
         margin: 0;
-        font-size: 1rem;
+        font-size: 0.95rem;
         color: #fff;
         font-weight: 600;
+        padding-right: 20px;
+        line-height: 1.3;
+        word-wrap: break-word;
       }
       .badge-cat {
         background: rgba(255, 255, 255, 0.1);
         padding: 3px 8px;
         border-radius: 6px;
-        font-size: 0.7rem;
+        font-size: 0.65rem;
         color: #aaa;
         border: 1px solid #444;
         white-space: nowrap;
+        height: fit-content;
+        display: inline-block;
+        margin-bottom: 8px;
       }
 
-      /* INFO PEMAKAIAN PAKET */
+      .btn-del-mini {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        background: transparent;
+        border: none;
+        color: #ff6b81;
+        font-size: 1.1rem;
+        cursor: pointer;
+        padding: 5px;
+      }
+
       .used-in {
         background: #111;
-        padding: 8px 10px;
+        padding: 6px 10px;
         border-radius: 6px;
-        font-size: 0.75rem;
+        font-size: 0.7rem;
         color: #888;
-        margin-bottom: 12px;
+        margin-bottom: 10px;
         border-left: 2px solid #555;
         line-height: 1.4;
       }
@@ -160,60 +201,59 @@
         font-weight: 600;
       }
 
-      .item-action {
-        display: flex;
-        gap: 10px;
-        align-items: center;
+      /* DIUBAH: Jarak grid diperkecil agar tidak terpotong di HP */
+      .price-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 6px;
+        margin-bottom: 10px;
       }
-      .price-wrapper {
-        flex-grow: 1;
-        display: flex;
-        align-items: center;
-        background: #111;
+      .p-box {
+        background: #1a1a1a;
         border: 1px solid #333;
+        padding: 6px 8px;
         border-radius: 8px;
-        padding: 5px 10px;
+        min-width: 0; /* PENTING: Mencegah box harga melebar */
       }
-      .price-label {
-        font-size: 0.8rem;
-        color: #666;
-        margin-right: 5px;
-      }
-      .price-input {
-        flex-grow: 1;
-        background: transparent;
-        border: none;
-        color: var(--primary);
-        font-weight: bold;
-        font-size: 1.1rem;
-        outline: none;
-        width: 100%;
-      }
-      .unit-label {
-        font-size: 0.8rem;
+      .p-label {
+        font-size: 0.6rem;
         color: #888;
-        margin-left: 5px;
+        display: block;
+        text-transform: uppercase;
+        margin-bottom: 2px;
+      }
+      /* DIUBAH: Ukuran font harga disesuaikan */
+      .p-val {
+        font-size: 0.85rem;
+        font-weight: bold;
+        color: #fff;
+        word-break: break-word;
+      }
+      .p-val.jual {
+        color: var(--primary);
       }
 
-      .btn-save-mini {
-        background: #333;
+      .btn-edit-full {
+        width: 100%;
+        background: #222;
         color: #fff;
         border: 1px solid #555;
-        padding: 0 15px;
-        height: 38px;
+        padding: 8px;
         border-radius: 8px;
         cursor: pointer;
         font-weight: bold;
-        font-size: 0.85rem;
-        transition: 0.2s;
+        font-size: 0.8rem;
+        display: flex;
+        justify-content: center;
+        gap: 8px;
+        align-items: center;
       }
-      .btn-save-mini:active {
-        transform: scale(0.95);
+      .btn-edit-full:active {
         background: var(--primary);
         color: #000;
       }
 
-      /* FLOATING ADD BUTTON & MODAL (Sama seperti sebelumnya) */
+      /* FLOATING ADD BUTTON & MODAL */
       .fab-add {
         position: fixed;
         bottom: 20px;
@@ -232,7 +272,8 @@
         z-index: 90;
         border: none;
       }
-      #modalAdd {
+
+      .modal {
         display: none;
         position: fixed;
         inset: 0;
@@ -240,42 +281,62 @@
         z-index: 100;
         align-items: center;
         justify-content: center;
-        padding: 20px;
+        padding: 15px;
         backdrop-filter: blur(5px);
       }
       .modal-card {
         background: var(--surface);
         width: 100%;
         max-width: 400px;
-        padding: 25px;
+        padding: 20px;
         border-radius: 16px;
         border: 1px solid var(--border);
+        max-height: 90vh;
+        overflow-y: auto;
+        position: relative;
+      }
+      .m-close {
+        position: absolute;
+        top: 15px;
+        right: 15px;
+        background: transparent;
+        border: none;
+        color: #888;
+        font-size: 1.5rem;
+        cursor: pointer;
       }
       .modal-title {
         margin-top: 0;
         color: var(--primary);
-        text-align: center;
-        font-size: 1.2rem;
-      }
-      .form-group {
+        font-size: 1.1rem;
         margin-bottom: 15px;
+        padding-right: 20px;
+      }
+
+      .form-group {
+        margin-bottom: 12px;
       }
       .form-group label {
         display: block;
         color: #aaa;
         margin-bottom: 5px;
-        font-size: 0.85rem;
+        font-size: 0.8rem;
       }
       .form-input {
         width: 100%;
-        padding: 12px;
+        padding: 10px 12px;
         background: #111;
         border: 1px solid #444;
         color: white;
         border-radius: 8px;
         box-sizing: border-box;
         outline: none;
+        font-size: 0.95rem;
       }
+      .form-input:focus {
+        border-color: var(--primary);
+      }
+
       .btn-full {
         width: 100%;
         padding: 14px;
@@ -287,10 +348,33 @@
         cursor: pointer;
         margin-top: 10px;
       }
-      .btn-cancel {
-        background: transparent;
+
+      /* UPLOAD FOTO AREA */
+      .foto-upload-box {
+        border: 2px dashed #555;
+        border-radius: 10px;
+        padding: 15px;
+        text-align: center;
+        margin-bottom: 15px;
+        cursor: pointer;
+        background: #111;
+        position: relative;
+        overflow: hidden;
+      }
+      .foto-upload-box img {
+        max-height: 100px;
+        object-fit: contain;
+        display: none;
+        margin: 0 auto;
+      }
+      .foto-upload-box .placeholder {
         color: #888;
-        margin-top: 5px;
+        font-size: 0.85rem;
+      }
+      .foto-upload-box .placeholder i {
+        font-size: 2rem;
+        margin-bottom: 10px;
+        display: block;
       }
     </style>
   </head>
@@ -307,11 +391,11 @@
           type="text"
           id="searchInput"
           class="search-input"
-          placeholder="🔍 Cari nama barang..."
+          placeholder="🔍 Cari barang..."
           onkeyup="filterLokal()"
         />
         <select id="catFilter" class="filter-select" onchange="filterLokal()">
-          <option value="">Semua Kategori</option>
+          <option value="">Kategori</option>
         </select>
       </div>
     </div>
@@ -322,50 +406,89 @@
           class="fas fa-spinner fa-spin fa-2x"
           style="color: var(--primary); margin-bottom: 10px"
         ></i
-        ><br />Memuat database barang...
+        ><br />Memuat data...
       </div>
     </div>
 
-    <button class="fab-add" onclick="toggleModal(true)">
+    <button class="fab-add" onclick="bukaModalEdit(null)">
       <i class="fas fa-plus"></i>
     </button>
 
-    <div id="modalAdd">
+    <div id="modalForm" class="modal">
       <div class="modal-card">
-        <h2 class="modal-title">Tambah Barang Baru</h2>
+        <button class="m-close" onclick="tutupModal()">&times;</button>
+        <h2 class="modal-title" id="mTitle">Tambah Barang</h2>
+
+        <input type="hidden" id="eNamaLama" />
+        <input
+          type="file"
+          id="fileInput"
+          accept="image/*"
+          style="display: none"
+          onchange="previewImage(event)"
+        />
+
+        <div
+          class="foto-upload-box"
+          onclick="document.getElementById('fileInput').click()"
+        >
+          <div class="placeholder" id="fotoPlaceholder">
+            <i class="fas fa-camera"></i> Ketuk untuk upload foto
+          </div>
+          <img id="fotoPreview" src="" />
+        </div>
+
         <div class="form-group">
           <label>Kategori</label>
           <input
             type="text"
-            id="k"
+            id="eKat"
             class="form-input"
             placeholder="Contoh: Sembako"
           />
         </div>
         <div class="form-group">
-          <label>Nama Barang</label>
+          <label>Nama Barang (Wajib)</label>
           <input
             type="text"
-            id="n"
+            id="eNama"
             class="form-input"
             placeholder="Contoh: Beras Super 5Kg"
           />
         </div>
         <div class="form-group" style="display: flex; gap: 10px">
-          <div style="flex: 2">
-            <label>Harga Beli (Rp)</label>
-            <input type="number" id="h" class="form-input" placeholder="0" />
+          <div style="flex: 1; min-width: 0">
+            <label>Harga Beli (Modal)</label>
+            <input
+              type="number"
+              id="eBeli"
+              class="form-input"
+              placeholder="0"
+            />
           </div>
-          <div style="flex: 1">
+          <div style="flex: 1; min-width: 0">
             <label>Satuan</label>
-            <input type="text" id="s" class="form-input" placeholder="Pcs/Kg" />
+            <input
+              type="text"
+              id="eSat"
+              class="form-input"
+              placeholder="Pcs/Kg"
+            />
           </div>
         </div>
-        <button onclick="tambah()" class="btn-full" id="btnSimpan">
-          SIMPAN BARANG
-        </button>
-        <button onclick="toggleModal(false)" class="btn-full btn-cancel">
-          Batal
+        <div class="form-group">
+          <label>Harga Jual (HPP ke Peserta)</label>
+          <input
+            type="number"
+            id="eJual"
+            class="form-input"
+            placeholder="0"
+            style="color: var(--primary); font-weight: bold"
+          />
+        </div>
+
+        <button onclick="simpanBarang()" class="btn-full" id="btnSimpan">
+          SIMPAN DATA
         </button>
       </div>
     </div>
@@ -373,29 +496,46 @@
     <script src="script.js"></script>
     <script>
       let allItems = [];
+      let base64String = "";
+      let fileMimeType = "";
+
+      // Fungsi konversi link Drive ke Thumbnail
+      function getSafeImageUrl(url) {
+        if (!url) return "";
+        const idMatch = url.match(/id=([^&]+)/);
+        if (idMatch)
+          return `https://drive.google.com/thumbnail?id=${idMatch[1]}&sz=w400`;
+        return url;
+      }
+
+      function formatRp(angka) {
+        return new Intl.NumberFormat("id-ID", {
+          style: "currency",
+          currency: "IDR",
+          minimumFractionDigits: 0,
+        }).format(angka || 0);
+      }
 
       async function load() {
         const container = document.getElementById("listArea");
         const data = await fetchData("getBarang");
 
-        if (data) {
+        if (Array.isArray(data)) {
           allItems = data;
           buatDropdownKategori();
           renderList(allItems);
         } else {
           container.innerHTML =
-            '<div style="text-align:center; padding:20px; color:#ff6b6b;">Gagal memuat data koneksi terputus.</div>';
+            '<div style="text-align:center; padding:20px; color:#ff6b6b;">Gagal memuat data.</div>';
         }
       }
 
       function buatDropdownKategori() {
-        // Mengambil daftar kategori unik yang tidak kosong
         const categories = [
           ...new Set(allItems.map((item) => item.kategori)),
         ].filter(Boolean);
         const select = document.getElementById("catFilter");
-        select.innerHTML = '<option value="">Semua Kategori</option>'; // Reset
-
+        select.innerHTML = '<option value="">Semua Kategori</option>';
         categories.sort().forEach((c) => {
           select.innerHTML += `<option value="${c}">${c}</option>`;
         });
@@ -406,14 +546,12 @@
           .getElementById("searchInput")
           .value.toLowerCase();
         const qKat = document.getElementById("catFilter").value.toLowerCase();
-
         const filtered = allItems.filter((item) => {
-          const cocokTeks = item.nama.toLowerCase().includes(qTeks);
-          const cocokKat =
-            qKat === "" || (item.kategori || "").toLowerCase() === qKat;
-          return cocokTeks && cocokKat;
+          return (
+            item.nama.toLowerCase().includes(qTeks) &&
+            (qKat === "" || (item.kategori || "").toLowerCase() === qKat)
+          );
         });
-
         renderList(filtered);
       }
 
@@ -423,110 +561,159 @@
 
         if (items.length === 0) {
           container.innerHTML =
-            '<div style="text-align:center; padding:40px; color:#666;"><i class="fas fa-box-open" style="font-size:2rem; margin-bottom:10px;"></i><br>Barang tidak ditemukan.</div>';
+            '<div style="text-align:center; padding:40px; color:#666;"><i class="fas fa-box-open" style="font-size:2rem; margin-bottom:10px;"></i><br>Tidak ada data.</div>';
           return;
         }
 
         let html = "";
         items.forEach((b) => {
-          const idEl = `price-${b.nama.replace(/\s+/g, "")}`;
+          let safeUrl = getSafeImageUrl(b.foto);
+          let imgHtml = safeUrl
+            ? `<img src="${safeUrl}">`
+            : `<i class="fas fa-image" style="font-size:1.5rem; color:#444;"></i>`;
 
-          // Susun info dipakai di paket mana
-          let infoPaket = "";
-          if (b.dipakai && b.dipakai.length > 0) {
-            const listPaket = b.dipakai
-              .map((p) => `<span class="hl">${p}</span>`)
-              .join(", ");
-            infoPaket = `<div class="used-in"><b><i class="fas fa-link"></i> Terikat di:</b> ${listPaket}</div>`;
-          } else {
-            infoPaket = `<div class="used-in" style="border-color:#444;">Barang Bebas / Belum masuk resep paket utama.</div>`;
-          }
+          let infoPaket =
+            b.dipakai && b.dipakai.length > 0
+              ? `<div class="used-in"><b><i class="fas fa-link"></i> Terikat di:</b> ${b.dipakai.map((p) => `<span class="hl">${p}</span>`).join(", ")}</div>`
+              : `<div class="used-in" style="border-color:#444;">Barang Bebas (Belum masuk resep paket).</div>`;
+
+          // Encode data agar aman dipassing via HTML String
+          let bData = encodeURIComponent(JSON.stringify(b));
 
           html += `
-                <div class="item-card">
+            <div class="item-card">
+                <button class="btn-del-mini" onclick="hapus('${b.nama}')"><i class="fas fa-trash"></i></button>
+                <div class="item-img">${imgHtml}</div>
+                <div class="item-info">
                     <div class="item-top">
                         <h4 class="item-name">${b.nama}</h4>
-                        <span class="badge-cat">${b.kategori}</span>
                     </div>
+                    <span class="badge-cat">${b.kategori || "Tanpa Kategori"}</span>
                     
                     ${infoPaket}
 
-                    <div class="item-action">
-                        <div class="price-wrapper">
-                            <span class="price-label">Rp</span>
-                            <input type="number" id="${idEl}" class="price-input" value="${b.harga}">
-                            <span class="unit-label">/ ${b.satuan}</span>
+                    <div class="price-grid">
+                        <div class="p-box">
+                            <span class="p-label">Modal (Beli)</span>
+                            <span class="p-val">${formatRp(b.hargaBeli)}</span>
                         </div>
-                        <button class="btn-save-mini" onclick="upd('${b.nama}', '${idEl}')">
-                            UPDATE
-                        </button>
+                        <div class="p-box" style="border-color:rgba(255,215,0,0.3);">
+                            <span class="p-label">HPP (Jual)</span>
+                            <span class="p-val jual">${formatRp(b.hargaJual)}</span>
+                        </div>
                     </div>
-                </div>`;
+
+                    <button class="btn-edit-full" onclick="bukaModalEdit('${bData}')">
+                        <i class="fas fa-edit"></i> Edit Barang
+                    </button>
+                </div>
+            </div>`;
         });
         container.innerHTML = html;
       }
 
-      async function upd(nm, idEl) {
-        const hrg = document.getElementById(idEl).value;
-        showToast("Menyimpan harga baru...", "success");
-
-        const res = await fetchData("updateHarga", {
-          nama: nm,
-          hargaBaru: hrg,
-        });
-        if (res && !res.error) {
-          showToast("✅ Harga berhasil diperbarui!");
-          // Update memori lokal agar tidak reset saat difilter lagi
-          let item = allItems.find((i) => i.nama === nm);
-          if (item) item.harga = hrg;
-        } else {
-          showToast("Gagal update harga", "error");
-        }
+      // --- LOGIKA HAPUS ---
+      async function hapus(nm) {
+        if (!confirm(`Yakin HAPUS barang "${nm}" secara permanen?`)) return;
+        const res = await fetchData("hapusBarangAdmin", { nama: nm }, "POST");
+        if (res && res.success) load();
+        else alert("Gagal menghapus");
       }
 
-      async function tambah() {
-        const k = document.getElementById("k").value;
-        const n = document.getElementById("n").value;
-        const h = document.getElementById("h").value;
-        const s = document.getElementById("s").value;
+      // --- LOGIKA MODAL FORM (TAMBAH & EDIT) ---
+      function bukaModalEdit(dataStr) {
+        // Reset Preview
+        base64String = "";
+        fileMimeType = "";
+        document.getElementById("fileInput").value = "";
+        document.getElementById("fotoPreview").style.display = "none";
+        document.getElementById("fotoPreview").src = "";
+        document.getElementById("fotoPlaceholder").style.display = "block";
 
-        if (!n || !h) return showToast("Nama dan Harga wajib diisi!", "error");
+        if (dataStr) {
+          // MODE EDIT
+          let b = JSON.parse(decodeURIComponent(dataStr));
+          document.getElementById("mTitle").innerText = "Edit: " + b.nama;
+          document.getElementById("eNamaLama").value = b.nama;
+          document.getElementById("eKat").value = b.kategori || "";
+          document.getElementById("eNama").value = b.nama;
+          document.getElementById("eBeli").value = b.hargaBeli || 0;
+          document.getElementById("eJual").value = b.hargaJual || 0;
+          document.getElementById("eSat").value = b.satuan || "";
+
+          if (b.foto) {
+            let safeUrl = getSafeImageUrl(b.foto);
+            document.getElementById("fotoPreview").src = safeUrl;
+            document.getElementById("fotoPreview").style.display = "block";
+            document.getElementById("fotoPlaceholder").style.display = "none";
+          }
+        } else {
+          // MODE TAMBAH BARU
+          document.getElementById("mTitle").innerText = "Tambah Barang Baru";
+          document.getElementById("eNamaLama").value = "";
+          document.getElementById("eKat").value = "";
+          document.getElementById("eNama").value = "";
+          document.getElementById("eBeli").value = "";
+          document.getElementById("eJual").value = "";
+          document.getElementById("eSat").value = "";
+        }
+
+        document.getElementById("modalForm").style.display = "flex";
+      }
+
+      function tutupModal() {
+        document.getElementById("modalForm").style.display = "none";
+      }
+
+      // --- LOGIKA UPLOAD PREVIEW ---
+      function previewImage(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+        if (file.size > 2 * 1024 * 1024) return alert("Maksimal gambar 2MB!");
+        fileMimeType = file.type;
+        const reader = new FileReader();
+        reader.onload = function (e) {
+          base64String = e.target.result;
+          document.getElementById("fotoPreview").src = base64String;
+          document.getElementById("fotoPreview").style.display = "block";
+          document.getElementById("fotoPlaceholder").style.display = "none";
+        };
+        reader.readAsDataURL(file);
+      }
+
+      // --- LOGIKA SIMPAN ---
+      async function simpanBarang() {
+        const namaLama = document.getElementById("eNamaLama").value;
+        const payload = {
+          namaLama: namaLama, // Jika kosong, Backend otomatis membuat Barang Baru
+          kategori: document.getElementById("eKat").value,
+          namaBaru: document.getElementById("eNama").value,
+          hargaBeli: document.getElementById("eBeli").value || 0,
+          hargaJual: document.getElementById("eJual").value || 0,
+          satuan: document.getElementById("eSat").value,
+          base64: base64String,
+          mimeType: fileMimeType,
+        };
+
+        if (!payload.namaBaru) return alert("Nama barang wajib diisi!");
 
         const btn = document.getElementById("btnSimpan");
-        btn.innerText = "Menyimpan...";
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Menyimpan...';
         btn.disabled = true;
 
-        const res = await fetchData("tambahBarang", {
-          kategori: k,
-          nama: n,
-          harga: h,
-          satuan: s,
-        });
+        const res = await fetchData("editBarangAdmin", payload, "POST");
 
-        if (res && !res.error) {
-          showToast("✅ Barang Baru Ditambahkan");
-          toggleModal(false);
-
-          // Reset Form
-          document.getElementById("k").value = "";
-          document.getElementById("n").value = "";
-          document.getElementById("h").value = "";
-          document.getElementById("s").value = "";
-
-          // Langsung load ulang data dari server
+        if (res && res.success) {
+          tutupModal();
           load();
         } else {
-          showToast("Gagal menambah barang", "error");
+          alert(
+            "Gagal menyimpan data: " + (res ? res.error : "Koneksi bermasalah"),
+          );
         }
 
-        btn.innerText = "SIMPAN BARANG";
+        btn.innerHTML = "SIMPAN DATA";
         btn.disabled = false;
-      }
-
-      function toggleModal(show) {
-        document.getElementById("modalAdd").style.display = show
-          ? "flex"
-          : "none";
       }
 
       load();
