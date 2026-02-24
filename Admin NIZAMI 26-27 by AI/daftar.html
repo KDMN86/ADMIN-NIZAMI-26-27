@@ -419,7 +419,7 @@
         <textarea
           id="waRaw"
           class="wa-textarea"
-          placeholder="Paste chat lengkap disini (Mendukung format baru)..."
+          placeholder="Paste chat lengkap disini..."
         ></textarea>
         <button onclick="parseWA()" class="btn-extract">
           <i class="fas fa-magic"></i> EKSTRAK DATA SEKARANG
@@ -488,8 +488,12 @@
               font-size: 1.1rem;
             "
           >
-            <span id="lblTarget">Setoran:</span>
-            <span id="txtTarget" style="color: var(--primary)">Rp 0 /hari</span>
+            <span id="lblTarget">Status Setoran:</span>
+            <span
+              id="txtTarget"
+              style="color: var(--primary); font-size: 0.9rem"
+              >Mengikuti Paket Dasar</span
+            >
           </div>
           <button onclick="confirmSelection()" class="btn-save-all">
             SELESAI PILIH
@@ -578,9 +582,6 @@
         }
       }
 
-      // ========================================================
-      // FUNGSI EKSTRAK WA V.3 (KEBAL ICON, SUPPORT FORMAT BARU)
-      // ========================================================
       function parseWA() {
         const text = document.getElementById("waRaw").value;
         if (!text) return alert("Tempelkan teks WhatsApp dulu!");
@@ -589,7 +590,6 @@
           return alert("Data Barang/Paket belum siap. Tunggu sebentar.");
         }
 
-        // Pecah per orang (mendukung format "DATA PESERTA" atau "Nama:")
         let entries = text.split(/(?=DATA PESERTA|Nama\s*[:=])/i);
         entries = entries.filter((e) => e.trim().length > 5);
         if (entries.length === 0) entries = [text];
@@ -605,15 +605,12 @@
         }
 
         entries.forEach((entry) => {
-          // Tangkap Biodata
           const nmMatch = entry.match(/Nama\s*[:=]\s*([^\n]+)/i);
           const hpMatch = entry.match(
             /(?:HP|WA|No|Nomor)\s*[:=]\s*([\d\+\-\s]+)/i,
           );
           const alMatch = entry.match(/Alamat\s*[:=]\s*([^\n]+)/i);
           const mtMatch = entry.match(/Mitra\s*[:=]\s*([^\n]+)/i);
-
-          // BARU: Ekstrak nama Mitra dari ID jika formatnya ID: MTR-SAMSUL-4565
           const idMatch = entry.match(/ID\s*[:=]\s*MTR-([A-Z0-9]+)/i);
 
           let nm = nmMatch ? nmMatch[1].replace(/\*/g, "").trim() : "";
@@ -624,10 +621,9 @@
           if (mtMatch) {
             mt = mtMatch[1].replace(/\*/g, "").trim();
           } else if (idMatch) {
-            mt = idMatch[1].trim(); // Akan mendapatkan "SAMSUL"
+            mt = idMatch[1].trim();
           }
 
-          // Tangkap Area Paket
           const paketSectionMatch = entry.match(
             /(?:PESANAN BARU|PAKET DIPILIH)[\s\S]*/i,
           );
@@ -637,7 +633,6 @@
                 .trim()
             : entry;
 
-          // Split berdasarkan pola awalan paket (misal: " 1x Paket" atau "- 1x Paket")
           let rawPackages = paketString.split(
             /(?=\n\s*[^\w\n]*\d*x?\s*Paket)/i,
           );
@@ -647,19 +642,15 @@
           }
 
           rawPackages.forEach((pktText) => {
-            // Bersihkan awalan simbol aneh (termasuk karakter pengganti emoji \uFFFD)
             let pClean = pktText.replace(/^[\n\s\-•📦🔸🔹\uFFFD]+/, "").trim();
-
-            // Abaikan bagian penutup pesan
             if (!pClean || pClean.toLowerCase().startsWith("mohon diproses"))
               return;
 
-            // Ambil nama paket pada baris pertama saja
             let waPktNameLine = pClean.split(/\n/)[0];
             let waPktName = waPktNameLine
               .split(/\(|Isi:/i)[0]
               .replace(/^\d+x\s*/i, "")
-              .replace(/\*/g, "") // Hapus bold markdown jika ada
+              .replace(/\*/g, "")
               .trim();
 
             let matchedPaket = null;
@@ -667,19 +658,16 @@
               (a, b) => b.nama.length - a.nama.length,
             );
 
-            // TAHAP 1: Exact Match
             matchedPaket = sortedPaket.find((p) =>
               pClean.toLowerCase().includes(p.nama.toLowerCase()),
             );
 
-            // TAHAP 2: Reverse Match (Untuk mengatasi "Paket Cookies" vs "Paket Cookies 1000")
             if (!matchedPaket && waPktName.length > 3) {
               matchedPaket = sortedPaket.find((p) =>
                 p.nama.toLowerCase().includes(waPktName.toLowerCase()),
               );
             }
 
-            // TAHAP 3: Kata kunci darurat
             if (!matchedPaket) {
               if (waPktName.toLowerCase().includes("cookies"))
                 matchedPaket = sortedPaket.find((p) =>
@@ -697,12 +685,10 @@
             const rowId = formCount;
             const row = document.getElementById(`row_${rowId}`);
 
-            // Isi Data Diri
             row.querySelector(".inp-nama").value = nm;
             if (hp) row.querySelector(".inp-hp").value = hp;
             if (al) row.querySelector(".inp-alamat").value = al;
 
-            // Isi Mitra Pintar
             if (mt) {
               const mtFound = setDropdownByText(
                 row.querySelector(".inp-mitra"),
@@ -714,7 +700,6 @@
               setDropdownByText(row.querySelector(".inp-mitra"), "Pusat");
             }
 
-            // Isi Paket & Ekstrak Barang
             const selPaket = row.querySelector(".inp-paket");
             const found = setDropdownByText(selPaket, matchedPaket.nama);
 
@@ -728,9 +713,7 @@
 
         if (successCount > 0) {
           document.getElementById("waRaw").value = "";
-          alert(
-            `Berhasil mengekstrak ${successCount} pesanan paket! Silakan cek dan simpan.`,
-          );
+          alert(`Berhasil mengekstrak ${successCount} pesanan paket!`);
         } else {
           alert(
             "Sistem tidak mendeteksi data yang valid. Silakan input manual.",
@@ -745,12 +728,10 @@
         let matchCount = 0;
 
         let itemsStr = textEntry;
-        // Tangkap isi setelah "Rincian Isi:" atau "Isi:"
         const isiMatch = textEntry.match(/(?:Rincian )?Isi:\s*([\s\S]+)/i);
 
         if (isiMatch) {
           itemsStr = isiMatch[1];
-          // Potong teks penutup agar tidak ikut di-scan
           itemsStr = itemsStr.split(/mohon diproses/i)[0];
         }
 
@@ -843,9 +824,10 @@
           displayTotal += ` (Setoran: ${formatRupiah(Math.ceil(total / 40))} /mgg)`;
         else if (mode === "cookies")
           displayTotal += ` (Setoran: ${formatRupiah(Math.ceil(total / 330))} /hr)`;
+        else displayTotal += ` (Request Khusus)`;
 
         document.getElementById(`btnText_${rowId}`).innerHTML =
-          `<i class="fas fa-check-circle" style="color:#4ade80"></i> ${itemsList.length} Item (Otomatis)`;
+          `<i class="fas fa-check-circle" style="color:#4ade80"></i> ${itemsList.length} Item (Tersimpan)`;
         document.getElementById(`summary_${rowId}`).innerText =
           itemsList.join(", ") + `\nTotal: ${displayTotal}`;
 
@@ -873,9 +855,10 @@
                     <select class="form-input inp-mitra">${generateMitraOptions()}</select>
                     <select class="form-input inp-paket" onchange="checkPaket(this, ${formCount})">${generatePaketOptions()}</select>
                 </div>
-                <div id="customArea_${formCount}" style="display:none; margin-top:10px;">
+                
+                <div id="customArea_${formCount}" style="display:block; margin-top:10px;">
                     <button class="btn-item-select" onclick="openItemModal(${formCount})">
-                        <i class="fas fa-shopping-basket"></i> <span id="btnText_${formCount}">Pilih Barang</span>
+                        <span id="btnText_${formCount}"><i class="fas fa-edit"></i> Request Barang (Opsional)</span>
                     </button>
                     <small class="summary-text" id="summary_${formCount}"></small>
                     <input type="hidden" class="inp-harga-custom" id="valHarga_${formCount}" value="0">
@@ -954,16 +937,21 @@
         rowData[`row_${rowId}`].items = {};
         rowData[`row_${rowId}`].total = 0;
 
+        // SELALU TAMPILKAN TOMBOL PILIH BARANG
+        area.style.display = "block";
+
         if (val.includes("mingguan")) {
-          area.style.display = "block";
-          btn.innerText = "Pilih Sembako (Mingguan)";
+          btn.innerHTML =
+            '<i class="fas fa-shopping-basket"></i> Pilih Sembako (Mingguan)';
           selectEl.dataset.mode = "mingguan";
         } else if (val.includes("cookies")) {
-          area.style.display = "block";
-          btn.innerText = "Pilih Kue (Cookies)";
+          btn.innerHTML =
+            '<i class="fas fa-cookie-bite"></i> Pilih Kue (Cookies)';
           selectEl.dataset.mode = "cookies";
         } else {
-          area.style.display = "none";
+          // Untuk paket standar, tombolnya jadi Request Opsional
+          btn.innerHTML =
+            '<i class="fas fa-edit"></i> Request Barang (Opsional)';
           selectEl.dataset.mode = "normal";
         }
       }
@@ -979,7 +967,7 @@
 
         if (mode === "mingguan") renderCategories();
         else if (mode === "cookies") renderItems("Cookies");
-        else renderItems(null);
+        else renderCategories(); // Buka semua kategori untuk request custom
 
         updateModalTotal();
       }
@@ -1006,7 +994,7 @@
           : "Pilih Barang";
         let html = "";
 
-        if (currentMode === "mingguan" && filterCategory)
+        if (currentMode !== "cookies" && filterCategory)
           html += `<button class="cat-back" onclick="renderCategories()"><i class="fas fa-arrow-left"></i> Kembali ke Kategori</button>`;
 
         const savedItems =
@@ -1057,7 +1045,8 @@
         }
 
         document.getElementById("txtTotalReal").innerText = formatRupiah(total);
-        let targetLabel = "Total:";
+
+        let targetLabel = "Total Belanja:";
         let targetVal = formatRupiah(total);
 
         if (currentMode === "mingguan") {
@@ -1066,6 +1055,10 @@
         } else if (currentMode === "cookies") {
           targetLabel = "Setoran per Hari (330x):";
           targetVal = formatRupiah(Math.ceil(total / 330));
+        } else {
+          // JIKA NORMAL/REQUEST, TAMPILKAN STATUS MENGIKUTI PAKET DASAR
+          targetLabel = "Status Setoran:";
+          targetVal = "Mengikuti Paket Dasar";
         }
 
         document.getElementById("lblTarget").innerText = targetLabel;
@@ -1132,11 +1125,17 @@
           }
 
           let setoranText = "";
-          if (harga > 0) {
-            if (paket.toLowerCase().includes("mingguan"))
+          // PENYESUAIAN STRUK: Cetak setoran sesuai jenis paketnya
+          if (paket.toLowerCase().includes("mingguan")) {
+            if (harga > 0)
               setoranText = formatRupiah(Math.ceil(harga / 40)) + " /minggu";
-            else if (paket.toLowerCase().includes("cookies"))
+          } else if (paket.toLowerCase().includes("cookies")) {
+            if (harga > 0)
               setoranText = formatRupiah(Math.ceil(harga / 330)) + " /hari";
+          } else {
+            // Untuk paket MOM dkk, ekstrak angkanya saja
+            let ext = paket.replace(/\./g, "").match(/\d+/);
+            if (ext) setoranText = formatRupiah(Number(ext[0])) + " /hari";
           }
 
           try {
