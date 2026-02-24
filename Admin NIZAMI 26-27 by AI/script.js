@@ -4,7 +4,7 @@
 
 // ⚠️ PASTIIN URL INI BENAR ⚠️
 const API_URL =
-  "https://script.google.com/macros/s/AKfycby0JjnOFjmI9oOmNQ3skhbPpxmHI_avxCAL_777ZD1zaWa1xlbqBAxdmYnIe83xm4s-sQ/exec";
+  "https://script.google.com/macros/s/AKfycbw5EY9jGJkjp63PguCNbRfrsy4nSYY5T1PoD1hI6RSyTaca8B9zjGUK1srg7mKSfqLRjw/exec";
 
 // 1. Format Rupiah
 const formatRupiah = (angka) => {
@@ -16,16 +16,28 @@ const formatRupiah = (angka) => {
 };
 
 // 2. Fungsi Fetch Data Universal
-async function fetchData(action, params = {}) {
-  const url = new URL(API_URL);
-  url.searchParams.append("action", action);
-  for (const key in params) {
-    url.searchParams.append(key, params[key]);
-  }
-
+// 2. Fungsi Fetch Data Universal (Support GET & POST)
+async function fetchData(action, params = {}, method = "GET") {
   try {
-    const response = await fetch(url);
-    return await response.json();
+    if (method.toUpperCase() === "GET") {
+      const url = new URL(API_URL);
+      url.searchParams.append("action", action);
+      for (const key in params) {
+        url.searchParams.append(key, params[key]);
+      }
+      const response = await fetch(url);
+      return await response.json();
+    } else {
+      // JIKA METHOD POST (Contoh: Upload Gambar)
+      // Kita gabungkan action ke dalam payload
+      const payload = { action: action, ...params };
+      const response = await fetch(API_URL, {
+        method: "POST",
+        // Kirim sebagai string JSON (text/plain) agar tidak memicu error CORS preflight
+        body: JSON.stringify(payload),
+      });
+      return await response.json();
+    }
   } catch (error) {
     console.error("Gagal mengambil data:", error);
     showToast("Gagal koneksi ke server", "error");
