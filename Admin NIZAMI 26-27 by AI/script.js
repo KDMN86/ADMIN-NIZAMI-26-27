@@ -1,77 +1,115 @@
-// ===========================================
-// CORE SCRIPT - PAKET NIZAMI 2026 (SHARED)
-// ===========================================
+// ==============================================================
+// 1. KONFIGURASI URL API (GANTI URL DI SINI JIKA ADA UPDATE)
+// ==============================================================
+const URL_API =
+  "https://script.google.com/macros/s/AKfycbzjg4pcWcClvEhpO_1X2ZLgkFwYvA5t-wtTCltqMz019XuS9phR2d2_IHE9Ouvw3-umwg/exec";
 
-// ⚠️ PASTIIN URL INI BENAR ⚠️
-const API_URL =
-  "https://script.google.com/macros/s/AKfycbw5EY9jGJkjp63PguCNbRfrsy4nSYY5T1PoD1hI6RSyTaca8B9zjGUK1srg7mKSfqLRjw/exec";
-
-// 1. Format Rupiah
-const formatRupiah = (angka) => {
-  return new Intl.NumberFormat("id-ID", {
-    style: "currency",
-    currency: "IDR",
-    minimumFractionDigits: 0,
-  }).format(angka);
-};
-
-// 2. Fungsi Fetch Data Universal
-// 2. Fungsi Fetch Data Universal (Support GET & POST)
-async function fetchData(action, params = {}, method = "GET") {
+// ==============================================================
+// 2. FUNGSI PENGAMBILAN DATA (FETCH)
+// ==============================================================
+async function fetchData(action, params = {}) {
+  const queryString = new URLSearchParams({ action, ...params }).toString();
   try {
-    if (method.toUpperCase() === "GET") {
-      const url = new URL(API_URL);
-      url.searchParams.append("action", action);
-      for (const key in params) {
-        url.searchParams.append(key, params[key]);
-      }
-      const response = await fetch(url);
-      return await response.json();
-    } else {
-      // JIKA METHOD POST (Contoh: Upload Gambar)
-      // Kita gabungkan action ke dalam payload
-      const payload = { action: action, ...params };
-      const response = await fetch(API_URL, {
-        method: "POST",
-        // Kirim sebagai string JSON (text/plain) agar tidak memicu error CORS preflight
-        body: JSON.stringify(payload),
-      });
-      return await response.json();
-    }
+    const response = await fetch(`${URL_API}?${queryString}`);
+    return await response.json();
   } catch (error) {
-    console.error("Gagal mengambil data:", error);
-    showToast("Gagal koneksi ke server", "error");
+    console.error("Gagal terhubung ke server:", error);
     return null;
   }
 }
 
-// 3. Global Toast Notification (Agar bisa dipanggil di semua halaman)
-function showToast(msg, type = "success") {
-  // Buat container jika belum ada
-  let container = document.getElementById("toast-container");
-  if (!container) {
-    container = document.createElement("div");
-    container.id = "toast-container";
-    container.style.cssText =
-      "position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); z-index: 1000; display: flex; flex-direction: column; gap: 10px; width: 90%; max-width: 400px;";
-    document.body.appendChild(container);
-  }
+// ==============================================================
+// 3. SISTEM KERANJANG BELANJA (GLOBAL CART)
+// ==============================================================
+let globalCart = JSON.parse(localStorage.getItem("nizami_global_cart") || "[]");
 
-  const toast = document.createElement("div");
-  const icon = type === "success" ? "check-circle" : "exclamation-circle";
-  const color = type === "success" ? "#ffd700" : "#ff5252"; // Gold or Red
+function saveGlobalCart() {
+  localStorage.setItem("nizami_global_cart", JSON.stringify(globalCart));
+  updateGlobalCartBadge();
 
-  toast.style.cssText = `background: rgba(30, 30, 30, 0.95); backdrop-filter: blur(10px); color: white; padding: 15px 20px; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); display: flex; align-items: center; gap: 12px; border-left: 4px solid ${color}; animation: slideUpFade 0.4s ease;`;
-  toast.innerHTML = `<i class="fas fa-${icon}" style="color:${color}; font-size:1.2rem;"></i> <span>${msg}</span>`;
-
-  container.appendChild(toast);
-  setTimeout(() => {
-    toast.style.opacity = "0";
-    toast.remove();
-  }, 3000);
+  // Jika fungsi render UI ada di halaman tersebut, jalankan
+  if (typeof renderCartUI === "function") renderCartUI();
+  if (typeof renderRegCartSummary === "function") renderRegCartSummary();
 }
 
-// Tambahkan CSS Animation untuk Toast secara global
-const styleSheet = document.createElement("style");
-styleSheet.innerText = `@keyframes slideUpFade { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }`;
-document.head.appendChild(styleSheet);
+function updateGlobalCartBadge() {
+  let total = 0;
+  globalCart.forEach((item) => (total += item.qty));
+  const badges = document.querySelectorAll(".cart-badge"); // Update semua badge di halaman
+
+  badges.forEach((badge) => {
+    badge.innerText = total;
+    if (total > 0) {
+      badge.style.display = "flex";
+      badge.style.animation = "bounceIn 0.5s";
+      setTimeout(() => (badge.style.animation = ""), 500);
+    } else {
+      badge.style.display = "none";
+    }
+  });
+}
+
+// Tambah barang dari halaman mana saja
+window.addToGlobalCart = function (paketName, price = 0) {
+  let existing = globalCart.find((item) => item.name === paketName);
+  if (existing) {
+    existing.qty++;
+  } else {
+    globalCart.push({ name: paketName, price: price, qty: 1 });
+  }
+  saveGlobalCart();
+  showToast("Disimpan ke keranjang!");
+};
+
+function updateCartItem(paketName, change) {
+  let existing = globalCart.find((item) => item.name === paketName);
+  if (existing) {
+    existing.qty += change;
+    if (existing.qty <= 0) {
+      globalCart = globalCart.filter((item) => item.name !== paketName);
+    }
+  }
+  saveGlobalCart();
+}
+
+// ==============================================================
+// 4. UTILITIES & HELPER
+// ==============================================================
+
+function formatRupiah(angka) {
+  return "Rp " + parseInt(angka).toLocaleString("id-ID");
+}
+
+function showToast(msg) {
+  let toast = document.getElementById("toast");
+  if (!toast) return; // Cegah error jika elemen tidak ada
+
+  document.getElementById("toastMsg").innerText = msg;
+  toast.style.display = "flex";
+  setTimeout(() => (toast.style.opacity = "1"), 10);
+  setTimeout(() => {
+    toast.style.opacity = "0";
+    setTimeout(() => (toast.style.display = "none"), 300);
+  }, 2000);
+}
+
+function kirimWA(nomor, pesan) {
+  window.open(`https://wa.me/${nomor}?text=${pesan}`, "_blank");
+}
+
+// Membaca link GDrive agar jadi Thumbnail kebal blokir (RESOLUSI TINGGI)
+function getDriveThumbnail(url) {
+  if (!url) return "";
+  if (url.includes("drive.google.com/uc")) {
+    const match = url.match(/id=([a-zA-Z0-9_-]+)/);
+    // Rahasianya ada di "&sz=w1000" -> Memaksa Google mengirim gambar resolusi tinggi (lebar 1000px)
+    if (match)
+      return `https://drive.google.com/thumbnail?id=${match[1]}&sz=w1000`;
+  }
+  return url;
+}
+
+// Saat file diload, perbarui angka di keranjang
+document.addEventListener("DOMContentLoaded", () => {
+  updateGlobalCartBadge();
+});
