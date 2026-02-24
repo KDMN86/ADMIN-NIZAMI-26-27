@@ -465,7 +465,7 @@
         }
       }
 
-      // FUNGSI UNTUK MEMBUKA MODAL & MERENDER LIST
+      // FUNGSI UNTUK MEMBUKA MODAL & MERENDER LIST (DIPERBARUI DENGAN TOMBOL HAPUS)
       function bukaModal(paketName) {
         document.getElementById("modalTitle").innerText = paketName;
         const body = document.getElementById("modalBody");
@@ -475,15 +475,24 @@
 
         if (listPeserta && listPeserta.length > 0) {
           listPeserta.forEach((p, index) => {
+            // Kita tambahkan id unik pada baris item untuk animasi loading dan tombol hapus
             body.innerHTML += `
-            <div class="detail-item">
+            <div class="detail-item" id="peserta-${p.id}">
               <div class="detail-info">
                 <h4><span style="color:#aaa;">${index + 1}.</span> ${p.nama}</h4>
                 <span><i class="far fa-id-badge"></i> ${p.id}</span>
               </div>
-              <div class="detail-mitra">
-                <i class="fas fa-handshake"></i>
-                <span>${p.mitra}</span>
+              
+              <div style="display:flex; align-items:center; gap:15px;">
+                  <div class="detail-mitra" style="text-align:right;">
+                    <i class="fas fa-handshake"></i>
+                    <span>${p.mitra}</span>
+                  </div>
+                  
+                  <button onclick="hapusPeserta('${p.id}', '${p.nama}')" 
+                          style="background:rgba(255, 82, 82, 0.1); border:1px solid rgba(255, 82, 82, 0.3); color:#ff5252; cursor:pointer; font-size:1.1rem; padding:8px 12px; border-radius:8px; transition:0.2s;">
+                      <i class="fas fa-trash-alt"></i>
+                  </button>
               </div>
             </div>`;
           });
@@ -498,6 +507,37 @@
       // FUNGSI MENUTUP MODAL
       function tutupModal() {
         document.getElementById("modalDetail").style.display = "none";
+      }
+
+      // FUNGSI HAPUS PESERTA DARI DASHBOARD
+      async function hapusPeserta(id, nama) {
+        const konfirmasi = confirm(
+          `⚠️ PERINGATAN KERAS!\n\nYakin ingin menghapus peserta:\nNama: ${nama}\nID: ${id} \n\nData peserta dan rincian belanjaannya akan hilang secara permanen!`,
+        );
+
+        if (!konfirmasi) return;
+
+        // Animasi loading pada tombol
+        const btn = document.querySelector(`#peserta-${id} button`);
+        if (btn) {
+          btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+          btn.disabled = true;
+        }
+
+        // Kirim perintah hapus ke server menggunakan POST bawaan script.js
+        const res = await fetchData("hapusPeserta", { id: id }, "POST");
+
+        if (res && res.success) {
+          alert(`✅ Peserta ${nama} berhasil dihapus dari sistem!`);
+          tutupModal();
+          loadDashboard(); // Refresh statistik dashboard secara otomatis
+        } else {
+          alert("Gagal menghapus: " + (res ? res.error : "Koneksi terputus"));
+          if (btn) {
+            btn.innerHTML = '<i class="fas fa-trash-alt"></i>';
+            btn.disabled = false;
+          }
+        }
       }
 
       // Tutup modal jika user klik di area luar kotak
