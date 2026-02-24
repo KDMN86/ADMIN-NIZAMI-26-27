@@ -1,0 +1,947 @@
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Master Paket</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <style>
+      :root {
+        --primary: #ffd700;
+        --bg: #121212;
+        --surface: #1e1e1e;
+        --text: #e0e0e0;
+        --border: #333;
+      }
+      body {
+        background: var(--bg);
+        color: var(--text);
+        font-family: "Inter", sans-serif;
+        margin: 0;
+        padding: 0;
+        padding-bottom: 90px;
+      }
+
+      .top-nav {
+        background: rgba(18, 18, 18, 0.95);
+        backdrop-filter: blur(10px);
+        padding: 15px 20px;
+        position: sticky;
+        top: 0;
+        z-index: 50;
+        border-bottom: 1px solid var(--border);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+      .header-left {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+      }
+      .back-btn {
+        background: #333;
+        color: white;
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-decoration: none;
+        border: none;
+        flex-shrink: 0;
+      }
+      .page-title {
+        margin: 0;
+        font-size: 1.1rem;
+        font-weight: 600;
+      }
+
+      .search-input {
+        width: 100%;
+        padding: 12px 20px;
+        background: #222;
+        border: 1px solid #444;
+        color: white;
+        border-radius: 25px;
+        outline: none;
+        font-size: 0.95rem;
+        box-sizing: border-box;
+        margin: 15px 20px 0 20px;
+        width: calc(100% - 40px);
+      }
+      .search-input:focus {
+        border-color: var(--primary);
+      }
+
+      #listArea {
+        padding: 15px 20px;
+        display: grid;
+        gap: 15px;
+        grid-template-columns: 1fr;
+      }
+
+      .paket-card {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 16px;
+        overflow: hidden;
+        padding: 15px;
+        transition: 0.2s;
+        position: relative;
+      }
+      .paket-card.hidden {
+        opacity: 0.5;
+        filter: grayscale(50%);
+        border-style: dashed;
+      }
+
+      .pc-top {
+        display: flex;
+        gap: 15px;
+        margin-bottom: 15px;
+        align-items: center;
+      }
+      .paket-img {
+        width: 70px;
+        height: 70px;
+        border-radius: 12px;
+        background: #111;
+        border: 1px dashed #444;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+        flex-shrink: 0;
+      }
+      .paket-img img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+
+      .paket-info {
+        flex-grow: 1;
+      }
+      .paket-info h4 {
+        margin: 0 0 5px 0;
+        font-size: 1.05rem;
+        color: #fff;
+        line-height: 1.3;
+      }
+
+      .toggle-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: 5px;
+        background: #111;
+        padding: 5px 10px;
+        border-radius: 8px;
+      }
+      .toggle-row span {
+        font-size: 0.75rem;
+        color: #aaa;
+      }
+      .switch {
+        position: relative;
+        display: inline-block;
+        width: 40px;
+        height: 22px;
+      }
+      .switch input {
+        opacity: 0;
+        width: 0;
+        height: 0;
+      }
+      .slider {
+        position: absolute;
+        cursor: pointer;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: #444;
+        transition: 0.3s;
+        border-radius: 22px;
+      }
+      .slider:before {
+        position: absolute;
+        content: "";
+        height: 16px;
+        width: 16px;
+        left: 3px;
+        bottom: 3px;
+        background-color: white;
+        transition: 0.3s;
+        border-radius: 50%;
+      }
+      input:checked + .slider {
+        background-color: #4ade80;
+      }
+      input:checked + .slider:before {
+        transform: translateX(18px);
+      }
+
+      .pc-actions {
+        display: grid;
+        grid-template-columns: 1fr 1fr auto;
+        gap: 8px;
+      }
+      .btn-act {
+        background: #222;
+        color: #ddd;
+        border: 1px solid #444;
+        padding: 10px;
+        border-radius: 8px;
+        font-size: 0.8rem;
+        font-weight: bold;
+        cursor: pointer;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 6px;
+      }
+      .btn-act:active {
+        background: #333;
+      }
+      .btn-act.b-gold {
+        color: var(--primary);
+        border-color: rgba(255, 215, 0, 0.3);
+      }
+      .btn-act.b-red {
+        color: #ff6b81;
+        border-color: rgba(255, 107, 129, 0.3);
+      }
+
+      .fab-add {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        background: var(--primary);
+        color: #000;
+        width: 55px;
+        height: 55px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        box-shadow: 0 5px 20px rgba(255, 215, 0, 0.3);
+        cursor: pointer;
+        z-index: 90;
+        border: none;
+      }
+
+      /* MODALS */
+      .modal {
+        display: none;
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.9);
+        z-index: 100;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+        backdrop-filter: blur(5px);
+      }
+      .modal-card {
+        background: var(--surface);
+        width: 100%;
+        max-width: 400px;
+        padding: 25px;
+        border-radius: 16px;
+        border: 1px solid var(--border);
+        position: relative;
+        max-height: 85vh;
+        display: flex;
+        flex-direction: column;
+      }
+      .m-close {
+        position: absolute;
+        top: 15px;
+        right: 15px;
+        background: transparent;
+        border: none;
+        color: #888;
+        font-size: 1.5rem;
+        cursor: pointer;
+      }
+      .m-title {
+        margin: 0 0 20px 0;
+        color: var(--primary);
+        font-size: 1.2rem;
+      }
+
+      .form-label {
+        font-size: 0.8rem;
+        color: #aaa;
+        margin-bottom: 5px;
+        display: block;
+      }
+      .form-input {
+        width: 100%;
+        padding: 12px;
+        background: #111;
+        border: 1px solid #444;
+        color: white;
+        border-radius: 10px;
+        box-sizing: border-box;
+        outline: none;
+        margin-bottom: 15px;
+        font-size: 0.95rem;
+      }
+      .btn-full {
+        width: 100%;
+        padding: 14px;
+        background: var(--primary);
+        color: #000;
+        border: none;
+        border-radius: 10px;
+        font-weight: bold;
+        cursor: pointer;
+        font-size: 1rem;
+      }
+
+      .preview-area {
+        width: 100%;
+        height: 200px;
+        background: #111;
+        border: 2px dashed #444;
+        border-radius: 12px;
+        margin-bottom: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+        position: relative;
+        cursor: pointer;
+      }
+      .preview-area img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: none;
+      }
+
+      /* ISI PAKET BUILDER & CALCULATOR */
+      .isi-area {
+        overflow-y: auto;
+        flex-grow: 1;
+        margin-bottom: 10px;
+        background: #111;
+        border-radius: 10px;
+        padding: 10px;
+        border: 1px solid #333;
+      }
+      .isi-row {
+        display: flex;
+        gap: 8px;
+        margin-bottom: 10px;
+        align-items: center;
+      }
+      .isi-row input {
+        flex: 1;
+        padding: 8px;
+        background: #222;
+        border: 1px solid #444;
+        color: #fff;
+        border-radius: 6px;
+        font-size: 0.85rem;
+        outline: none;
+        transition: 0.2s;
+      }
+      .isi-row input:focus {
+        border-color: var(--primary);
+      }
+      .isi-row input.i-qty {
+        flex: 0 0 55px;
+        text-align: center;
+      }
+      .isi-row input.i-sat {
+        flex: 0 0 70px;
+        background: #1a1a1a;
+        color: #888;
+        border-color: #333;
+        cursor: not-allowed;
+      }
+      .btn-del-isi {
+        background: transparent;
+        color: #ff6b81;
+        border: none;
+        font-size: 1.1rem;
+        cursor: pointer;
+        padding: 0 5px;
+      }
+
+      /* SUMMARY BOX (MODAL & JUAL) */
+      .summary-box {
+        background: #0a0a0a;
+        border: 1px dashed #444;
+        border-radius: 10px;
+        padding: 15px;
+        margin-bottom: 15px;
+      }
+      .sum-item {
+        display: flex;
+        justify-content: space-between;
+        font-size: 0.85rem;
+        color: #aaa;
+        margin-bottom: 5px;
+        align-items: center;
+      }
+      .sum-item b {
+        color: #fff;
+        font-size: 0.95rem;
+      }
+      .sum-item.profit {
+        border-top: 1px dashed #333;
+        padding-top: 8px;
+        margin-top: 8px;
+      }
+      .sum-item.profit b {
+        color: #4ade80;
+        font-size: 1.1rem;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="top-nav">
+      <div class="header-left">
+        <a href="index.html" class="back-btn"
+          ><i class="fas fa-arrow-left"></i
+        ></a>
+        <h2 class="page-title">Master Paket (Katalog)</h2>
+      </div>
+    </div>
+
+    <input
+      type="text"
+      id="searchInput"
+      class="search-input"
+      placeholder="🔍 Cari nama paket..."
+      onkeyup="filterPaket(this.value)"
+    />
+
+    <div id="listArea">
+      <div style="text-align: center; padding: 50px; color: #555">
+        <i class="fas fa-spinner fa-spin fa-2x"></i><br /><br />Memuat data...
+      </div>
+    </div>
+
+    <button class="fab-add" onclick="bukaModalAdd()">
+      <i class="fas fa-plus"></i>
+    </button>
+
+    <datalist id="dlMasterBarang"></datalist>
+
+    <div id="modalAdd" class="modal">
+      <div class="modal-card">
+        <button class="m-close" onclick="tutupModal('modalAdd')">
+          &times;
+        </button>
+        <h3 class="m-title"><i class="fas fa-box"></i> Tambah Paket Baru</h3>
+        <label class="form-label">Nama Paket</label>
+        <input
+          type="text"
+          id="pNamaBaru"
+          class="form-input"
+          placeholder="Misal: Paket Lebaran Super"
+        />
+        <label class="form-label"
+          >Target Uang Tunai (Berapa x setoran? Kosongkan jika 0)</label
+        >
+        <input
+          type="number"
+          id="pTargetBaru"
+          class="form-input"
+          placeholder="0"
+        />
+        <button onclick="simpanPaketBaru()" class="btn-full" id="btnSimpanBaru">
+          SIMPAN PAKET
+        </button>
+      </div>
+    </div>
+
+    <div id="modalUpload" class="modal">
+      <div class="modal-card">
+        <button class="m-close" onclick="tutupModal('modalUpload')">
+          &times;
+        </button>
+        <h3 class="m-title" id="mNamaPaketFoto">Upload Foto</h3>
+        <p
+          style="
+            font-size: 0.8rem;
+            color: #aaa;
+            margin-top: -15px;
+            margin-bottom: 20px;
+          "
+        >
+          Pilih foto dari galeri HP untuk ditampilkan di Katalog.
+        </p>
+
+        <input
+          type="file"
+          id="fileInput"
+          accept="image/*"
+          style="display: none"
+          onchange="previewImage(event)"
+        />
+        <div
+          class="preview-area"
+          onclick="document.getElementById('fileInput').click()"
+        >
+          <span id="previewText"
+            ><i class="fas fa-cloud-upload-alt fa-2x"></i><br />Ketuk untuk
+            pilih foto</span
+          >
+          <img id="previewImg" src="" />
+        </div>
+        <button
+          onclick="uploadFoto()"
+          class="btn-full"
+          id="btnUploadFoto"
+          disabled
+        >
+          SIMPAN FOTO
+        </button>
+      </div>
+    </div>
+
+    <div id="modalIsi" class="modal">
+      <div class="modal-card" style="height: 95vh; padding: 20px">
+        <button
+          class="m-close"
+          onclick="tutupModal('modalIsi')"
+          style="top: 10px; right: 15px"
+        >
+          &times;
+        </button>
+        <h3
+          class="m-title"
+          id="mNamaPaketIsi"
+          style="font-size: 1rem; margin-bottom: 5px"
+        >
+          Rincian Barang
+        </h3>
+        <p style="font-size: 0.75rem; color: #888; margin-bottom: 10px">
+          <i class="fas fa-info-circle"></i> Pilih barang untuk hitung otomatis
+          modal & profit.
+        </p>
+
+        <div class="isi-area" id="isiArea"></div>
+
+        <button
+          onclick="tambahBarisIsi()"
+          class="btn-full"
+          style="
+            background: #222;
+            color: #fff;
+            border: 1px dashed #555;
+            margin-bottom: 15px;
+            padding: 10px;
+          "
+        >
+          <i class="fas fa-plus"></i> Tambah Barang
+        </button>
+
+        <div class="summary-box" id="summaryBox">
+          <div class="sum-item">
+            <span
+              ><i
+                class="fas fa-shopping-cart"
+                style="color: #ff6b81; margin-right: 5px"
+              ></i>
+              Total Modal (Beli):</span
+            >
+            <b id="sumModal">Rp 0</b>
+          </div>
+          <div class="sum-item">
+            <span
+              ><i
+                class="fas fa-tag"
+                style="color: #ffd700; margin-right: 5px"
+              ></i>
+              Total Harga Jual:</span
+            >
+            <b id="sumJual">Rp 0</b>
+          </div>
+          <div class="sum-item profit">
+            <span
+              ><i class="fas fa-chart-line" style="margin-right: 5px"></i>
+              Estimasi Keuntungan:</span
+            >
+            <b id="sumProfit">Rp 0</b>
+          </div>
+        </div>
+
+        <button onclick="simpanIsiPaket()" class="btn-full" id="btnSimpanIsi">
+          SIMPAN RINCIAN
+        </button>
+      </div>
+    </div>
+
+    <script src="script.js"></script>
+    <script>
+      let allPaket = [];
+      let masterBarang = []; // Variabel penyimpan referensi MASTER_BARANG Lengkap
+      let activePaket = "";
+      let base64String = "";
+      let fileMimeType = "";
+
+      // Fungsi format Rupiah mandiri untuk Kalkulator
+      function formatRp(angka) {
+        return new Intl.NumberFormat("id-ID", {
+          style: "currency",
+          currency: "IDR",
+          minimumFractionDigits: 0,
+        }).format(angka || 0);
+      }
+
+      function getSafeImageUrl(url) {
+        if (!url) return "";
+        const idMatch = url.match(/id=([^&]+)/);
+        if (idMatch)
+          return `https://drive.google.com/thumbnail?id=${idMatch[1]}&sz=w800`;
+        return url;
+      }
+
+      async function load() {
+        const container = document.getElementById("listArea");
+
+        // Panggil API Paket & API BarangLengkap secara paralel
+        const [dataPaket, dataBarang] = await Promise.all([
+          fetchData("getListPaketAdmin"),
+          fetchData("getBarangLengkapAdmin"), // API BARU
+        ]);
+
+        // Olah Data Master Barang untuk Dropdown Autocomplete
+        if (Array.isArray(dataBarang)) {
+          masterBarang = dataBarang;
+          let dlHtml = "";
+          masterBarang.forEach((b) => {
+            dlHtml += `<option value="${b.nama}"></option>`;
+          });
+          document.getElementById("dlMasterBarang").innerHTML = dlHtml;
+        }
+
+        // Olah Data Paket
+        if (Array.isArray(dataPaket)) {
+          allPaket = dataPaket;
+          renderList(allPaket);
+        } else {
+          container.innerHTML =
+            '<div style="text-align:center; padding:20px; color:#ff6b6b;">Gagal memuat data.</div>';
+        }
+      }
+
+      function renderList(items) {
+        const container = document.getElementById("listArea");
+        container.innerHTML = "";
+
+        if (items.length === 0) {
+          container.innerHTML =
+            '<div style="text-align:center; padding:30px; color:#555;">Tidak ada paket.</div>';
+          return;
+        }
+
+        items.forEach((p) => {
+          let safeUrl = getSafeImageUrl(p.foto);
+          let imgHtml = safeUrl
+            ? `<img src="${safeUrl}" loading="lazy">`
+            : `<i class="fas fa-box-open" style="font-size:1.5rem; color:#555;"></i>`;
+          let hiddenClass = p.tampil ? "" : "hidden";
+          let checked = p.tampil ? "checked" : "";
+
+          container.innerHTML += `
+                <div class="paket-card ${hiddenClass}">
+                    <div class="pc-top">
+                        <div class="paket-img">${imgHtml}</div>
+                        <div class="paket-info">
+                            <h4>${p.nama}</h4>
+                            <div class="toggle-row">
+                                <span>Tampil di Katalog</span>
+                                <label class="switch">
+                                    <input type="checkbox" ${checked} onchange="toggleTampil('${p.nama}', this.checked)">
+                                    <span class="slider"></span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="pc-actions">
+                        <button class="btn-act b-gold" onclick="bukaModalIsi('${p.nama}')"><i class="fas fa-list"></i> Isi Paket</button>
+                        <button class="btn-act" onclick="bukaModalFoto('${p.nama}')"><i class="fas fa-image"></i> Foto</button>
+                        <button class="btn-act b-red" onclick="hapusPaket('${p.nama}')"><i class="fas fa-trash"></i></button>
+                    </div>
+                </div>`;
+        });
+      }
+
+      function filterPaket(q) {
+        const query = q.toLowerCase();
+        const filtered = allPaket.filter((p) =>
+          p.nama.toLowerCase().includes(query),
+        );
+        renderList(filtered);
+      }
+
+      function tutupModal(id) {
+        document.getElementById(id).style.display = "none";
+      }
+
+      // --- 1. FITUR TAMBAH, HAPUS, TOGGLE ---
+      function bukaModalAdd() {
+        document.getElementById("pNamaBaru").value = "";
+        document.getElementById("pTargetBaru").value = "";
+        document.getElementById("modalAdd").style.display = "flex";
+      }
+
+      async function simpanPaketBaru() {
+        const nama = document.getElementById("pNamaBaru").value.trim();
+        const targetUang = document.getElementById("pTargetBaru").value || 0;
+        if (!nama) return alert("Nama paket wajib diisi!");
+        const btn = document.getElementById("btnSimpanBaru");
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Menyimpan...';
+        btn.disabled = true;
+        const res = await fetchData(
+          "tambahPaketAdmin",
+          { nama: nama, targetUang: targetUang },
+          "POST",
+        );
+        if (res && res.success) {
+          tutupModal("modalAdd");
+          load();
+        } else alert("Gagal menyimpan");
+        btn.innerHTML = "SIMPAN PAKET";
+        btn.disabled = false;
+      }
+
+      async function hapusPaket(nama) {
+        if (
+          !confirm(
+            `Yakin MENGHAPUS paket ${nama}? (Isi paket juga akan terhapus)`,
+          )
+        )
+          return;
+        const res = await fetchData("hapusPaketAdmin", { nama: nama }, "POST");
+        if (res && res.success) load();
+      }
+
+      async function toggleTampil(nama, isTampil) {
+        await fetchData(
+          "togglePaketAdmin",
+          { nama: nama, tampil: isTampil },
+          "POST",
+        );
+        load();
+      }
+
+      // --- 2. FITUR UPLOAD FOTO ---
+      function bukaModalFoto(namaPaket) {
+        activePaket = namaPaket;
+        document.getElementById("mNamaPaketFoto").innerText =
+          "Foto: " + namaPaket;
+        document.getElementById("fileInput").value = "";
+        document.getElementById("previewImg").style.display = "none";
+        document.getElementById("previewText").style.display = "block";
+        document.getElementById("btnUploadFoto").disabled = true;
+        document.getElementById("modalUpload").style.display = "flex";
+      }
+
+      function previewImage(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+        if (file.size > 2 * 1024 * 1024) return alert("Maksimal gambar 2MB!");
+        fileMimeType = file.type;
+        const reader = new FileReader();
+        reader.onload = function (e) {
+          base64String = e.target.result;
+          document.getElementById("previewImg").src = base64String;
+          document.getElementById("previewImg").style.display = "block";
+          document.getElementById("previewText").style.display = "none";
+          document.getElementById("btnUploadFoto").disabled = false;
+        };
+        reader.readAsDataURL(file);
+      }
+
+      async function uploadFoto() {
+        const btn = document.getElementById("btnUploadFoto");
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Uploading...';
+        btn.disabled = true;
+        const res = await fetchData(
+          "updateFotoPaket",
+          {
+            namaPaket: activePaket,
+            base64: base64String,
+            mimeType: fileMimeType,
+          },
+          "POST",
+        );
+        if (res && res.success) {
+          tutupModal("modalUpload");
+          load();
+        } else alert("Gagal mengupload foto.");
+        btn.innerHTML = "SIMPAN FOTO";
+        btn.disabled = false;
+      }
+
+      // --- 3. FITUR RINCIAN ISI PAKET & KALKULATOR MODAL ---
+      async function bukaModalIsi(namaPaket) {
+        activePaket = namaPaket;
+        document.getElementById("mNamaPaketIsi").innerHTML =
+          `<i class="fas fa-box-open"></i> Isi: ${namaPaket}`;
+        document.getElementById("modalIsi").style.display = "flex";
+        document.getElementById("isiArea").innerHTML =
+          '<div style="text-align:center; padding:20px; color:#888;"><i class="fas fa-spinner fa-spin"></i> Memuat data...</div>';
+
+        const data = await fetchData("getIsiPaketAdmin", {
+          namaPaket: namaPaket,
+        });
+        renderIsiForm(data || []);
+      }
+
+      function renderIsiForm(items) {
+        const area = document.getElementById("isiArea");
+        area.innerHTML = "";
+        if (items.length === 0) {
+          tambahBarisIsi();
+        } else {
+          items.forEach((item) => {
+            tambahBarisIsi(item.namaBarang, item.qty, item.satuan);
+          });
+        }
+        hitungTotalKalkulator(); // Hitung otomatis saat pertama kali dibuka
+      }
+
+      function tambahBarisIsi(nama = "", qty = "1", sat = "") {
+        const area = document.getElementById("isiArea");
+        const row = document.createElement("div");
+        row.className = "isi-row";
+
+        // Tambahkan oninput pada QTY untuk memicu kalkulator secara real-time
+        row.innerHTML = `
+                <input type="text" class="in-nama" placeholder="Pilih / Ketik Barang..." value="${nama}" list="dlMasterBarang" onchange="cekDanIsiSatuan(this)">
+                <input type="number" class="in-qty i-qty" placeholder="Qty" value="${qty}" min="1" oninput="hitungTotalKalkulator()">
+                <input type="text" class="in-sat i-sat" placeholder="Satuan" value="${sat}" readonly tabindex="-1">
+                <button class="btn-del-isi" onclick="hapusBaris(this)"><i class="fas fa-times-circle"></i></button>
+            `;
+        area.appendChild(row);
+      }
+
+      function hapusBaris(btn) {
+        btn.parentElement.remove();
+        hitungTotalKalkulator(); // Hitung ulang saat baris dihapus
+      }
+
+      // Fungsi ajaib untuk mengecek barang & otomatis mengisi satuan
+      function cekDanIsiSatuan(inputElement) {
+        const val = inputElement.value.trim();
+        const row = inputElement.parentElement;
+        const satInput = row.querySelector(".in-sat");
+
+        if (val === "") {
+          inputElement.style.borderColor = "#444";
+          satInput.value = "";
+          hitungTotalKalkulator();
+          return;
+        }
+
+        // Cari di MASTER_BARANG
+        const barangDitemukan = masterBarang.find((b) => b.nama === val);
+
+        if (barangDitemukan) {
+          inputElement.style.borderColor = "#4ade80";
+          satInput.value = barangDitemukan.satuan;
+        } else {
+          inputElement.style.borderColor = "#ff6b81";
+          satInput.value = "";
+        }
+
+        hitungTotalKalkulator(); // Pemicu kalkulator modal
+      }
+
+      // FUNGSI KALKULATOR MODAL & PROFIT
+      function hitungTotalKalkulator() {
+        let totalModal = 0;
+        let totalJual = 0;
+
+        const rows = document.querySelectorAll(".isi-row");
+        rows.forEach((r) => {
+          const nm = r.querySelector(".in-nama").value.trim();
+          const qty = parseInt(r.querySelector(".in-qty").value) || 0;
+
+          const barang = masterBarang.find((b) => b.nama === nm);
+          if (barang) {
+            totalModal += barang.hargaBeli * qty;
+            totalJual += barang.hargaJual * qty;
+          }
+        });
+
+        document.getElementById("sumModal").innerText = formatRp(totalModal);
+        document.getElementById("sumJual").innerText = formatRp(totalJual);
+        document.getElementById("sumProfit").innerText = formatRp(
+          totalJual - totalModal,
+        );
+      }
+
+      async function simpanIsiPaket() {
+        const rows = document.querySelectorAll(".isi-row");
+        let items = [];
+        let adaError = false;
+
+        rows.forEach((r) => {
+          const nm = r.querySelector(".in-nama").value.trim();
+          const qt = r.querySelector(".in-qty").value;
+          const st = r.querySelector(".in-sat").value.trim();
+
+          if (nm !== "") {
+            // Validasi ketat terakhir
+            const isValid = masterBarang.some((b) => b.nama === nm);
+            if (!isValid) {
+              adaError = true;
+              r.querySelector(".in-nama").style.borderColor = "#ff6b81";
+            } else {
+              items.push({ namaBarang: nm, qty: qt, satuan: st });
+            }
+          }
+        });
+
+        if (adaError) {
+          alert(
+            "Gagal Simpan! Ada kotak berwarna merah.\nBarang yang Anda ketik TIDAK ADA di Master Barang.\nSilakan hapus atau pilih dari daftar rekomendasi.",
+          );
+          return;
+        }
+
+        const btn = document.getElementById("btnSimpanIsi");
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Menyimpan...';
+        btn.disabled = true;
+
+        const res = await fetchData(
+          "simpanIsiPaketAdmin",
+          { namaPaket: activePaket, items: items },
+          "POST",
+        );
+
+        if (res && res.success) {
+          tutupModal("modalIsi");
+          alert("✅ Rincian barang berhasil disinkronkan dengan aman!");
+        } else alert("Gagal menyimpan rincian");
+
+        btn.innerHTML = "SIMPAN RINCIAN";
+        btn.disabled = false;
+      }
+
+      load();
+    </script>
+  </body>
+</html>
