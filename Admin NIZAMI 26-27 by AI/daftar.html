@@ -419,7 +419,7 @@
         <textarea
           id="waRaw"
           class="wa-textarea"
-          placeholder="Paste chat lengkap disini (Mendukung copy-paste pesan yang terpisah)..."
+          placeholder="Paste chat lengkap disini (Mendukung format baru)..."
         ></textarea>
         <button onclick="parseWA()" class="btn-extract">
           <i class="fas fa-magic"></i> EKSTRAK DATA SEKARANG
@@ -578,6 +578,9 @@
         }
       }
 
+      // ========================================================
+      // FUNGSI EKSTRAK WA V.3 (KEBAL ICON, SUPPORT FORMAT BARU)
+      // ========================================================
       function parseWA() {
         const text = document.getElementById("waRaw").value;
         if (!text) return alert("Tempelkan teks WhatsApp dulu!");
@@ -586,7 +589,8 @@
           return alert("Data Barang/Paket belum siap. Tunggu sebentar.");
         }
 
-        let entries = text.split(/(?=Nama\s*[:=])/i);
+        // Pecah per orang (mendukung format "DATA PESERTA" atau "Nama:")
+        let entries = text.split(/(?=DATA PESERTA|Nama\s*[:=])/i);
         entries = entries.filter((e) => e.trim().length > 5);
         if (entries.length === 0) entries = [text];
 
@@ -601,6 +605,7 @@
         }
 
         entries.forEach((entry) => {
+          // Tangkap Biodata
           const nmMatch = entry.match(/Nama\s*[:=]\s*([^\n]+)/i);
           const hpMatch = entry.match(
             /(?:HP|WA|No|Nomor)\s*[:=]\s*([\d\+\-\s]+)/i,
@@ -608,18 +613,33 @@
           const alMatch = entry.match(/Alamat\s*[:=]\s*([^\n]+)/i);
           const mtMatch = entry.match(/Mitra\s*[:=]\s*([^\n]+)/i);
 
-          let nm = nmMatch ? nmMatch[1].trim() : "";
-          let hp = hpMatch ? hpMatch[1].replace(/\D/g, "") : "";
-          let al = alMatch ? alMatch[1].trim() : "";
-          let mt = mtMatch ? mtMatch[1].trim() : "";
+          // BARU: Ekstrak nama Mitra dari ID jika formatnya ID: MTR-SAMSUL-4565
+          const idMatch = entry.match(/ID\s*[:=]\s*MTR-([A-Z0-9]+)/i);
 
-          const paketSectionMatch = entry.match(/PAKET DIPILIH[\s\S]*/i);
+          let nm = nmMatch ? nmMatch[1].replace(/\*/g, "").trim() : "";
+          let hp = hpMatch ? hpMatch[1].replace(/\D/g, "") : "";
+          let al = alMatch ? alMatch[1].replace(/\*/g, "").trim() : "";
+
+          let mt = "";
+          if (mtMatch) {
+            mt = mtMatch[1].replace(/\*/g, "").trim();
+          } else if (idMatch) {
+            mt = idMatch[1].trim(); // Akan mendapatkan "SAMSUL"
+          }
+
+          // Tangkap Area Paket
+          const paketSectionMatch = entry.match(
+            /(?:PESANAN BARU|PAKET DIPILIH)[\s\S]*/i,
+          );
           let paketString = paketSectionMatch
-            ? paketSectionMatch[0].replace(/PAKET DIPILIH/i, "").trim()
+            ? paketSectionMatch[0]
+                .replace(/(?:PESANAN BARU|PAKET DIPILIH):?/i, "")
+                .trim()
             : entry;
 
+          // Split berdasarkan pola awalan paket (misal: " 1x Paket" atau "- 1x Paket")
           let rawPackages = paketString.split(
-            /(?=\n\s*[-•]\s*(?:\d+x?\s*)?Paket)/i,
+            /(?=\n\s*[^\w\n]*\d*x?\s*Paket)/i,
           );
 
           if (rawPackages.length === 1 && rawPackages[0].includes("\n-")) {
@@ -627,12 +647,19 @@
           }
 
           rawPackages.forEach((pktText) => {
-            let pClean = pktText.replace(/^[\n\s\-•]+/, "").trim();
-            if (!pClean) return;
+            // Bersihkan awalan simbol aneh (termasuk karakter pengganti emoji \uFFFD)
+            let pClean = pktText.replace(/^[\n\s\-•📦🔸🔹\uFFFD]+/, "").trim();
 
-            let waPktName = pClean
+            // Abaikan bagian penutup pesan
+            if (!pClean || pClean.toLowerCase().startsWith("mohon diproses"))
+              return;
+
+            // Ambil nama paket pada baris pertama saja
+            let waPktNameLine = pClean.split(/\n/)[0];
+            let waPktName = waPktNameLine
               .split(/\(|Isi:/i)[0]
               .replace(/^\d+x\s*/i, "")
+              .replace(/\*/g, "") // Hapus bold markdown jika ada
               .trim();
 
             let matchedPaket = null;
@@ -640,22 +667,25 @@
               (a, b) => b.nama.length - a.nama.length,
             );
 
+            // TAHAP 1: Exact Match
             matchedPaket = sortedPaket.find((p) =>
               pClean.toLowerCase().includes(p.nama.toLowerCase()),
             );
 
+            // TAHAP 2: Reverse Match (Untuk mengatasi "Paket Cookies" vs "Paket Cookies 1000")
             if (!matchedPaket && waPktName.length > 3) {
               matchedPaket = sortedPaket.find((p) =>
                 p.nama.toLowerCase().includes(waPktName.toLowerCase()),
               );
             }
 
+            // TAHAP 3: Kata kunci darurat
             if (!matchedPaket) {
-              if (pClean.toLowerCase().includes("cookies"))
+              if (waPktName.toLowerCase().includes("cookies"))
                 matchedPaket = sortedPaket.find((p) =>
                   p.nama.toLowerCase().includes("cookies"),
                 );
-              else if (pClean.toLowerCase().includes("mingguan"))
+              else if (waPktName.toLowerCase().includes("mingguan"))
                 matchedPaket = sortedPaket.find((p) =>
                   p.nama.toLowerCase().includes("mingguan"),
                 );
@@ -672,7 +702,7 @@
             if (hp) row.querySelector(".inp-hp").value = hp;
             if (al) row.querySelector(".inp-alamat").value = al;
 
-            // PERBAIKAN MITRA: Jika diketik "Admin" atau nama asing, otomatis pilih Pusat
+            // Isi Mitra Pintar
             if (mt) {
               const mtFound = setDropdownByText(
                 row.querySelector(".inp-mitra"),
@@ -684,7 +714,7 @@
               setDropdownByText(row.querySelector(".inp-mitra"), "Pusat");
             }
 
-            // Isi Paket & Barang
+            // Isi Paket & Ekstrak Barang
             const selPaket = row.querySelector(".inp-paket");
             const found = setDropdownByText(selPaket, matchedPaket.nama);
 
@@ -699,7 +729,7 @@
         if (successCount > 0) {
           document.getElementById("waRaw").value = "";
           alert(
-            `Berhasil mengekstrak ${successCount} form pendaftaran! Silakan cek kelengkapannya.`,
+            `Berhasil mengekstrak ${successCount} pesanan paket! Silakan cek dan simpan.`,
           );
         } else {
           alert(
@@ -715,8 +745,14 @@
         let matchCount = 0;
 
         let itemsStr = textEntry;
-        const isiMatch = textEntry.match(/Isi:\s*([\s\S]+)/i);
-        if (isiMatch) itemsStr = isiMatch[1];
+        // Tangkap isi setelah "Rincian Isi:" atau "Isi:"
+        const isiMatch = textEntry.match(/(?:Rincian )?Isi:\s*([\s\S]+)/i);
+
+        if (isiMatch) {
+          itemsStr = isiMatch[1];
+          // Potong teks penutup agar tidak ikut di-scan
+          itemsStr = itemsStr.split(/mohon diproses/i)[0];
+        }
 
         const parts = itemsStr.split(/[\n,;]+/);
 
@@ -942,8 +978,7 @@
         document.getElementById("modalItems").style.display = "flex";
 
         if (mode === "mingguan") renderCategories();
-        else if (mode === "cookies")
-          renderItems("Cookies"); // Tampilkan langsung kategori kue jika cookies
+        else if (mode === "cookies") renderItems("Cookies");
         else renderItems(null);
 
         updateModalTotal();
@@ -1046,20 +1081,17 @@
         document.getElementById("modalItems").style.display = "none";
       }
 
-      // --- PERBAIKAN: VALIDASI SEBELUM MENYIMPAN ---
       async function saveAll() {
         const cards = document.querySelectorAll(".p-card");
         if (cards.length === 0) return;
 
         let adaError = false;
 
-        // Cek semua kotak form, apakah ada yang kosong?
         cards.forEach((card) => {
           const nama = card.querySelector(".inp-nama").value.trim();
           const mitra = card.querySelector(".inp-mitra").value;
           const paket = card.querySelector(".inp-paket").value;
 
-          // Jika kosong, nyalakan bingkai merah
           if (!nama || !mitra || !paket) {
             card.style.border = "2px solid #ff4d4d";
             adaError = true;
