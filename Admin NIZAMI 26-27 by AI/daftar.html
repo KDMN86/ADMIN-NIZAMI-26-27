@@ -117,6 +117,7 @@
         margin-bottom: 15px;
         position: relative;
         animation: slideIn 0.3s ease;
+        transition: border 0.3s ease;
       }
       .p-card-header {
         display: flex;
@@ -577,27 +578,20 @@
         }
       }
 
-      // ========================================================
-      // FUNGSI EKSTRAK WA BARU (SUPER CERDAS)
-      // ========================================================
       function parseWA() {
         const text = document.getElementById("waRaw").value;
         if (!text) return alert("Tempelkan teks WhatsApp dulu!");
 
         if (masterBarang.length === 0 || masterPaket.length === 0) {
-          return alert(
-            "Data Barang/Paket belum siap. Tunggu sebentar atau Refresh halaman.",
-          );
+          return alert("Data Barang/Paket belum siap. Tunggu sebentar.");
         }
 
-        // Pecah blok jika ada banyak tulisan "Nama:". Jika tidak, anggap semua text itu milik 1 orang.
         let entries = text.split(/(?=Nama\s*[:=])/i);
         entries = entries.filter((e) => e.trim().length > 5);
         if (entries.length === 0) entries = [text];
 
         let successCount = 0;
 
-        // Bersihkan form kosong
         if (formCount === 1) {
           const fName = document.querySelector(".inp-nama");
           if (fName && fName.value === "") {
@@ -607,7 +601,6 @@
         }
 
         entries.forEach((entry) => {
-          // 1. Tangkap Profil Dasar
           const nmMatch = entry.match(/Nama\s*[:=]\s*([^\n]+)/i);
           const hpMatch = entry.match(
             /(?:HP|WA|No|Nomor)\s*[:=]\s*([\d\+\-\s]+)/i,
@@ -620,36 +613,55 @@
           let al = alMatch ? alMatch[1].trim() : "";
           let mt = mtMatch ? mtMatch[1].trim() : "";
 
-          // 2. Deteksi Paket (Bisa Lebih Dari 1 Paket)
-          let matchedPakets = [];
+          const paketSectionMatch = entry.match(/PAKET DIPILIH[\s\S]*/i);
+          let paketString = paketSectionMatch
+            ? paketSectionMatch[0].replace(/PAKET DIPILIH/i, "").trim()
+            : entry;
 
-          // Cari nama paket langsung dari database yang disebut di teks
-          masterPaket.forEach((p) => {
-            const safeName = p.nama.replace(/[-/\\^$*+?.()|[\]{}]/g, "\\$&"); // Bersihkan simbol regex
-            const regex = new RegExp(safeName, "i");
-            if (regex.test(entry)) {
-              matchedPakets.push(p);
-            }
-          });
+          let rawPackages = paketString.split(
+            /(?=\n\s*[-•]\s*(?:\d+x?\s*)?Paket)/i,
+          );
 
-          // Fallback: Jika tidak terdeteksi pakai nama langsung, gunakan Regex Paket:
-          if (matchedPakets.length === 0) {
-            const pkRegex = entry.match(/Paket\s*[:=]\s*([^\n]+)/i);
-            if (pkRegex) {
-              const found = masterPaket.find((p) =>
-                p.nama.toLowerCase().includes(pkRegex[1].trim().toLowerCase()),
-              );
-              if (found) matchedPakets.push(found);
-            }
+          if (rawPackages.length === 1 && rawPackages[0].includes("\n-")) {
+            rawPackages = paketString.split(/(?=\n\s*[-•]\s*)/);
           }
 
-          // Jika tetap kosong paketnya, siapkan 1 wadah dummy untuk render form saja
-          if (matchedPakets.length === 0) matchedPakets.push({ nama: "" });
+          rawPackages.forEach((pktText) => {
+            let pClean = pktText.replace(/^[\n\s\-•]+/, "").trim();
+            if (!pClean) return;
 
-          // 3. Render Form Sesuai Jumlah Paket yang Dipilih
-          matchedPakets.forEach((paket) => {
-            // Abaikan jika tidak ada nama DAN tidak ada paket yang ditemukan (Pesan sampah)
-            if (!nm && !paket.nama) return;
+            let waPktName = pClean
+              .split(/\(|Isi:/i)[0]
+              .replace(/^\d+x\s*/i, "")
+              .trim();
+
+            let matchedPaket = null;
+            let sortedPaket = [...masterPaket].sort(
+              (a, b) => b.nama.length - a.nama.length,
+            );
+
+            matchedPaket = sortedPaket.find((p) =>
+              pClean.toLowerCase().includes(p.nama.toLowerCase()),
+            );
+
+            if (!matchedPaket && waPktName.length > 3) {
+              matchedPaket = sortedPaket.find((p) =>
+                p.nama.toLowerCase().includes(waPktName.toLowerCase()),
+              );
+            }
+
+            if (!matchedPaket) {
+              if (pClean.toLowerCase().includes("cookies"))
+                matchedPaket = sortedPaket.find((p) =>
+                  p.nama.toLowerCase().includes("cookies"),
+                );
+              else if (pClean.toLowerCase().includes("mingguan"))
+                matchedPaket = sortedPaket.find((p) =>
+                  p.nama.toLowerCase().includes("mingguan"),
+                );
+            }
+
+            if (!matchedPaket) return;
 
             addParticipantRow();
             const rowId = formCount;
@@ -659,17 +671,26 @@
             row.querySelector(".inp-nama").value = nm;
             if (hp) row.querySelector(".inp-hp").value = hp;
             if (al) row.querySelector(".inp-alamat").value = al;
-            if (mt) setDropdownByText(row.querySelector(".inp-mitra"), mt);
+
+            // PERBAIKAN MITRA: Jika diketik "Admin" atau nama asing, otomatis pilih Pusat
+            if (mt) {
+              const mtFound = setDropdownByText(
+                row.querySelector(".inp-mitra"),
+                mt,
+              );
+              if (!mtFound)
+                setDropdownByText(row.querySelector(".inp-mitra"), "Pusat");
+            } else {
+              setDropdownByText(row.querySelector(".inp-mitra"), "Pusat");
+            }
 
             // Isi Paket & Barang
-            if (paket.nama) {
-              const selPaket = row.querySelector(".inp-paket");
-              const found = setDropdownByText(selPaket, paket.nama);
+            const selPaket = row.querySelector(".inp-paket");
+            const found = setDropdownByText(selPaket, matchedPaket.nama);
 
-              if (found) {
-                checkPaket(selPaket, rowId); // Buka keranjang jika itu Sembako/Kue
-                smartExtractItems(entry, rowId); // Jalankan Ekstrak Barang
-              }
+            if (found) {
+              checkPaket(selPaket, rowId);
+              smartExtractItems(pClean, rowId);
             }
             successCount++;
           });
@@ -678,7 +699,7 @@
         if (successCount > 0) {
           document.getElementById("waRaw").value = "";
           alert(
-            `Berhasil mengekstrak ${successCount} form pendaftaran! Silakan periksa kembali rincian dan nama yang mungkin kosong.`,
+            `Berhasil mengekstrak ${successCount} form pendaftaran! Silakan cek kelengkapannya.`,
           );
         } else {
           alert(
@@ -693,28 +714,29 @@
         const currentRowData = rowData[`row_${rowId}`];
         let matchCount = 0;
 
-        // Pecah teks berdasarkan enter (baris baru)
-        const lines = textEntry.split("\n");
+        let itemsStr = textEntry;
+        const isiMatch = textEntry.match(/Isi:\s*([\s\S]+)/i);
+        if (isiMatch) itemsStr = isiMatch[1];
 
-        lines.forEach((line) => {
-          const lowerLine = line.toLowerCase();
+        const parts = itemsStr.split(/[\n,;]+/);
+
+        parts.forEach((part) => {
+          const lowerPart = part.toLowerCase();
 
           for (let b of masterBarang) {
             const bNameLower = b.nama.toLowerCase();
 
-            // Jika nama barang disebut di baris ini
-            if (lowerLine.includes(bNameLower)) {
+            if (lowerPart.includes(bNameLower)) {
               let qty = 1;
 
-              // Teknik 1: Angka dalam kurung (cth: (2 Bal), (1 Karung))
-              const parenMatch = line.match(/\(\s*(\d+)\s*[a-zA-Z]*\s*\)/);
-              // Teknik 2: Angka diikuti X (cth: 1x, 2 x)
-              const xMatch = line.match(/(\d+)\s*x/i);
-              // Teknik 3: Angka setelah strip/bullet di awal (cth: - 2 Beras Super)
-              const startMatch = line.match(/^(?:-|\*|\•|\d+\.)?\s*(\d+)/);
+              const xMatch = part.match(/(?:x|X)\s*(\d+)/);
+              const xBeforeMatch = part.match(/(\d+)\s*(?:x|X)/);
+              const parenMatch = part.match(/\(\s*(\d+)\s*[a-zA-Z]*\s*\)/);
+              const startMatch = part.match(/^(?:-|\*|\•|\d+\.)?\s*(\d+)/);
 
-              if (parenMatch) qty = parseInt(parenMatch[1]);
-              else if (xMatch) qty = parseInt(xMatch[1]);
+              if (xMatch) qty = parseInt(xMatch[1]);
+              else if (xBeforeMatch) qty = parseInt(xBeforeMatch[1]);
+              else if (parenMatch) qty = parseInt(parenMatch[1]);
               else if (startMatch) qty = parseInt(startMatch[1]);
 
               if (currentRowData.items[b.nama]) {
@@ -722,8 +744,9 @@
               } else {
                 currentRowData.items[b.nama] = qty;
               }
+
               matchCount++;
-              break; // Jika sudah ketemu 1 barang di baris ini, lanjut ke baris berikutnya
+              break;
             }
           }
         });
@@ -889,6 +912,7 @@
         document.getElementById(`valRincian_${rowId}`).value = "";
         document.getElementById(`valItemsJson_${rowId}`).value = "";
         document.getElementById(`summary_${rowId}`).innerText = "";
+
         if (!rowData[`row_${rowId}`])
           rowData[`row_${rowId}`] = { items: {}, total: 0 };
         rowData[`row_${rowId}`].items = {};
@@ -916,9 +940,12 @@
         const mode = row.querySelector(".inp-paket").dataset.mode;
         currentMode = mode;
         document.getElementById("modalItems").style.display = "flex";
+
         if (mode === "mingguan") renderCategories();
-        else if (mode === "cookies") renderItems("Cookies");
+        else if (mode === "cookies")
+          renderItems("Cookies"); // Tampilkan langsung kategori kue jika cookies
         else renderItems(null);
+
         updateModalTotal();
       }
 
@@ -943,8 +970,10 @@
           ? filterCategory
           : "Pilih Barang";
         let html = "";
+
         if (currentMode === "mingguan" && filterCategory)
           html += `<button class="cat-back" onclick="renderCategories()"><i class="fas fa-arrow-left"></i> Kembali ke Kategori</button>`;
+
         const savedItems =
           (rowData[`row_${currentEditingRowId}`] || {}).items || {};
 
@@ -991,9 +1020,11 @@
           const item = masterBarang.find((b) => b.nama === name);
           if (item) total += item.harga * qty;
         }
+
         document.getElementById("txtTotalReal").innerText = formatRupiah(total);
         let targetLabel = "Total:";
         let targetVal = formatRupiah(total);
+
         if (currentMode === "mingguan") {
           targetLabel = "Setoran per Minggu (40x):";
           targetVal = formatRupiah(Math.ceil(total / 40));
@@ -1001,6 +1032,7 @@
           targetLabel = "Setoran per Hari (330x):";
           targetVal = formatRupiah(Math.ceil(total / 330));
         }
+
         document.getElementById("lblTarget").innerText = targetLabel;
         document.getElementById("txtTarget").innerText = targetVal;
         currentRowData.total = total;
@@ -1014,9 +1046,35 @@
         document.getElementById("modalItems").style.display = "none";
       }
 
+      // --- PERBAIKAN: VALIDASI SEBELUM MENYIMPAN ---
       async function saveAll() {
         const cards = document.querySelectorAll(".p-card");
         if (cards.length === 0) return;
+
+        let adaError = false;
+
+        // Cek semua kotak form, apakah ada yang kosong?
+        cards.forEach((card) => {
+          const nama = card.querySelector(".inp-nama").value.trim();
+          const mitra = card.querySelector(".inp-mitra").value;
+          const paket = card.querySelector(".inp-paket").value;
+
+          // Jika kosong, nyalakan bingkai merah
+          if (!nama || !mitra || !paket) {
+            card.style.border = "2px solid #ff4d4d";
+            adaError = true;
+          } else {
+            card.style.border = "1px solid var(--border)";
+          }
+        });
+
+        if (adaError) {
+          alert(
+            "⚠️ GAGAL MENYIMPAN!\n\nAda data yang belum lengkap (Nama / Mitra / Paket). Silakan lengkapi formulir yang bergaris tepi merah.",
+          );
+          return;
+        }
+
         if (!confirm(`Simpan ${cards.length} data peserta?`)) return;
 
         const btn = document.getElementById("btnSaveAll");
@@ -1026,7 +1084,7 @@
 
         for (const card of cards) {
           const nama = card.querySelector(".inp-nama").value;
-          const hp = card.querySelector(".inp-hp").value; // Pastikan ambil variabel HP
+          const hp = card.querySelector(".inp-hp").value;
           const alamat = card.querySelector(".inp-alamat").value;
           const mitra = card.querySelector(".inp-mitra").value;
           const paket = card.querySelector(".inp-paket").value;
@@ -1049,39 +1107,43 @@
               setoranText = formatRupiah(Math.ceil(harga / 330)) + " /hari";
           }
 
-          if (nama && mitra && paket) {
-            try {
-              const res = await fetchData("tambahPeserta", {
+          try {
+            const res = await fetchData("tambahPeserta", {
+              nama,
+              hp,
+              alamat,
+              mitra,
+              paket,
+              harga,
+              rincian,
+              items_json: items_json,
+            });
+
+            if (res && res.success) {
+              successData.push({
                 nama,
                 hp,
-                alamat,
                 mitra,
                 paket,
-                harga,
+                id: res.id,
                 rincian,
-                items_json: items_json,
+                setoran: setoranText,
               });
-              if (res.success) {
-                // TAMBAHKAN 'hp' KE DALAM ARRAY SUCCESS DATA UNTUK WA
-                successData.push({
-                  nama,
-                  hp,
-                  mitra,
-                  paket,
-                  id: res.id,
-                  rincian,
-                  setoran: setoranText,
-                });
-                card.remove();
-              }
-            } catch (e) {}
+              card.remove();
+            }
+          } catch (e) {
+            console.error("Gagal simpan:", e);
           }
         }
 
         btn.innerHTML = '<i class="fas fa-save"></i> SIMPAN & CETAK STRUK';
         btn.disabled = false;
-        if (successData.length > 0) generateReceipt(successData);
-        else alert("Gagal menyimpan. Cek koneksi atau data input.");
+
+        if (successData.length > 0) {
+          generateReceipt(successData);
+        } else {
+          alert("Gagal menyimpan ke server. Cek koneksi internet Anda.");
+        }
       }
 
       async function generateReceipt(data) {
@@ -1092,10 +1154,9 @@
           "id-ID",
         );
         rContent.innerHTML = "";
-        waContainer.innerHTML = ""; // Bersihkan tombol WA lama
+        waContainer.innerHTML = "";
 
         data.forEach((d) => {
-          // --- 1. RENDER HTML STRUK GAMBAR ---
           let extraHtml = "";
           if (d.rincian) {
             let formatRincian = d.rincian
@@ -1116,7 +1177,6 @@
                     ${extraHtml}
                 </div>`;
 
-          // --- 2. RENDER TOMBOL & TEKS WHATSAPP ---
           let hpClean = String(d.hp).replace(/\D/g, "");
           if (hpClean.startsWith("0")) hpClean = "62" + hpClean.substring(1);
 
@@ -1128,7 +1188,6 @@
             waText += `📦 Paket: ${d.paket}\n`;
             waText += `🤝 Mitra: ${d.mitra}\n\n`;
 
-            // BLOK ID PESERTA (Diisolasi agar mudah di-copy dan sangat jelas)
             waText += `👇 *ID PESERTA ANDA* 👇\n\n`;
             waText += `\`${d.id}\`\n\n`;
             waText += `_(Sentuh / tahan teks ID di atas untuk menyalin)_\n\n`;
