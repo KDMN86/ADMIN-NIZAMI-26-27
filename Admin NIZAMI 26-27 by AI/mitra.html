@@ -2,1232 +2,809 @@
 <html lang="id">
   <head>
     <meta charset="UTF-8" />
-    <meta
-      name="viewport"
-      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
-    />
-    <title>Portal Super Mitra - Nizami</title>
-    <link rel="icon" href="data:;base64,iVBORw0KGgo=" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Manajemen Mitra</title>
     <link
-      href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap"
       rel="stylesheet"
     />
     <link
       rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
     />
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-
     <style>
-      * {
-        box-sizing: border-box;
-        -webkit-tap-highlight-color: transparent;
+      :root {
+        --primary: #ffd700;
+        --bg: #121212;
+        --surface: #1e1e1e;
+        --text: #e0e0e0;
+        --border: #333;
       }
       body {
-        background-color: #050505;
-        color: #fff;
-        font-family: "Poppins", sans-serif;
+        background: var(--bg);
+        color: var(--text);
+        font-family: "Inter", sans-serif;
         margin: 0;
-        padding-bottom: 140px;
-        overflow-x: hidden;
+        padding: 0;
+        padding-bottom: 90px;
       }
 
-      /* HEADER MITRA */
-      header {
+      /* HEADER & SEARCH */
+      .top-nav {
+        background: rgba(18, 18, 18, 0.95);
+        backdrop-filter: blur(10px);
         padding: 15px 20px;
-        background: linear-gradient(180deg, #1f1500 0%, #050505 100%);
         position: sticky;
         top: 0;
         z-index: 50;
-        border-bottom: 1px solid #332b00;
+        border-bottom: 1px solid var(--border);
+      }
+      .header-content {
         display: flex;
-        justify-content: space-between;
         align-items: center;
-        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.8);
-      }
-      .head-title {
-        margin: 0;
-        color: #ffd700;
-        font-size: 1.1rem;
-        text-transform: uppercase;
-        font-weight: bold;
-      }
-      .btn-logout {
-        background: rgba(255, 77, 77, 0.1);
-        color: #ff4d4d;
-        border: 1px solid rgba(255, 77, 77, 0.3);
-        padding: 6px 12px;
-        border-radius: 8px;
-        font-size: 0.8rem;
-        font-weight: bold;
-        cursor: pointer;
-      }
-      .btn-logout:active {
-        background: #ff4d4d;
-        color: #fff;
-      }
-
-      .container {
-        padding: 15px;
-        max-width: 600px;
-        margin: 0 auto;
-      }
-
-      /* STATISTIK DASHBOARD */
-      .dashboard-hero {
-        background: linear-gradient(145deg, #151515, #0a0a0a);
-        border: 1px solid #333;
-        border-radius: 16px;
-        padding: 20px;
-        margin-bottom: 15px;
-        text-align: center;
-      }
-      .hero-name {
-        font-size: 1.3rem;
-        font-weight: bold;
-        color: #fff;
-        margin-bottom: 5px;
-        text-transform: uppercase;
-      }
-      .hero-badge {
-        display: inline-block;
-        background: #ffd700;
-        color: #000;
-        font-size: 0.7rem;
-        font-weight: bold;
-        padding: 3px 10px;
-        border-radius: 20px;
+        gap: 15px;
         margin-bottom: 15px;
       }
-
-      .stats-grid {
-        display: grid;
-        grid-template-columns: repeat(3, 1fr);
-        gap: 10px;
-        border-top: 1px dashed #333;
-        padding-top: 15px;
-      }
-      .stat-box {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-      }
-      .stat-val {
-        font-size: 1.3rem;
-        font-weight: bold;
-        color: #fff;
-      }
-      .stat-val.gold {
-        color: #ffd700;
-      }
-      .stat-val.red {
-        color: #ff6b6b;
-      }
-      .stat-label {
-        font-size: 0.65rem;
-        color: #888;
-        text-transform: uppercase;
-        margin-top: 2px;
-      }
-
-      /* FILTER KAPSUL */
-      .filter-wrapper {
-        display: flex;
-        gap: 8px;
-        overflow-x: auto;
-        padding-bottom: 10px;
-        margin-bottom: 10px;
-        scrollbar-width: none;
-      }
-      .filter-wrapper::-webkit-scrollbar {
-        display: none;
-      }
-      .filter-chip {
-        background: #1a1a1a;
-        color: #888;
-        border: 1px solid #333;
-        padding: 8px 16px;
-        border-radius: 50px;
-        font-size: 0.8rem;
-        font-weight: 600;
-        white-space: nowrap;
-        cursor: pointer;
-        transition: 0.2s;
-      }
-      .filter-chip.active {
-        background: #ffd700;
-        color: #000;
-        border-color: #ffd700;
-      }
-
-      /* KARTU PESERTA COMPACT */
-      .peserta-card {
-        background: #111;
-        border: 1px solid #222;
-        border-radius: 12px;
-        padding: 12px 15px;
-        margin-bottom: 10px;
-        display: flex;
-        flex-direction: column;
-        transition: 0.2s;
-      }
-      .peserta-card.nunggak {
-        border-left: 4px solid #ff6b6b;
-      }
-      .peserta-card.lancar {
-        border-left: 4px solid #4ade80;
-      }
-      .peserta-card.lunas {
-        border-left: 4px solid #3498db;
-        opacity: 0.8;
-      }
-
-      .pc-head {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-      }
-      .pc-info {
-        flex: 1;
-        padding-right: 10px;
-      }
-      .pc-right {
-        flex-shrink: 0;
-        display: flex;
-        flex-direction: column;
-        align-items: flex-end;
-        gap: 6px;
-      }
-
-      .pc-name {
-        font-weight: bold;
-        font-size: 1rem;
-        color: #fff;
-        margin-bottom: 4px;
-        display: flex;
-        align-items: center;
-        flex-wrap: wrap;
-        gap: 5px;
-      }
-
-      .badge-id,
-      .badge-cal {
-        font-size: 0.65rem;
-        padding: 2px 6px;
-        border-radius: 4px;
-        cursor: pointer;
-        display: inline-flex;
-        align-items: center;
-        gap: 4px;
-        transition: 0.2s;
-        font-weight: 600;
-      }
-      .badge-id {
-        background: rgba(52, 152, 219, 0.1);
-        color: #3498db;
-        border: 1px solid rgba(52, 152, 219, 0.3);
-      }
-      .badge-id:active {
-        background: #3498db;
-        color: #fff;
-      }
-      .badge-cal {
-        background: rgba(74, 222, 128, 0.1);
-        color: #4ade80;
-        border: 1px solid rgba(74, 222, 128, 0.3);
-      }
-      .badge-cal:active {
-        background: #4ade80;
-        color: #000;
-      }
-
-      .pc-paket {
-        font-size: 0.65rem;
-        color: #aaa;
-        background: #222;
-        padding: 2px 6px;
-        border-radius: 4px;
-        display: inline-block;
-      }
-      .pc-status {
-        font-size: 0.7rem;
-        font-weight: bold;
-        display: flex;
-        align-items: center;
-        gap: 5px;
-        margin-top: 6px;
-      }
-
-      .pc-done {
-        font-size: 1.3rem;
-        font-weight: bold;
-        color: #fff;
-        line-height: 1;
-      }
-
-      /* INPUT DENGAN + DAN - */
-      .stepper-control {
-        display: flex;
-        align-items: center;
-        background: #000;
-        border: 1px solid #333;
-        border-radius: 6px;
-        overflow: hidden;
-        width: 90px;
-        height: 28px;
-      }
-      .stepper-btn {
-        background: #222;
-        color: #4ade80;
-        border: none;
-        width: 28px;
-        height: 100%;
-        font-weight: bold;
-        font-size: 1rem;
-        cursor: pointer;
-        transition: 0.1s;
-      }
-      .stepper-btn:active {
-        background: #4ade80;
-        color: #000;
-      }
-      .stepper-input {
-        flex: 1;
-        width: 100%;
-        background: transparent;
-        border: none;
-        color: #fff;
-        text-align: center;
-        font-weight: bold;
-        font-size: 0.85rem;
-        -moz-appearance: textfield;
-        outline: none;
-        height: 100%;
-        padding: 0;
-      }
-      .stepper-input::-webkit-outer-spin-button,
-      .stepper-input::-webkit-inner-spin-button {
-        -webkit-appearance: none;
-        margin: 0;
-      }
-
-      .wa-action-box {
-        border-top: 1px dashed #333;
-        margin-top: 10px;
-        padding-top: 10px;
-      }
-      .btn-wa {
-        width: 100%;
-        padding: 8px;
-        border-radius: 8px;
-        border: 1px solid rgba(255, 107, 107, 0.3);
-        background: rgba(255, 107, 107, 0.1);
-        color: #ff6b6b;
-        font-size: 0.8rem;
-        font-weight: bold;
-        cursor: pointer;
+      .back-btn {
+        background: #333;
+        color: white;
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
         display: flex;
         align-items: center;
         justify-content: center;
-        gap: 6px;
-        transition: 0.2s;
+        text-decoration: none;
+        border: none;
+        cursor: pointer;
+        flex-shrink: 0;
       }
-      .btn-wa:active {
-        background: #ff6b6b;
-        color: #000;
+      .page-title {
+        margin: 0;
+        font-size: 1.1rem;
+        font-weight: 600;
       }
 
-      .text-red {
-        color: #ff6b6b;
+      .search-input {
+        width: 100%;
+        padding: 12px 20px;
+        background: #222;
+        border: 1px solid #444;
+        color: white;
+        border-radius: 12px;
+        outline: none;
+        font-size: 0.95rem;
+        box-sizing: border-box;
       }
-      .text-green {
+      .search-input:focus {
+        border-color: var(--primary);
+      }
+
+      /* ANALYTICS CARDS */
+      #listArea {
+        padding: 15px;
+        display: grid;
+        gap: 15px;
+      }
+      .mitra-card {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 16px;
+        padding: 20px;
+        overflow: hidden;
+      }
+
+      .m-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 15px;
+        border-bottom: 1px dashed #333;
+        padding-bottom: 15px;
+      }
+      .m-info h3 {
+        margin: 0 0 5px 0;
+        font-size: 1.15rem;
+        color: #fff;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+      .m-info p {
+        margin: 0;
+        font-size: 0.8rem;
+        color: #888;
+      }
+
+      .m-fee-box {
+        text-align: right;
+      }
+      .m-fee-label {
+        font-size: 0.7rem;
+        color: #aaa;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+      }
+      .m-fee-val {
+        font-size: 1.2rem;
+        font-weight: 800;
+        color: #4caf50;
+      }
+      .m-fee-unit {
+        font-size: 0.75rem;
+        color: #666;
+        display: block;
+        margin-top: 3px;
+      }
+
+      /* STATS GRID */
+      .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 10px;
+      }
+      .stat-box {
+        background: #111;
+        border: 1px solid #2a2a2a;
+        border-radius: 10px;
+        padding: 10px 5px;
+        text-align: center;
+        cursor: pointer;
+        transition: 0.2s;
+        position: relative;
+      }
+      .stat-box:active {
+        transform: scale(0.95);
+        background: #222;
+        border-color: var(--primary);
+      }
+      .stat-box::after {
+        content: "\f0a9";
+        font-family: "Font Awesome 6 Free";
+        font-weight: 900;
+        position: absolute;
+        top: 5px;
+        right: 5px;
+        font-size: 0.5rem;
+        color: #444;
+      }
+
+      .sb-val {
+        font-size: 1.3rem;
+        font-weight: bold;
+        display: block;
+        line-height: 1.2;
+      }
+      .sb-label {
+        font-size: 0.65rem;
+        color: #888;
+        text-transform: uppercase;
+      }
+
+      .c-total {
+        color: #48dbfb;
+      }
+      .c-lunas-b {
         color: #4ade80;
       }
-      .text-blue {
-        color: #3498db;
+      .c-belum {
+        color: #ff6b81;
+      }
+      .c-lunas-t {
+        color: var(--primary);
       }
 
-      /* =======================================
-       PERBAIKAN: FLOATING CART LIPAT (COLLAPSIBLE)
-       ======================================= */
-      .batch-bar {
+      .m-actions {
+        display: flex;
+        gap: 10px;
+        margin-top: 15px;
+      }
+      .btn-wa {
+        flex: 1;
+        background: rgba(37, 211, 102, 0.1);
+        color: #25d366;
+        border: 1px solid rgba(37, 211, 102, 0.3);
+        padding: 10px;
+        border-radius: 8px;
+        text-align: center;
+        text-decoration: none;
+        font-weight: bold;
+        font-size: 0.85rem;
+      }
+
+      .fab-add {
         position: fixed;
-        bottom: 0;
-        left: 0;
+        bottom: 20px;
+        right: 20px;
+        background: var(--primary);
+        color: #000;
+        width: 55px;
+        height: 55px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        box-shadow: 0 5px 20px rgba(255, 215, 0, 0.3);
+        cursor: pointer;
+        z-index: 90;
+        border: none;
+      }
+
+      /* MODAL TAMBAH MITRA & RESULT */
+      .modal {
+        display: none;
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.9);
+        z-index: 100;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+        backdrop-filter: blur(5px);
+      }
+      .modal-card {
+        background: var(--surface);
         width: 100%;
-        background: rgba(15, 15, 15, 0.98);
-        border-top: 1px solid #ffd700;
-        z-index: 1000;
-        box-shadow: 0 -10px 30px rgba(0, 0, 0, 0.9);
-        transform: translateY(100%);
-        transition: transform 0.3s ease-out;
+        max-width: 400px;
+        padding: 25px;
+        border-radius: 16px;
+        border: 1px solid var(--border);
+        animation: slideUp 0.3s ease;
+        max-height: 90vh;
+        overflow-y: auto;
+      }
+      .form-label {
+        font-size: 0.8rem;
+        color: #aaa;
+        margin-bottom: 5px;
+        display: block;
+      }
+      .form-input {
+        width: 100%;
+        padding: 12px;
+        background: #111;
+        border: 1px solid #444;
+        color: white;
+        border-radius: 10px;
+        box-sizing: border-box;
+        outline: none;
+        margin-bottom: 15px;
+        font-size: 0.95rem;
+      }
+      .btn-full {
+        width: 100%;
+        padding: 14px;
+        background: var(--primary);
+        color: #000;
+        border: none;
+        border-radius: 10px;
+        font-weight: bold;
+        cursor: pointer;
+        font-size: 1rem;
+      }
+
+      /* MODAL LIST DETAIL PESERTA */
+      #modalListPeserta {
+        z-index: 200;
+      }
+      .list-card {
+        background: var(--surface);
+        width: 100%;
+        max-width: 400px;
+        border-radius: 16px;
+        border: 1px solid var(--border);
         display: flex;
         flex-direction: column;
-        border-radius: 20px 20px 0 0;
+        max-height: 80vh;
+        animation: slideUp 0.3s ease;
       }
-      .batch-bar.show {
-        transform: translateY(0);
-      }
-
-      /* Header Keranjang yang bisa diklik */
-      .bb-header {
-        padding: 12px 20px;
-        font-weight: bold;
+      .list-header {
+        padding: 15px 20px;
         border-bottom: 1px solid #333;
         display: flex;
         justify-content: space-between;
         align-items: center;
-        background: rgba(255, 215, 0, 0.05);
-        border-radius: 20px 20px 0 0;
-        cursor: pointer;
-      }
-      .bb-header-title {
-        color: #ffd700;
-        display: flex;
-        align-items: center;
-        gap: 8px;
-      }
-      .bb-toggle-icon {
-        transition: transform 0.3s ease;
-        color: #aaa;
-      }
-
-      /* Area Rincian (Disembunyikan secara default) */
-      .batch-details {
-        max-height: 0;
-        overflow-y: auto;
-        padding: 0 20px;
-        transition:
-          max-height 0.3s ease,
-          padding 0.3s ease;
-      }
-      /* Saat class expanded aktif, rincian muncul */
-      .batch-bar.expanded .batch-details {
-        max-height: 35vh;
-        padding: 15px 20px 5px;
-      }
-      .batch-bar.expanded .bb-toggle-icon {
-        transform: rotate(180deg);
-        color: #ffd700;
-      }
-
-      .batch-item {
-        display: flex;
-        justify-content: space-between;
-        color: #ddd;
-        margin-bottom: 8px;
-        border-bottom: 1px dashed #333;
-        padding-bottom: 8px;
-        align-items: center;
-      }
-      .batch-summary {
-        padding: 15px 20px;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        background: #050505;
-      }
-      .bs-label {
-        font-size: 0.75rem;
-        color: #888;
-        margin-bottom: 2px;
-      }
-      .bs-val {
-        font-size: 1.2rem;
-        font-weight: bold;
-        color: #4ade80;
-      }
-      .btn-checkout {
-        background: #ffd700;
-        color: #000;
-        border: none;
-        padding: 12px 20px;
-        border-radius: 50px;
-        font-weight: bold;
-        cursor: pointer;
-        display: flex;
-        gap: 8px;
-        align-items: center;
-        box-shadow: 0 4px 15px rgba(255, 215, 0, 0.3);
-        font-size: 0.9rem;
-      }
-
-      .loader {
-        text-align: center;
-        padding: 50px;
-        color: #888;
-        font-size: 0.9rem;
-      }
-
-      /* MODAL PREVIEW STRUK */
-      .modal-overlay {
-        position: fixed;
-        inset: 0;
-        background: rgba(0, 0, 0, 0.95);
-        z-index: 9999;
-        display: none;
-        justify-content: center;
-        align-items: center;
-        padding: 20px 0;
-        backdrop-filter: blur(5px);
-      }
-      .modal-overlay.show {
-        display: flex;
-        animation: fadeIn 0.3s;
-      }
-      .modal-card {
         background: #1a1a1a;
-        border-radius: 15px;
-        width: 90%;
-        max-width: 450px;
-        border: 1px solid #333;
-        padding: 20px;
-        position: relative;
+        border-radius: 16px 16px 0 0;
       }
-      #preview-img-container {
-        text-align: center;
-        background: #111;
-        padding: 10px;
-        border-radius: 10px;
-        margin-bottom: 15px;
-        border: 1px solid #333;
-      }
-      #preview-img-container img {
-        max-width: 100%;
-        max-height: 50vh;
-        object-fit: contain;
-        border-radius: 5px;
-      }
-      #struk-area {
-        position: absolute;
-        top: 0;
-        left: -9999px;
-        width: 360px;
-        background: #fff;
-        color: #000;
-        padding: 20px;
-        font-family: "Courier New", Courier, monospace;
+      .list-body {
+        padding: 15px;
+        overflow-y: auto;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
       }
 
-      #toast {
-        position: fixed;
-        top: 80px;
-        left: 50%;
-        transform: translateX(-50%);
-        background: #4ade80;
-        color: #000;
-        padding: 10px 20px;
-        border-radius: 50px;
-        font-weight: bold;
-        font-size: 0.85rem;
-        box-shadow: 0 4px 15px rgba(74, 222, 128, 0.4);
-        z-index: 99999;
-        display: none;
+      .p-detail-item {
+        background: #111;
+        border: 1px solid #2a2a2a;
+        border-radius: 10px;
+        padding: 12px 15px;
+        display: flex;
+        justify-content: space-between;
         align-items: center;
-        gap: 8px;
-        transition: opacity 0.3s;
       }
-      @keyframes fadeIn {
+      .p-name {
+        font-weight: bold;
+        color: #fff;
+        font-size: 0.95rem;
+        margin-bottom: 3px;
+      }
+      .p-paket {
+        color: #888;
+        font-size: 0.75rem;
+      }
+      .p-setoran {
+        background: rgba(255, 215, 0, 0.1);
+        color: var(--primary);
+        padding: 4px 10px;
+        border-radius: 6px;
+        font-size: 0.8rem;
+        font-weight: bold;
+        border: 1px solid rgba(255, 215, 0, 0.2);
+      }
+
+      @keyframes slideUp {
         from {
+          transform: translateY(50px);
           opacity: 0;
         }
         to {
+          transform: translateY(0);
           opacity: 1;
         }
       }
     </style>
   </head>
   <body>
-    <div id="toast">
-      <i class="fas fa-check-circle"></i>
-      <span id="toastMsg">Tersimpan di Draft</span>
+    <div class="top-nav">
+      <div class="header-content">
+        <a href="index.html" class="back-btn"
+          ><i class="fas fa-arrow-left"></i
+        ></a>
+        <h2 class="page-title">Manajemen Mitra</h2>
+      </div>
+      <input
+        type="text"
+        id="searchInput"
+        class="search-input"
+        placeholder="🔍 Cari nama mitra atau alamat..."
+        onkeyup="filterMitra(this.value)"
+      />
     </div>
 
-    <header>
-      <h1 class="head-title">
-        <i class="fas fa-user-tie" style="margin-right: 8px"></i> Portal Mitra
-      </h1>
-      <button class="btn-logout" onclick="logoutMitra()">
-        <i class="fas fa-sign-out-alt"></i> Keluar
-      </button>
-    </header>
-
-    <div class="container">
-      <div class="dashboard-hero">
-        <div class="hero-name" id="mitraName">Memuat...</div>
-        <div class="hero-badge">MITRA NIZAMI</div>
-        <div class="stats-grid">
-          <div class="stat-box">
-            <span class="stat-val" id="stat-total">0</span>
-            <span class="stat-label">Peserta</span>
-          </div>
-          <div class="stat-box">
-            <span class="stat-val red" id="stat-nunggak">0</span>
-            <span class="stat-label">Nunggak</span>
-          </div>
-          <div class="stat-box">
-            <span class="stat-val gold" id="stat-lancar">0</span>
-            <span class="stat-label">Lancar/Lunas</span>
-          </div>
-        </div>
-      </div>
-
-      <div class="filter-wrapper">
-        <div
-          class="filter-chip active"
-          id="flt-semua"
-          onclick="applyFilter('semua')"
-        >
-          Semua
-        </div>
-        <div
-          class="filter-chip"
-          id="flt-nunggak"
-          onclick="applyFilter('nunggak')"
-        >
-          🔴 Perlu Ditagih
-        </div>
-        <div
-          class="filter-chip"
-          id="flt-lancar"
-          onclick="applyFilter('lancar')"
-        >
-          🟢 Lancar
-        </div>
-        <div class="filter-chip" id="flt-lunas" onclick="applyFilter('lunas')">
-          🔵 Lunas
-        </div>
-      </div>
-
-      <div id="pesertaContainer">
-        <div class="loader">
-          <i class="fas fa-spinner fa-spin fa-2x"></i><br /><br />Mengambil data
-          peserta...
-        </div>
+    <div id="listArea">
+      <div style="text-align: center; padding: 50px; color: #555">
+        <i
+          class="fas fa-spinner fa-spin fa-2x"
+          style="color: var(--primary); margin-bottom: 15px"
+        ></i>
+        <br />Menghitung analitik mitra...
       </div>
     </div>
 
-    <div id="batchBar" class="batch-bar">
-      <div class="bb-header" onclick="toggleBatchCart()">
-        <div class="bb-header-title">
-          <i class="fas fa-book"></i> Draft (<span id="cartCountBadge">0</span>)
-          <i class="fas fa-chevron-up bb-toggle-icon"></i>
-        </div>
-        <span
-          onclick="clearBatchCart(event)"
-          style="
-            color: #ff6b6b;
-            font-size: 0.75rem;
-            background: rgba(255, 107, 107, 0.1);
-            padding: 4px 8px;
-            border-radius: 6px;
-            border: 1px solid rgba(255, 107, 107, 0.3);
-          "
-        >
-          <i class="fas fa-trash"></i> Hapus
-        </span>
-      </div>
+    <button class="fab-add" onclick="toggleAddModal(true)">
+      <i class="fas fa-user-plus"></i>
+    </button>
 
-      <div class="batch-details" id="batchDetails"></div>
-
-      <div class="batch-summary">
-        <div>
-          <span class="bs-label">Total Uang ke Admin</span>
-          <div class="bs-val" id="batchTotalRp">Rp 0</div>
-        </div>
-        <button class="btn-checkout" onclick="generateStruk()">
-          <i class="fas fa-camera"></i> Buat Struk
-        </button>
-      </div>
-    </div>
-
-    <div id="modalPreviewImg" class="modal-overlay">
+    <div id="modalAdd" class="modal">
       <div class="modal-card">
-        <div
+        <h3
           style="
+            margin-top: 0;
+            color: var(--primary);
             text-align: center;
-            color: #4ade80;
-            font-weight: bold;
-            font-size: 1.2rem;
-            margin-bottom: 5px;
-          "
-        >
-          Struk Berhasil Dibuat!
-        </div>
-        <p
-          style="
-            text-align: center;
-            color: #888;
-            font-size: 0.75rem;
             margin-bottom: 15px;
           "
         >
-          Kirim struk ini ke Admin bersama bukti transfer.
-        </p>
-        <div id="preview-img-container"></div>
-        <div style="display: flex; gap: 10px">
-          <button
-            onclick="downloadStruk()"
-            style="
-              flex: 1;
-              padding: 12px;
-              border-radius: 8px;
-              border: none;
-              font-weight: bold;
-              cursor: pointer;
-              background: #333;
-              color: #fff;
-            "
-          >
-            <i class="fas fa-download"></i> Simpan
-          </button>
-          <button
-            onclick="kirimWaAdmin()"
-            style="
-              flex: 2;
-              padding: 12px;
-              border-radius: 8px;
-              border: none;
-              font-weight: bold;
-              cursor: pointer;
-              background: #ffd700;
-              color: #000;
-            "
-          >
-            <i class="fab fa-whatsapp"></i> WA Admin
-          </button>
-        </div>
-        <button
-          onclick="tutupPreviewImg()"
+          Tambah Mitra Baru
+        </h3>
+
+        <div
           style="
-            width: 100%;
-            margin-top: 10px;
-            padding: 10px;
-            border-radius: 8px;
-            border: 1px solid #444;
-            background: transparent;
-            color: #aaa;
-            cursor: pointer;
+            background: linear-gradient(135deg, #075e54, #128c7e);
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 20px;
+            border: 1px solid #25d366;
           "
         >
-          Tutup
+          <div
+            style="
+              color: #fff;
+              font-weight: bold;
+              margin-bottom: 5px;
+              font-size: 0.85rem;
+            "
+          >
+            <i class="fab fa-whatsapp"></i> Ekstrak dari Pesan WA
+          </div>
+          <textarea
+            id="waMitraRaw"
+            style="
+              width: 100%;
+              height: 60px;
+              border-radius: 8px;
+              border: none;
+              padding: 10px;
+              font-size: 0.85rem;
+              box-sizing: border-box;
+              resize: vertical;
+              font-family: monospace;
+              color: #000;
+            "
+            placeholder="Paste biodata calon mitra..."
+          ></textarea>
+          <button
+            onclick="parseWAMitra()"
+            style="
+              background: #25d366;
+              color: #fff;
+              border: none;
+              padding: 10px;
+              border-radius: 6px;
+              font-weight: bold;
+              margin-top: 10px;
+              width: 100%;
+              cursor: pointer;
+            "
+          >
+            <i class="fas fa-magic"></i> ISI FORM OTOMATIS
+          </button>
+        </div>
+
+        <label class="form-label">Nama Lengkap</label>
+        <input
+          type="text"
+          id="mNama"
+          class="form-input"
+          placeholder="Nama Agen / Mitra"
+        />
+
+        <label class="form-label">Nomor WhatsApp</label>
+        <input
+          type="number"
+          id="mHP"
+          class="form-input"
+          placeholder="Contoh: 0812345..."
+        />
+
+        <label class="form-label">Alamat / Wilayah</label>
+        <input
+          type="text"
+          id="mAlamat"
+          class="form-input"
+          placeholder="Alamat Operasional"
+        />
+
+        <label class="form-label">Komisi / Fee per Peserta (Rp)</label>
+        <input
+          type="number"
+          id="mFee"
+          class="form-input"
+          placeholder="0"
+          style="color: var(--primary); font-weight: bold"
+        />
+
+        <button onclick="simpanMitra()" class="btn-full" id="btnSimpan">
+          SIMPAN DATA
+        </button>
+        <button
+          onclick="toggleAddModal(false)"
+          class="btn-full"
+          style="background: transparent; color: #888; margin-top: 5px"
+        >
+          Batal
         </button>
       </div>
     </div>
 
-    <div id="struk-area">
-      <div
-        style="
-          text-align: center;
-          border-bottom: 2px dashed #000;
-          padding-bottom: 10px;
-          margin-bottom: 10px;
-        "
-      >
-        <h2 style="margin: 0; letter-spacing: 1px">SETORAN MITRA</h2>
-        <div style="font-size: 10px; color: #444">
-          Nizami Paket Lebaran 2026-2027
-        </div>
-        <div id="struk-date" style="font-size: 11px; margin-top: 5px"></div>
+    <div id="modalResultMitra" class="modal">
+      <div class="modal-card" style="text-align: center">
+        <h3 style="margin-top: 0; color: #4ade80; font-size: 1.5rem">
+          <i class="fas fa-check-circle fa-2x"></i><br /><br />Mitra Disetujui!
+        </h3>
+        <p style="color: #aaa; font-size: 0.9rem; margin-bottom: 20px">
+          Mitra baru telah ditambahkan ke database dengan ID Resmi:
+        </p>
         <div
-          id="struk-mitra"
-          style="font-size: 13px; font-weight: bold; margin-top: 8px"
-        ></div>
+          style="
+            background: #111;
+            border: 1px dashed var(--primary);
+            padding: 15px;
+            border-radius: 12px;
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--primary);
+            letter-spacing: 2px;
+          "
+          id="resMitraId"
+        >
+          MTR-XXX
+        </div>
+
+        <div id="waMitraAction" style="margin-top: 25px"></div>
+
+        <button
+          onclick="
+            document.getElementById('modalResultMitra').style.display = 'none'
+          "
+          class="btn-full"
+          style="background: #333; color: #fff; margin-top: 15px"
+        >
+          Selesai & Tutup
+        </button>
       </div>
-      <div id="struk-items"></div>
-      <div
-        style="
-          border-top: 2px dashed #000;
-          padding-top: 10px;
-          margin-top: 10px;
-          font-weight: bold;
-          display: flex;
-          justify-content: space-between;
-          font-size: 14px;
-        "
-      >
-        <span>TOTAL SETOR:</span><span id="struk-total-val">Rp 0</span>
+    </div>
+
+    <div id="modalListPeserta" class="modal">
+      <div class="list-card">
+        <div class="list-header">
+          <div id="modalListTitle">
+            <h3
+              style="margin: 0; color: var(--primary); font-size: 1.05rem"
+              id="ml-title"
+            >
+              Daftar Peserta
+            </h3>
+            <small style="color: #aaa; font-weight: normal" id="ml-mitra"
+              >Mitra</small
+            >
+          </div>
+          <i
+            class="fas fa-times"
+            onclick="closeListModal()"
+            style="
+              color: #aaa;
+              cursor: pointer;
+              font-size: 1.3rem;
+              padding: 5px;
+            "
+          ></i>
+        </div>
+        <div class="list-body" id="modalListBody"></div>
       </div>
     </div>
 
     <script src="script.js"></script>
     <script>
-      let rawPesertaData = [];
-      let batchCart = {}; // { idPeserta: {nama, paket, qty, price, currentDone, date} }
-      let base64StrukImg = "";
-      let userId = "";
+      let allMitra = [];
 
-      window.onload = async () => {
-        const userStr = localStorage.getItem("nizami_user");
-        if (!userStr) {
-          window.location.href = "index.html";
-          return;
-        }
-        const user = JSON.parse(userStr);
-        if (user.type !== "MITRA") {
-          window.location.href = "index.html";
-          return;
-        }
+      async function load() {
+        const container = document.getElementById("listArea");
+        const data = await fetchData("getMitra");
 
-        userId = user.id;
-        document.getElementById("mitraName").innerText = user.nama;
-
-        // AUTO-LOAD DARI DRAFT LOKAL
-        const savedDraft = localStorage.getItem("mitra_draft_" + userId);
-        if (savedDraft) {
-          batchCart = JSON.parse(savedDraft);
-          // Auto-patch: Pastikan semua draft lama punya tanggal
-          for (let k in batchCart) {
-            if (!batchCart[k].date) batchCart[k].date = getFormattedDate();
-          }
-        }
-
-        const data = await fetchData("cekStatusDetail", { id: userId });
-        if (data && data.data && data.data.length > 0) {
-          rawPesertaData = data.data.map((item) => ({
-            id: item.id,
-            nama: item.nama,
-            paket: item.paket,
-            done: parseInt(item.tercapai) || 0,
-            target: parseInt(item.target) || 330,
-            harga: parseInt(item.nilai) || 0,
-          }));
-          processAndRender(rawPesertaData);
+        if (Array.isArray(data)) {
+          allMitra = data;
+          renderList(allMitra);
         } else {
-          document.getElementById("pesertaContainer").innerHTML =
-            '<div style="text-align:center; color:#888; padding:30px;">Belum ada peserta terdaftar.</div>';
+          container.innerHTML =
+            '<div style="text-align:center; padding:20px; color:#ff6b6b;">Gagal memuat data analitik.</div>';
         }
-      };
-
-      function getFormattedDate() {
-        const now = new Date();
-        const monthNames = [
-          "Jan",
-          "Feb",
-          "Mar",
-          "Apr",
-          "Mei",
-          "Jun",
-          "Jul",
-          "Agt",
-          "Sep",
-          "Okt",
-          "Nov",
-          "Des",
-        ];
-        return `${now.getDate()} ${monthNames[now.getMonth()]} - ${String(now.getHours()).padStart(2, "0")}:${String(now.getMinutes()).padStart(2, "0")}`;
       }
 
-      function getStatusCalculation(paketName, done, target) {
-        let isMingguan = paketName.toLowerCase().includes("mingguan");
-        let startDate = new Date(2026, 3, 1);
-        startDate.setHours(0, 0, 0, 0);
-        let today = new Date();
-        today.setHours(0, 0, 0, 0);
-        let expected = 0;
-        if (today >= startDate) {
-          let diffTime = today.getTime() - startDate.getTime();
-          let diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
-          expected = isMingguan ? Math.floor(diffDays / 7) + 1 : diffDays + 1;
-        }
-        if (expected > target) expected = target;
-
-        let selisih = done - expected;
-        let statusKategori = "lancar";
-        let text = "";
-        let colorClass = "text-green";
-        let icon = "fa-check-circle";
-
-        if (done >= target) {
-          statusKategori = "lunas";
-          text = "LUNAS";
-          colorClass = "text-blue";
-          icon = "fa-medal";
-        } else if (selisih < 0) {
-          statusKategori = "nunggak";
-          text = `Telat ${Math.abs(selisih)}x Setor`;
-          colorClass = "text-red";
-          icon = "fa-exclamation-circle";
-        } else {
-          statusKategori = "lancar";
-          text = `Aman (Lebih ${selisih}x)`;
-          colorClass = "text-green";
-          icon = "fa-check-circle";
-        }
-
-        return {
-          kategori: statusKategori,
-          text: text,
-          colorClass: colorClass,
-          icon: icon,
-          telatCount: Math.abs(selisih),
-        };
-      }
-
-      function processAndRender(data) {
-        let total = data.length;
-        let nunggak = 0;
-        let lancarLunas = 0;
-
-        data.forEach((p) => {
-          p.kalkulasi = getStatusCalculation(p.paket, p.done, p.target);
-          if (p.kalkulasi.kategori === "nunggak") nunggak++;
-          else lancarLunas++;
-        });
-
-        document.getElementById("stat-total").innerText = total;
-        document.getElementById("stat-nunggak").innerText = nunggak;
-        document.getElementById("stat-lancar").innerText = lancarLunas;
-
-        applyFilter("semua");
-      }
-
-      function bukaKalenderIndividu(id, n, p, j) {
-        window.location.href = `kalender.html?id=${id}&nama=${n}&paket=${p}&jumlah=${j}`;
-      }
-
-      function applyFilter(tipe) {
-        document
-          .querySelectorAll(".filter-chip")
-          .forEach((el) => el.classList.remove("active"));
-        document.getElementById(`flt-${tipe}`).classList.add("active");
-
-        const container = document.getElementById("pesertaContainer");
+      function renderList(items) {
+        const container = document.getElementById("listArea");
         container.innerHTML = "";
 
-        let filtered = rawPesertaData;
-        if (tipe !== "semua")
-          filtered = rawPesertaData.filter(
-            (p) => p.kalkulasi.kategori === tipe,
-          );
-
-        if (filtered.length === 0) {
-          container.innerHTML = `<div style="text-align:center; padding:30px; color:#666;">Tidak ada peserta di kategori ini.</div>`;
+        if (items.length === 0) {
+          container.innerHTML =
+            '<div style="text-align:center; padding:30px; color:#555;">Belum ada mitra terdaftar.</div>';
           return;
         }
 
-        filtered.forEach((p) => {
-          const kal = p.kalkulasi;
-          let cardStyle = "lancar";
-          if (kal.kategori === "nunggak") cardStyle = "nunggak";
-          if (kal.kategori === "lunas") cardStyle = "lunas";
+        items.forEach((m) => {
+          let hpClean = String(m.hp).replace(/\D/g, "");
+          if (hpClean.startsWith("0")) hpClean = "62" + hpClean.substring(1);
+          const waLink = hpClean ? `https://wa.me/${hpClean}` : "#";
 
-          let qtyCart = batchCart[p.id] ? batchCart[p.id].qty : 0;
-
-          let idBtnHtml = `<span class="badge-id" onclick="window.location.href='kartu-digital.html?id=${p.id}'" title="Kartu Digital"><i class="fas fa-id-card"></i> ${p.id}</span>`;
-          let kalenderBtnHtml = `<span class="badge-cal" onclick="bukaKalenderIndividu('${p.id}', '${encodeURIComponent(p.nama)}', '${encodeURIComponent(p.paket)}', ${p.done})" title="Kalender"><i class="far fa-calendar-alt"></i></span>`;
-
-          let stepperHtml = "";
-          if (kal.kategori !== "lunas") {
-            stepperHtml = `
-                <div class="stepper-control">
-                    <button class="stepper-btn" onclick="updateDraft('${p.id}', '${p.nama}', '${p.paket}', ${p.harga}, ${p.done}, -1)">-</button>
-                    <input type="number" class="stepper-input" id="draft-input-${p.id}" value="${qtyCart}" onchange="setDraft('${p.id}', '${p.nama}', '${p.paket}', ${p.harga}, ${p.done}, this.value)" />
-                    <button class="stepper-btn" onclick="updateDraft('${p.id}', '${p.nama}', '${p.paket}', ${p.harga}, ${p.done}, 1)">+</button>
-                </div>`;
-          } else {
-            stepperHtml = `<div style="font-size:0.75rem; color:#3498db; font-weight:bold;"><i class="fas fa-check-circle"></i> Selesai</div>`;
-          }
-
-          let btnWaHtml = "";
-          if (kal.kategori === "nunggak" && p.harga > 0) {
-            let nominalNunggak = p.harga * kal.telatCount;
-            btnWaHtml = `
-                <div class="wa-action-box">
-                    <button class="btn-wa" onclick="tagihWA('${p.nama}', '${p.paket}', ${kal.telatCount}, ${nominalNunggak})">
-                        <i class="fab fa-whatsapp" style="font-size:1rem;"></i> Tagih Tunggakan (Rp ${nominalNunggak.toLocaleString("id-ID")})
-                    </button>
-                </div>`;
-          }
-
-          container.insertAdjacentHTML(
-            "beforeend",
-            `
-                <div class="peserta-card ${cardStyle}">
-                    <div class="pc-head">
-                        <div class="pc-info">
-                            <div class="pc-name">
-                                ${p.nama} 
-                                ${idBtnHtml}
-                                ${kalenderBtnHtml}
-                            </div>
-                            <div class="pc-paket">${p.paket}</div>
-                            <div class="pc-status ${kal.colorClass}">
-                                <i class="fas ${kal.icon}"></i> ${kal.text}
-                            </div>
+          container.innerHTML += `
+                <div class="mitra-card">
+                    <div class="m-header">
+                        <div class="m-info">
+                            <h3><i class="fas fa-handshake" style="color:var(--primary);"></i> ${m.nama}</h3>
+                            <p><i class="fas fa-map-marker-alt"></i> ${m.alamat || "Tidak ada alamat"}</p>
+                            <p style="font-family:monospace; margin-top:5px; color:#ffd700;">ID: ${m.id}</p>
                         </div>
-                        <div class="pc-right">
-                            <div class="pc-done">${p.done}<span style="font-size:0.75rem; color:#888;">/${p.target}</span></div>
-                            ${stepperHtml}
+                        <div class="m-fee-box">
+                            <span class="m-fee-label">Total Fee Mitra</span>
+                            <span class="m-fee-val">${formatRupiah(m.total_fee)}</span>
+                            <span class="m-fee-unit">${formatRupiah(m.fee_satuan)} /peserta</span>
                         </div>
                     </div>
-                    ${btnWaHtml}
-                </div>
-            `,
-          );
-        });
-
-        updateBatchUI();
-      }
-
-      // ==========================================
-      // LOGIKA AUTO-SAVE DRAFT & TANGGAL
-      // ==========================================
-      function updateDraft(id, nama, paket, harga, currentDone, change) {
-        if (!batchCart[id]) {
-          batchCart[id] = {
-            nama: nama,
-            paket: paket,
-            harga: harga,
-            currentDone: currentDone,
-            qty: 0,
-          };
-        }
-
-        batchCart[id].qty += change;
-        batchCart[id].date = getFormattedDate();
-
-        if (batchCart[id].qty <= 0) delete batchCart[id];
-
-        saveDraftAndRender();
-        if (change > 0) showToast("Tersimpan di Draft!");
-      }
-
-      function setDraft(id, nama, paket, harga, currentDone, val) {
-        let qty = parseInt(val) || 0;
-
-        if (qty <= 0) {
-          delete batchCart[id];
-        } else {
-          if (!batchCart[id])
-            batchCart[id] = {
-              nama: nama,
-              paket: paket,
-              harga: harga,
-              currentDone: currentDone,
-              qty: 0,
-            };
-          batchCart[id].qty = qty;
-          batchCart[id].date = getFormattedDate();
-        }
-        saveDraftAndRender();
-        showToast("Tersimpan di Draft!");
-      }
-
-      function hapusDariBatch(id) {
-        delete batchCart[id];
-        saveDraftAndRender();
-      }
-
-      function clearBatchCart(e) {
-        if (e) e.stopPropagation(); // Mencegah keranjang terlipat/terbuka saat klik tombol Hapus
-
-        if (confirm("Yakin ingin menghapus semua draft setoran hari ini?")) {
-          batchCart = {};
-          localStorage.removeItem("mitra_draft_" + userId);
-          document
-            .querySelectorAll(".stepper-input")
-            .forEach((inp) => (inp.value = 0));
-          updateBatchUI();
-
-          // Tutup keranjang jika kosong
-          document.getElementById("batchBar").classList.remove("expanded");
-        }
-      }
-
-      function saveDraftAndRender() {
-        localStorage.setItem(
-          "mitra_draft_" + userId,
-          JSON.stringify(batchCart),
-        );
-
-        document.querySelectorAll(".stepper-input").forEach((inp) => {
-          let pid = inp.id.replace("draft-input-", "");
-          inp.value = batchCart[pid] ? batchCart[pid].qty : 0;
-        });
-
-        updateBatchUI();
-      }
-
-      // Fungsi Buka/Tutup Keranjang
-      function toggleBatchCart() {
-        const bar = document.getElementById("batchBar");
-        // Hanya bisa dibuka kalau ada isinya
-        if (Object.keys(batchCart).length > 0) {
-          bar.classList.toggle("expanded");
-        }
-      }
-
-      function updateBatchUI() {
-        let totalUang = 0;
-        let countItem = 0;
-        let html = "";
-
-        for (let id in batchCart) {
-          let item = batchCart[id];
-
-          // Penambal: Pastikan selalu ada tanggal meski data lama
-          if (!item.date || item.date === "-") item.date = getFormattedDate();
-
-          let subtotal = item.qty * item.harga;
-          totalUang += subtotal;
-          countItem++;
-
-          html += `
-            <div class="batch-item">
-                <div style="max-width:65%;">
-                    <div style="font-weight:bold; color:#fff; font-size: 0.9rem;">${item.nama} <span style="color:#ffd700; font-size:0.8rem; margin-left: 5px;">x${item.qty}</span></div>
-                    <div style="font-size:0.65rem; color:#888;">${item.paket}</div>
-                    <div style="font-size:0.6rem; color:#4ade80; margin-top:4px;"><i class="far fa-clock"></i> Draft: ${item.date}</div>
-                </div>
-                <div style="display:flex; flex-direction:column; align-items:flex-end; gap:6px;">
-                    <span style="color:#4ade80; font-weight:bold; font-size: 0.9rem;">Rp ${subtotal.toLocaleString("id-ID")}</span>
-                    <i class="fas fa-trash" style="color:#ff6b6b; cursor:pointer; font-size:0.9rem; background: #222; padding: 5px 8px; border-radius: 4px;" onclick="hapusDariBatch('${id}')"></i>
-                </div>
-            </div>`;
-        }
-
-        document.getElementById("batchDetails").innerHTML = html;
-        document.getElementById("batchTotalRp").innerText =
-          `Rp ${totalUang.toLocaleString("id-ID")}`;
-        document.getElementById("cartCountBadge").innerText = countItem;
-
-        const bar = document.getElementById("batchBar");
-
-        if (countItem > 0) {
-          bar.classList.add("show");
-        } else {
-          bar.classList.remove("show");
-          bar.classList.remove("expanded"); // Tutup otomatis kalau habis
-        }
-      }
-
-      // ==========================================
-      // PEMBUATAN STRUK
-      // ==========================================
-      function generateStruk() {
-        if (Object.keys(batchCart).length === 0) return;
-
-        const btn = document.querySelector(".btn-checkout");
-        const oldHtml = btn.innerHTML;
-        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Memproses...';
-
-        const u = JSON.parse(localStorage.getItem("nizami_user"));
-        document.getElementById("struk-mitra").innerText =
-          "Mitra: " + (u ? u.nama : "-");
-        document.getElementById("struk-date").innerText =
-          new Date().toLocaleString("id-ID");
-
-        const ic = document.getElementById("struk-items");
-        ic.innerHTML = "";
-        let totalRp = 0;
-
-        for (let id in batchCart) {
-          let item = batchCart[id];
-          let sub = item.qty * item.harga;
-          totalRp += sub;
-          let prev = item.currentDone;
-          let curr = prev + item.qty;
-          let tglText = item.date || "";
-
-          ic.insertAdjacentHTML(
-            "beforeend",
-            `
-                <div style="font-size: 11px; border-bottom: 1px dashed #ccc; padding-bottom: 5px; margin-bottom: 5px;">
-                    <div style="display:flex; justify-content:space-between;">
-                        <span style="font-weight:bold; font-size:12px;">${item.nama}</span>
-                        <span style="font-size:9px; color:#666;">${tglText}</span>
+                    
+                    <div class="stats-grid">
+                        <div class="stat-box" onclick="showList('${m.id}', 'total')">
+                            <span class="sb-val c-total">${m.stats.count.total}</span>
+                            <span class="sb-label">Total<br>Peserta</span>
+                        </div>
+                        <div class="stat-box" onclick="showList('${m.id}', 'lunasBarang')">
+                            <span class="sb-val c-lunas-b">${m.stats.count.lunasBarang}</span>
+                            <span class="sb-label">Lunas<br>Barang</span>
+                        </div>
+                        <div class="stat-box" onclick="showList('${m.id}', 'belumBarang')">
+                            <span class="sb-val c-belum">${m.stats.count.belumBarang}</span>
+                            <span class="sb-label">Belum<br>Lunas</span>
+                        </div>
+                        <div class="stat-box" onclick="showList('${m.id}', 'lunasTotal')">
+                            <span class="sb-val c-lunas-t">${m.stats.count.lunasTotal}</span>
+                            <span class="sb-label">Tamat<br>(100%)</span>
+                        </div>
                     </div>
-                    <div style="display:flex; justify-content:space-between; margin-top:3px; color:#333;">
-                        <div style="width:40%; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${item.paket}</div>
-                        <div style="width:30%; text-align:center;">(${prev} ➔ ${curr})</div>
-                        <div style="width:10%; text-align:center;">+${item.qty}</div>
-                        <div style="width:20%; text-align:right; font-weight:bold;">${sub.toLocaleString("id-ID")}</div>
-                    </div>
-                </div>`,
-          );
+
+                    ${
+                      m.hp && m.hp !== "-"
+                        ? `
+                    <div class="m-actions">
+                        <a href="${waLink}" target="_blank" class="btn-wa">
+                            <i class="fab fa-whatsapp"></i> Hubungi Mitra
+                        </a>
+                    </div>`
+                        : ""
+                    }
+                </div>`;
+        });
+      }
+
+      // --- FUNGSI KLIK BOX & MUNCULKAN POPUP ---
+      function showList(mitraId, type) {
+        const mitra = allMitra.find((m) => m.id === mitraId);
+        if (!mitra) return;
+
+        let title = "";
+        let listData = [];
+
+        if (type === "total") {
+          title = "Total Peserta";
+          listData = mitra.stats.list.total;
+        } else if (type === "lunasBarang") {
+          title = "Lunas Target Barang";
+          listData = mitra.stats.list.lunasBarang;
+        } else if (type === "belumBarang") {
+          title = "Belum Lunas Barang";
+          listData = mitra.stats.list.belumBarang;
+        } else if (type === "lunasTotal") {
+          title = "Tamat Setoran (100%)";
+          listData = mitra.stats.list.lunasTotal;
         }
 
-        document.getElementById("struk-total-val").innerText =
-          "Rp " + totalRp.toLocaleString("id-ID");
+        document.getElementById("ml-title").innerText = title;
+        document.getElementById("ml-mitra").innerText = "Mitra: " + mitra.nama;
 
-        const wrapper = document.getElementById("struk-area");
-        wrapper.style.left = "0px";
-        wrapper.style.zIndex = "-1";
+        const body = document.getElementById("modalListBody");
+        body.innerHTML = "";
 
-        setTimeout(() => {
-          html2canvas(wrapper, { scale: 2 }).then((c) => {
-            base64StrukImg = c.toDataURL("image/jpeg", 0.9);
-            document.getElementById("preview-img-container").innerHTML =
-              `<img src="${base64StrukImg}">`;
-            wrapper.style.left = "-9999px";
-
-            document.getElementById("modalPreviewImg").classList.add("show");
-            btn.innerHTML = oldHtml;
+        if (listData.length === 0) {
+          body.innerHTML =
+            '<div style="text-align:center; padding:30px; color:#666;">Tidak ada peserta di kategori ini.</div>';
+        } else {
+          listData.forEach((p, index) => {
+            body.innerHTML += `
+                    <div class="p-detail-item">
+                        <div>
+                            <div class="p-name"><span style="color:#aaa; margin-right:5px;">${index + 1}.</span> ${p.nama}</div>
+                            <div class="p-paket">${p.paket}</div>
+                        </div>
+                        <div class="p-setoran">
+                            Setoran: ${p.tercapai}x
+                        </div>
+                    </div>`;
           });
-        }, 100);
-      }
-
-      function tutupPreviewImg() {
-        document.getElementById("modalPreviewImg").classList.remove("show");
-      }
-
-      function downloadStruk() {
-        if (!base64StrukImg) return;
-        const a = document.createElement("a");
-        a.href = base64StrukImg;
-        a.download = `Rekap_Mitra_${new Date().getTime()}.jpg`;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-      }
-
-      function kirimWaAdmin() {
-        const u = JSON.parse(localStorage.getItem("nizami_user"));
-        let t = 0;
-        for (let k in batchCart) {
-          t += batchCart[k].qty * batchCart[k].harga;
         }
 
-        let msg = `*LAPORAN SETORAN HARIAN*\nMitra: ${u ? u.nama : "-"}\nTotal Setor: Rp ${t.toLocaleString("id-ID")}\n\nStruk rincian terlampir (Silakan kirim gambar struk secara manual).`;
-        window.open(
-          `https://wa.me/628122261036?text=${encodeURIComponent(msg)}`,
+        document.getElementById("modalListPeserta").style.display = "flex";
+      }
+
+      function closeListModal() {
+        document.getElementById("modalListPeserta").style.display = "none";
+      }
+
+      function filterMitra(q) {
+        const query = q.toLowerCase();
+        const filtered = allMitra.filter(
+          (m) =>
+            m.nama.toLowerCase().includes(query) ||
+            (m.alamat && m.alamat.toLowerCase().includes(query)),
         );
-
-        // Bersihkan draft setelah sukses lapor
-        batchCart = {};
-        localStorage.removeItem("mitra_draft_" + userId);
-        document
-          .querySelectorAll(".stepper-input")
-          .forEach((inp) => (inp.value = 0));
-        updateBatchUI();
-
-        tutupPreviewImg();
-        document.getElementById("batchBar").classList.remove("expanded");
+        renderList(filtered);
       }
 
-      function tagihWA(nama, paket, telat, nominal) {
-        let txt = `Assalamu'alaikum Kak *${nama}*,\n\nSekadar mengingatkan untuk setoran *${paket}* saat ini ada keterlambatan *${telat}x setoran* (Total: Rp ${nominal.toLocaleString("id-ID")}).\n\nYuk semangat nabungnya biar Lebaran panen! 🙏`;
-        window.open(`whatsapp://send?text=${encodeURIComponent(txt)}`);
+      function toggleAddModal(show) {
+        document.getElementById("modalAdd").style.display = show
+          ? "flex"
+          : "none";
       }
 
-      function logoutMitra() {
-        if (confirm("Yakin ingin keluar?")) {
-          localStorage.removeItem("nizami_user");
-          window.location.href = "index.html";
+      // --- FUNGSI EKSTRAK WA CALON MITRA ---
+      function parseWAMitra() {
+        const raw = document.getElementById("waMitraRaw").value;
+        if (!raw) return alert("Paste chat WA terlebih dahulu!");
+
+        const nmMatch = raw.match(/Nama\s*[:=]\s*([^\n]+)/i);
+        const hpMatch = raw.match(/(?:HP|WA|No|Nomor)\s*[:=]\s*([\d\+\-\s]+)/i);
+        const alMatch = raw.match(/Alamat\s*[:=]\s*([^\n]+)/i);
+
+        if (nmMatch)
+          document.getElementById("mNama").value = nmMatch[1]
+            .replace(/\*/g, "")
+            .trim();
+        if (hpMatch)
+          document.getElementById("mHP").value = hpMatch[1].replace(/\D/g, "");
+        if (alMatch)
+          document.getElementById("mAlamat").value = alMatch[1]
+            .replace(/\*/g, "")
+            .trim();
+
+        if (!nmMatch && !hpMatch && !alMatch) {
+          alert(
+            "Format WA tidak dikenali. Pastikan ada tulisan Nama:, WA:, atau Alamat:",
+          );
+        } else {
+          document.getElementById("waMitraRaw").value = "";
         }
       }
 
-      function showToast(msg) {
-        let toast = document.getElementById("toast");
-        document.getElementById("toastMsg").innerText = msg;
-        toast.style.display = "flex";
-        setTimeout(() => (toast.style.opacity = "1"), 10);
-        setTimeout(() => {
-          toast.style.opacity = "0";
-          setTimeout(() => (toast.style.display = "none"), 300);
-        }, 2000);
+      // --- FUNGSI SIMPAN & GENERATE LINK WA MITRA ---
+      async function simpanMitra() {
+        const nama = document.getElementById("mNama").value;
+        const hp = document.getElementById("mHP").value;
+        const alamat = document.getElementById("mAlamat").value;
+        const fee = document.getElementById("mFee").value;
+
+        if (!nama) return alert("Nama Mitra wajib diisi!");
+
+        const btn = document.getElementById("btnSimpan");
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Menyimpan...';
+        btn.disabled = true;
+
+        const res = await fetchData("tambahMitra", { nama, hp, alamat, fee });
+
+        if (res && res.success) {
+          toggleAddModal(false);
+
+          // Format Nomor HP untuk WA Link
+          let hpClean = String(hp).replace(/\D/g, "");
+          if (hpClean.startsWith("0")) hpClean = "62" + hpClean.substring(1);
+
+          // Susun Pesan WA Cantik
+          let waText = `Halo *${nama}*,\n\n`;
+          waText += `Selamat! Pengajuan Anda sebagai *Mitra/Agen Tabungan NIZAMI 2026-2027* telah disetujui. 🎉\n\n`;
+          waText += `Berikut adalah ID Resmi Mitra Anda:\n`;
+          waText += `*${res.id}*\n\n`;
+          waText += `Anda sekarang bisa memantau otomatis jumlah peserta Anda, total tagihan, dan uang komisi (fee) yang Anda dapatkan melalui Dashboard Mitra.\n\n`;
+          waText += `Silakan klik tautan khusus di bawah ini untuk masuk ke Dashboard Anda:\n`;
+          waText += `🔗 https://nizami-26-27-fix.vercel.app/kartu-digital.html?id=${res.id}\n\n`;
+          waText += `_(Mohon simpan dan jangan bagikan tautan ini ke orang lain)_\n\n`;
+          waText += `Mari semangat menabung bersama! 🙏`;
+
+          const waLink = `https://wa.me/${hpClean}?text=${encodeURIComponent(waText)}`;
+
+          // Tampilkan Modal Result dengan Tombol WA
+          document.getElementById("resMitraId").innerText = res.id;
+          document.getElementById("waMitraAction").innerHTML = `
+              <a href="${waLink}" target="_blank" style="background:#25D366; color:#fff; text-decoration:none; padding:15px; border-radius:10px; font-weight:bold; display:flex; align-items:center; justify-content:center; gap:8px; box-shadow: 0 5px 15px rgba(37, 211, 102, 0.4);">
+                  <i class="fab fa-whatsapp" style="font-size:1.5rem;"></i> Kirim Akses ke ${nama}
+              </a>
+          `;
+          document.getElementById("modalResultMitra").style.display = "flex";
+
+          // Reset Form
+          document.getElementById("mNama").value = "";
+          document.getElementById("mHP").value = "";
+          document.getElementById("mAlamat").value = "";
+          document.getElementById("mFee").value = "";
+
+          load(); // Refresh Analytics
+        } else {
+          alert("Gagal menyimpan ke server");
+        }
+
+        btn.innerHTML = "SIMPAN DATA";
+        btn.disabled = false;
       }
+
+      load();
     </script>
   </body>
 </html>
