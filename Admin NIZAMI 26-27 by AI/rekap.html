@@ -6,7 +6,7 @@
       name="viewport"
       content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
     />
-    <title>Rekap Belanja</title>
+    <title>Sistem Inventory & Logistik</title>
     <link
       href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap"
       rel="stylesheet"
@@ -23,13 +23,16 @@
         --text: #e0e0e0;
         --border: #333;
       }
+      * {
+        box-sizing: border-box;
+      }
       body {
         background: var(--bg);
         color: var(--text);
         font-family: "Inter", sans-serif;
         margin: 0;
         padding: 0;
-        padding-bottom: 100px;
+        padding-bottom: 120px;
       }
 
       /* HEADER */
@@ -74,118 +77,120 @@
         align-items: center;
       }
 
-      /* SEARCH BAR */
+      /* FILTER & PANEL */
+      .filter-box {
+        background: #111;
+        padding: 15px 20px;
+        border-bottom: 1px dashed #333;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+      }
+      .filter-select {
+        width: 100%;
+        padding: 10px 15px;
+        background: #222;
+        border: 1px solid #444;
+        color: var(--primary);
+        border-radius: 8px;
+        outline: none;
+        font-size: 0.85rem;
+        font-weight: bold;
+        appearance: none;
+        background-image: url('data:image/svg+xml;utf8,<svg fill="%23ffd700" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M7 10l5 5 5-5z"/></svg>');
+        background-repeat: no-repeat;
+        background-position: right 10px center;
+      }
+
+      .stats-container {
+        padding: 15px 20px;
+      }
+      .summary-card {
+        background: #111;
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        overflow: hidden;
+      }
+      .sc-header {
+        background: rgba(255, 215, 0, 0.08);
+        border-bottom: 1px dashed #333;
+        padding: 12px 15px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+      .sc-header .sc-val {
+        font-size: 1.6rem;
+        font-weight: bold;
+        color: var(--primary);
+        line-height: 1;
+      }
+      .sc-header .sc-label {
+        font-size: 0.85rem;
+        color: #fff;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+      }
+      .sc-body {
+        padding: 12px 15px;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 8px 15px;
+      }
+      .sc-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-size: 0.75rem;
+        color: #aaa;
+        border-bottom: 1px solid #222;
+        padding-bottom: 4px;
+      }
+      .sc-item span {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        padding-right: 5px;
+      }
+      .sc-item b {
+        color: #fff;
+        font-size: 0.8rem;
+        background: #222;
+        padding: 2px 6px;
+        border-radius: 4px;
+      }
+
       .search-container {
-        padding: 15px 20px 0 20px;
+        padding: 0 20px 10px 20px;
       }
       .search-input {
         width: 100%;
-        padding: 12px 20px;
-        background: #222;
-        border: 1px solid #444;
+        padding: 12px 15px;
+        background: #1a1a1a;
+        border: 1px dashed #444;
         color: white;
-        border-radius: 12px;
+        border-radius: 8px;
         outline: none;
-        font-size: 1rem;
-        box-sizing: border-box;
+        font-size: 0.95rem;
       }
       .search-input:focus {
         border-color: var(--primary);
       }
 
-      /* STATS PAKET (Horizontal Scroll) */
-      .stats-scroll {
-        display: flex;
-        gap: 12px;
-        overflow-x: auto;
-        padding: 15px 20px;
-        scrollbar-width: none;
-      }
-      .stats-scroll::-webkit-scrollbar {
-        display: none;
-      }
-
-      .stat-card {
-        background: linear-gradient(135deg, #333, #222);
-        border: 1px solid #444;
-        border-radius: 12px;
-        padding: 12px 15px;
-        min-width: 120px;
-        flex-shrink: 0;
-        position: relative;
-        overflow: hidden;
-      }
-      .stat-card::after {
-        content: "";
-        position: absolute;
-        right: -10px;
-        bottom: -10px;
-        width: 40px;
-        height: 40px;
-        background: var(--primary);
-        opacity: 0.1;
-        border-radius: 50%;
-      }
-      .stat-val {
-        font-size: 1.3rem;
-        font-weight: bold;
-        color: var(--primary);
-        display: block;
-        margin-bottom: 2px;
-      }
-      .stat-label {
-        font-size: 0.75rem;
-        color: #ccc;
-        line-height: 1.2;
-        display: block;
-      }
-
-      /* PROGRESS BELANJA */
-      .progress-box {
-        padding: 0 20px;
-        margin-bottom: 15px;
-      }
-      .p-text {
-        display: flex;
-        justify-content: space-between;
-        font-size: 0.8rem;
-        color: #aaa;
-        margin-bottom: 5px;
-      }
-      .p-track {
-        width: 100%;
-        height: 8px;
-        background: #222;
-        border-radius: 4px;
-        overflow: hidden;
-      }
-      .p-fill {
-        height: 100%;
-        background: #4caf50;
-        width: 0%;
-        transition: width 0.3s;
-      }
-
-      /* SHOPPING LIST */
+      /* SHOPPING/INVENTORY LIST */
       .list-container {
         padding: 0 20px 20px 20px;
       }
       .section-title {
-        font-size: 0.9rem;
+        font-size: 0.85rem;
         color: #888;
         margin-bottom: 10px;
         text-transform: uppercase;
         letter-spacing: 1px;
         display: flex;
         justify-content: space-between;
-        align-items: flex-end;
-      }
-      .clear-btn {
-        color: #ff6b6b;
-        font-size: 0.75rem;
-        text-transform: none;
-        cursor: pointer;
-        text-decoration: underline;
+        align-items: center;
       }
 
       .shop-item {
@@ -193,10 +198,8 @@
         border-bottom: 1px solid var(--border);
         padding: 15px;
         display: flex;
-        justify-content: space-between;
-        align-items: center;
-        transition: 0.2s;
-        cursor: pointer;
+        flex-direction: column;
+        gap: 10px;
       }
       .shop-item:first-child {
         border-top-left-radius: 12px;
@@ -207,55 +210,68 @@
         border-bottom-right-radius: 12px;
         border-bottom: none;
       }
+      .shop-item.aman {
+        border-left: 4px solid #4ade80;
+        background: rgba(74, 222, 128, 0.05);
+      }
 
-      .item-left {
+      .item-head {
         display: flex;
-        gap: 15px;
-        align-items: center;
+        justify-content: space-between;
+        align-items: flex-start;
       }
-      .check-circle {
-        width: 22px;
-        height: 22px;
-        border: 2px solid #555;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        color: transparent;
-        transition: 0.2s;
-      }
-
-      /* STATE KETIKA DICENTANG */
-      .shop-item.checked .check-circle {
-        background: #4caf50;
-        border-color: #4caf50;
-        color: #000;
-      }
-      .shop-item.checked .item-name {
-        text-decoration: line-through;
-        color: #666;
-      }
-      .shop-item.checked .item-qty {
-        color: #666;
-      }
-
       .item-name {
         font-size: 0.95rem;
-        font-weight: 600;
-        color: #fff;
-        transition: 0.2s;
-      }
-      .item-qty {
-        font-size: 1.05rem;
         font-weight: bold;
-        color: var(--primary);
-        text-align: right;
-        transition: 0.2s;
+        color: #fff;
+        margin-bottom: 5px;
       }
-      .item-unit {
+      .item-badges {
+        display: flex;
+        gap: 5px;
+        font-size: 0.7rem;
+      }
+      .bdg {
+        padding: 2px 6px;
+        border-radius: 4px;
+        font-weight: 600;
+      }
+      .bdg-butuh {
+        background: #333;
+        color: #ccc;
+      }
+      .bdg-stok {
+        background: rgba(74, 222, 128, 0.2);
+        color: #4ade80;
+      }
+      .bdg-kurang {
+        background: rgba(255, 107, 129, 0.2);
+        color: #ff6b81;
+      }
+
+      .item-action {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        background: #111;
+        padding: 8px 10px;
+        border-radius: 8px;
+        border: 1px solid #2a2a2a;
+      }
+      .item-action label {
         font-size: 0.75rem;
         color: #888;
-        font-weight: normal;
+      }
+      .input-qty {
+        width: 60px;
+        padding: 6px;
+        background: #222;
+        border: 1px solid var(--primary);
+        color: #fff;
+        border-radius: 6px;
+        text-align: center;
+        font-weight: bold;
+        outline: none;
       }
 
       /* BOTTOM ACTION */
@@ -268,21 +284,39 @@
         padding: 15px 20px;
         border-top: 1px solid #333;
         z-index: 100;
+        display: flex;
+        gap: 10px;
       }
-      .btn-copy {
-        width: 100%;
+      .btn-wa {
+        flex: 1;
+        padding: 14px;
+        background: #222;
+        color: var(--primary);
+        border: 1px solid var(--primary);
+        border-radius: 30px;
+        font-weight: bold;
+        font-size: 0.9rem;
+        cursor: pointer;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 8px;
+      }
+      .btn-save {
+        flex: 2;
         padding: 14px;
         background: var(--primary);
         color: #000;
         border: none;
         border-radius: 30px;
         font-weight: bold;
-        font-size: 1rem;
+        font-size: 0.9rem;
         cursor: pointer;
         display: flex;
         justify-content: center;
         align-items: center;
-        gap: 10px;
+        gap: 8px;
+        box-shadow: 0 4px 15px rgba(255, 215, 0, 0.3);
       }
 
       #loading {
@@ -298,11 +332,44 @@
         <a href="index.html" class="back-btn"
           ><i class="fas fa-arrow-left"></i
         ></a>
-        <h2 style="margin: 0; font-size: 1.1rem">Rekap Belanja</h2>
+        <h2 style="margin: 0; font-size: 1.1rem">Gudang & Logistik</h2>
       </div>
-      <button onclick="loadRekap()" class="btn-refresh">
+      <button onclick="tarikDataServer()" class="btn-refresh">
         <i class="fas fa-sync-alt"></i> Refresh
       </button>
+    </div>
+
+    <div class="filter-box" id="filterArea" style="display: none">
+      <div style="font-size: 0.75rem; color: #aaa; margin-bottom: -5px">
+        <i class="fas fa-filter"></i> Analisa Kebutuhan Berdasarkan:
+      </div>
+      <select
+        id="fMitra"
+        class="filter-select"
+        onchange="hitungUlangLogistik()"
+      >
+        <option value="ALL">📁 Semua Mitra (Gabungan)</option>
+      </select>
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px">
+        <select
+          id="fStatus"
+          class="filter-select"
+          style="color: #4ade80"
+          onchange="hitungUlangLogistik()"
+        >
+          <option value="ALL">🎯 Semua Status</option>
+          <option value="LUNAS">🟢 Lunas Target Barang</option>
+          <option value="BELUM">🔴 Belum Lunas Barang</option>
+        </select>
+        <select
+          id="fPaket"
+          class="filter-select"
+          style="color: #3498db"
+          onchange="hitungUlangLogistik()"
+        >
+          <option value="ALL">📦 Semua Paket</option>
+        </select>
+      </div>
     </div>
 
     <div id="loading">
@@ -310,38 +377,26 @@
         class="fas fa-spinner fa-spin fa-2x"
         style="color: var(--primary); margin-bottom: 10px"
       ></i
-      ><br />Menghitung Kebutuhan...
+      ><br />Menarik data gudang...
     </div>
 
     <div id="content" style="display: none">
-      <div class="stats-scroll" id="paketList"></div>
+      <div id="paketList" class="stats-container"></div>
 
-      <div class="progress-box">
-        <div class="p-text">
-          <span>Progress Belanja</span>
-          <span><b id="lblDone">0</b> / <span id="lblTotal">0</span></span>
-        </div>
-        <div class="p-track">
-          <div class="p-fill" id="barFill"></div>
-        </div>
-      </div>
-
-      <div class="search-container" style="padding-top: 0">
+      <div class="search-container">
         <input
           type="text"
           id="filterInput"
           class="search-input"
-          placeholder="🔍 Cari nama barang..."
-          onkeyup="filterItems(this.value)"
+          placeholder="🔍 Cari nama sembako/kue..."
+          onkeyup="renderListUiLokal()"
         />
       </div>
 
       <div class="list-container">
-        <div class="section-title" style="margin-top: 15px">
-          <span>Daftar Kebutuhan</span>
-          <span class="clear-btn" onclick="resetChecks()"
-            ><i class="fas fa-undo"></i> Reset Centang</span
-          >
+        <div class="section-title">
+          <span>Daftar Stok & Belanja</span>
+          <span><b id="lblTotal" style="color: var(--primary)">0</b> Item</span>
         </div>
         <div
           id="belanjaList"
@@ -355,176 +410,288 @@
     </div>
 
     <div class="bottom-bar">
-      <button onclick="copyToClipboard()" class="btn-copy" id="btnCopy">
-        <i class="fab fa-whatsapp" style="font-size: 1.2rem"></i> SALIN DAFTAR
-        (WA)
+      <button onclick="copyToClipboard()" class="btn-wa" id="btnCopy">
+        <i class="fab fa-whatsapp"></i> BAGIKAN
+      </button>
+      <button onclick="simpanBelanja()" class="btn-save" id="btnSave">
+        <i class="fas fa-save"></i> INPUT STOK MASUK
       </button>
     </div>
 
     <script src="script.js"></script>
     <script>
-      let rawBelanja = [];
-      let checkedItems = new Set(); // Memori pintar untuk menyimpan barang yang dicentang
+      let masterData = { peserta: [], resep: [], custom: [], stok_dibeli: {} };
+      let listBelanjaFinal = [];
 
-      async function loadRekap() {
+      // 1. Tarik Data
+      async function tarikDataServer() {
         document.getElementById("content").style.display = "none";
+        document.getElementById("filterArea").style.display = "none";
         document.getElementById("loading").style.display = "block";
+        document.getElementById("loading").innerHTML =
+          '<i class="fas fa-spinner fa-spin fa-2x" style="color: var(--primary); margin-bottom: 10px"></i><br />Menarik data gudang...';
 
-        const data = await fetchData("getRekapBelanja");
+        try {
+          const data = await fetchData("getRekapBelanja");
 
-        if (data) {
-          // 1. Render Stats Paket
-          const paketBox = document.getElementById("paketList");
-          paketBox.innerHTML = "";
-          let totalPeserta = 0;
-
-          for (let pkt in data.paketCount) {
-            const count = data.paketCount[pkt];
-            if (count > 0) {
-              totalPeserta += count;
-              paketBox.innerHTML += `
-                        <div class="stat-card">
-                            <span class="stat-val">${count}</span>
-                            <span class="stat-label">${pkt}</span>
-                        </div>`;
-            }
+          // Jika Backend mengirimkan Error
+          if (data && data.error) {
+            document.getElementById("loading").innerHTML =
+              `<span style='color:#ff6b81;'><i class="fas fa-exclamation-triangle fa-2x" style="margin-bottom:10px;"></i><br><b>Error Database:</b><br>${data.error}</span>`;
+            return;
           }
 
-          paketBox.insertAdjacentHTML(
-            "afterbegin",
-            `
-                <div class="stat-card" style="border-color:var(--primary); background:rgba(255,215,0,0.05);">
-                    <span class="stat-val">${totalPeserta}</span>
-                    <span class="stat-label">Total Peserta Aktif</span>
-                </div>`,
-          );
+          // Jika Data Aman
+          if (data && data.peserta) {
+            // Pengaman tambahan jika admin lupa deploy versi baru
+            if (!data.stok_dibeli) data.stok_dibeli = {};
 
-          // 2. Render List Belanja
-          rawBelanja = data.belanja;
-          document.getElementById("lblTotal").innerText = rawBelanja.length;
+            masterData = data;
+            buatOpsiFilter();
+            hitungUlangLogistik();
 
-          // Hapus centangan lama jika itemnya sudah tidak ada di data baru
-          const validNames = rawBelanja.map((b) => b.barang);
-          for (let item of checkedItems) {
-            if (!validNames.includes(item)) checkedItems.delete(item);
+            document.getElementById("loading").style.display = "none";
+            document.getElementById("filterArea").style.display = "flex";
+            document.getElementById("content").style.display = "block";
+          } else {
+            document.getElementById("loading").innerHTML =
+              '<span style=\'color:#ff6b81;\'><i class="fas fa-exclamation-triangle fa-2x" style="margin-bottom:10px;"></i><br>Gagal menarik data.<br>Pastikan Anda sudah menekan "Deploy > Versi Baru" di Google Script.</span>';
           }
-
-          renderList(rawBelanja);
-          updateProgress();
-
-          document.getElementById("loading").style.display = "none";
-          document.getElementById("content").style.display = "block";
+        } catch (e) {
+          document.getElementById("loading").innerHTML =
+            `<span style='color:#ff6b81;'><i class="fas fa-wifi fa-2x" style="margin-bottom:10px;"></i><br>Koneksi terputus atau server lambat.<br>Silakan refresh halaman.</span>`;
         }
       }
 
-      function renderList(items) {
+      function buatOpsiFilter() {
+        const mitras = [...new Set(masterData.peserta.map((p) => p.mitra))]
+          .filter(Boolean)
+          .sort();
+        const pakets = [...new Set(masterData.peserta.map((p) => p.paket))]
+          .filter(Boolean)
+          .sort();
+
+        let selMitra = '<option value="ALL">📁 Semua Mitra (Gabungan)</option>';
+        mitras.forEach(
+          (m) => (selMitra += `<option value="${m}">${m}</option>`),
+        );
+        document.getElementById("fMitra").innerHTML = selMitra;
+
+        let selPaket = '<option value="ALL">📦 Semua Paket</option>';
+        pakets.forEach(
+          (p) => (selPaket += `<option value="${p}">${p}</option>`),
+        );
+        document.getElementById("fPaket").innerHTML = selPaket;
+      }
+
+      function hitungUlangLogistik() {
+        const valMitra = document.getElementById("fMitra").value;
+        const valStatus = document.getElementById("fStatus").value;
+        const valPaket = document.getElementById("fPaket").value;
+
+        let pesertaLolos = masterData.peserta.filter((p) => {
+          let passMitra = valMitra === "ALL" || p.mitra === valMitra;
+          let passPaket = valPaket === "ALL" || p.paket === valPaket;
+          let passStatus = true;
+
+          if (valStatus === "LUNAS")
+            passStatus =
+              p.target_barang > 0 && p.setoran_masuk >= p.target_barang;
+          else if (valStatus === "BELUM")
+            passStatus =
+              (p.target_barang > 0 && p.setoran_masuk < p.target_barang) ||
+              p.target_barang === 0;
+
+          return passMitra && passPaket && passStatus;
+        });
+
+        let countPaket = {};
+        pesertaLolos.forEach((p) => {
+          if (!countPaket[p.paket]) countPaket[p.paket] = 0;
+          countPaket[p.paket]++;
+        });
+
+        let idLolos = pesertaLolos.map((p) => p.id);
+        let keranjang = {};
+
+        masterData.resep.forEach((r) => {
+          if (countPaket[r.paket] > 0) {
+            let totalDibutuhkan = countPaket[r.paket] * r.qty;
+            if (!keranjang[r.barang])
+              keranjang[r.barang] = { qty: 0, satuan: r.satuan };
+            keranjang[r.barang].qty += totalDibutuhkan;
+          }
+        });
+
+        masterData.custom.forEach((c) => {
+          if (idLolos.includes(c.id_peserta)) {
+            if (!keranjang[c.barang])
+              keranjang[c.barang] = { qty: 0, satuan: c.satuan };
+            keranjang[c.barang].qty += c.qty;
+          }
+        });
+
+        listBelanjaFinal = [];
+        for (let key in keranjang) {
+          let butuh = keranjang[key].qty;
+          // Ambil dari memori stok dengan pengaman tambahan
+          let sudahAda =
+            masterData.stok_dibeli && masterData.stok_dibeli[key]
+              ? masterData.stok_dibeli[key]
+              : 0;
+
+          listBelanjaFinal.push({
+            barang: key,
+            total: butuh,
+            satuan: keranjang[key].satuan,
+            stok: sudahAda,
+            kurang: butuh - sudahAda > 0 ? butuh - sudahAda : 0,
+          });
+        }
+        listBelanjaFinal.sort((a, b) => b.kurang - a.kurang); // Urutkan: Yang paling kurang ada di atas
+
+        renderStatsUi(pesertaLolos.length, countPaket);
+        renderListUiLokal();
+      }
+
+      function renderStatsUi(totalPeserta, countPaket) {
+        const paketBox = document.getElementById("paketList");
+        let html = `<div class="summary-card"><div class="sc-header"><span class="sc-val">${totalPeserta}</span><span class="sc-label">Peserta Terpilih</span></div><div class="sc-body">`;
+        for (let pkt in countPaket)
+          html += `<div class="sc-item"><span title="${pkt}">${pkt}</span><b>${countPaket[pkt]}</b></div>`;
+        html += `</div></div>`;
+        paketBox.innerHTML = html;
+      }
+
+      function renderListUiLokal() {
+        const query = document
+          .getElementById("filterInput")
+          .value.toLowerCase();
+        let barangTampil = listBelanjaFinal.filter((item) =>
+          item.barang.toLowerCase().includes(query),
+        );
+
         const container = document.getElementById("belanjaList");
         container.innerHTML = "";
+        document.getElementById("lblTotal").innerText = listBelanjaFinal.length;
 
-        if (items.length === 0) {
+        if (barangTampil.length === 0) {
           container.innerHTML =
-            '<div style="padding:30px; text-align:center; color:#555;">Semua kebutuhan sudah terpenuhi / kosong.</div>';
+            '<div style="padding:30px; text-align:center; color:#555;">Kebutuhan kosong.</div>';
           return;
         }
 
-        items.forEach((b) => {
-          const isChecked = checkedItems.has(b.barang) ? "checked" : "";
+        barangTampil.forEach((b, index) => {
+          let isAman = b.kurang === 0;
+          let clsAman = isAman ? "aman" : "";
+          let txtKurang = isAman
+            ? `<span class="bdg bdg-stok">Lengkap</span>`
+            : `<span class="bdg bdg-kurang">Kurang ${b.kurang}</span>`;
 
           container.innerHTML += `
-                <div class="shop-item ${isChecked}" onclick="toggleCheck(this, '${b.barang}')">
-                    <div class="item-left">
-                        <div class="check-circle"><i class="fas fa-check" style="font-size:0.7rem;"></i></div>
+            <div class="shop-item ${clsAman}">
+                <div class="item-head">
+                    <div>
                         <div class="item-name">${b.barang}</div>
+                        <div class="item-badges">
+                            <span class="bdg bdg-butuh">Butuh: ${b.total} ${b.satuan}</span>
+                            <span class="bdg bdg-stok">Terkumpul: ${b.stok}</span>
+                        </div>
                     </div>
-                    <div class="item-qty">
-                        ${b.total} <span class="item-unit">${b.satuan}</span>
-                    </div>
-                </div>`;
+                    ${txtKurang}
+                </div>
+                
+                <div class="item-action">
+                    <label>+ Tambah stok masuk hari ini:</label>
+                    <input type="number" id="input_qty_${index}" class="input-qty" data-name="${b.barang}" data-sat="${b.satuan}" placeholder="0" min="0">
+                </div>
+            </div>`;
         });
       }
 
-      function toggleCheck(el, barangName) {
-        el.classList.toggle("checked");
+      // --- LOGIKA SIMPAN KE INVENTORY ---
+      async function simpanBelanja() {
+        let itemsToSave = [];
 
-        if (el.classList.contains("checked")) {
-          checkedItems.add(barangName);
-        } else {
-          checkedItems.delete(barangName);
-        }
-        updateProgress();
-      }
-
-      function resetChecks() {
-        if (confirm("Yakin ingin mereset semua centangan belanja?")) {
-          checkedItems.clear();
-          filterItems(document.getElementById("filterInput").value); // Re-render current view
-          updateProgress();
-        }
-      }
-
-      function updateProgress() {
-        const total = rawBelanja.length;
-        const done = checkedItems.size;
-        document.getElementById("lblDone").innerText = done;
-
-        const percent = total === 0 ? 0 : Math.round((done / total) * 100);
-        document.getElementById("barFill").style.width = percent + "%";
-      }
-
-      function filterItems(query) {
-        const q = query.toLowerCase();
-        const filtered = rawBelanja.filter((item) =>
-          item.barang.toLowerCase().includes(q),
-        );
-        renderList(filtered);
-      }
-
-      function copyToClipboard() {
-        if (rawBelanja.length === 0) return alert("Daftar kosong!");
-
-        const today = new Date().toLocaleDateString("id-ID", {
-          weekday: "long",
-          year: "numeric",
-          month: "long",
-          day: "numeric",
+        // Ambil semua nilai dari kotak input yang diisi admin
+        document.querySelectorAll(".input-qty").forEach((inp) => {
+          let val = parseInt(inp.value);
+          if (val > 0) {
+            itemsToSave.push({
+              nama: inp.getAttribute("data-name"),
+              satuan: inp.getAttribute("data-sat"),
+              qty: val,
+            });
+          }
         });
 
-        let text = `🛒 *DAFTAR BELANJA NIZAMI*\n📅 ${today}\n\n`;
-
-        // Pisahkan yang belum dibeli dan sudah dibeli
-        let blmBeli = [],
-          sdhBeli = [];
-        rawBelanja.forEach((b) => {
-          if (checkedItems.has(b.barang)) sdhBeli.push(b);
-          else blmBeli.push(b);
-        });
-
-        if (blmBeli.length > 0) {
-          text += `*DAFTAR KEBUTUHAN:*\n`;
-          blmBeli.forEach(
-            (b) => (text += `• ${b.barang}: ${b.total} ${b.satuan}\n`),
+        if (itemsToSave.length === 0) {
+          return alert(
+            "Tidak ada angka belanja yang diinput. Isi angka pada kotak barang yang baru saja Anda beli.",
           );
         }
 
-        text += `\n_Total Item: ${rawBelanja.length}_`;
+        if (
+          !confirm(
+            `Simpan ${itemsToSave.length} jenis barang ini ke gudang/inventory?`,
+          )
+        )
+          return;
+
+        const btn = document.getElementById("btnSave");
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Menyimpan...';
+        btn.disabled = true;
+
+        const res = await fetchData(
+          "simpanBelanja",
+          { items: itemsToSave },
+          "POST",
+        );
+
+        if (res && res.success) {
+          alert("Data belanja berhasil ditambahkan ke Gudang!");
+          // Refresh layar agar hitungan kurang/stok nya terupdate otomatis
+          tarikDataServer();
+        } else {
+          alert(
+            "Gagal menyimpan data: " + (res ? res.error : "Koneksi terputus"),
+          );
+        }
+
+        btn.innerHTML = '<i class="fas fa-save"></i> INPUT STOK MASUK';
+        btn.disabled = false;
+      }
+
+      // --- LOGIKA SHARE WA ---
+      function copyToClipboard() {
+        if (listBelanjaFinal.length === 0) return alert("Daftar kosong!");
+
+        let text = `🛒 *CATATAN KEKURANGAN BELANJA NIZAMI*\n\n`;
+        let countKurang = 0;
+
+        listBelanjaFinal.forEach((b) => {
+          if (b.kurang > 0) {
+            text += `• ${b.barang} : *Kurang ${b.kurang} ${b.satuan}*\n  _(Butuh ${b.total}, Baru ada ${b.stok})_\n\n`;
+            countKurang++;
+          }
+        });
+
+        if (countKurang === 0)
+          text += "Semua stok barang sudah aman/lengkap! 🎉";
+        else text += `_Total ${countKurang} jenis barang yang harus dibeli._`;
 
         navigator.clipboard.writeText(text).then(() => {
           const btn = document.getElementById("btnCopy");
-          const oriText = btn.innerHTML;
-          btn.innerHTML =
-            '<i class="fas fa-check-circle"></i> BERHASIL DISALIN';
-          btn.style.background = "#4caf50";
-          btn.style.color = "#fff";
-
-          setTimeout(() => {
-            btn.innerHTML = oriText;
-            btn.style.background = "";
-            btn.style.color = "";
-          }, 2000);
+          btn.innerHTML = '<i class="fas fa-check-circle"></i> TERSALIN';
+          setTimeout(
+            () => (btn.innerHTML = '<i class="fab fa-whatsapp"></i> BAGIKAN'),
+            2000,
+          );
         });
       }
 
-      loadRekap();
+      // Panggil saat aplikasi dimuat pertama kali
+      tarikDataServer();
     </script>
   </body>
 </html>
