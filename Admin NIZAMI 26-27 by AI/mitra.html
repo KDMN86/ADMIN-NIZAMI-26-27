@@ -767,14 +767,13 @@
           let hpClean = String(hp).replace(/\D/g, "");
           if (hpClean.startsWith("0")) hpClean = "62" + hpClean.substring(1);
 
-          // Susun Pesan WA Cantik
+          // Susun Pesan WA Cantik (Hapus teks deskripsi panjang dan fix link ke mitra.html)
           let waText = `Halo *${nama}*,\n\n`;
           waText += `Selamat! Pengajuan Anda sebagai *Mitra/Agen Tabungan NIZAMI 2026-2027* telah disetujui. 🎉\n\n`;
           waText += `Berikut adalah ID Resmi Mitra Anda:\n`;
           waText += `*${res.id}*\n\n`;
-          waText += `Anda sekarang bisa memantau otomatis jumlah peserta Anda, total tagihan, dan uang komisi (fee) yang Anda dapatkan melalui Dashboard Mitra.\n\n`;
           waText += `Silakan klik tautan khusus di bawah ini untuk masuk ke Dashboard Anda:\n`;
-          waText += `🔗 https://nizami-26-27-fix.vercel.app/kartu-digital.html?id=${res.id}\n\n`;
+          waText += `🔗 https://nizami-26-27-fix.vercel.app/mitra.html?id=${res.id}\n\n`;
           waText += `_(Mohon simpan dan jangan bagikan tautan ini ke orang lain)_\n\n`;
           waText += `Mari semangat menabung bersama! 🙏`;
 
