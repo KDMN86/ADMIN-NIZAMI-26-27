@@ -35,7 +35,6 @@
         padding-bottom: 120px;
       }
 
-      /* HEADER */
       .top-nav {
         background: rgba(18, 18, 18, 0.95);
         backdrop-filter: blur(10px);
@@ -77,7 +76,6 @@
         align-items: center;
       }
 
-      /* FILTER & PANEL */
       .filter-box {
         background: #111;
         padding: 15px 20px;
@@ -178,7 +176,6 @@
         border-color: var(--primary);
       }
 
-      /* SHOPPING/INVENTORY LIST */
       .list-container {
         padding: 0 20px 20px 20px;
       }
@@ -230,6 +227,7 @@
         display: flex;
         gap: 5px;
         font-size: 0.7rem;
+        flex-wrap: wrap;
       }
       .bdg {
         padding: 2px 6px;
@@ -241,12 +239,28 @@
         color: #ccc;
       }
       .bdg-stok {
-        background: rgba(74, 222, 128, 0.2);
+        background: rgba(74, 222, 128, 0.1);
         color: #4ade80;
+        border: 1px solid rgba(74, 222, 128, 0.3);
+      }
+      .bdg-keluar {
+        background: rgba(255, 107, 129, 0.1);
+        color: #ff6b81;
+        border: 1px solid rgba(255, 107, 129, 0.3);
       }
       .bdg-kurang {
-        background: rgba(255, 107, 129, 0.2);
-        color: #ff6b81;
+        background: #ff6b81;
+        color: #fff;
+      }
+      .ready-stok {
+        font-size: 0.8rem;
+        font-weight: bold;
+        color: var(--primary);
+        margin-top: 6px;
+        display: inline-block;
+        background: #111;
+        padding: 3px 8px;
+        border-radius: 6px;
       }
 
       .item-action {
@@ -274,7 +288,6 @@
         outline: none;
       }
 
-      /* BOTTOM ACTION */
       .bottom-bar {
         position: fixed;
         bottom: 0;
@@ -287,15 +300,15 @@
         display: flex;
         gap: 10px;
       }
-      .btn-wa {
+      .btn-out {
         flex: 1;
         padding: 14px;
-        background: #222;
-        color: var(--primary);
-        border: 1px solid var(--primary);
-        border-radius: 30px;
+        background: #ff6b81;
+        color: #fff;
+        border: none;
+        border-radius: 12px;
         font-weight: bold;
-        font-size: 0.9rem;
+        font-size: 0.85rem;
         cursor: pointer;
         display: flex;
         justify-content: center;
@@ -303,14 +316,14 @@
         gap: 8px;
       }
       .btn-save {
-        flex: 2;
+        flex: 1;
         padding: 14px;
         background: var(--primary);
         color: #000;
         border: none;
-        border-radius: 30px;
+        border-radius: 12px;
         font-weight: bold;
-        font-size: 0.9rem;
+        font-size: 0.85rem;
         cursor: pointer;
         display: flex;
         justify-content: center;
@@ -323,6 +336,105 @@
         text-align: center;
         padding: 50px;
         color: #666;
+      }
+
+      /* MODAL DISTRIBUSI KELUAR */
+      .modal {
+        display: none;
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.95);
+        z-index: 9999;
+        flex-direction: column;
+        align-items: center;
+        justify-content: flex-end;
+      }
+      .modal-content {
+        background: var(--surface);
+        width: 100%;
+        height: 90vh;
+        border-radius: 20px 20px 0 0;
+        display: flex;
+        flex-direction: column;
+        animation: slideUp 0.3s;
+      }
+      .m-head {
+        padding: 15px 20px;
+        border-bottom: 1px solid #333;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+      .m-body {
+        padding: 20px;
+        overflow-y: auto;
+        flex-grow: 1;
+      }
+      .m-footer {
+        padding: 15px 20px;
+        background: #111;
+        border-top: 1px solid #333;
+      }
+
+      .peserta-select-box {
+        background: #111;
+        padding: 15px;
+        border-radius: 12px;
+        border: 1px solid #333;
+        margin-bottom: 15px;
+      }
+      .peserta-select {
+        width: 100%;
+        padding: 12px;
+        background: #222;
+        color: #fff;
+        border: 1px solid #555;
+        border-radius: 8px;
+        font-size: 0.9rem;
+        margin-top: 10px;
+        outline: none;
+      }
+
+      .item-dist-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 12px 0;
+        border-bottom: 1px dashed #333;
+      }
+      .stepper {
+        display: flex;
+        align-items: center;
+        background: #000;
+        border-radius: 6px;
+        border: 1px solid #444;
+      }
+      .stepper button {
+        background: #222;
+        border: none;
+        color: var(--primary);
+        width: 30px;
+        height: 30px;
+        font-weight: bold;
+        cursor: pointer;
+      }
+      .stepper input {
+        width: 35px;
+        background: transparent;
+        border: none;
+        color: #fff;
+        text-align: center;
+        font-weight: bold;
+        outline: none;
+      }
+
+      @keyframes slideUp {
+        from {
+          transform: translateY(100%);
+        }
+        to {
+          transform: translateY(0);
+        }
       }
     </style>
   </head>
@@ -382,7 +494,6 @@
 
     <div id="content" style="display: none">
       <div id="paketList" class="stats-container"></div>
-
       <div class="search-container">
         <input
           type="text"
@@ -395,7 +506,7 @@
 
       <div class="list-container">
         <div class="section-title">
-          <span>Daftar Stok & Belanja</span>
+          <span>Stok Gudang Berjalan</span>
           <span><b id="lblTotal" style="color: var(--primary)">0</b> Item</span>
         </div>
         <div
@@ -410,18 +521,100 @@
     </div>
 
     <div class="bottom-bar">
-      <button onclick="copyToClipboard()" class="btn-wa" id="btnCopy">
-        <i class="fab fa-whatsapp"></i> BAGIKAN
+      <button onclick="bukaModalDistribusi()" class="btn-out">
+        <i class="fas fa-box-open"></i> DISTRIBUSI / DO
       </button>
       <button onclick="simpanBelanja()" class="btn-save" id="btnSave">
-        <i class="fas fa-save"></i> INPUT STOK MASUK
+        <i class="fas fa-save"></i> SIMPAN STOK MASUK
       </button>
+    </div>
+
+    <div id="modalDist" class="modal">
+      <div class="modal-content">
+        <div class="m-head">
+          <h3 style="margin: 0; color: #ff6b81">
+            <i class="fas fa-dolly"></i> Keluarkan Barang
+          </h3>
+          <i
+            class="fas fa-times"
+            style="font-size: 1.5rem; color: #888; cursor: pointer"
+            onclick="tutupModalDistribusi()"
+          ></i>
+        </div>
+        <div class="m-body">
+          <div class="peserta-select-box">
+            <label style="font-size: 0.8rem; color: #aaa"
+              >Pilih Peserta (Drop Out / Cicil):</label
+            >
+            <select
+              id="distPeserta"
+              class="peserta-select"
+              onchange="pilihPesertaDist()"
+            >
+              <option value="">-- Pilih Peserta --</option>
+            </select>
+            <div
+              id="infoSaldo"
+              style="
+                margin-top: 10px;
+                font-size: 0.85rem;
+                color: #4ade80;
+                display: none;
+              "
+            >
+              Saldo Tersedia:
+              <b id="txtSaldo" style="font-size: 1.1rem">Rp 0</b>
+            </div>
+          </div>
+
+          <div style="font-size: 0.85rem; color: #aaa; margin-bottom: 10px">
+            Pilih Barang dari Ready Stock:
+          </div>
+          <div id="distItemsContainer"></div>
+        </div>
+
+        <div class="m-footer">
+          <div
+            style="
+              display: flex;
+              justify-content: space-between;
+              margin-bottom: 10px;
+              font-size: 0.85rem;
+              color: #aaa;
+            "
+          >
+            <span>Total Nilai Diambil:</span>
+            <b id="txtTotalAmbil" style="color: #ff6b81; font-size: 1.1rem"
+              >Rp 0</b
+            >
+          </div>
+          <button
+            onclick="simpanDistribusi()"
+            class="btn-save"
+            style="width: 100%; background: #ff6b81; color: #fff"
+            id="btnSimpanDist"
+          >
+            PROSES BARANG KELUAR
+          </button>
+        </div>
+      </div>
     </div>
 
     <script src="script.js"></script>
     <script>
-      let masterData = { peserta: [], resep: [], custom: [], stok_dibeli: {} };
+      let masterData = {
+        peserta: [],
+        resep: [],
+        custom: [],
+        stok_dibeli: {},
+        stok_keluar: {},
+        harga_barang: {},
+      };
       let listBelanjaFinal = [];
+
+      // Variabel State untuk Modal Distribusi
+      let selectedPesertaSaldo = 0;
+      let distCart = {};
 
       // 1. Tarik Data
       async function tarikDataServer() {
@@ -434,17 +627,16 @@
         try {
           const data = await fetchData("getRekapBelanja");
 
-          // Jika Backend mengirimkan Error
           if (data && data.error) {
             document.getElementById("loading").innerHTML =
               `<span style='color:#ff6b81;'><i class="fas fa-exclamation-triangle fa-2x" style="margin-bottom:10px;"></i><br><b>Error Database:</b><br>${data.error}</span>`;
             return;
           }
 
-          // Jika Data Aman
           if (data && data.peserta) {
-            // Pengaman tambahan jika admin lupa deploy versi baru
             if (!data.stok_dibeli) data.stok_dibeli = {};
+            if (!data.stok_keluar) data.stok_keluar = {};
+            if (!data.harga_barang) data.harga_barang = {};
 
             masterData = data;
             buatOpsiFilter();
@@ -455,11 +647,11 @@
             document.getElementById("content").style.display = "block";
           } else {
             document.getElementById("loading").innerHTML =
-              '<span style=\'color:#ff6b81;\'><i class="fas fa-exclamation-triangle fa-2x" style="margin-bottom:10px;"></i><br>Gagal menarik data.<br>Pastikan Anda sudah menekan "Deploy > Versi Baru" di Google Script.</span>';
+              '<span style=\'color:#ff6b81;\'><i class="fas fa-exclamation-triangle fa-2x" style="margin-bottom:10px;"></i><br>Gagal menarik data.<br>Pastikan Deploy Versi Baru.</span>';
           }
         } catch (e) {
           document.getElementById("loading").innerHTML =
-            `<span style='color:#ff6b81;'><i class="fas fa-wifi fa-2x" style="margin-bottom:10px;"></i><br>Koneksi terputus atau server lambat.<br>Silakan refresh halaman.</span>`;
+            `<span style='color:#ff6b81;'><i class="fas fa-wifi fa-2x" style="margin-bottom:10px;"></i><br>Koneksi terputus. Refresh halaman.</span>`;
         }
       }
 
@@ -493,6 +685,9 @@
           let passMitra = valMitra === "ALL" || p.mitra === valMitra;
           let passPaket = valPaket === "ALL" || p.paket === valPaket;
           let passStatus = true;
+
+          // Jangan hitung yang sudah DO sebagai "Kebutuhan"
+          if (String(p.paket).includes("(Selesai/DO)")) return false;
 
           if (valStatus === "LUNAS")
             passStatus =
@@ -534,21 +729,23 @@
         listBelanjaFinal = [];
         for (let key in keranjang) {
           let butuh = keranjang[key].qty;
-          // Ambil dari memori stok dengan pengaman tambahan
-          let sudahAda =
-            masterData.stok_dibeli && masterData.stok_dibeli[key]
-              ? masterData.stok_dibeli[key]
-              : 0;
+          let masuk = masterData.stok_dibeli[key] || 0;
+          let keluar = masterData.stok_keluar[key] || 0;
+          let ready = masuk - keluar;
+          if (ready < 0) ready = 0;
+          let kurang = butuh - ready;
 
           listBelanjaFinal.push({
             barang: key,
             total: butuh,
             satuan: keranjang[key].satuan,
-            stok: sudahAda,
-            kurang: butuh - sudahAda > 0 ? butuh - sudahAda : 0,
+            masuk: masuk,
+            keluar: keluar,
+            ready: ready,
+            kurang: kurang > 0 ? kurang : 0,
           });
         }
-        listBelanjaFinal.sort((a, b) => b.kurang - a.kurang); // Urutkan: Yang paling kurang ada di atas
+        listBelanjaFinal.sort((a, b) => b.kurang - a.kurang);
 
         renderStatsUi(pesertaLolos.length, countPaket);
         renderListUiLokal();
@@ -594,26 +791,26 @@
                     <div>
                         <div class="item-name">${b.barang}</div>
                         <div class="item-badges">
-                            <span class="bdg bdg-butuh">Butuh: ${b.total} ${b.satuan}</span>
-                            <span class="bdg bdg-stok">Terkumpul: ${b.stok}</span>
+                            <span class="bdg bdg-butuh" title="Kebutuhan Peserta Lolos Filter">Butuh: ${b.total}</span>
+                            <span class="bdg bdg-stok" title="Total Belanja Masuk">Masuk: ${b.masuk}</span>
+                            <span class="bdg bdg-keluar" title="Sudah Dibagikan">Keluar: ${b.keluar}</span>
                         </div>
+                        <div class="ready-stok"><i class="fas fa-box"></i> Sisa Gudang: ${b.ready} ${b.satuan}</div>
                     </div>
                     ${txtKurang}
                 </div>
                 
                 <div class="item-action">
-                    <label>+ Tambah stok masuk hari ini:</label>
+                    <label>+ Input Belanja Baru:</label>
                     <input type="number" id="input_qty_${index}" class="input-qty" data-name="${b.barang}" data-sat="${b.satuan}" placeholder="0" min="0">
                 </div>
             </div>`;
         });
       }
 
-      // --- LOGIKA SIMPAN KE INVENTORY ---
+      // --- LOGIKA SIMPAN KE INVENTORY (STOK MASUK) ---
       async function simpanBelanja() {
         let itemsToSave = [];
-
-        // Ambil semua nilai dari kotak input yang diisi admin
         document.querySelectorAll(".input-qty").forEach((inp) => {
           let val = parseInt(inp.value);
           if (val > 0) {
@@ -625,12 +822,8 @@
           }
         });
 
-        if (itemsToSave.length === 0) {
-          return alert(
-            "Tidak ada angka belanja yang diinput. Isi angka pada kotak barang yang baru saja Anda beli.",
-          );
-        }
-
+        if (itemsToSave.length === 0)
+          return alert("Belum ada angka stok masuk yang diisi.");
         if (
           !confirm(
             `Simpan ${itemsToSave.length} jenis barang ini ke gudang/inventory?`,
@@ -647,50 +840,182 @@
           { items: itemsToSave },
           "POST",
         );
-
         if (res && res.success) {
-          alert("Data belanja berhasil ditambahkan ke Gudang!");
-          // Refresh layar agar hitungan kurang/stok nya terupdate otomatis
+          alert("Stok berhasil ditambahkan!");
           tarikDataServer();
-        } else {
-          alert(
-            "Gagal menyimpan data: " + (res ? res.error : "Koneksi terputus"),
-          );
-        }
+        } else alert("Gagal menyimpan data.");
 
-        btn.innerHTML = '<i class="fas fa-save"></i> INPUT STOK MASUK';
+        btn.innerHTML = '<i class="fas fa-save"></i> SIMPAN STOK MASUK';
         btn.disabled = false;
       }
 
-      // --- LOGIKA SHARE WA ---
-      function copyToClipboard() {
-        if (listBelanjaFinal.length === 0) return alert("Daftar kosong!");
+      // ========================================================
+      // LOGIKA DISTRIBUSI (BARANG KELUAR / DROP OUT)
+      // ========================================================
+      function formatRp(angka) {
+        return new Intl.NumberFormat("id-ID", {
+          style: "currency",
+          currency: "IDR",
+          minimumFractionDigits: 0,
+        }).format(angka || 0);
+      }
 
-        let text = `🛒 *CATATAN KEKURANGAN BELANJA NIZAMI*\n\n`;
-        let countKurang = 0;
+      function bukaModalDistribusi() {
+        const sel = document.getElementById("distPeserta");
+        sel.innerHTML = '<option value="">-- Pilih Peserta --</option>';
 
-        listBelanjaFinal.forEach((b) => {
-          if (b.kurang > 0) {
-            text += `• ${b.barang} : *Kurang ${b.kurang} ${b.satuan}*\n  _(Butuh ${b.total}, Baru ada ${b.stok})_\n\n`;
-            countKurang++;
+        // Isi dropdown dengan peserta yang belum Selesai/DO
+        masterData.peserta.forEach((p) => {
+          if (!String(p.paket).includes("(Selesai/DO)")) {
+            sel.innerHTML += `<option value="${p.id}">${p.nama} (${p.id}) - ${p.paket}</option>`;
           }
         });
 
-        if (countKurang === 0)
-          text += "Semua stok barang sudah aman/lengkap! 🎉";
-        else text += `_Total ${countKurang} jenis barang yang harus dibeli._`;
+        distCart = {};
+        document.getElementById("infoSaldo").style.display = "none";
+        document.getElementById("txtTotalAmbil").innerText = "Rp 0";
+        renderDistItems();
 
-        navigator.clipboard.writeText(text).then(() => {
-          const btn = document.getElementById("btnCopy");
-          btn.innerHTML = '<i class="fas fa-check-circle"></i> TERSALIN';
-          setTimeout(
-            () => (btn.innerHTML = '<i class="fab fa-whatsapp"></i> BAGIKAN'),
-            2000,
-          );
-        });
+        document.getElementById("modalDist").style.display = "flex";
       }
 
-      // Panggil saat aplikasi dimuat pertama kali
+      function tutupModalDistribusi() {
+        document.getElementById("modalDist").style.display = "none";
+      }
+
+      function pilihPesertaDist() {
+        const id = document.getElementById("distPeserta").value;
+        if (!id) {
+          document.getElementById("infoSaldo").style.display = "none";
+          selectedPesertaSaldo = 0;
+          return;
+        }
+
+        const p = masterData.peserta.find((x) => x.id === id);
+        if (p) {
+          selectedPesertaSaldo = p.saldo_rp;
+          document.getElementById("txtSaldo").innerText =
+            formatRp(selectedPesertaSaldo);
+          document.getElementById("infoSaldo").style.display = "block";
+        }
+      }
+
+      function renderDistItems() {
+        const container = document.getElementById("distItemsContainer");
+        container.innerHTML = "";
+
+        let adaReady = false;
+
+        // Hanya tampilkan barang yang punya Sisa Gudang (Ready Stock) > 0
+        listBelanjaFinal.forEach((b) => {
+          if (b.ready > 0) {
+            adaReady = true;
+            let hrg = masterData.harga_barang[b.barang] || 0;
+            let curQty = distCart[b.barang] ? distCart[b.barang].qty : 0;
+
+            container.innerHTML += `
+                 <div class="item-dist-row">
+                    <div style="max-width:60%;">
+                        <div style="color:#fff; font-weight:bold; font-size:0.9rem;">${b.barang}</div>
+                        <div style="font-size:0.75rem; color:#aaa;">Harga: ${formatRp(hrg)}</div>
+                        <div style="font-size:0.7rem; color:#4ade80;">Max Ready: ${b.ready} ${b.satuan}</div>
+                    </div>
+                    <div class="stepper">
+                        <button onclick="updateCartDist('${b.barang}', ${hrg}, ${b.ready}, -1)">-</button>
+                        <input type="text" readonly value="${curQty}">
+                        <button onclick="updateCartDist('${b.barang}', ${hrg}, ${b.ready}, 1)">+</button>
+                    </div>
+                 </div>`;
+          }
+        });
+
+        if (!adaReady)
+          container.innerHTML =
+            "<div style='color:#aaa; text-align:center; padding:20px;'>Tidak ada stok barang di Gudang. Silakan input belanja dulu.</div>";
+      }
+
+      function updateCartDist(nmBarang, hrg, maxReady, change) {
+        if (!distCart[nmBarang]) distCart[nmBarang] = { qty: 0, harga: hrg };
+
+        let newQty = distCart[nmBarang].qty + change;
+        if (newQty < 0) newQty = 0;
+        if (newQty > maxReady) {
+          alert("Gagal! Melebihi batas Ready Stock di gudang.");
+          return;
+        }
+
+        distCart[nmBarang].qty = newQty;
+        if (distCart[nmBarang].qty === 0) delete distCart[nmBarang];
+
+        renderDistItems();
+        hitungTotalDist();
+      }
+
+      function hitungTotalDist() {
+        let total = 0;
+        for (let k in distCart) {
+          total += distCart[k].qty * distCart[k].harga;
+        }
+        document.getElementById("txtTotalAmbil").innerText = formatRp(total);
+
+        const txtTotal = document.getElementById("txtTotalAmbil");
+        if (selectedPesertaSaldo > 0 && total > selectedPesertaSaldo) {
+          txtTotal.style.color = "#ff6b81"; // Merah jika nombok
+        } else {
+          txtTotal.style.color = "#4ade80"; // Hijau jika aman
+        }
+      }
+
+      async function simpanDistribusi() {
+        const idPeserta = document.getElementById("distPeserta").value;
+        let itemsOut = [];
+        let totalRp = 0;
+
+        for (let k in distCart) {
+          itemsOut.push({ nama: k, qty: distCart[k].qty });
+          totalRp += distCart[k].qty * distCart[k].harga;
+        }
+
+        if (itemsOut.length === 0)
+          return alert("Belum ada barang yang dipilih untuk dikeluarkan.");
+        if (!idPeserta) return alert("Pilih peserta terlebih dahulu.");
+
+        if (totalRp > selectedPesertaSaldo) {
+          if (
+            !confirm(
+              `PERINGATAN: Nilai barang (Rp ${totalRp.toLocaleString()}) melebihi saldo peserta (Rp ${selectedPesertaSaldo.toLocaleString()}). Tetap lanjutkan?`,
+            )
+          )
+            return;
+        }
+
+        let msg = `Keluarkan ${itemsOut.length} jenis barang dari Gudang untuk peserta ini?\n\nOtomatis merubah status peserta menjadi Selesai/DO.`;
+        if (!confirm(msg)) return;
+
+        const btn = document.getElementById("btnSimpanDist");
+        btn.innerHTML = "Memproses...";
+        btn.disabled = true;
+
+        const payload = {
+          items: itemsOut,
+          idPeserta: idPeserta,
+          tandaiLunas: true,
+        };
+
+        const res = await fetchData("simpanDistribusi", payload, "POST");
+        if (res && res.success) {
+          alert("Barang berhasil dikeluarkan dan status peserta diupdate!");
+          tutupModalDistribusi();
+          tarikDataServer();
+        } else {
+          alert("Gagal memproses: " + (res ? res.error : ""));
+        }
+
+        btn.innerHTML = "PROSES BARANG KELUAR";
+        btn.disabled = false;
+      }
+
+      // === INIT (TOMBOL START) ===
       tarikDataServer();
     </script>
   </body>
