@@ -419,7 +419,7 @@
         <textarea
           id="waRaw"
           class="wa-textarea"
-          placeholder="Paste chat lengkap disini..."
+          placeholder="Paste chat lengkap disini (Mendukung copy-paste pesan yang terpisah)..."
         ></textarea>
         <button onclick="parseWA()" class="btn-extract">
           <i class="fas fa-magic"></i> EKSTRAK DATA SEKARANG
@@ -625,16 +625,22 @@
           }
 
           const paketSectionMatch = entry.match(
-            /(?:PESANAN BARU|PAKET DIPILIH)[\s\S]*/i,
+            /(?:PESANAN BARU|PAKET DIPILIH|PAKET YANG DIAMBIL)[\s\S]*/i,
           );
           let paketString = paketSectionMatch
             ? paketSectionMatch[0]
-                .replace(/(?:PESANAN BARU|PAKET DIPILIH):?/i, "")
+                .replace(
+                  /(?:PESANAN BARU|PAKET DIPILIH|PAKET YANG DIAMBIL):?/i,
+                  "",
+                )
                 .trim()
             : entry;
 
+          paketString = paketString.split(/\n[-_]{3,}/)[0];
+          paketString = paketString.split(/\n\s*(?:Mohon|Terima kasih)/i)[0];
+
           let rawPackages = paketString.split(
-            /(?=\n\s*[^\w\n]*\d*x?\s*Paket)/i,
+            /(?=\n\s*[-•*]*\s*(?:\d+[.x]\s*)?Paket)/i,
           );
 
           if (rawPackages.length === 1 && rawPackages[0].includes("\n-")) {
@@ -642,14 +648,14 @@
           }
 
           rawPackages.forEach((pktText) => {
-            let pClean = pktText.replace(/^[\n\s\-•📦🔸🔹\uFFFD]+/, "").trim();
-            if (!pClean || pClean.toLowerCase().startsWith("mohon diproses"))
-              return;
+            let pClean = pktText.replace(/^[\n\s\-•📦🔸🔹\uFFFD*]+/, "").trim();
+
+            if (!pClean) return;
 
             let waPktNameLine = pClean.split(/\n/)[0];
             let waPktName = waPktNameLine
-              .split(/\(|Isi:/i)[0]
-              .replace(/^\d+x\s*/i, "")
+              .split(/\(|Isi:|Rincian/i)[0]
+              .replace(/^(?:\d+[.x]\s*)/i, "")
               .replace(/\*/g, "")
               .trim();
 
@@ -659,7 +665,7 @@
             );
 
             matchedPaket = sortedPaket.find((p) =>
-              pClean.toLowerCase().includes(p.nama.toLowerCase()),
+              waPktName.toLowerCase().includes(p.nama.toLowerCase()),
             );
 
             if (!matchedPaket && waPktName.length > 3) {
@@ -728,16 +734,21 @@
         let matchCount = 0;
 
         let itemsStr = textEntry;
-        const isiMatch = textEntry.match(/(?:Rincian )?Isi:\s*([\s\S]+)/i);
+        const isiMatch = textEntry.match(
+          /(?:Rincian Isi|Rincian Barang|Isi)\s*:\s*([\s\S]+)/i,
+        );
 
         if (isiMatch) {
           itemsStr = isiMatch[1];
-          itemsStr = itemsStr.split(/mohon diproses/i)[0];
+          itemsStr = itemsStr.split(
+            /(?:Total Nilai|Target Setoran|Mohon diproses|Mohon dibantu|---)/i,
+          )[0];
         }
 
         const parts = itemsStr.split(/[\n,;]+/);
 
         parts.forEach((part) => {
+          if (!part.trim()) return;
           const lowerPart = part.toLowerCase();
 
           for (let b of masterBarang) {
@@ -746,15 +757,32 @@
             if (lowerPart.includes(bNameLower)) {
               let qty = 1;
 
-              const xMatch = part.match(/(?:x|X)\s*(\d+)/);
-              const xBeforeMatch = part.match(/(\d+)\s*(?:x|X)/);
-              const parenMatch = part.match(/\(\s*(\d+)\s*[a-zA-Z]*\s*\)/);
-              const startMatch = part.match(/^(?:-|\*|\•|\d+\.)?\s*(\d+)/);
+              // PERBAIKAN REGEX:
+              // 1. Mengutamakan angka di paling depan (seperti "- 1x ...")
+              const matchStartX = part.match(
+                /^\s*(?:[-*•]|\d+\.)?\s*(\d+)\s*[xX]/i,
+              );
+              // 2. Mengutamakan angka di ujung kalimat (seperti "... x 2")
+              const matchEndX = part.match(/[xX]\s*(\d+)\s*$/i);
+              // 3. Hanya angka di depan (seperti "- 2 ...")
+              const matchStartNum = part.match(
+                /^\s*(?:[-*•]|\d+\.)?\s*(\d+)\s+/,
+              );
+              // 4. Angka di dalam kurung di ujung kalimat (seperti "... (2)")
+              const matchParenEnd = part.match(/\(\s*(\d+)\s*\)\s*$/);
 
-              if (xMatch) qty = parseInt(xMatch[1]);
-              else if (xBeforeMatch) qty = parseInt(xBeforeMatch[1]);
-              else if (parenMatch) qty = parseInt(parenMatch[1]);
-              else if (startMatch) qty = parseInt(startMatch[1]);
+              if (matchStartX) qty = parseInt(matchStartX[1]);
+              else if (matchEndX) qty = parseInt(matchEndX[1]);
+              else if (matchStartNum) qty = parseInt(matchStartNum[1]);
+              else if (matchParenEnd) qty = parseInt(matchParenEnd[1]);
+              else {
+                // Fallback: hapus semua text dalam kurung, baru cari "xAngka"
+                let cleanPart = part.replace(/\([^)]+\)/g, "");
+                const fallbackX = cleanPart.match(
+                  /(?:\s|^)[xX]\s*(\d+)(?:\s|$)/i,
+                );
+                if (fallbackX) qty = parseInt(fallbackX[1]);
+              }
 
               if (currentRowData.items[b.nama]) {
                 currentRowData.items[b.nama] += qty;
@@ -967,7 +995,7 @@
 
         if (mode === "mingguan") renderCategories();
         else if (mode === "cookies") renderItems("Cookies");
-        else renderCategories(); // Buka semua kategori untuk request custom
+        else renderCategories();
 
         updateModalTotal();
       }
@@ -1125,7 +1153,6 @@
           }
 
           let setoranText = "";
-          // PENYESUAIAN STRUK: Cetak setoran sesuai jenis paketnya
           if (paket.toLowerCase().includes("mingguan")) {
             if (harga > 0)
               setoranText = formatRupiah(Math.ceil(harga / 40)) + " /minggu";
@@ -1133,7 +1160,6 @@
             if (harga > 0)
               setoranText = formatRupiah(Math.ceil(harga / 330)) + " /hari";
           } else {
-            // Untuk paket MOM dkk, ekstrak angkanya saja
             let ext = paket.replace(/\./g, "").match(/\d+/);
             if (ext) setoranText = formatRupiah(Number(ext[0])) + " /hari";
           }
