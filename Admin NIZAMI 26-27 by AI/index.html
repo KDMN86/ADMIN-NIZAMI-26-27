@@ -29,6 +29,9 @@
         margin: 0;
         padding-bottom: 60px;
       }
+      * {
+        box-sizing: border-box;
+      }
 
       header {
         padding: 20px 20px 10px 20px;
@@ -118,10 +121,11 @@
         padding: 0 20px;
         margin: 25px 0 15px 0;
         font-size: 0.9rem;
-        color: #888;
+        color: #aaa;
         text-transform: uppercase;
         letter-spacing: 1px;
       }
+
       .menu-container {
         padding: 0 20px;
       }
@@ -161,30 +165,125 @@
         text-align: center;
         line-height: 1.2;
       }
+      .menu-item.active .menu-box {
+        border-color: var(--primary);
+      }
+      .menu-item.active span {
+        color: var(--primary);
+      }
 
+      /* AREA FILTER MULTI-SELECT KHUSUS */
       .paket-container {
         padding: 10px 20px;
         margin-top: 10px;
       }
+      .filter-group {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        margin-bottom: 15px;
+      }
+
+      .filter-select-normal {
+        background: #1a1a1a;
+        color: var(--primary);
+        border: 1px dashed #444;
+        padding: 12px;
+        border-radius: 10px;
+        font-size: 0.85rem;
+        outline: none;
+        cursor: pointer;
+        font-weight: bold;
+        width: 100%;
+        appearance: none;
+        background-image: url('data:image/svg+xml;utf8,<svg fill="%23ffd700" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M7 10l5 5 5-5z"/></svg>');
+        background-repeat: no-repeat;
+        background-position: right 10px center;
+      }
+
+      .grid-2 {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+      }
+
+      .cs-wrap {
+        position: relative;
+        width: 100%;
+      }
+      .cs-header {
+        background: #1a1a1a;
+        border: 1px dashed #444;
+        padding: 12px 10px;
+        border-radius: 10px;
+        font-size: 0.8rem;
+        color: #fff;
+        font-weight: bold;
+        cursor: pointer;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        user-select: none;
+      }
+      .cs-header.has-val {
+        color: var(--primary);
+        border-color: var(--primary);
+      }
+
+      .cs-list {
+        display: none;
+        position: absolute;
+        top: 105%;
+        left: 0;
+        width: 100%;
+        background: #111;
+        border: 1px solid #444;
+        border-radius: 10px;
+        z-index: 60;
+        max-height: 250px;
+        overflow-y: auto;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.8);
+        padding: 10px;
+        flex-direction: column;
+        gap: 10px;
+      }
+      .cs-list.show {
+        display: flex;
+      }
+      .cs-list label {
+        font-size: 0.85rem;
+        color: #ddd;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        cursor: pointer;
+        padding: 4px 0;
+      }
+      .cs-list input[type="checkbox"] {
+        width: 16px;
+        height: 16px;
+        accent-color: var(--primary);
+        cursor: pointer;
+      }
+
       .paket-list {
         display: flex;
         flex-direction: column;
         gap: 10px;
       }
-
-      /* PAKET ITEM DIBUAT CLICKABLE */
       .paket-item {
         background: var(--surface);
         border: 1px solid #333;
-        padding: 12px 15px;
+        padding: 15px;
         border-radius: 12px;
         display: flex;
         justify-content: space-between;
         align-items: center;
         color: #fff;
-        font-size: 0.9rem;
+        font-size: 0.95rem;
         cursor: pointer;
         transition: 0.2s;
+        font-weight: 600;
       }
       .paket-item:active {
         transform: scale(0.98);
@@ -279,16 +378,36 @@
         border-radius: 4px;
         border: 1px solid #333;
       }
-      .detail-mitra {
-        text-align: right;
-        font-size: 0.75rem;
-        color: var(--primary);
-        display: flex;
-        flex-direction: column;
-        align-items: flex-end;
+      .badge-freq {
+        font-size: 0.7rem;
+        background: rgba(74, 222, 128, 0.1);
+        color: #4ade80;
+        padding: 3px 6px;
+        border-radius: 4px;
+        border: 1px solid rgba(74, 222, 128, 0.3);
       }
-      .detail-mitra i {
-        margin-bottom: 3px;
+      .badge-mitra {
+        font-size: 0.7rem;
+        background: #222;
+        color: #ffd700;
+        padding: 3px 6px;
+        border-radius: 4px;
+        border: 1px solid #444;
+      }
+      .btn-delete {
+        background: rgba(255, 82, 82, 0.1);
+        border: 1px solid rgba(255, 82, 82, 0.3);
+        color: #ff5252;
+        cursor: pointer;
+        font-size: 1.1rem;
+        padding: 8px 12px;
+        border-radius: 8px;
+        transition: 0.2s;
+        margin-left: 10px;
+      }
+      .btn-delete:active {
+        background: #ff5252;
+        color: #fff;
       }
 
       .skeleton {
@@ -296,6 +415,7 @@
         height: 45px;
         border-radius: 12px;
         animation: pulse 1.5s infinite;
+        margin-bottom: 10px;
       }
       @keyframes pulse {
         0% {
@@ -367,9 +487,8 @@
           ><div class="menu-box"><i class="fas fa-handshake"></i></div>
           <span>Mitra</span></a
         >
-
-        <a href="transaksi.html" class="menu-item">
-          <div
+        <a href="transaksi.html" class="menu-item"
+          ><div
             class="menu-box"
             style="background: #25251a; border-color: var(--primary)"
           >
@@ -377,23 +496,64 @@
           </div>
           <span style="color: var(--primary); font-weight: bold"
             >Transaksi</span
-          >
-        </a>
+          ></a
+        >
       </div>
     </div>
 
     <div class="paket-container">
-      <div class="section-title" style="padding: 0; margin-top: 10px">
-        Statistik Peserta (Klik detail)
+      <div
+        class="section-title"
+        style="padding: 0; margin-top: 10px; display: block"
+      >
+        <div style="margin-bottom: 8px">STATISTIK & FILTER PESERTA</div>
+
+        <div class="filter-group">
+          <select
+            id="filterSetoran"
+            class="filter-select-normal"
+            onchange="renderPaketList()"
+          >
+            <option value="ALL">🎯 Semua Jumlah Setoran</option>
+            <option value="0-50">0 - 50x Setor</option>
+            <option value="51-100">51 - 100x Setor</option>
+            <option value="101-150">101 - 150x Setor</option>
+            <option value="151-200">151 - 200x Setor</option>
+            <option value="201-9999">> 200x Setor</option>
+          </select>
+
+          <div class="grid-2">
+            <div class="cs-wrap" id="wrapMitra">
+              <div
+                class="cs-header"
+                id="headMitra"
+                onclick="toggleDrop('listMitra')"
+              >
+                Mitra: Semua <i class="fas fa-caret-down"></i>
+              </div>
+              <div class="cs-list" id="listMitra"></div>
+            </div>
+            <div class="cs-wrap" id="wrapPaket">
+              <div
+                class="cs-header"
+                id="headPaket"
+                onclick="toggleDrop('listPaket')"
+              >
+                Paket: Semua <i class="fas fa-caret-down"></i>
+              </div>
+              <div class="cs-list" id="listPaket"></div>
+            </div>
+          </div>
+        </div>
       </div>
+
       <div class="paket-list" id="paketList">
-        <div class="skeleton"></div>
         <div class="skeleton"></div>
         <div class="skeleton"></div>
       </div>
     </div>
 
-    <div id="modalDetail">
+    <div id="modalDetail" class="modal">
       <div class="modal-content">
         <div class="modal-header">
           <h3 id="modalTitle">Detail Peserta</h3>
@@ -405,7 +565,8 @@
 
     <script src="script.js"></script>
     <script>
-      let globalPaketData = {}; // Menyimpan data peserta secara global
+      let rawPaketData = {};
+      let globalPaketData = {};
 
       const setGreeting = () => {
         const hour = new Date().getHours();
@@ -432,40 +593,165 @@
             document.getElementById("dashLunas").innerText =
               data.lunasBarang || 0;
 
-            // Simpan data paket untuk dipakai saat diklik
-            globalPaketData = data.paketBreakdown || {};
+            rawPaketData = data.paketBreakdown || {};
 
-            pktList.innerHTML = "";
-            if (Object.keys(globalPaketData).length > 0) {
-              let htmlPkt = "";
-              const sortedPaket = Object.keys(globalPaketData).sort();
+            // Build Checkbox Filters dynamically
+            populateFilters();
 
-              sortedPaket.forEach((pkt) => {
-                // Berikan fungsi onClick pada setiap kartu
-                htmlPkt += `
-                <div class="paket-item" onclick="bukaModal('${pkt}')">
-                  <span>${pkt}</span>
-                  <b>${globalPaketData[pkt].length} Orang <i class="fas fa-chevron-right"></i></b>
-                </div>`;
-              });
-              pktList.innerHTML = htmlPkt;
-            } else {
-              pktList.innerHTML =
-                '<div style="text-align:center; padding:20px; color:#555;">Belum ada data peserta.</div>';
-            }
+            // Execute render list
+            renderPaketList();
           }
         } catch (error) {
           dashUang.innerText = "Rp 0";
           document.getElementById("dashPeserta").innerText = "0";
           document.getElementById("dashLunas").innerText = "0";
           pktList.innerHTML =
-            '<div style="text-align:center; padding:20px; color:#ff4444;">Gagal memuat data.</div>';
+            '<div style="text-align:center; padding:20px; color:#ff4444;">Gagal memuat data. Pastikan Deploy Versi Baru!</div>';
         } finally {
           dashUang.style.opacity = "1";
         }
       }
 
-      // FUNGSI UNTUK MEMBUKA MODAL & MERENDER LIST (DIPERBARUI DENGAN TOMBOL HAPUS)
+      // ===============================================
+      // FUNGSI MULTI-SELECT DROPDOWN
+      // ===============================================
+      function toggleDrop(idList) {
+        // Tutup semua dulu
+        const allLists = document.querySelectorAll(".cs-list");
+        allLists.forEach((l) => {
+          if (l.id !== idList) l.classList.remove("show");
+        });
+        // Buka yang di klik
+        document.getElementById(idList).classList.toggle("show");
+      }
+
+      // Tutup dropdown jika klik di luar area
+      document.addEventListener("click", function (e) {
+        if (!e.target.closest(".cs-wrap")) {
+          document
+            .querySelectorAll(".cs-list")
+            .forEach((l) => l.classList.remove("show"));
+        }
+      });
+
+      function populateFilters() {
+        const mitraSet = new Set();
+        const paketSet = new Set();
+
+        for (let pkt in rawPaketData) {
+          paketSet.add(pkt);
+          rawPaketData[pkt].forEach((p) => {
+            let m = (p.mitra || "Pusat").trim();
+            if (
+              m.toLowerCase() === "pusat" ||
+              m.toLowerCase() === "pusat (langsung)"
+            )
+              m = "Pusat";
+            p.mitra = m;
+            mitraSet.add(m);
+          });
+        }
+
+        // Inject Mitra
+        const boxMitra = document.getElementById("listMitra");
+        boxMitra.innerHTML = "";
+        Array.from(mitraSet)
+          .sort()
+          .forEach((m) => {
+            boxMitra.innerHTML += `<label><input type="checkbox" class="chk-mitra" value="${m}" onchange="renderPaketList()"> ${m}</label>`;
+          });
+
+        // Inject Paket
+        const boxPaket = document.getElementById("listPaket");
+        boxPaket.innerHTML = "";
+        Array.from(paketSet)
+          .sort()
+          .forEach((p) => {
+            boxPaket.innerHTML += `<label><input type="checkbox" class="chk-paket" value="${p}" onchange="renderPaketList()"> ${p}</label>`;
+          });
+      }
+
+      // ===============================================
+      // FUNGSI RENDER LIST (DENGAN FILTER GABUNGAN)
+      // ===============================================
+      function renderPaketList() {
+        const valSetoran = document.getElementById("filterSetoran").value;
+
+        // Ambil semua centangan yang dipilih
+        const arrMitra = Array.from(
+          document.querySelectorAll(".chk-mitra:checked"),
+        ).map((el) => el.value);
+        const arrPaket = Array.from(
+          document.querySelectorAll(".chk-paket:checked"),
+        ).map((el) => el.value);
+
+        // Update Teks Judul Dropdown
+        const headMitra = document.getElementById("headMitra");
+        const headPaket = document.getElementById("headPaket");
+
+        if (arrMitra.length > 0) {
+          headMitra.innerHTML = `Mitra (${arrMitra.length}) <i class="fas fa-caret-down"></i>`;
+          headMitra.classList.add("has-val");
+        } else {
+          headMitra.innerHTML = `Mitra: Semua <i class="fas fa-caret-down"></i>`;
+          headMitra.classList.remove("has-val");
+        }
+
+        if (arrPaket.length > 0) {
+          headPaket.innerHTML = `Paket (${arrPaket.length}) <i class="fas fa-caret-down"></i>`;
+          headPaket.classList.add("has-val");
+        } else {
+          headPaket.innerHTML = `Paket: Semua <i class="fas fa-caret-down"></i>`;
+          headPaket.classList.remove("has-val");
+        }
+
+        // Tentukan Range Setoran
+        let min = 0,
+          max = 99999;
+        if (valSetoran !== "ALL") {
+          let parts = valSetoran.split("-");
+          min = parseInt(parts[0]);
+          max = parseInt(parts[1]);
+        }
+
+        globalPaketData = {};
+        const container = document.getElementById("paketList");
+        container.innerHTML = "";
+
+        let hasData = false;
+
+        // Loop dan saring
+        for (let pkt in rawPaketData) {
+          // Jika Filter Paket diisi, dan paket ini tidak ada di daftar centangan, SKIP!
+          if (arrPaket.length > 0 && !arrPaket.includes(pkt)) continue;
+
+          let filteredPeserta = rawPaketData[pkt].filter((p) => {
+            let freqOk = (p.freq || 0) >= min && (p.freq || 0) <= max;
+            // Jika Mitra Kosong = Anggap Centang Semua
+            let mitraOk = arrMitra.length === 0 || arrMitra.includes(p.mitra);
+
+            return freqOk && mitraOk;
+          });
+
+          if (filteredPeserta.length > 0) {
+            hasData = true;
+            globalPaketData[pkt] = filteredPeserta;
+
+            container.innerHTML += `
+              <div class="paket-item" onclick="bukaModal('${pkt}')">
+                <span>${pkt}</span>
+                <b>${filteredPeserta.length} Orang <i class="fas fa-chevron-right"></i></b>
+              </div>
+            `;
+          }
+        }
+
+        if (!hasData) {
+          container.innerHTML =
+            "<div style='color:#888; text-align:center; padding:30px; border:1px dashed #333; border-radius:12px;'>Tidak ada peserta yang cocok dengan kriteria filter tersebut.</div>";
+        }
+      }
+
       function bukaModal(paketName) {
         document.getElementById("modalTitle").innerText = paketName;
         const body = document.getElementById("modalBody");
@@ -475,7 +761,6 @@
 
         if (listPeserta && listPeserta.length > 0) {
           listPeserta.forEach((p, index) => {
-            // Kita tambahkan id unik pada baris item untuk animasi loading dan tombol hapus
             body.innerHTML += `
             <div class="detail-item" id="peserta-${p.id}">
               <div class="detail-info">
@@ -483,14 +768,13 @@
                 <span><i class="far fa-id-badge"></i> ${p.id}</span>
               </div>
               
-              <div style="display:flex; align-items:center; gap:15px;">
-                  <div class="detail-mitra" style="text-align:right;">
-                    <i class="fas fa-handshake"></i>
-                    <span>${p.mitra}</span>
+              <div style="display:flex; align-items:center;">
+                  <div style="display:flex; flex-direction:column; align-items:flex-end; gap:5px;">
+                    <span class="badge-freq"><i class="fas fa-coins"></i> ${p.freq || 0}x Setor</span>
+                    <span class="badge-mitra"><i class="fas fa-handshake"></i> ${p.mitra}</span>
                   </div>
                   
-                  <button onclick="hapusPeserta('${p.id}', '${p.nama}')" 
-                          style="background:rgba(255, 82, 82, 0.1); border:1px solid rgba(255, 82, 82, 0.3); color:#ff5252; cursor:pointer; font-size:1.1rem; padding:8px 12px; border-radius:8px; transition:0.2s;">
+                  <button onclick="hapusPeserta('${p.id}', '${p.nama}')" class="btn-delete" title="Hapus Peserta">
                       <i class="fas fa-trash-alt"></i>
                   </button>
               </div>
@@ -504,12 +788,10 @@
         document.getElementById("modalDetail").style.display = "flex";
       }
 
-      // FUNGSI MENUTUP MODAL
       function tutupModal() {
         document.getElementById("modalDetail").style.display = "none";
       }
 
-      // FUNGSI HAPUS PESERTA DARI DASHBOARD
       async function hapusPeserta(id, nama) {
         const konfirmasi = confirm(
           `⚠️ PERINGATAN KERAS!\n\nYakin ingin menghapus peserta:\nNama: ${nama}\nID: ${id} \n\nData peserta dan rincian belanjaannya akan hilang secara permanen!`,
@@ -517,20 +799,18 @@
 
         if (!konfirmasi) return;
 
-        // Animasi loading pada tombol
         const btn = document.querySelector(`#peserta-${id} button`);
         if (btn) {
           btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
           btn.disabled = true;
         }
 
-        // Kirim perintah hapus ke server menggunakan POST bawaan script.js
         const res = await fetchData("hapusPeserta", { id: id }, "POST");
 
         if (res && res.success) {
           alert(`✅ Peserta ${nama} berhasil dihapus dari sistem!`);
           tutupModal();
-          loadDashboard(); // Refresh statistik dashboard secara otomatis
+          loadDashboard();
         } else {
           alert("Gagal menghapus: " + (res ? res.error : "Koneksi terputus"));
           if (btn) {
@@ -540,13 +820,18 @@
         }
       }
 
-      // Tutup modal jika user klik di area luar kotak
       window.onclick = function (event) {
         const modal = document.getElementById("modalDetail");
         if (event.target == modal) {
           modal.style.display = "none";
         }
       };
+
+      function logout() {
+        if (confirm("Keluar dari panel Admin?")) {
+          window.location.href = "login.html";
+        }
+      }
 
       document.addEventListener("DOMContentLoaded", () => {
         setGreeting();
