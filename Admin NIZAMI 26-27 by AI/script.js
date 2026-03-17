@@ -4,7 +4,7 @@
 
 // ⚠️ PASTIIN URL INI BENAR ⚠️
 const API_URL =
-  "https://script.google.com/macros/s/AKfycbyqaLWzgnGhFiPXnJfwJqzYR5R4jc-NqYKzJGzokJjQ3UEz4--y7xAlyqxA-nv6KCLuDg/exec";
+  "https://script.google.com/macros/s/AKfycbwPdeSNTsEWQ7ogMDqsAoDg7eeGNIYmeA2xiUKYKvox7o7f5b6nyUspYjglA3bLzMrCIQ/exec";
 
 // 1. Format Rupiah
 const formatRupiah = (angka) => {
