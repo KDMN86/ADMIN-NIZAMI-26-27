@@ -67,7 +67,7 @@
         margin: 0 auto;
       }
 
-      /* WA & Form Styles */
+      /* WA BOX */
       .wa-box {
         background: linear-gradient(135deg, #075e54, #128c7e);
         border-radius: 12px;
@@ -109,12 +109,13 @@
         background: #1da851;
       }
 
+      /* PARTICIPANT CARD (DESAIN BARU) */
       .p-card {
         background: var(--surface);
         border: 1px solid var(--border);
         border-radius: 12px;
-        padding: 15px;
-        margin-bottom: 15px;
+        padding: 20px 15px;
+        margin-bottom: 20px;
         position: relative;
         animation: slideIn 0.3s ease;
         transition: border 0.3s ease;
@@ -122,23 +123,30 @@
       .p-card-header {
         display: flex;
         justify-content: space-between;
-        margin-bottom: 10px;
-        border-bottom: 1px dashed #333;
-        padding-bottom: 8px;
+        margin-bottom: 15px;
+        border-bottom: 1px solid #333;
+        padding-bottom: 15px;
       }
       .card-num {
         background: var(--primary);
         color: #000;
         font-weight: bold;
-        padding: 2px 8px;
-        border-radius: 4px;
-        font-size: 0.8rem;
+        padding: 4px 10px;
+        border-radius: 6px;
+        font-size: 0.85rem;
       }
-      .btn-del {
-        background: transparent;
-        border: none;
+      .btn-del-peserta {
+        background: rgba(255, 77, 77, 0.1);
+        border: 1px solid rgba(255, 77, 77, 0.3);
         color: #ff4d4d;
         cursor: pointer;
+        padding: 4px 10px;
+        border-radius: 6px;
+        font-size: 0.85rem;
+        font-weight: bold;
+        display: flex;
+        align-items: center;
+        gap: 6px;
       }
 
       .form-grid {
@@ -147,7 +155,7 @@
         gap: 10px;
       }
       .form-group {
-        margin-bottom: 10px;
+        margin-bottom: 12px;
       }
       .form-input {
         width: 100%;
@@ -158,8 +166,7 @@
         border-radius: 8px;
         box-sizing: border-box;
         outline: none;
-        font-size: 1rem;
-        color-scheme: dark;
+        font-size: 0.95rem;
       }
       .form-input:focus {
         border-color: var(--primary);
@@ -170,36 +177,117 @@
         }
       }
 
+      /* NESTED PAKET ROW (DESAIN BARU YANG LEBIH RAPI) */
+      .paket-section-title {
+        font-size: 0.85rem;
+        color: #aaa;
+        font-weight: bold;
+        margin: 20px 0 10px 0;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        border-top: 1px dashed #444;
+        padding-top: 15px;
+      }
+      .paket-wrap {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+      }
+      .paket-row {
+        background: #151515;
+        border: 1px solid #333;
+        border-left: 4px solid var(--primary);
+        padding: 15px;
+        border-radius: 10px;
+        position: relative;
+      }
+      .paket-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 12px;
+      }
+      .paket-title {
+        font-size: 0.8rem;
+        color: #888;
+        font-weight: bold;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+      }
+      .btn-del-paket {
+        background: rgba(255, 77, 77, 0.1);
+        color: #ff4d4d;
+        border: none;
+        padding: 5px 10px;
+        border-radius: 6px;
+        font-size: 0.75rem;
+        cursor: pointer;
+        font-weight: bold;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+      }
+
       .btn-item-select {
         width: 100%;
-        background: #2a2a2a;
-        border: 1px dashed var(--primary);
+        background: #111;
+        border: 1px solid #444;
         color: var(--primary);
         padding: 12px;
         border-radius: 8px;
         cursor: pointer;
-        font-size: 0.9rem;
-        margin-top: 5px;
+        font-size: 0.85rem;
+        margin-top: 10px;
         font-weight: bold;
         display: flex;
         justify-content: center;
         gap: 8px;
         align-items: center;
+        transition: 0.2s;
+      }
+
+      .summary-box {
+        background: #111;
+        border: 1px solid #2a2a2a;
+        padding: 12px;
+        border-radius: 8px;
+        margin-top: 10px;
+        display: none;
       }
       .summary-text {
         font-size: 0.75rem;
-        color: #aaa;
-        margin-top: 5px;
+        color: #ccc;
         display: block;
-        line-height: 1.4;
+        line-height: 1.5;
         white-space: pre-line;
+      }
+
+      .btn-add-paket {
+        width: 100%;
+        background: #1a1a1a;
+        color: var(--primary);
+        border: 1px dashed #555;
+        padding: 12px;
+        border-radius: 8px;
+        cursor: pointer;
+        font-size: 0.85rem;
+        font-weight: bold;
+        margin-top: 15px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+      }
+      .btn-add-paket:active {
+        background: #222;
       }
 
       .fab-add {
         width: 100%;
-        background: #333;
+        background: #222;
         color: #fff;
-        border: 1px dashed #666;
+        border: 1px solid #444;
         padding: 15px;
         border-radius: 12px;
         cursor: pointer;
@@ -209,6 +297,7 @@
         justify-content: center;
         gap: 10px;
         align-items: center;
+        font-weight: bold;
       }
       .bottom-bar {
         position: fixed;
@@ -227,15 +316,16 @@
         background: var(--primary);
         color: #000;
         border: none;
-        padding: 12px;
+        padding: 14px;
         border-radius: 8px;
         font-weight: bold;
         cursor: pointer;
         font-size: 1rem;
       }
 
-      /* MODAL STYLES */
-      #modalResult {
+      /* MODAL STYLES (ACCORDION, SEARCH & KERANJANG MINI) */
+      #modalResult,
+      #modalItems {
         display: none;
         position: fixed;
         inset: 0;
@@ -246,8 +336,11 @@
         justify-content: center;
         padding: 20px;
         box-sizing: border-box;
+      }
+      #modalResult {
         text-align: center;
       }
+
       .item-card {
         background: var(--surface);
         width: 100%;
@@ -258,6 +351,7 @@
         border: 1px solid var(--border);
         display: flex;
         flex-direction: column;
+        overflow: hidden;
       }
       .item-header {
         padding: 15px;
@@ -265,36 +359,84 @@
         display: flex;
         justify-content: space-between;
         align-items: center;
+        background: #151515;
       }
-      .item-body {
-        padding: 10px;
+      .item-body-wrap {
+        padding: 15px;
+        display: flex;
+        flex-direction: column;
+        flex-grow: 1;
+        overflow: hidden;
+      }
+      .modal-search-box {
+        width: 100%;
+        padding: 12px 15px;
+        background: #111;
+        border: 1px dashed #444;
+        color: white;
+        border-radius: 8px;
+        outline: none;
+        margin-bottom: 15px;
+        font-size: 0.95rem;
+        flex-shrink: 0;
+      }
+      .modal-search-box:focus {
+        border-color: var(--primary);
+      }
+      .item-body-scroll {
         overflow-y: auto;
         flex-grow: 1;
+        padding-right: 5px;
       }
 
-      .cat-grid {
-        display: grid;
-        grid-template-columns: repeat(2, 1fr);
-        gap: 10px;
+      /* ACCORDION CATEGORY */
+      .category-section {
+        margin-bottom: 10px;
       }
-      .cat-btn {
-        background: #252525;
-        color: #fff;
-        border: 1px solid #444;
-        padding: 20px;
-        border-radius: 12px;
+      .category-header {
+        padding: 12px 15px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        background: #151515;
+        border: 1px solid #333;
+        border-left: 4px solid var(--primary);
+        cursor: pointer;
+        border-radius: 10px;
+        transition: 0.3s;
+      }
+      .category-header.active {
+        border-bottom-left-radius: 0;
+        border-bottom-right-radius: 0;
+        background: #1a1a1a;
+        border-bottom: 1px dashed #444;
+      }
+      .cat-title {
+        font-size: 0.9rem;
         font-weight: bold;
-        cursor: pointer;
-        text-align: center;
-      }
-      .cat-back {
-        margin-bottom: 15px;
-        background: #333;
         color: #fff;
-        border: none;
-        padding: 8px 15px;
-        border-radius: 20px;
-        cursor: pointer;
+      }
+      .cat-icon {
+        transition: transform 0.3s;
+        color: #888;
+      }
+      .category-header.active .cat-icon {
+        transform: rotate(180deg);
+        color: var(--primary);
+      }
+
+      .category-body {
+        display: none;
+        padding: 10px;
+        background: #0a0a0a;
+        border: 1px solid #222;
+        border-top: none;
+        border-bottom-left-radius: 10px;
+        border-bottom-right-radius: 10px;
+      }
+      .category-body.show {
+        display: block;
+        animation: slideDown 0.3s ease;
       }
 
       .item-row {
@@ -303,6 +445,9 @@
         align-items: center;
         padding: 12px 5px;
         border-bottom: 1px solid #2a2a2a;
+      }
+      .item-row:last-child {
+        border-bottom: none;
       }
       .qty-control {
         display: flex;
@@ -326,6 +471,62 @@
         background: transparent;
         border: none;
         color: #fff;
+      }
+
+      /* MINI CART */
+      .modal-cart-box {
+        background: #111;
+        border: 1px solid #333;
+        border-radius: 10px;
+        margin-bottom: 15px;
+        max-height: 160px;
+        overflow-y: auto;
+        display: none;
+      }
+      .modal-cart-title {
+        font-size: 0.75rem;
+        color: #888;
+        padding: 8px 12px;
+        border-bottom: 1px dashed #333;
+        position: sticky;
+        top: 0;
+        background: #111;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        display: flex;
+        justify-content: space-between;
+      }
+      .modal-cart-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 8px 12px;
+        border-bottom: 1px solid #222;
+        font-size: 0.85rem;
+      }
+      .modal-cart-item:last-child {
+        border-bottom: none;
+      }
+      .mc-name {
+        color: #ddd;
+        flex: 1;
+        padding-right: 10px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      .mc-qty {
+        color: var(--primary);
+        font-weight: bold;
+        margin-right: 8px;
+        width: 25px;
+      }
+      .mc-price {
+        color: #4ade80;
+        text-align: right;
+        font-weight: 600;
+        white-space: nowrap;
+        font-size: 0.8rem;
       }
 
       /* STRUK */
@@ -381,7 +582,6 @@
         margin-top: 2px;
         display: block;
       }
-
       #resImg {
         max-width: 100%;
         max-height: 55vh;
@@ -390,10 +590,21 @@
         border-radius: 8px;
         margin: 15px 0;
       }
+
       @keyframes slideIn {
         from {
           opacity: 0;
           transform: translateY(20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+      @keyframes slideDown {
+        from {
+          opacity: 0;
+          transform: translateY(-10px);
         }
         to {
           opacity: 1;
@@ -419,7 +630,7 @@
         <textarea
           id="waRaw"
           class="wa-textarea"
-          placeholder="Paste chat lengkap disini (Mendukung copy-paste pesan yang terpisah)..."
+          placeholder="Paste chat lengkap disini (Sistem akan otomatis mendeteksi banyak paket)..."
         ></textarea>
         <button onclick="parseWA()" class="btn-extract">
           <i class="fas fa-magic"></i> EKSTRAK DATA SEKARANG
@@ -435,8 +646,8 @@
 
       <div id="formsContainer"></div>
 
-      <button class="fab-add" onclick="addParticipantRow()">
-        <i class="fas fa-plus"></i> Tambah Peserta Lain
+      <button class="fab-add" onclick="addParticipantCard()">
+        <i class="fas fa-user-plus"></i> Tambah Orang Baru
       </button>
     </div>
 
@@ -464,13 +675,40 @@
             &times;
           </button>
         </div>
-        <div class="item-body" id="itemBody"></div>
+
+        <div class="item-body-wrap">
+          <input
+            type="text"
+            id="modalSearch"
+            class="modal-search-box"
+            placeholder="🔍 Cari nama barang/kue..."
+            onkeyup="renderAccordionItems(this.value)"
+          />
+          <div class="item-body-scroll" id="itemBody"></div>
+        </div>
+
         <div
-          style="padding: 15px; background: #1a1a1a; border-top: 1px solid #333"
+          style="
+            padding: 15px;
+            background: #151515;
+            border-top: 1px solid #333;
+            display: flex;
+            flex-direction: column;
+          "
         >
+          <div id="modalSelectedItems" class="modal-cart-box">
+            <div class="modal-cart-title">
+              <span>Daftar Terpilih</span>
+              <span id="txtTotalCartItems" style="color: var(--primary)"
+                >0 Item</span
+              >
+            </div>
+            <div id="modalCartList"></div>
+          </div>
+
           <div
             style="
-              display: flex;
+              display: none;
               justify-content: space-between;
               color: #aaa;
               font-size: 0.8rem;
@@ -479,23 +717,30 @@
             <span>Total Belanja:</span>
             <span id="txtTotalReal" style="color: #fff">Rp 0</span>
           </div>
+
           <div
             style="
               display: flex;
               justify-content: space-between;
-              margin: 5px 0 15px;
+              margin: 0 0 15px 0;
               font-weight: bold;
-              font-size: 1.1rem;
+              align-items: center;
             "
           >
-            <span id="lblTarget">Status Setoran:</span>
+            <span id="lblTarget" style="font-size: 0.85rem; color: #aaa"
+              >Status Setoran:</span
+            >
             <span
               id="txtTarget"
-              style="color: var(--primary); font-size: 0.9rem"
+              style="color: var(--primary); font-size: 1.1rem"
               >Mengikuti Paket Dasar</span
             >
           </div>
-          <button onclick="confirmSelection()" class="btn-save-all">
+          <button
+            onclick="confirmSelection()"
+            class="btn-save-all"
+            style="width: 100%"
+          >
             SELESAI PILIH
           </button>
         </div>
@@ -549,7 +794,9 @@
 
     <script src="script.js"></script>
     <script>
-      let formCount = 0;
+      let pCardCount = 0;
+      let pItemCount = 0;
+
       let masterMitra = [],
         masterPaket = [],
         masterBarang = [];
@@ -570,7 +817,8 @@
           masterPaket = Array.isArray(paket) ? paket : [];
           masterBarang = Array.isArray(barang) ? barang : [];
           loading.style.display = "none";
-          if (formCount === 0) addParticipantRow();
+
+          if (pCardCount === 0) addParticipantCard();
           else refreshDropdowns();
         } catch (e) {
           if (retryCount < 3) {
@@ -580,6 +828,134 @@
             loading.innerHTML = `<span style="color:#ff6b6b">Gagal memuat data.</span> <button onclick="init()" style="background:#333; color:#fff; border:1px solid #fff; padding:5px 10px; border-radius:5px; margin-left:10px;">Coba Manual</button>`;
           }
         }
+      }
+
+      function addParticipantCard() {
+        pCardCount++;
+        const cardId = pCardCount;
+
+        const html = `
+            <div class="p-card" id="peserta_${cardId}">
+                <div class="p-card-header">
+                    <span class="card-num">Data Peserta #${cardId}</span>
+                    <button class="btn-del-peserta" onclick="removeParticipantCard(${cardId})"><i class="fas fa-trash"></i> Hapus Peserta</button>
+                </div>
+                
+                <div class="form-group"><input type="text" class="form-input inp-nama" placeholder="Nama Lengkap Peserta"></div>
+                <div class="form-grid">
+                    <input type="number" class="form-input inp-hp" placeholder="No HP/WA">
+                    <input type="text" class="form-input inp-alamat" placeholder="Alamat / Wilayah">
+                </div>
+                
+                <div class="form-group" style="margin-top:10px;">
+                    <select class="form-input inp-mitra">${generateMitraOptions()}</select>
+                </div>
+                
+                <div class="paket-section-title"><i class="fas fa-box-open"></i> Daftar Paket yang Diambil</div>
+                <div class="paket-wrap" id="paketWrap_${cardId}"></div>
+                
+                <button class="btn-add-paket" onclick="addPaketRow(${cardId})">
+                    <i class="fas fa-plus-circle"></i> Tambah Paket Lain Untuk Peserta Ini
+                </button>
+            </div>`;
+
+        document
+          .getElementById("formsContainer")
+          .insertAdjacentHTML("beforeend", html);
+
+        if (cardId > 1) {
+          const prev = document.getElementById(`peserta_${cardId - 1}`);
+          if (prev) {
+            const prevMitra = prev.querySelector(".inp-mitra").value;
+            document
+              .getElementById(`peserta_${cardId}`)
+              .querySelector(".inp-mitra").value = prevMitra;
+          }
+        }
+
+        addPaketRow(cardId);
+        return cardId;
+      }
+
+      function addPaketRow(cardId) {
+        pItemCount++;
+        const pktId = pItemCount;
+
+        const html = `
+            <div class="paket-row" id="pkt_${pktId}">
+                <div class="paket-header">
+                    <span class="paket-title">Pilihan Paket</span>
+                    <button class="btn-del-paket" onclick="removePaketRow(${pktId})"><i class="fas fa-trash"></i> Hapus</button>
+                </div>
+                
+                <select class="form-input inp-paket" onchange="checkPaket(this, ${pktId})">${generatePaketOptions()}</select>
+                
+                <div id="customArea_${pktId}" style="display:block;">
+                    <button class="btn-item-select" id="btnSelect_${pktId}" onclick="openItemModal(${pktId})">
+                        <span id="btnText_${pktId}"><i class="fas fa-edit"></i> Request Barang (Opsional)</span>
+                    </button>
+                    
+                    <div id="summaryBox_${pktId}" class="summary-box">
+                        <small class="summary-text" id="summary_${pktId}"></small>
+                    </div>
+                    
+                    <input type="hidden" class="inp-harga-custom" id="valHarga_${pktId}" value="0">
+                    <input type="hidden" class="inp-rincian" id="valRincian_${pktId}" value="">
+                    <input type="hidden" class="inp-items-json" id="valItemsJson_${pktId}" value="">
+                </div>
+            </div>
+        `;
+        document
+          .getElementById(`paketWrap_${cardId}`)
+          .insertAdjacentHTML("beforeend", html);
+        return pktId;
+      }
+
+      function removeParticipantCard(cardId) {
+        const el = document.getElementById(`peserta_${cardId}`);
+        if (el) el.remove();
+      }
+
+      function removePaketRow(pktId) {
+        const el = document.getElementById(`pkt_${pktId}`);
+        if (el) el.remove();
+        delete rowData[`pkt_${pktId}`];
+      }
+
+      function generateMitraOptions() {
+        if (masterMitra.length === 0)
+          return '<option value="">(Data Kosong)</option>';
+        let opts = '<option value="">-- Pilih Mitra --</option>';
+        masterMitra.forEach((m) => {
+          // Buang pilihan Pusat/Pusat Langsung
+          if (m.nama !== "Pusat" && m.nama !== "Pusat (Langsung)") {
+            opts += `<option value="${m.nama}">${m.nama}</option>`;
+          }
+        });
+        return opts;
+      }
+
+      function generatePaketOptions() {
+        if (masterPaket.length === 0)
+          return '<option value="">(Data Kosong)</option>';
+        let opts = '<option value="">Pilih Jenis Paket...</option>';
+        masterPaket.forEach(
+          (p) => (opts += `<option value="${p.nama}">${p.nama}</option>`),
+        );
+        return opts;
+      }
+
+      function refreshDropdowns() {
+        document.querySelectorAll(".inp-mitra").forEach((el) => {
+          const oldVal = el.value;
+          el.innerHTML = generateMitraOptions();
+          el.value = oldVal;
+        });
+        document.querySelectorAll(".inp-paket").forEach((el) => {
+          const oldVal = el.value;
+          el.innerHTML = generatePaketOptions();
+          el.value = oldVal;
+        });
       }
 
       function parseWA() {
@@ -596,11 +972,10 @@
 
         let successCount = 0;
 
-        if (formCount === 1) {
-          const fName = document.querySelector(".inp-nama");
-          if (fName && fName.value === "") {
-            removeRow(1);
-            formCount = 0;
+        if (pCardCount === 1) {
+          const firstCard = document.getElementById("peserta_1");
+          if (firstCard && firstCard.querySelector(".inp-nama").value === "") {
+            removeParticipantCard(1);
           }
         }
 
@@ -647,9 +1022,13 @@
             rawPackages = paketString.split(/(?=\n\s*[-•]\s*)/);
           }
 
+          let hasValidPackage = false;
+          let newCardId = null;
+          let firstPaketFilled = false;
+          let firstPaketId = null;
+
           rawPackages.forEach((pktText) => {
             let pClean = pktText.replace(/^[\n\s\-•📦🔸🔹\uFFFD*]+/, "").trim();
-
             if (!pClean) return;
 
             let waPktNameLine = pClean.split(/\n/)[0];
@@ -667,13 +1046,10 @@
             matchedPaket = sortedPaket.find((p) =>
               waPktName.toLowerCase().includes(p.nama.toLowerCase()),
             );
-
-            if (!matchedPaket && waPktName.length > 3) {
+            if (!matchedPaket && waPktName.length > 3)
               matchedPaket = sortedPaket.find((p) =>
                 p.nama.toLowerCase().includes(waPktName.toLowerCase()),
               );
-            }
-
             if (!matchedPaket) {
               if (waPktName.toLowerCase().includes("cookies"))
                 matchedPaket = sortedPaket.find((p) =>
@@ -685,41 +1061,47 @@
                 );
             }
 
-            if (!matchedPaket) return;
+            if (matchedPaket) {
+              if (!hasValidPackage) {
+                newCardId = addParticipantCard();
+                hasValidPackage = true;
 
-            addParticipantRow();
-            const rowId = formCount;
-            const row = document.getElementById(`row_${rowId}`);
+                const rowCard = document.getElementById(`peserta_${newCardId}`);
+                rowCard.querySelector(".inp-nama").value = nm;
+                if (hp) rowCard.querySelector(".inp-hp").value = hp;
+                if (al) rowCard.querySelector(".inp-alamat").value = al;
 
-            row.querySelector(".inp-nama").value = nm;
-            if (hp) row.querySelector(".inp-hp").value = hp;
-            if (al) row.querySelector(".inp-alamat").value = al;
+                if (mt) {
+                  setDropdownByText(rowCard.querySelector(".inp-mitra"), mt);
+                }
 
-            if (mt) {
-              const mtFound = setDropdownByText(
-                row.querySelector(".inp-mitra"),
-                mt,
+                firstPaketId = rowCard
+                  .querySelector(".paket-row")
+                  .id.split("_")[1];
+              }
+
+              let currentPktId;
+              if (!firstPaketFilled) {
+                currentPktId = firstPaketId;
+                firstPaketFilled = true;
+              } else {
+                currentPktId = addPaketRow(newCardId);
+              }
+
+              const selPaket = document.querySelector(
+                `#pkt_${currentPktId} .inp-paket`,
               );
-              if (!mtFound)
-                setDropdownByText(row.querySelector(".inp-mitra"), "Pusat");
-            } else {
-              setDropdownByText(row.querySelector(".inp-mitra"), "Pusat");
+              setDropdownByText(selPaket, matchedPaket.nama);
+              checkPaket(selPaket, currentPktId);
+              smartExtractItems(pClean, currentPktId);
+              successCount++;
             }
-
-            const selPaket = row.querySelector(".inp-paket");
-            const found = setDropdownByText(selPaket, matchedPaket.nama);
-
-            if (found) {
-              checkPaket(selPaket, rowId);
-              smartExtractItems(pClean, rowId);
-            }
-            successCount++;
           });
         });
 
         if (successCount > 0) {
           document.getElementById("waRaw").value = "";
-          alert(`Berhasil mengekstrak ${successCount} pesanan paket!`);
+          alert(`Berhasil mengekstrak ${successCount} paket pesanan!`);
         } else {
           alert(
             "Sistem tidak mendeteksi data yang valid. Silakan input manual.",
@@ -727,10 +1109,14 @@
         }
       }
 
-      function smartExtractItems(textEntry, rowId) {
-        if (!rowData[`row_${rowId}`])
-          rowData[`row_${rowId}`] = { items: {}, total: 0 };
-        const currentRowData = rowData[`row_${rowId}`];
+      function smartExtractItems(textEntry, pktId) {
+        if (!rowData[`pkt_${pktId}`])
+          rowData[`pkt_${pktId}`] = { items: {}, total: 0 };
+        const currentRowData = rowData[`pkt_${pktId}`];
+
+        const selectEl = document.querySelector(`#pkt_${pktId} .inp-paket`);
+        const mode = selectEl ? selectEl.dataset.mode : "normal";
+
         let matchCount = 0;
 
         let itemsStr = textEntry;
@@ -757,18 +1143,13 @@
             if (lowerPart.includes(bNameLower)) {
               let qty = 1;
 
-              // PERBAIKAN REGEX:
-              // 1. Mengutamakan angka di paling depan (seperti "- 1x ...")
               const matchStartX = part.match(
                 /^\s*(?:[-*•]|\d+\.)?\s*(\d+)\s*[xX]/i,
               );
-              // 2. Mengutamakan angka di ujung kalimat (seperti "... x 2")
               const matchEndX = part.match(/[xX]\s*(\d+)\s*$/i);
-              // 3. Hanya angka di depan (seperti "- 2 ...")
               const matchStartNum = part.match(
                 /^\s*(?:[-*•]|\d+\.)?\s*(\d+)\s+/,
               );
-              // 4. Angka di dalam kurung di ujung kalimat (seperti "... (2)")
               const matchParenEnd = part.match(/\(\s*(\d+)\s*\)\s*$/);
 
               if (matchStartX) qty = parseInt(matchStartX[1]);
@@ -776,7 +1157,6 @@
               else if (matchStartNum) qty = parseInt(matchStartNum[1]);
               else if (matchParenEnd) qty = parseInt(matchParenEnd[1]);
               else {
-                // Fallback: hapus semua text dalam kurung, baru cari "xAngka"
                 let cleanPart = part.replace(/\([^)]+\)/g, "");
                 const fallbackX = cleanPart.match(
                   /(?:\s|^)[xX]\s*(\d+)(?:\s|$)/i,
@@ -784,11 +1164,20 @@
                 if (fallbackX) qty = parseInt(fallbackX[1]);
               }
 
-              if (currentRowData.items[b.nama]) {
-                currentRowData.items[b.nama] += qty;
-              } else {
-                currentRowData.items[b.nama] = qty;
+              if (mode === "cookies") {
+                let currentTotalCookies = 0;
+                for (const q of Object.values(currentRowData.items)) {
+                  currentTotalCookies += q;
+                }
+                if (currentTotalCookies + qty > 5) {
+                  qty = 5 - currentTotalCookies;
+                }
+                if (qty <= 0) break;
               }
+
+              if (currentRowData.items[b.nama])
+                currentRowData.items[b.nama] += qty;
+              else currentRowData.items[b.nama] = qty;
 
               matchCount++;
               break;
@@ -796,9 +1185,7 @@
           }
         });
 
-        if (matchCount > 0) {
-          recalculateRowTotal(rowId);
-        }
+        if (matchCount > 0) recalculateRowTotal(pktId);
       }
 
       function setDropdownByText(selectElement, textToFind) {
@@ -813,10 +1200,282 @@
         return false;
       }
 
-      function recalculateRowTotal(rowId) {
-        const data = rowData[`row_${rowId}`];
-        const selectEl = document.querySelector(`#row_${rowId} .inp-paket`);
+      function checkPaket(selectEl, pktId) {
+        const val = selectEl.value.toLowerCase();
+        const btn = document.getElementById(`btnText_${pktId}`);
+        const btnOuter = document.getElementById(`btnSelect_${pktId}`);
+        const summaryBox = document.getElementById(`summaryBox_${pktId}`);
+
+        document.getElementById(`valHarga_${pktId}`).value = 0;
+        document.getElementById(`valRincian_${pktId}`).value = "";
+        document.getElementById(`valItemsJson_${pktId}`).value = "";
+
+        summaryBox.style.display = "none";
+        btnOuter.style.background = "#111";
+        btnOuter.style.borderColor = "#444";
+        btnOuter.style.color = "var(--primary)";
+
+        if (!rowData[`pkt_${pktId}`])
+          rowData[`pkt_${pktId}`] = { items: {}, total: 0 };
+        rowData[`pkt_${pktId}`].items = {};
+        rowData[`pkt_${pktId}`].total = 0;
+
+        if (val.includes("mingguan")) {
+          btn.innerHTML =
+            '<i class="fas fa-shopping-basket"></i> Pilih Sembako (Mingguan)';
+          selectEl.dataset.mode = "mingguan";
+        } else if (val.includes("cookies")) {
+          btn.innerHTML =
+            '<i class="fas fa-cookie-bite"></i> Pilih Kue (Cookies)';
+          selectEl.dataset.mode = "cookies";
+        } else {
+          btn.innerHTML =
+            '<i class="fas fa-edit"></i> Request Barang (Opsional)';
+          selectEl.dataset.mode = "normal";
+        }
+      }
+
+      // ========================================================
+      // MODAL BARANG (ACCORDION, PENCARIAN & DAFTAR TERPILIH)
+      // ========================================================
+      function openItemModal(pktId) {
+        if (masterBarang.length === 0)
+          return alert("Data barang belum termuat. Silakan refresh halaman.");
+        currentEditingRowId = pktId;
+        const row = document.getElementById(`pkt_${pktId}`);
+        const mode = row.querySelector(".inp-paket").dataset.mode;
+        currentMode = mode;
+
+        document.getElementById("modalSearch").value = "";
+        document.getElementById("modalItems").style.display = "flex";
+
+        renderAccordionItems();
+        updateModalTotal();
+      }
+
+      function renderAccordionItems(query = "") {
+        const body = document.getElementById("itemBody");
+        const q = query.toLowerCase().trim();
+        const savedItems =
+          (rowData[`pkt_${currentEditingRowId}`] || {}).items || {};
+
+        let grouped = {};
+
+        masterBarang.forEach((b) => {
+          if (q && !b.nama.toLowerCase().includes(q)) return;
+
+          let cat = b.kategori || "Lainnya";
+
+          if (currentMode === "mingguan") {
+            const allowed = [
+              "sembako",
+              "daging",
+              "mie",
+              "kue kaleng",
+              "minuman",
+              "kue balbalan",
+              "cokelat",
+              "paket cokelat",
+            ];
+            if (!allowed.includes(cat.trim().toLowerCase())) return;
+          } else if (currentMode === "cookies") {
+            if (cat.trim().toLowerCase() !== "cookies") return;
+          }
+
+          if (!grouped[cat]) grouped[cat] = [];
+          grouped[cat].push(b);
+        });
+
+        let html = "";
+        let catIndex = 0;
+        let totalCategories = Object.keys(grouped).length;
+
+        for (let cat in grouped) {
+          catIndex++;
+          let catId = "cat_" + catIndex;
+          let itemsHtml = "";
+
+          grouped[cat].forEach((b) => {
+            const qty = savedItems[b.nama] || 0;
+            let safeName = b.nama.replace(/"/g, "&quot;");
+
+            itemsHtml += `
+                    <div class="item-row">
+                        <div>
+                            <div style="font-weight:bold; color:#fff; font-size:0.95rem; margin-bottom:2px;">${b.nama}</div>
+                            <div style="font-size:0.75rem; color:#aaa;">${formatRupiah(b.harga)} / ${b.satuan}</div>
+                        </div>
+                        <div class="qty-control">
+                            <button class="btn-qty" onclick="changeQty(this, -1)">-</button>
+                            <input type="number" readonly class="qty-val" data-name="${safeName}" data-price="${b.harga}" value="${qty}">
+                            <button class="btn-qty" style="background:var(--primary); color:#000;" onclick="changeQty(this, 1)">+</button>
+                        </div>
+                    </div>`;
+          });
+
+          let activeClass = q !== "" || totalCategories === 1 ? "active" : "";
+          let showClass = q !== "" || totalCategories === 1 ? "show" : "";
+
+          html += `
+            <div class="category-section">
+                <div class="category-header ${activeClass}" id="head-${catId}" onclick="toggleCategoryModal('${catId}')">
+                    <div class="cat-title">${cat} <span style="color:#888; font-size:0.75rem; font-weight:normal; margin-left:5px;">(${grouped[cat].length})</span></div>
+                    <i class="fas fa-chevron-down cat-icon"></i>
+                </div>
+                <div class="category-body ${showClass}" id="body-${catId}">
+                    ${itemsHtml}
+                </div>
+            </div>`;
+        }
+
+        if (html === "") {
+          html = `<div style="text-align:center; padding:30px; color:#666;"><i class="fas fa-search" style="font-size:2rem; margin-bottom:10px;"></i><br>Pencarian tidak ditemukan.</div>`;
+        }
+
+        body.innerHTML = html;
+      }
+
+      function toggleCategoryModal(id) {
+        const body = document.getElementById(`body-${id}`);
+        const header = document.getElementById(`head-${id}`);
+
+        if (body.classList.contains("show")) {
+          body.classList.remove("show");
+          header.classList.remove("active");
+        } else {
+          body.classList.add("show");
+          header.classList.add("active");
+        }
+      }
+
+      function changeQty(btn, change) {
+        const input = btn.parentElement.querySelector(".qty-val");
+        let currentVal = parseInt(input.value);
+
+        if (currentMode === "cookies" && change > 0) {
+          const currentRowData = rowData[`pkt_${currentEditingRowId}`] || {
+            items: {},
+          };
+          let totalQtyNow = 0;
+          for (const qty of Object.values(currentRowData.items)) {
+            totalQtyNow += qty;
+          }
+          if (totalQtyNow >= 5) {
+            alert(
+              "Maksimal hanya bisa memilih 5 toples kue untuk Paket Cookies!",
+            );
+            return;
+          }
+        }
+
+        let val = currentVal + change;
+        if (val < 0) val = 0;
+        input.value = val;
+
+        const name = input.getAttribute("data-name");
+        if (!rowData[`pkt_${currentEditingRowId}`])
+          rowData[`pkt_${currentEditingRowId}`] = { items: {}, total: 0 };
+        rowData[`pkt_${currentEditingRowId}`].items[name] = val;
+
+        updateModalTotal();
+      }
+
+      function updateModalTotal() {
+        let total = 0;
+        let totalItems = 0;
+        const currentRowData = rowData[`pkt_${currentEditingRowId}`] || {
+          items: {},
+        };
+
+        let divisor = 1;
+        let labelSatuan = "";
+        if (currentMode === "mingguan") {
+          divisor = 40;
+          labelSatuan = " /mgg";
+        } else if (currentMode === "cookies") {
+          divisor = 330;
+          labelSatuan = " /hr";
+        }
+
+        let cartHtml = "";
+
+        for (const [name, qty] of Object.entries(currentRowData.items)) {
+          if (qty > 0) {
+            const item = masterBarang.find((b) => b.nama === name);
+            if (item) {
+              let subtotal = item.harga * qty;
+              total += subtotal;
+              totalItems += qty;
+
+              let textCicilan = "";
+              if (divisor > 1) {
+                let cicilanItem = Math.ceil(subtotal / divisor);
+                textCicilan = `${formatRupiah(cicilanItem)}${labelSatuan}`;
+              } else {
+                textCicilan = formatRupiah(subtotal);
+              }
+
+              cartHtml += `
+                    <div class="modal-cart-item">
+                        <div class="mc-qty">${qty}x</div>
+                        <div class="mc-name">${name}</div>
+                        <div class="mc-price">${textCicilan}</div>
+                    </div>
+                  `;
+            }
+          }
+        }
+
+        const cartBox = document.getElementById("modalSelectedItems");
+        const cartList = document.getElementById("modalCartList");
+
+        if (cartHtml !== "") {
+          cartList.innerHTML = cartHtml;
+          document.getElementById("txtTotalCartItems").innerText =
+            totalItems + " Barang";
+          cartBox.style.display = "block";
+          cartBox.scrollTop = cartBox.scrollHeight;
+        } else {
+          cartBox.style.display = "none";
+        }
+
+        document.getElementById("txtTotalReal").innerText = formatRupiah(total);
+
+        let targetLabel = "Total Belanja:";
+        let targetVal = formatRupiah(total);
+
+        if (currentMode === "mingguan") {
+          targetLabel = "Total Setoran per Minggu:";
+          targetVal = formatRupiah(Math.ceil(total / 40));
+        } else if (currentMode === "cookies") {
+          targetLabel = "Total Setoran per Hari:";
+          targetVal = formatRupiah(Math.ceil(total / 330));
+        } else {
+          targetLabel = "Status Setoran:";
+          targetVal = "Mengikuti Paket Dasar";
+        }
+
+        document.getElementById("lblTarget").innerText = targetLabel;
+        document.getElementById("txtTarget").innerText = targetVal;
+        currentRowData.total = total;
+      }
+
+      function confirmSelection() {
+        recalculateRowTotal(currentEditingRowId);
+        closeModal();
+      }
+
+      function closeModal() {
+        document.getElementById("modalItems").style.display = "none";
+      }
+
+      function recalculateRowTotal(pktId) {
+        const data = rowData[`pkt_${pktId}`];
+        const selectEl = document.querySelector(`#pkt_${pktId} .inp-paket`);
         const mode = selectEl.dataset.mode;
+
+        const btnOuter = document.getElementById(`btnSelect_${pktId}`);
+        const summaryBox = document.getElementById(`summaryBox_${pktId}`);
 
         let total = 0;
         let itemsList = [];
@@ -833,275 +1492,58 @@
         }
 
         for (const [name, qty] of Object.entries(data.items)) {
-          const itemMaster = masterBarang.find((b) => b.nama === name);
-          if (itemMaster) {
-            const subtotal = itemMaster.harga * qty;
-            total += subtotal;
-            const cicilan = Math.ceil(subtotal / divisor);
-            const txtCicil =
-              divisor > 1 ? `${formatRupiah(cicilan)}${labelSatuan}` : "";
-            itemsList.push(`${name} (${qty}) ${txtCicil}`);
-            itemsForDB[name] = qty;
+          if (qty > 0) {
+            const itemMaster = masterBarang.find((b) => b.nama === name);
+            if (itemMaster) {
+              const subtotal = itemMaster.harga * qty;
+              total += subtotal;
+              const cicilan = Math.ceil(subtotal / divisor);
+              const txtCicil =
+                divisor > 1 ? `${formatRupiah(cicilan)}${labelSatuan}` : "";
+              itemsList.push(`${name} (${qty}) ${txtCicil}`);
+              itemsForDB[name] = qty;
+            }
           }
         }
 
         data.total = total;
 
-        let displayTotal = formatRupiah(total);
+        let targetText = "";
         if (mode === "mingguan")
-          displayTotal += ` (Setoran: ${formatRupiah(Math.ceil(total / 40))} /mgg)`;
+          targetText = `(Target Setoran: ${formatRupiah(Math.ceil(total / 40))} /mgg)`;
         else if (mode === "cookies")
-          displayTotal += ` (Setoran: ${formatRupiah(Math.ceil(total / 330))} /hr)`;
-        else displayTotal += ` (Request Khusus)`;
+          targetText = `(Target Setoran: ${formatRupiah(Math.ceil(total / 330))} /hr)`;
 
-        document.getElementById(`btnText_${rowId}`).innerHTML =
-          `<i class="fas fa-check-circle" style="color:#4ade80"></i> ${itemsList.length} Item (Tersimpan)`;
-        document.getElementById(`summary_${rowId}`).innerText =
-          itemsList.join(", ") + `\nTotal: ${displayTotal}`;
+        if (itemsList.length > 0) {
+          document.getElementById(`btnText_${pktId}`).innerHTML =
+            `<i class="fas fa-check-circle"></i> ${itemsList.length} Item (Tersimpan)`;
+          document.getElementById(`summary_${pktId}`).innerText =
+            itemsList.join("\n") + (targetText ? `\n\n${targetText}` : "");
 
-        document.getElementById(`valHarga_${rowId}`).value = total;
-        document.getElementById(`valRincian_${rowId}`).value =
+          summaryBox.style.display = "block";
+          btnOuter.style.background = "rgba(74, 222, 128, 0.05)";
+          btnOuter.style.borderColor = "#4ade80";
+          btnOuter.style.color = "#4ade80";
+        } else {
+          document.getElementById(`btnText_${pktId}`).innerHTML =
+            `<i class="fas fa-edit"></i> Request Barang (Opsional)`;
+          summaryBox.style.display = "none";
+
+          btnOuter.style.background = "#111";
+          btnOuter.style.borderColor = "#444";
+          btnOuter.style.color = "var(--primary)";
+        }
+
+        document.getElementById(`valHarga_${pktId}`).value = total;
+        document.getElementById(`valRincian_${pktId}`).value =
           itemsList.join("\n");
-        document.getElementById(`valItemsJson_${rowId}`).value =
+        document.getElementById(`valItemsJson_${pktId}`).value =
           JSON.stringify(itemsForDB);
       }
 
-      function addParticipantRow() {
-        formCount++;
-        const html = `
-            <div class="p-card" id="row_${formCount}">
-                <div class="p-card-header">
-                    <span class="card-num">Peserta #${formCount}</span>
-                    <button class="btn-del" onclick="removeRow(${formCount})"><i class="fas fa-trash"></i></button>
-                </div>
-                <div class="form-group"><input type="text" class="form-input inp-nama" placeholder="Nama Lengkap"></div>
-                <div class="form-grid">
-                    <input type="number" class="form-input inp-hp" placeholder="No HP/WA">
-                    <input type="text" class="form-input inp-alamat" placeholder="Alamat">
-                </div>
-                <div class="form-grid" style="margin-top:10px;">
-                    <select class="form-input inp-mitra">${generateMitraOptions()}</select>
-                    <select class="form-input inp-paket" onchange="checkPaket(this, ${formCount})">${generatePaketOptions()}</select>
-                </div>
-                
-                <div id="customArea_${formCount}" style="display:block; margin-top:10px;">
-                    <button class="btn-item-select" onclick="openItemModal(${formCount})">
-                        <span id="btnText_${formCount}"><i class="fas fa-edit"></i> Request Barang (Opsional)</span>
-                    </button>
-                    <small class="summary-text" id="summary_${formCount}"></small>
-                    <input type="hidden" class="inp-harga-custom" id="valHarga_${formCount}" value="0">
-                    <input type="hidden" class="inp-rincian" id="valRincian_${formCount}" value="">
-                    <input type="hidden" class="inp-items-json" id="valItemsJson_${formCount}" value="">
-                </div>
-            </div>`;
-        document
-          .getElementById("formsContainer")
-          .insertAdjacentHTML("beforeend", html);
-
-        if (formCount > 1) {
-          const prev = document.getElementById(`row_${formCount - 1}`);
-          if (prev) {
-            const prevMitra = prev.querySelector(".inp-mitra").value;
-            document
-              .getElementById(`row_${formCount}`)
-              .querySelector(".inp-mitra").value = prevMitra;
-          }
-        }
-      }
-
-      function generateMitraOptions() {
-        if (masterMitra.length === 0)
-          return '<option value="">(Data Kosong)</option>';
-        let opts =
-          '<option value="">Pilih Mitra...</option><option value="Pusat">Pusat (Langsung)</option>';
-        masterMitra.forEach((m) => {
-          if (m.nama !== "Pusat")
-            opts += `<option value="${m.nama}">${m.nama}</option>`;
-        });
-        return opts;
-      }
-
-      function generatePaketOptions() {
-        if (masterPaket.length === 0)
-          return '<option value="">(Data Kosong)</option>';
-        let opts = '<option value="">Pilih Paket...</option>';
-        masterPaket.forEach(
-          (p) => (opts += `<option value="${p.nama}">${p.nama}</option>`),
-        );
-        return opts;
-      }
-
-      function refreshDropdowns() {
-        document.querySelectorAll(".inp-mitra").forEach((el) => {
-          const oldVal = el.value;
-          el.innerHTML = generateMitraOptions();
-          el.value = oldVal;
-        });
-        document.querySelectorAll(".inp-paket").forEach((el) => {
-          const oldVal = el.value;
-          el.innerHTML = generatePaketOptions();
-          el.value = oldVal;
-        });
-      }
-
-      function removeRow(id) {
-        const el = document.getElementById(`row_${id}`);
-        if (el) el.remove();
-        delete rowData[`row_${id}`];
-      }
-
-      function checkPaket(selectEl, rowId) {
-        const val = selectEl.value.toLowerCase();
-        const area = document.getElementById(`customArea_${rowId}`);
-        const btn = document.getElementById(`btnText_${rowId}`);
-
-        document.getElementById(`valHarga_${rowId}`).value = 0;
-        document.getElementById(`valRincian_${rowId}`).value = "";
-        document.getElementById(`valItemsJson_${rowId}`).value = "";
-        document.getElementById(`summary_${rowId}`).innerText = "";
-
-        if (!rowData[`row_${rowId}`])
-          rowData[`row_${rowId}`] = { items: {}, total: 0 };
-        rowData[`row_${rowId}`].items = {};
-        rowData[`row_${rowId}`].total = 0;
-
-        // SELALU TAMPILKAN TOMBOL PILIH BARANG
-        area.style.display = "block";
-
-        if (val.includes("mingguan")) {
-          btn.innerHTML =
-            '<i class="fas fa-shopping-basket"></i> Pilih Sembako (Mingguan)';
-          selectEl.dataset.mode = "mingguan";
-        } else if (val.includes("cookies")) {
-          btn.innerHTML =
-            '<i class="fas fa-cookie-bite"></i> Pilih Kue (Cookies)';
-          selectEl.dataset.mode = "cookies";
-        } else {
-          // Untuk paket standar, tombolnya jadi Request Opsional
-          btn.innerHTML =
-            '<i class="fas fa-edit"></i> Request Barang (Opsional)';
-          selectEl.dataset.mode = "normal";
-        }
-      }
-
-      function openItemModal(rowId) {
-        if (masterBarang.length === 0)
-          return alert("Data barang belum termuat. Silakan refresh halaman.");
-        currentEditingRowId = rowId;
-        const row = document.getElementById(`row_${rowId}`);
-        const mode = row.querySelector(".inp-paket").dataset.mode;
-        currentMode = mode;
-        document.getElementById("modalItems").style.display = "flex";
-
-        if (mode === "mingguan") renderCategories();
-        else if (mode === "cookies") renderItems("Cookies");
-        else renderCategories();
-
-        updateModalTotal();
-      }
-
-      function renderCategories() {
-        const body = document.getElementById("itemBody");
-        document.getElementById("modalTitle").innerText = "Pilih Kategori";
-        const categories = [
-          ...new Set(masterBarang.map((item) => item.kategori)),
-        ];
-        let html = `<div class="cat-grid">`;
-        categories.forEach((cat) => {
-          if (cat)
-            html += `<div class="cat-btn" onclick="renderItems('${cat}')">${cat}</div>`;
-        });
-        html += `</div>`;
-        body.innerHTML = html;
-      }
-
-      function renderItems(filterCategory) {
-        const body = document.getElementById("itemBody");
-        document.getElementById("modalTitle").innerText = filterCategory
-          ? filterCategory
-          : "Pilih Barang";
-        let html = "";
-
-        if (currentMode !== "cookies" && filterCategory)
-          html += `<button class="cat-back" onclick="renderCategories()"><i class="fas fa-arrow-left"></i> Kembali ke Kategori</button>`;
-
-        const savedItems =
-          (rowData[`row_${currentEditingRowId}`] || {}).items || {};
-
-        masterBarang.forEach((b) => {
-          let show = true;
-          if (filterCategory && b.kategori !== filterCategory) show = false;
-          if (show) {
-            const qty = savedItems[b.nama] || 0;
-            html += `
-                    <div class="item-row">
-                        <div>
-                            <div style="font-weight:bold; color:#fff;">${b.nama}</div>
-                            <div style="font-size:0.75rem; color:#aaa;">${formatRupiah(b.harga)} / ${b.satuan}</div>
-                        </div>
-                        <div class="qty-control">
-                            <button class="btn-qty" onclick="changeQty(this, -1)">-</button>
-                            <input type="number" readonly class="qty-val" data-name="${b.nama}" data-price="${b.harga}" value="${qty}">
-                            <button class="btn-qty" onclick="changeQty(this, 1)">+</button>
-                        </div>
-                    </div>`;
-          }
-        });
-        body.innerHTML = html;
-      }
-
-      function changeQty(btn, change) {
-        const input = btn.parentElement.querySelector(".qty-val");
-        let val = parseInt(input.value) + change;
-        if (val < 0) val = 0;
-        input.value = val;
-        const name = input.dataset.name;
-        if (!rowData[`row_${currentEditingRowId}`])
-          rowData[`row_${currentEditingRowId}`] = { items: {}, total: 0 };
-        rowData[`row_${currentEditingRowId}`].items[name] = val;
-        updateModalTotal();
-      }
-
-      function updateModalTotal() {
-        let total = 0;
-        const currentRowData = rowData[`row_${currentEditingRowId}`] || {
-          items: {},
-        };
-        for (const [name, qty] of Object.entries(currentRowData.items)) {
-          const item = masterBarang.find((b) => b.nama === name);
-          if (item) total += item.harga * qty;
-        }
-
-        document.getElementById("txtTotalReal").innerText = formatRupiah(total);
-
-        let targetLabel = "Total Belanja:";
-        let targetVal = formatRupiah(total);
-
-        if (currentMode === "mingguan") {
-          targetLabel = "Setoran per Minggu (40x):";
-          targetVal = formatRupiah(Math.ceil(total / 40));
-        } else if (currentMode === "cookies") {
-          targetLabel = "Setoran per Hari (330x):";
-          targetVal = formatRupiah(Math.ceil(total / 330));
-        } else {
-          // JIKA NORMAL/REQUEST, TAMPILKAN STATUS MENGIKUTI PAKET DASAR
-          targetLabel = "Status Setoran:";
-          targetVal = "Mengikuti Paket Dasar";
-        }
-
-        document.getElementById("lblTarget").innerText = targetLabel;
-        document.getElementById("txtTarget").innerText = targetVal;
-        currentRowData.total = total;
-      }
-
-      function confirmSelection() {
-        recalculateRowTotal(currentEditingRowId);
-        closeModal();
-      }
-      function closeModal() {
-        document.getElementById("modalItems").style.display = "none";
-      }
-
+      // ========================================================
+      // SIMPAN & CETAK STRUK
+      // ========================================================
       async function saveAll() {
         const cards = document.querySelectorAll(".p-card");
         if (cards.length === 0) return;
@@ -1111,85 +1553,100 @@
         cards.forEach((card) => {
           const nama = card.querySelector(".inp-nama").value.trim();
           const mitra = card.querySelector(".inp-mitra").value;
-          const paket = card.querySelector(".inp-paket").value;
+          const paketRows = card.querySelectorAll(".paket-row");
 
-          if (!nama || !mitra || !paket) {
+          if (!nama || !mitra || paketRows.length === 0) {
             card.style.border = "2px solid #ff4d4d";
             adaError = true;
           } else {
             card.style.border = "1px solid var(--border)";
+            paketRows.forEach((pr) => {
+              if (!pr.querySelector(".inp-paket").value) {
+                pr.style.border = "1px solid #ff4d4d";
+                adaError = true;
+              } else {
+                pr.style.border = "1px dashed #555";
+              }
+            });
           }
         });
 
-        if (adaError) {
-          alert(
-            "⚠️ GAGAL MENYIMPAN!\n\nAda data yang belum lengkap (Nama / Mitra / Paket). Silakan lengkapi formulir yang bergaris tepi merah.",
+        if (adaError)
+          return alert(
+            "⚠️ GAGAL MENYIMPAN!\n\nPastikan Nama, Mitra, dan Jenis Paket sudah terisi di kotak yang bergaris merah.",
           );
-          return;
-        }
-
-        if (!confirm(`Simpan ${cards.length} data peserta?`)) return;
+        if (!confirm(`Simpan data pendaftaran ini?`)) return;
 
         const btn = document.getElementById("btnSaveAll");
         btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> MEMPROSES...';
         btn.disabled = true;
+
         let successData = [];
 
         for (const card of cards) {
           const nama = card.querySelector(".inp-nama").value;
           const hp = card.querySelector(".inp-hp").value;
           const alamat = card.querySelector(".inp-alamat").value;
-          const mitra = card.querySelector(".inp-mitra").value;
-          const paket = card.querySelector(".inp-paket").value;
-          let harga = 0,
-            rincian = "",
-            items_json = "";
+          const mitra = card.querySelector(".inp-mitra").value; // BACA DARI DROPDOWN!
 
-          const customArea = card.querySelector('div[id^="customArea_"]');
-          if (customArea && customArea.style.display !== "none") {
-            harga = card.querySelector(".inp-harga-custom").value;
-            rincian = card.querySelector(".inp-rincian").value;
-            items_json = card.querySelector(".inp-items-json").value;
-          }
+          const paketRows = card.querySelectorAll(".paket-row");
 
-          let setoranText = "";
-          if (paket.toLowerCase().includes("mingguan")) {
-            if (harga > 0)
-              setoranText = formatRupiah(Math.ceil(harga / 40)) + " /minggu";
-          } else if (paket.toLowerCase().includes("cookies")) {
-            if (harga > 0)
-              setoranText = formatRupiah(Math.ceil(harga / 330)) + " /hari";
-          } else {
-            let ext = paket.replace(/\./g, "").match(/\d+/);
-            if (ext) setoranText = formatRupiah(Number(ext[0])) + " /hari";
-          }
+          for (const pr of paketRows) {
+            const paket = pr.querySelector(".inp-paket").value;
+            let harga = 0,
+              rincian = "",
+              items_json = "";
 
-          try {
-            const res = await fetchData("tambahPeserta", {
-              nama,
-              hp,
-              alamat,
-              mitra,
-              paket,
-              harga,
-              rincian,
-              items_json: items_json,
-            });
+            const customArea = pr.querySelector('div[id^="customArea_"]');
+            if (customArea && customArea.style.display !== "none") {
+              harga = pr.querySelector(".inp-harga-custom").value;
+              rincian = pr.querySelector(".inp-rincian").value;
+              items_json = pr.querySelector(".inp-items-json").value;
+            }
 
-            if (res && res.success) {
-              successData.push({
+            let setoranText = "";
+            if (paket.toLowerCase().includes("mingguan")) {
+              if (harga > 0)
+                setoranText = formatRupiah(Math.ceil(harga / 40)) + " /minggu";
+            } else if (paket.toLowerCase().includes("cookies")) {
+              if (harga > 0)
+                setoranText = formatRupiah(Math.ceil(harga / 330)) + " /hari";
+            } else {
+              let ext = paket.replace(/\./g, "").match(/\d+/);
+              if (ext) setoranText = formatRupiah(Number(ext[0])) + " /hari";
+            }
+
+            try {
+              const res = await fetchData("tambahPeserta", {
                 nama,
                 hp,
+                alamat,
                 mitra,
                 paket,
-                id: res.id,
+                harga,
                 rincian,
-                setoran: setoranText,
+                items_json: items_json,
               });
-              card.remove();
+
+              if (res && res.success) {
+                successData.push({
+                  nama,
+                  hp,
+                  mitra,
+                  paket,
+                  id: res.id,
+                  rincian,
+                  setoran: setoranText,
+                });
+                pr.remove();
+              }
+            } catch (e) {
+              console.error("Gagal simpan:", e);
             }
-          } catch (e) {
-            console.error("Gagal simpan:", e);
+          }
+
+          if (card.querySelectorAll(".paket-row").length === 0) {
+            card.remove();
           }
         }
 
@@ -1240,14 +1697,8 @@
           if (hpClean.length > 8) {
             let waText = `Halo *${d.nama}*,\n`;
             waText += `Pendaftaran Tabungan NIZAMI 2026-2027 Anda telah berhasil! 🎉\n\n`;
-            waText += `*RINCIAN PENDAFTARAN*\n`;
-            waText += `👤 Nama: ${d.nama}\n`;
-            waText += `📦 Paket: ${d.paket}\n`;
-            waText += `🤝 Mitra: ${d.mitra}\n\n`;
-
-            waText += `👇 *ID PESERTA ANDA* 👇\n\n`;
-            waText += `\`${d.id}\`\n\n`;
-            waText += `_(Sentuh / tahan teks ID di atas untuk menyalin)_\n\n`;
+            waText += `*RINCIAN PENDAFTARAN*\n👤 Nama: ${d.nama}\n📦 Paket: ${d.paket}\n🤝 Mitra: ${d.mitra}\n\n`;
+            waText += `👇 *ID PESERTA ANDA* 👇\n\n\`${d.id}\`\n\n_(Sentuh / tahan teks ID di atas untuk menyalin)_\n\n`;
 
             if (d.rincian) {
               waText += `*Rincian Barang:*\n`;
@@ -1258,21 +1709,19 @@
               waText += `${formatRincianWA}\n\n`;
             }
 
-            if (d.setoran) {
-              waText += `🎯 Target Setoran: *${d.setoran}*\n\n`;
-            }
+            if (d.setoran) waText += `🎯 Target Setoran: *${d.setoran}*\n\n`;
 
             waText += `Untuk mengecek Kartu Setoran Digital & Kalender Tabungan Anda secara otomatis, klik link khusus di bawah ini:\n`;
-            waText += `💳 https://nizami-26-27-fix.vercel.app/kartu-digital.html?id=${d.id}\n\n`;
-            waText += `Terima kasih! 🙏`;
+            waText += `💳 https://nizami-26-27-fix.vercel.app/kartu-digital.html?id=${d.id}\n\nTerima kasih! 🙏`;
 
             const waLink = `https://wa.me/${hpClean}?text=${encodeURIComponent(waText)}`;
 
-            waContainer.innerHTML += `
-                <a href="${waLink}" target="_blank" style="background:#25D366; color:#fff; text-decoration:none; padding:12px; border-radius:8px; font-weight:bold; display:flex; align-items:center; justify-content:center; gap:8px;">
-                    <i class="fab fa-whatsapp" style="font-size:1.3rem;"></i> Kirim WA ke ${d.nama}
-                </a>
-             `;
+            if (!waContainer.innerHTML.includes(hpClean)) {
+              waContainer.innerHTML += `
+                    <a href="${waLink}" target="_blank" style="background:#25D366; color:#fff; text-decoration:none; padding:12px; border-radius:8px; font-weight:bold; display:flex; align-items:center; justify-content:center; gap:8px;">
+                        <i class="fab fa-whatsapp" style="font-size:1.3rem;"></i> Kirim WA ke ${d.nama}
+                    </a>`;
+            }
           }
         });
 
@@ -1285,7 +1734,7 @@
         window.currentStruk = canvas.toDataURL("image/png");
 
         if (document.querySelectorAll(".p-card").length === 0)
-          addParticipantRow();
+          addParticipantCard();
       }
 
       function downloadStruk() {
