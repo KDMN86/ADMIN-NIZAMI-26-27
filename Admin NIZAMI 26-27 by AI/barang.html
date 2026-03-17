@@ -141,7 +141,7 @@
 
       .item-info {
         flex-grow: 1;
-        min-width: 0; /* PENTING: Mencegah flexbox membesar melewati batas */
+        min-width: 0;
       }
       .item-top {
         display: flex;
@@ -201,7 +201,6 @@
         font-weight: 600;
       }
 
-      /* DIUBAH: Jarak grid diperkecil agar tidak terpotong di HP */
       .price-grid {
         display: grid;
         grid-template-columns: 1fr 1fr;
@@ -213,7 +212,7 @@
         border: 1px solid #333;
         padding: 6px 8px;
         border-radius: 8px;
-        min-width: 0; /* PENTING: Mencegah box harga melebar */
+        min-width: 0;
       }
       .p-label {
         font-size: 0.6rem;
@@ -222,7 +221,6 @@
         text-transform: uppercase;
         margin-bottom: 2px;
       }
-      /* DIUBAH: Ukuran font harga disesuaikan */
       .p-val {
         font-size: 0.85rem;
         font-weight: bold;
@@ -337,6 +335,13 @@
         border-color: var(--primary);
       }
 
+      /* Merapikan style khusus datalist (Webkit only) agar icon arrow selaras */
+      input::-webkit-calendar-picker-indicator {
+        filter: invert(1);
+        opacity: 0.5;
+        cursor: pointer;
+      }
+
       .btn-full {
         width: 100%;
         padding: 14px;
@@ -444,9 +449,13 @@
             type="text"
             id="eKat"
             class="form-input"
-            placeholder="Contoh: Sembako"
+            list="kategoriList"
+            placeholder="Pilih atau ketik kategori baru..."
+            autocomplete="off"
           />
+          <datalist id="kategoriList"></datalist>
         </div>
+
         <div class="form-group">
           <label>Nama Barang (Wajib)</label>
           <input
@@ -456,6 +465,7 @@
             placeholder="Contoh: Beras Super 5Kg"
           />
         </div>
+
         <div class="form-group" style="display: flex; gap: 10px">
           <div style="flex: 1; min-width: 0">
             <label>Harga Beli (Modal)</label>
@@ -472,10 +482,14 @@
               type="text"
               id="eSat"
               class="form-input"
-              placeholder="Pcs/Kg"
+              list="satuanList"
+              placeholder="Pilih atau ketik satuan..."
+              autocomplete="off"
             />
+            <datalist id="satuanList"></datalist>
           </div>
         </div>
+
         <div class="form-group">
           <label>Harga Jual (HPP ke Peserta)</label>
           <input
@@ -499,7 +513,6 @@
       let base64String = "";
       let fileMimeType = "";
 
-      // Fungsi konversi link Drive ke Thumbnail
       function getSafeImageUrl(url) {
         if (!url) return "";
         const idMatch = url.match(/id=([^&]+)/);
@@ -531,13 +544,33 @@
       }
 
       function buatDropdownKategori() {
+        // 1. Ekstrak Kategori Unik
         const categories = [
           ...new Set(allItems.map((item) => item.kategori)),
         ].filter(Boolean);
+
+        // --- Untuk Filter di Header ---
         const select = document.getElementById("catFilter");
         select.innerHTML = '<option value="">Semua Kategori</option>';
         categories.sort().forEach((c) => {
           select.innerHTML += `<option value="${c}">${c}</option>`;
+        });
+
+        // --- Untuk Modal Input (Kategori) ---
+        const listKategori = document.getElementById("kategoriList");
+        listKategori.innerHTML = "";
+        categories.sort().forEach((c) => {
+          listKategori.innerHTML += `<option value="${c}"></option>`;
+        });
+
+        // 2. Ekstrak Satuan Unik (Untuk Modal Input Satuan)
+        const satuans = [
+          ...new Set(allItems.map((item) => item.satuan)),
+        ].filter(Boolean);
+        const listSatuan = document.getElementById("satuanList");
+        listSatuan.innerHTML = "";
+        satuans.sort().forEach((s) => {
+          listSatuan.innerHTML += `<option value="${s}"></option>`;
         });
       }
 
@@ -612,7 +645,6 @@
         container.innerHTML = html;
       }
 
-      // --- LOGIKA HAPUS ---
       async function hapus(nm) {
         if (!confirm(`Yakin HAPUS barang "${nm}" secara permanen?`)) return;
         const res = await fetchData("hapusBarangAdmin", { nama: nm }, "POST");
@@ -620,9 +652,7 @@
         else alert("Gagal menghapus");
       }
 
-      // --- LOGIKA MODAL FORM (TAMBAH & EDIT) ---
       function bukaModalEdit(dataStr) {
-        // Reset Preview
         base64String = "";
         fileMimeType = "";
         document.getElementById("fileInput").value = "";
@@ -631,7 +661,6 @@
         document.getElementById("fotoPlaceholder").style.display = "block";
 
         if (dataStr) {
-          // MODE EDIT
           let b = JSON.parse(decodeURIComponent(dataStr));
           document.getElementById("mTitle").innerText = "Edit: " + b.nama;
           document.getElementById("eNamaLama").value = b.nama;
@@ -648,7 +677,6 @@
             document.getElementById("fotoPlaceholder").style.display = "none";
           }
         } else {
-          // MODE TAMBAH BARU
           document.getElementById("mTitle").innerText = "Tambah Barang Baru";
           document.getElementById("eNamaLama").value = "";
           document.getElementById("eKat").value = "";
@@ -665,7 +693,6 @@
         document.getElementById("modalForm").style.display = "none";
       }
 
-      // --- LOGIKA UPLOAD PREVIEW ---
       function previewImage(event) {
         const file = event.target.files[0];
         if (!file) return;
@@ -681,11 +708,10 @@
         reader.readAsDataURL(file);
       }
 
-      // --- LOGIKA SIMPAN ---
       async function simpanBarang() {
         const namaLama = document.getElementById("eNamaLama").value;
         const payload = {
-          namaLama: namaLama, // Jika kosong, Backend otomatis membuat Barang Baru
+          namaLama: namaLama,
           kategori: document.getElementById("eKat").value,
           namaBaru: document.getElementById("eNama").value,
           hargaBeli: document.getElementById("eBeli").value || 0,
