@@ -1,0 +1,424 @@
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+    />
+    <title>Cek Kartu Peserta - Nizami</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <style>
+      :root {
+        --primary: #ffd700;
+        --bg: #121212;
+        --surface: #1e1e1e;
+        --text: #e0e0e0;
+        --border: #333;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        background: var(--bg);
+        color: var(--text);
+        font-family: "Inter", sans-serif;
+        margin: 0;
+        padding-bottom: 60px;
+      }
+
+      /* HEADER & NAV */
+      .top-nav {
+        background: rgba(18, 18, 18, 0.95);
+        backdrop-filter: blur(10px);
+        padding: 15px 20px;
+        position: sticky;
+        top: 0;
+        z-index: 50;
+        border-bottom: 1px solid var(--border);
+        display: flex;
+        align-items: center;
+        gap: 15px;
+      }
+      .back-btn {
+        background: #2a2a2a;
+        color: white;
+        width: 38px;
+        height: 38px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-decoration: none;
+      }
+      .page-title {
+        margin: 0;
+        font-size: 1.1rem;
+        font-weight: 600;
+      }
+
+      /* SEARCH AREA */
+      .search-box-container {
+        padding: 20px;
+        background: linear-gradient(180deg, #181818 0%, var(--bg) 100%);
+        border-bottom: 1px dashed #333;
+      }
+      .search-wrapper {
+        position: relative;
+        width: 100%;
+      }
+      .search-wrapper i {
+        position: absolute;
+        left: 15px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #888;
+        font-size: 1.1rem;
+      }
+      .search-input {
+        width: 100%;
+        padding: 16px 15px 16px 45px;
+        background: var(--surface);
+        border: 1px solid #444;
+        color: #fff;
+        border-radius: 12px;
+        font-size: 1rem;
+        outline: none;
+        transition: 0.3s;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+      }
+      .search-input:focus {
+        border-color: var(--primary);
+        box-shadow: 0 4px 20px rgba(255, 215, 0, 0.1);
+      }
+
+      /* RESULT LIST */
+      .result-container {
+        padding: 15px 20px;
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+      }
+
+      .peserta-card {
+        background: var(--surface);
+        border: 1px solid #333;
+        border-radius: 14px;
+        padding: 18px;
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+        transition: 0.2s;
+      }
+      .peserta-card:hover {
+        border-color: #555;
+      }
+
+      .pc-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+      }
+      .pc-name {
+        margin: 0 0 5px 0;
+        font-size: 1.1rem;
+        color: #fff;
+      }
+      .pc-id {
+        font-size: 0.75rem;
+        color: var(--primary);
+        background: rgba(255, 215, 0, 0.1);
+        padding: 4px 8px;
+        border-radius: 6px;
+        font-family: monospace;
+        letter-spacing: 0.5px;
+        border: 1px solid rgba(255, 215, 0, 0.3);
+      }
+
+      .pc-details {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+      }
+      .detail-row {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 0.85rem;
+        color: #aaa;
+      }
+      .detail-row i {
+        width: 16px;
+        text-align: center;
+        color: #666;
+      }
+
+      .pc-actions {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+        margin-top: 5px;
+        border-top: 1px dashed #333;
+        padding-top: 15px;
+      }
+
+      .btn {
+        padding: 12px;
+        border-radius: 10px;
+        font-weight: bold;
+        font-size: 0.85rem;
+        cursor: pointer;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 8px;
+        border: none;
+        transition: 0.2s;
+      }
+      .btn:active {
+        transform: scale(0.96);
+      }
+
+      .btn-view {
+        background: var(--primary);
+        color: #000;
+      }
+      .btn-share {
+        background: transparent;
+        color: #fff;
+        border: 1px solid #555;
+      }
+
+      /* EMPTY / LOADING STATE */
+      .state-box {
+        text-align: center;
+        padding: 50px 20px;
+        color: #666;
+      }
+      .state-box i {
+        font-size: 3rem;
+        margin-bottom: 15px;
+        color: #444;
+      }
+      .state-box p {
+        margin: 0;
+        font-size: 0.95rem;
+        line-height: 1.5;
+      }
+
+      /* TOAST NOTIFICATION */
+      #toast {
+        position: fixed;
+        bottom: 30px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: #4ade80;
+        color: #000;
+        padding: 12px 25px;
+        border-radius: 50px;
+        font-weight: bold;
+        font-size: 0.9rem;
+        box-shadow: 0 4px 20px rgba(74, 222, 128, 0.4);
+        z-index: 99999;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        opacity: 0;
+        visibility: hidden;
+        transition: 0.3s;
+      }
+      #toast.show {
+        opacity: 1;
+        visibility: visible;
+        bottom: 40px;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="toast">
+      <i class="fas fa-link"></i>
+      <span id="toastMsg">Link berhasil disalin!</span>
+    </div>
+
+    <div class="top-nav">
+      <a href="index.html" class="back-btn"
+        ><i class="fas fa-arrow-left"></i
+      ></a>
+      <h2 class="page-title">Cek Kartu Peserta</h2>
+    </div>
+
+    <div class="search-box-container">
+      <div class="search-wrapper">
+        <i class="fas fa-search"></i>
+        <input
+          type="text"
+          id="searchInput"
+          class="search-input"
+          placeholder="Ketik nama atau ID peserta..."
+          autocomplete="off"
+        />
+      </div>
+    </div>
+
+    <div class="result-container" id="resultContainer">
+      <div class="state-box">
+        <i
+          class="fas fa-id-card"
+          style="color: var(--primary); opacity: 0.5"
+        ></i>
+        <p style="color: #aaa">
+          Ketikkan minimal 3 huruf nama peserta di kotak pencarian untuk melihat
+          kartu mereka.
+        </p>
+      </div>
+    </div>
+
+    <script src="script.js"></script>
+    <script>
+      let typingTimer;
+      const searchInput = document.getElementById("searchInput");
+      const resultContainer = document.getElementById("resultContainer");
+
+      // Auto Search dengan jeda agar tidak memberatkan server
+      searchInput.addEventListener("keyup", function () {
+        clearTimeout(typingTimer);
+        const query = searchInput.value.trim();
+
+        if (query.length === 0) {
+          resultContainer.innerHTML = `
+              <div class="state-box">
+                <i class="fas fa-id-card" style="color: var(--primary); opacity: 0.5;"></i>
+                <p style="color:#aaa;">Ketikkan minimal 3 huruf nama peserta di kotak pencarian untuk melihat kartu mereka.</p>
+              </div>`;
+          return;
+        }
+
+        if (query.length < 3) return; // Tunggu sampai 3 huruf
+
+        resultContainer.innerHTML = `
+            <div class="state-box">
+                <i class="fas fa-circle-notch fa-spin" style="color: var(--primary);"></i>
+                <p>Mencari data "<b>${query}</b>"...</p>
+            </div>
+        `;
+
+        typingTimer = setTimeout(() => {
+          fetchDataPeserta(query);
+        }, 800);
+      });
+
+      async function fetchDataPeserta(query) {
+        try {
+          const res = await fetchData("cariPeserta", { q: query }, "GET");
+          renderResults(res, query);
+        } catch (err) {
+          resultContainer.innerHTML = `
+            <div class="state-box">
+              <i class="fas fa-wifi" style="color:#ff6b81;"></i>
+              <p style="color:#ff6b81;">Koneksi terputus. Silakan coba lagi.</p>
+            </div>`;
+        }
+      }
+
+      function renderResults(data, query) {
+        if (!data || data.length === 0) {
+          resultContainer.innerHTML = `
+            <div class="state-box">
+              <i class="fas fa-folder-open"></i>
+              <p>Peserta dengan nama "<b>${query}</b>" tidak ditemukan.</p>
+            </div>`;
+          return;
+        }
+
+        // Karena data bisa ganda (1 orang banyak paket), kita kelompokkan berdasarkan ID
+        let groupedData = {};
+        data.forEach((p) => {
+          if (!groupedData[p.id]) {
+            groupedData[p.id] = {
+              id: p.id,
+              nama: p.nama,
+              mitra: p.mitra,
+              paketList: [],
+            };
+          }
+          groupedData[p.id].paketList.push(p.paket);
+        });
+
+        let html = "";
+
+        for (let id in groupedData) {
+          let p = groupedData[id];
+
+          // Format daftar paket agar enak dibaca (Jika banyak, pisahkan dengan koma)
+          let paketTampil = p.paketList.join(", ");
+
+          // Buat Link Ajaib yang mengarah langsung ke kartu-digital.html
+          // Mengambil URL website saat ini dan mengganti halaman cek-kartu menjadi kartu-digital
+          let currentPath = window.location.href.split("?")[0];
+          let baseUrl = currentPath.replace("cek-kartu.html", "");
+          let magicLink = `${baseUrl}kartu-digital.html?id=${p.id}`;
+
+          html += `
+            <div class="peserta-card">
+                <div class="pc-header">
+                    <h3 class="pc-name">${p.nama}</h3>
+                    <div class="pc-id">${p.id}</div>
+                </div>
+                
+                <div class="pc-details">
+                    <div class="detail-row">
+                        <i class="fas fa-box-open"></i>
+                        <span>${paketTampil}</span>
+                    </div>
+                    <div class="detail-row">
+                        <i class="fas fa-handshake"></i>
+                        <span>Mitra: ${p.mitra}</span>
+                    </div>
+                </div>
+
+                <div class="pc-actions">
+                    <button class="btn btn-view" onclick="bukaKartu('${p.id}')">
+                        <i class="fas fa-id-card"></i> Lihat Kartu
+                    </button>
+                    <button class="btn btn-share" onclick="salinLink('${magicLink}', '${p.nama}')">
+                        <i class="fas fa-link"></i> Salin Link
+                    </button>
+                </div>
+            </div>`;
+        }
+
+        resultContainer.innerHTML = html;
+      }
+
+      function bukaKartu(id) {
+        window.location.href = `kartu-digital.html?id=${id}`;
+      }
+
+      function salinLink(url, nama) {
+        let text = `Halo *${nama}*,\nBerikut adalah link Kartu Tabungan Digital Anda:\n\n${url}\n\nSilakan klik link di atas untuk melihat rincian tabungan secara otomatis.`;
+
+        navigator.clipboard
+          .writeText(text)
+          .then(() => {
+            const toast = document.getElementById("toast");
+            toast.classList.add("show");
+            setTimeout(() => {
+              toast.classList.remove("show");
+            }, 2500);
+          })
+          .catch((err) => {
+            alert(
+              "Gagal menyalin link. Browser Anda tidak mendukung fitur ini.",
+            );
+          });
+      }
+    </script>
+  </body>
+</html>
