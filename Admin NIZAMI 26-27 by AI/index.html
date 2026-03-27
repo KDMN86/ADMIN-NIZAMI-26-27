@@ -32,7 +32,6 @@
       * {
         box-sizing: border-box;
       }
-
       header {
         padding: 20px 20px 10px 20px;
         display: flex;
@@ -64,7 +63,6 @@
         border: 1px solid #333;
         cursor: pointer;
       }
-
       .hero-container {
         padding: 10px 20px;
       }
@@ -100,7 +98,6 @@
         margin: 5px 0 15px 0;
         letter-spacing: -1px;
       }
-
       .hero-stats {
         display: flex;
         gap: 20px;
@@ -116,7 +113,6 @@
         opacity: 0.7;
         font-weight: 600;
       }
-
       .section-title {
         padding: 0 20px;
         margin: 25px 0 15px 0;
@@ -125,7 +121,6 @@
         text-transform: uppercase;
         letter-spacing: 1px;
       }
-
       .menu-container {
         padding: 0 20px;
       }
@@ -171,8 +166,6 @@
       .menu-item.active span {
         color: var(--primary);
       }
-
-      /* AREA FILTER MULTI-SELECT KHUSUS */
       .paket-container {
         padding: 10px 20px;
         margin-top: 10px;
@@ -183,7 +176,6 @@
         gap: 10px;
         margin-bottom: 15px;
       }
-
       .filter-select-normal {
         background: #1a1a1a;
         color: var(--primary);
@@ -200,13 +192,11 @@
         background-repeat: no-repeat;
         background-position: right 10px center;
       }
-
       .grid-2 {
         display: grid;
         grid-template-columns: 1fr 1fr;
         gap: 10px;
       }
-
       .cs-wrap {
         position: relative;
         width: 100%;
@@ -229,7 +219,6 @@
         color: var(--primary);
         border-color: var(--primary);
       }
-
       .cs-list {
         display: none;
         position: absolute;
@@ -265,7 +254,6 @@
         accent-color: var(--primary);
         cursor: pointer;
       }
-
       .paket-list {
         display: flex;
         flex-direction: column;
@@ -300,8 +288,6 @@
         align-items: center;
         gap: 6px;
       }
-
-      /* MODAL / POPUP CSS */
       #modalDetail {
         display: none;
         position: fixed;
@@ -351,8 +337,6 @@
         flex-direction: column;
         gap: 10px;
       }
-
-      /* KARTU PESERTA DI DALAM MODAL */
       .detail-item {
         background: #111;
         padding: 12px 15px;
@@ -409,7 +393,6 @@
         background: #ff5252;
         color: #fff;
       }
-
       .skeleton {
         background: #222;
         height: 45px;
@@ -467,10 +450,12 @@
           ><div class="menu-box"><i class="fas fa-user-plus"></i></div>
           <span>Daftar</span></a
         >
-        <a href="cekStatus.html" class="menu-item"
-          ><div class="menu-box"><i class="fas fa-search"></i></div>
-          <span>Cek Status</span></a
+
+        <a href="cek-kartu.html" class="menu-item"
+          ><div class="menu-box"><i class="fas fa-id-card"></i></div>
+          <span>Cek Kartu</span></a
         >
+
         <a href="rekap.html" class="menu-item"
           ><div class="menu-box"><i class="fas fa-clipboard-list"></i></div>
           <span>Rekap</span></a
@@ -521,7 +506,6 @@
             <option value="151-200">151 - 200x Setor</option>
             <option value="201-9999">> 200x Setor</option>
           </select>
-
           <div class="grid-2">
             <div class="cs-wrap" id="wrapMitra">
               <div
@@ -580,25 +564,18 @@
       async function loadDashboard() {
         const dashUang = document.getElementById("dashUang");
         const pktList = document.getElementById("paketList");
-
         dashUang.style.opacity = "0.5";
 
         try {
           const data = await fetchData("getAdminStats");
-
           if (data) {
             dashUang.innerText = formatRupiah(data.uang || 0);
             document.getElementById("dashPeserta").innerText =
               data.peserta || 0;
             document.getElementById("dashLunas").innerText =
               data.lunasBarang || 0;
-
             rawPaketData = data.paketBreakdown || {};
-
-            // Build Checkbox Filters dynamically
             populateFilters();
-
-            // Execute render list
             renderPaketList();
           }
         } catch (error) {
@@ -612,20 +589,14 @@
         }
       }
 
-      // ===============================================
-      // FUNGSI MULTI-SELECT DROPDOWN
-      // ===============================================
       function toggleDrop(idList) {
-        // Tutup semua dulu
         const allLists = document.querySelectorAll(".cs-list");
         allLists.forEach((l) => {
           if (l.id !== idList) l.classList.remove("show");
         });
-        // Buka yang di klik
         document.getElementById(idList).classList.toggle("show");
       }
 
-      // Tutup dropdown jika klik di luar area
       document.addEventListener("click", function (e) {
         if (!e.target.closest(".cs-wrap")) {
           document
@@ -652,7 +623,6 @@
           });
         }
 
-        // Inject Mitra
         const boxMitra = document.getElementById("listMitra");
         boxMitra.innerHTML = "";
         Array.from(mitraSet)
@@ -661,7 +631,6 @@
             boxMitra.innerHTML += `<label><input type="checkbox" class="chk-mitra" value="${m}" onchange="renderPaketList()"> ${m}</label>`;
           });
 
-        // Inject Paket
         const boxPaket = document.getElementById("listPaket");
         boxPaket.innerHTML = "";
         Array.from(paketSet)
@@ -671,13 +640,8 @@
           });
       }
 
-      // ===============================================
-      // FUNGSI RENDER LIST (DENGAN FILTER GABUNGAN)
-      // ===============================================
       function renderPaketList() {
         const valSetoran = document.getElementById("filterSetoran").value;
-
-        // Ambil semua centangan yang dipilih
         const arrMitra = Array.from(
           document.querySelectorAll(".chk-mitra:checked"),
         ).map((el) => el.value);
@@ -685,7 +649,6 @@
           document.querySelectorAll(".chk-paket:checked"),
         ).map((el) => el.value);
 
-        // Update Teks Judul Dropdown
         const headMitra = document.getElementById("headMitra");
         const headPaket = document.getElementById("headPaket");
 
@@ -705,7 +668,6 @@
           headPaket.classList.remove("has-val");
         }
 
-        // Tentukan Range Setoran
         let min = 0,
           max = 99999;
         if (valSetoran !== "ALL") {
@@ -717,26 +679,20 @@
         globalPaketData = {};
         const container = document.getElementById("paketList");
         container.innerHTML = "";
-
         let hasData = false;
 
-        // Loop dan saring
         for (let pkt in rawPaketData) {
-          // Jika Filter Paket diisi, dan paket ini tidak ada di daftar centangan, SKIP!
           if (arrPaket.length > 0 && !arrPaket.includes(pkt)) continue;
 
           let filteredPeserta = rawPaketData[pkt].filter((p) => {
             let freqOk = (p.freq || 0) >= min && (p.freq || 0) <= max;
-            // Jika Mitra Kosong = Anggap Centang Semua
             let mitraOk = arrMitra.length === 0 || arrMitra.includes(p.mitra);
-
             return freqOk && mitraOk;
           });
 
           if (filteredPeserta.length > 0) {
             hasData = true;
             globalPaketData[pkt] = filteredPeserta;
-
             container.innerHTML += `
               <div class="paket-item" onclick="bukaModal('${pkt}')">
                 <span>${pkt}</span>
@@ -796,7 +752,6 @@
         const konfirmasi = confirm(
           `⚠️ PERINGATAN KERAS!\n\nYakin ingin menghapus peserta:\nNama: ${nama}\nID: ${id} \n\nData peserta dan rincian belanjaannya akan hilang secara permanen!`,
         );
-
         if (!konfirmasi) return;
 
         const btn = document.querySelector(`#peserta-${id} button`);
