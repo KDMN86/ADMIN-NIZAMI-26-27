@@ -286,7 +286,6 @@
       const searchInput = document.getElementById("searchInput");
       const resultContainer = document.getElementById("resultContainer");
 
-      // Auto Search dengan jeda agar tidak memberatkan server
       searchInput.addEventListener("keyup", function () {
         clearTimeout(typingTimer);
         const query = searchInput.value.trim();
@@ -300,7 +299,7 @@
           return;
         }
 
-        if (query.length < 3) return; // Tunggu sampai 3 huruf
+        if (query.length < 3) return;
 
         resultContainer.innerHTML = `
             <div class="state-box">
@@ -337,7 +336,6 @@
           return;
         }
 
-        // Karena data bisa ganda (1 orang banyak paket), kita kelompokkan berdasarkan ID
         let groupedData = {};
         data.forEach((p) => {
           if (!groupedData[p.id]) {
@@ -355,15 +353,10 @@
 
         for (let id in groupedData) {
           let p = groupedData[id];
-
-          // Format daftar paket agar enak dibaca (Jika banyak, pisahkan dengan koma)
           let paketTampil = p.paketList.join(", ");
 
-          // Buat Link Ajaib yang mengarah langsung ke kartu-digital.html
-          // Mengambil URL website saat ini dan mengganti halaman cek-kartu menjadi kartu-digital
-          let currentPath = window.location.href.split("?")[0];
-          let baseUrl = currentPath.replace("cek-kartu.html", "");
-          let magicLink = `${baseUrl}kartu-digital.html?id=${p.id}`;
+          // --- PERBAIKAN: Link Ajaib diarahkan langsung ke Web Peserta ---
+          let magicLink = `https://nizami-26-27-fix.vercel.app/kartu-digital.html?id=${p.id}`;
 
           html += `
             <div class="peserta-card">
@@ -397,8 +390,12 @@
         resultContainer.innerHTML = html;
       }
 
+      // Membuka Tab Baru mengarah ke Web Peserta
       function bukaKartu(id) {
-        window.location.href = `kartu-digital.html?id=${id}`;
+        window.open(
+          `https://nizami-26-27-fix.vercel.app/kartu-digital.html?id=${id}`,
+          "_blank",
+        );
       }
 
       function salinLink(url, nama) {
