@@ -45,7 +45,7 @@
         display: flex;
         gap: 10px;
         align-items: center;
-        margin-bottom: 10px;
+        margin-bottom: 15px;
       }
       .back-btn {
         background: #333;
@@ -67,29 +67,132 @@
         margin: 0;
       }
 
-      .search-bar {
+      /* FILTER SECTION */
+      .filter-container {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+      }
+      .filter-row {
+        display: flex;
+        gap: 10px;
+      }
+      .filter-input {
         width: 100%;
-        padding: 12px 20px;
-        border-radius: 15px;
+        padding: 10px 15px;
+        border-radius: 10px;
         border: 1px solid #444;
         background: #222;
         color: white;
         outline: none;
-        font-size: 1rem;
+        font-size: 0.9rem;
         box-sizing: border-box;
       }
-      .search-bar:focus {
+      .filter-input:focus {
         border-color: var(--primary);
+      }
+      select.filter-input {
+        appearance: none;
+        background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23ffd700%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.4-12.8z%22%2F%3E%3C%2Fsvg%3E");
+        background-repeat: no-repeat;
+        background-position: right 15px top 50%;
+        background-size: 12px auto;
+        padding-right: 30px;
+      }
+
+      /* VIEW TOGGLE */
+      .view-tabs {
+        display: flex;
+        background: #222;
+        border-radius: 10px;
+        overflow: hidden;
+        margin-top: 5px;
+        border: 1px solid #444;
+      }
+      .tab-btn {
+        flex: 1;
+        padding: 10px;
+        background: transparent;
+        color: #888;
+        border: none;
+        cursor: pointer;
+        font-weight: 600;
+        font-size: 0.9rem;
+        transition: 0.2s;
+      }
+      .tab-btn.active {
+        background: var(--primary);
+        color: #000;
+      }
+
+      /* SUMMARY BAR */
+      .summary-bar {
+        background: rgba(255, 215, 0, 0.1);
+        border: 1px solid rgba(255, 215, 0, 0.3);
+        padding: 12px 15px;
+        border-radius: 10px;
+        margin: 15px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+      .summary-title {
+        font-size: 0.8rem;
+        color: var(--primary);
+      }
+      .summary-value {
+        font-size: 1.1rem;
+        font-weight: bold;
+        color: #4caf50;
       }
 
       /* CONTAINER & CARD */
       #containerList {
-        padding: 15px;
+        padding: 0 15px 15px 15px;
         display: flex;
         flex-direction: column;
         gap: 15px;
       }
 
+      /* KARTU TRANSAKSI FLAT (TERBARU) */
+      .trx-flat-card {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        overflow: hidden;
+      }
+      .flat-item {
+        padding: 12px 15px;
+        border-bottom: 1px solid #2a2a2a;
+      }
+      .flat-item:last-child {
+        border-bottom: none;
+      }
+      .flat-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 5px;
+      }
+      .flat-name {
+        color: var(--primary);
+        font-weight: 600;
+        font-size: 0.95rem;
+      }
+      .flat-date {
+        font-size: 0.75rem;
+        color: #aaa;
+        display: flex;
+        align-items: center;
+        gap: 4px;
+      }
+      .flat-meta {
+        font-size: 0.8rem;
+        color: #888;
+        margin-bottom: 8px;
+      }
+
+      /* KARTU PER PESERTA (GROUP) */
       .trx-card {
         background: var(--surface);
         border: 1px solid var(--border);
@@ -107,7 +210,6 @@
         width: 4px;
         background: var(--primary);
       }
-
       .trx-header {
         display: flex;
         justify-content: space-between;
@@ -138,22 +240,19 @@
         font-size: 0.75rem;
         border: 1px solid rgba(255, 215, 0, 0.3);
       }
-
       .trx-paket {
         font-size: 0.85rem;
         color: #aaa;
         margin-top: 10px;
         display: block;
       }
-
-      /* HISTORY LIST IN CARD */
       .trx-history {
         background: #151515;
         padding: 12px;
         border-radius: 8px;
         margin: 12px 0;
         border: 1px solid #2a2a2a;
-        max-height: 200px;
+        max-height: 300px; /* Diperbesar sedikit agar history terlihat lega */
         overflow-y: auto;
       }
       .th-title {
@@ -173,14 +272,6 @@
         border-bottom: none;
         padding-bottom: 0;
         margin-bottom: 0;
-      }
-      .h-date {
-        font-size: 0.75rem;
-        color: #aaa;
-        margin-bottom: 4px;
-        display: flex;
-        align-items: center;
-        gap: 5px;
       }
       .h-detail {
         display: flex;
@@ -253,16 +344,63 @@
           <i class="fas fa-sync-alt"></i>
         </div>
       </div>
-      <input
-        type="text"
-        id="cari"
-        class="search-bar"
-        placeholder="🔍 Cari Nama / ID Peserta atau Mitra..."
-        oninput="filterData()"
-        autocomplete="off"
-      />
+
+      <div class="filter-container">
+        <div class="filter-row">
+          <input
+            type="text"
+            id="cari"
+            class="filter-input"
+            placeholder="🔍 Cari Peserta / ID..."
+            oninput="applyFilters()"
+            autocomplete="off"
+          />
+          <select
+            id="filterMitra"
+            class="filter-input"
+            onchange="applyFilters()"
+          >
+            <option value="">Semua Mitra</option>
+          </select>
+        </div>
+
+        <div class="filter-row">
+          <input
+            type="date"
+            id="startDate"
+            class="filter-input"
+            onchange="applyFilters()"
+            title="Dari Tanggal"
+          />
+          <input
+            type="date"
+            id="endDate"
+            class="filter-input"
+            onchange="applyFilters()"
+            title="Sampai Tanggal"
+          />
+        </div>
+
+        <div class="view-tabs">
+          <button
+            id="btnViewLatest"
+            class="tab-btn active"
+            onclick="setViewMode('latest')"
+          >
+            Semua Transaksi
+          </button>
+          <button
+            id="btnViewGroup"
+            class="tab-btn"
+            onclick="setViewMode('group')"
+          >
+            Per Peserta
+          </button>
+        </div>
+      </div>
     </header>
 
+    <div id="summaryContainer"></div>
     <div id="containerList">
       <div class="empty-state">
         <i class="fas fa-spinner fa-spin"></i><br />
@@ -271,9 +409,15 @@
     </div>
 
     <script src="script.js"></script>
-    <script>
-      let groupedData = [];
 
+    <script>
+      let rawData = [];
+      let filteredData = [];
+      let currentViewMode = "latest";
+
+      // ==========================================
+      // 1. INISIALISASI DATA AWAL
+      // ==========================================
       async function initData() {
         const container = document.getElementById("containerList");
         container.innerHTML =
@@ -281,95 +425,239 @@
 
         const res = await fetchData("getTransaksi");
         if (res && res.length > 0) {
-          // 1. KELOMPOKKAN DATA BERDASARKAN ID PESERTA
-          const map = {};
-          res.forEach((t) => {
-            if (!map[t.id]) {
-              map[t.id] = {
-                id: t.id,
-                nama: t.nama,
-                mitra: t.mitra,
-                paket: t.paket,
-                totalKotor: 0,
-                totalAdmin: 0,
-                totalBersih: 0,
-                history: [],
-              };
+          // --- PREPROCESSING START ---
+          // Kita urutkan data dari yang TERLAMA ke TERBARU untuk menghitung urutan transaksi yang logis
+          let chronologicalData = [...res].reverse();
+          let pStats = {}; // Wadah penyimpanan sementara untuk menghitung akumulasi per peserta
+
+          chronologicalData.forEach((t) => {
+            if (!pStats[t.id]) {
+              pStats[t.id] = { count: 0, totalQty: 0 };
             }
-            // Tambahkan nominal ke total peserta
-            map[t.id].totalKotor += Number(t.kotor) || 0;
-            map[t.id].totalAdmin += Number(t.admin) || 0;
-            map[t.id].totalBersih += Number(t.bersih) || 0;
-            // Masukkan data riwayat
-            map[t.id].history.push(t);
+            // Tambah hitungan setiap kali orang tersebut setor
+            pStats[t.id].count++;
+            pStats[t.id].totalQty += Number(t.qty) || 0;
+
+            // Simpan data perhitungan ke dalam objek transaksi
+            t.trxSequence = pStats[t.id].count; // Ini akan jadi Setoran Ke-1, Ke-2, dst
+            t.akumulasiQty = pStats[t.id].totalQty; // Ini total keseluruhan setoran yang sudah masuk
           });
 
-          // Ubah Object Map menjadi Array
-          groupedData = Object.values(map);
+          // Kembalikan lagi datanya ke urutan TERBARU ke TERLAMA untuk ditampilkan di UI
+          rawData = chronologicalData.reverse();
+          // --- PREPROCESSING END ---
 
-          // 2. TAMPILAN AWAL (KOSONG, MENUNGGU PENCARIAN)
-          container.innerHTML =
-            '<div class="empty-state"><i class="fas fa-search"></i><br>Database Siap!<br>Silakan ketik Nama / ID untuk mencari riwayat peserta.</div>';
+          populateMitraDropdown();
+          applyFilters();
         } else {
           container.innerHTML =
             '<div class="empty-state"><i class="fas fa-folder-open"></i><br>Belum ada riwayat transaksi sama sekali.</div>';
+          document.getElementById("summaryContainer").innerHTML = "";
         }
       }
 
-      function filterData() {
-        const teks = document.getElementById("cari").value.toLowerCase().trim();
-        const container = document.getElementById("containerList");
-
-        // Jika kotak pencarian kosong, sembunyikan kembali datanya
-        if (teks.length === 0) {
-          container.innerHTML =
-            '<div class="empty-state"><i class="fas fa-search"></i><br>Silakan ketik Nama / ID untuk mencari riwayat peserta.</div>';
-          return;
-        }
-
-        // Cari berdasarkan Nama Peserta, ID Peserta, atau Nama Mitra
-        const hasil = groupedData.filter(
-          (p) =>
-            (p.nama || "").toLowerCase().includes(teks) ||
-            (p.id || "").toLowerCase().includes(teks) ||
-            (p.mitra || "").toLowerCase().includes(teks),
+      // ==========================================
+      // 2. LOGIKA PARSING TANGGAL & DROPDOWN MITRA
+      // ==========================================
+      function parseIndoDate(dateStr) {
+        if (!dateStr) return new Date(0);
+        let parts = dateStr.split(", ");
+        if (parts.length < 2) return new Date(dateStr);
+        let dateParts = parts[0].split("/");
+        return new Date(
+          `${dateParts[2]}-${dateParts[1]}-${dateParts[0]}T00:00:00`,
         );
-
-        renderList(hasil);
       }
 
-      function renderList(dataArr) {
-        const container = document.getElementById("containerList");
-        container.innerHTML = "";
+      function populateMitraDropdown() {
+        const select = document.getElementById("filterMitra");
+        select.innerHTML = '<option value="">Semua Mitra</option>';
 
-        if (dataArr.length === 0) {
+        let mitras = new Set();
+        rawData.forEach((t) => {
+          if (t.mitra) mitras.add(t.mitra.trim());
+        });
+
+        Array.from(mitras)
+          .sort()
+          .forEach((m) => {
+            let opt = document.createElement("option");
+            opt.value = m.toLowerCase();
+            opt.textContent = m;
+            select.appendChild(opt);
+          });
+      }
+
+      // ==========================================
+      // 3. LOGIKA FILTERING UTAMA
+      // ==========================================
+      function applyFilters() {
+        const cariText = document
+          .getElementById("cari")
+          .value.toLowerCase()
+          .trim();
+        const mitraVal = document
+          .getElementById("filterMitra")
+          .value.toLowerCase();
+        const startVal = document.getElementById("startDate").value;
+        const endVal = document.getElementById("endDate").value;
+
+        let startD = startVal ? new Date(startVal + "T00:00:00") : null;
+        let endD = endVal ? new Date(endVal + "T23:59:59") : null;
+
+        filteredData = rawData.filter((t) => {
+          let matchText = true;
+          let matchMitra = true;
+          let matchDate = true;
+
+          if (cariText) {
+            matchText =
+              (t.nama || "").toLowerCase().includes(cariText) ||
+              (t.id || "").toLowerCase().includes(cariText);
+          }
+
+          if (mitraVal) {
+            matchMitra = (t.mitra || "Pusat").toLowerCase().includes(mitraVal);
+          }
+
+          if (startD || endD) {
+            let trxDate = parseIndoDate(t.waktu);
+            if (startD && trxDate < startD) matchDate = false;
+            if (endD && trxDate > endD) matchDate = false;
+          }
+
+          return matchText && matchMitra && matchDate;
+        });
+
+        renderTampilan();
+      }
+
+      // ==========================================
+      // 4. RENDER UI BERDASARKAN MODE
+      // ==========================================
+      function setViewMode(mode) {
+        currentViewMode = mode;
+        document
+          .getElementById("btnViewLatest")
+          .classList.toggle("active", mode === "latest");
+        document
+          .getElementById("btnViewGroup")
+          .classList.toggle("active", mode === "group");
+        renderTampilan();
+      }
+
+      function renderTampilan() {
+        const container = document.getElementById("containerList");
+        const summaryCont = document.getElementById("summaryContainer");
+
+        if (filteredData.length === 0) {
+          summaryCont.innerHTML = "";
           container.innerHTML =
             '<div class="empty-state"><i class="fas fa-box-open" style="color:#ff5252;"></i><br>Data transaksi tidak ditemukan.</div>';
           return;
         }
 
+        let totalUangKotor = 0;
+        let totalTransaksi = filteredData.length;
+        filteredData.forEach((t) => (totalUangKotor += Number(t.kotor) || 0));
+
+        summaryCont.innerHTML = `
+          <div class="summary-bar">
+            <div>
+              <div class="summary-title">Total Filter (${totalTransaksi} Trx)</div>
+            </div>
+            <div class="summary-value">+ ${formatRupiah(totalUangKotor)}</div>
+          </div>
+        `;
+
+        if (currentViewMode === "latest") {
+          renderListTerbaru();
+        } else {
+          renderListGrup();
+        }
+      }
+
+      // --- RENDER MODE TERBARU (FLAT LIST) ---
+      function renderListTerbaru() {
+        const container = document.getElementById("containerList");
+        let html = '<div class="trx-flat-card">';
+
+        filteredData.forEach((h) => {
+          // Logika Tampilan:
+          // Jika ini transaksi ke-1, tampilkan "Setoran Ke-1 (Jml: Nx)"
+          // Jika ini transaksi ke-2 dst, tambahkan keterangan "Total Akumulasi" di bawahnya.
+          html += `
+            <div class="flat-item">
+              <div class="flat-header">
+                <span class="flat-name">${h.nama} <span style="font-size:0.7rem; color:#888;">(${h.id})</span></span>
+                <span class="flat-date"><i class="far fa-clock"></i> ${h.waktu}</span>
+              </div>
+              <div class="flat-meta">
+                ${h.paket} • <i class="fas fa-handshake"></i> ${h.mitra || "Pusat"}
+              </div>
+              <div class="h-detail" style="align-items: flex-start;">
+                <div style="display:flex; flex-direction:column; gap:4px;">
+                  <span>Setoran Ke-${h.trxSequence} (Jml: ${h.qty}x)</span>
+                  ${h.trxSequence > 1 ? `<span style="font-size:0.75rem; color:#aaa;"><i class="fas fa-chart-line"></i> Total Terkumpul: ${h.akumulasiQty}x</span>` : ""}
+                </div>
+                <span class="h-amount" style="white-space:nowrap;">+ ${formatRupiah(h.kotor)}</span>
+              </div>
+            </div>
+          `;
+        });
+
+        html += "</div>";
+        container.innerHTML = html;
+      }
+
+      // --- RENDER MODE PER PESERTA (GROUPED) ---
+      function renderListGrup() {
+        const container = document.getElementById("containerList");
+
+        const map = {};
+        filteredData.forEach((t) => {
+          if (!map[t.id]) {
+            map[t.id] = {
+              id: t.id,
+              nama: t.nama,
+              mitra: t.mitra,
+              paket: t.paket,
+              totalKotor: 0,
+              totalAdmin: 0,
+              totalBersih: 0,
+              history: [],
+            };
+          }
+          map[t.id].totalKotor += Number(t.kotor) || 0;
+          map[t.id].totalAdmin += Number(t.admin) || 0;
+          map[t.id].totalBersih += Number(t.bersih) || 0;
+          map[t.id].history.push(t);
+        });
+
+        let dataGrouped = Object.values(map);
         let html = "";
-        dataArr.forEach((p) => {
-          // Generate list riwayat untuk orang ini
+
+        dataGrouped.forEach((p) => {
           let historyHtml = "";
           p.history.forEach((h) => {
             historyHtml += `
             <div class="h-item">
-                <div class="h-date"><i class="far fa-clock"></i> ${h.waktu}</div>
-                <div class="h-detail">
-                    <span>Setoran Ke-${h.ke} (Jml: ${h.qty}x)</span>
-                    <span class="h-amount">+ ${formatRupiah(h.kotor)}</span>
+                <div class="flat-date" style="margin-bottom:4px;"><i class="far fa-clock"></i> ${h.waktu}</div>
+                <div class="h-detail" style="align-items: flex-start;">
+                    <div style="display:flex; flex-direction:column; gap:4px;">
+                      <span>Setoran Ke-${h.trxSequence} (Jml: ${h.qty}x)</span>
+                      ${h.trxSequence > 1 ? `<span style="font-size:0.75rem; color:#888;"><i class="fas fa-chart-line"></i> Total Terkumpul: ${h.akumulasiQty}x</span>` : ""}
+                    </div>
+                    <span class="h-amount" style="white-space:nowrap;">+ ${formatRupiah(h.kotor)}</span>
                 </div>
             </div>`;
           });
 
-          // Tampilkan baris potongan admin HANYA jika nilainya lebih dari 0
           let adminRow = "";
           if (p.totalAdmin > 0) {
             adminRow = `<div class="f-row admin"><span>Total Potongan Admin</span><span>- ${formatRupiah(p.totalAdmin)}</span></div>`;
           }
 
-          // Rangkai HTML Kartu Peserta
           html += `
           <div class="trx-card">
             <div class="trx-header">
@@ -394,7 +682,6 @@
         container.innerHTML = html;
       }
 
-      // Mulai tarik data saat halaman dimuat
       document.addEventListener("DOMContentLoaded", initData);
     </script>
   </body>
