@@ -32,7 +32,6 @@
         padding: 0;
         padding-bottom: 100px;
       }
-
       .top-nav {
         background: rgba(18, 18, 18, 0.95);
         padding: 15px 20px;
@@ -67,7 +66,34 @@
         margin: 0 auto;
       }
 
-      /* WA BOX */
+      /* KOTAK UBAH PAKET & WA BOX */
+      .ubah-paket-box {
+        background: #1e1e1e;
+        padding: 15px;
+        border-radius: 12px;
+        border: 1px solid #9b59b6;
+        margin-bottom: 20px;
+      }
+      .btn-ubah-paket {
+        background: #9b59b6;
+        color: #fff;
+        border: none;
+        padding: 10px 15px;
+        border-radius: 6px;
+        font-weight: bold;
+        width: 100%;
+        cursor: pointer;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 8px;
+        transition: 0.2s;
+      }
+      .btn-ubah-paket:active {
+        transform: scale(0.98);
+        background: #8e44ad;
+      }
+
       .wa-box {
         background: linear-gradient(135deg, #075e54, #128c7e);
         border-radius: 12px;
@@ -109,7 +135,7 @@
         background: #1da851;
       }
 
-      /* PARTICIPANT CARD (DESAIN BARU) */
+      /* PARTICIPANT CARD */
       .p-card {
         background: var(--surface);
         border: 1px solid var(--border);
@@ -177,7 +203,6 @@
         }
       }
 
-      /* NESTED PAKET ROW (DESAIN BARU YANG LEBIH RAPI) */
       .paket-section-title {
         font-size: 0.85rem;
         color: #aaa;
@@ -246,7 +271,6 @@
         align-items: center;
         transition: 0.2s;
       }
-
       .summary-box {
         background: #111;
         border: 1px solid #2a2a2a;
@@ -323,9 +347,10 @@
         font-size: 1rem;
       }
 
-      /* MODAL STYLES (ACCORDION, SEARCH & KERANJANG MINI) */
+      /* MODAL UMUM */
       #modalResult,
-      #modalItems {
+      #modalItems,
+      #modalUbahPaket {
         display: none;
         position: fixed;
         inset: 0;
@@ -389,7 +414,7 @@
         padding-right: 5px;
       }
 
-      /* ACCORDION CATEGORY */
+      /* MODAL ITEM CATEGORY (PILIH BARANG) */
       .category-section {
         margin-bottom: 10px;
       }
@@ -424,7 +449,6 @@
         transform: rotate(180deg);
         color: var(--primary);
       }
-
       .category-body {
         display: none;
         padding: 10px;
@@ -473,7 +497,6 @@
         color: #fff;
       }
 
-      /* MINI CART */
       .modal-cart-box {
         background: #111;
         border: 1px solid #333;
@@ -623,6 +646,19 @@
     </div>
 
     <div class="container">
+      <div class="ubah-paket-box">
+        <h4 style="margin: 0 0 8px 0; color: #9b59b6">
+          <i class="fas fa-exchange-alt"></i> Kelola Paket Peserta
+        </h4>
+        <p style="font-size: 0.8rem; color: #aaa; margin: 0 0 12px 0">
+          Fitur untuk merubah jenis paket peserta lama. Sistem akan otomatis
+          menghitung ulang setoran yang masuk.
+        </p>
+        <button class="btn-ubah-paket" onclick="bukaModalUbahPaket()">
+          <i class="fas fa-search"></i> CARI & UBAH PAKET
+        </button>
+      </div>
+
       <div class="wa-box">
         <div style="color: #fff; font-weight: bold; margin-bottom: 5px">
           <i class="fab fa-whatsapp"></i> Isi Cepat dari WA
@@ -657,6 +693,82 @@
       </button>
     </div>
 
+    <div id="modalUbahPaket">
+      <div class="item-card">
+        <div class="item-header">
+          <h3 style="margin: 0; color: #9b59b6" id="modalTitleUbah">
+            Ubah Paket Peserta
+          </h3>
+          <button
+            onclick="tutupModalUbahPaket()"
+            style="
+              background: none;
+              border: none;
+              color: #fff;
+              font-size: 1.5rem;
+            "
+          >
+            &times;
+          </button>
+        </div>
+        <div class="item-body-wrap" style="flex-grow: 0; padding-bottom: 0">
+          <input
+            type="text"
+            id="inpCariPeserta"
+            class="modal-search-box"
+            placeholder="🔍 Ketik ID atau Nama Peserta..."
+            onkeyup="cariPesertaUbahPaket(this.value)"
+          />
+        </div>
+        <div
+          class="item-body-scroll"
+          id="hasilCariUbahPaket"
+          style="padding: 0 15px 15px 15px"
+        >
+          <div
+            style="
+              text-align: center;
+              color: #666;
+              font-size: 0.9rem;
+              padding: 20px;
+            "
+          >
+            Ketikkan nama peserta di atas untuk mulai mencari.
+          </div>
+        </div>
+        <div
+          id="formUbahPaketArea"
+          style="
+            padding: 15px;
+            background: #151515;
+            border-top: 1px solid #333;
+            display: none;
+            flex-direction: column;
+          "
+        >
+          <div style="color: #aaa; font-size: 0.8rem; margin-bottom: 10px">
+            Mengubah paket untuk
+            <b id="targetUbahNama" style="color: #fff">-</b>. Setoran akan
+            dihitung ulang secara otomatis.
+          </div>
+          <input type="hidden" id="targetUbahId" value="" />
+          <select
+            id="selPaketBaru"
+            class="form-input"
+            style="margin-bottom: 15px"
+          ></select>
+          <button
+            onclick="simpanUbahPaket()"
+            class="btn-save-all"
+            style="background: #9b59b6; color: #fff"
+            id="btnSubmitUbah"
+          >
+            <i class="fas fa-save"></i> TERAPKAN & HITUNG ULANG
+          </button>
+        </div>
+      </div>
+    </div>
+
     <div id="modalItems">
       <div class="item-card">
         <div class="item-header">
@@ -675,7 +787,6 @@
             &times;
           </button>
         </div>
-
         <div class="item-body-wrap">
           <input
             type="text"
@@ -686,7 +797,6 @@
           />
           <div class="item-body-scroll" id="itemBody"></div>
         </div>
-
         <div
           style="
             padding: 15px;
@@ -705,7 +815,6 @@
             </div>
             <div id="modalCartList"></div>
           </div>
-
           <div
             style="
               display: none;
@@ -717,7 +826,6 @@
             <span>Total Belanja:</span>
             <span id="txtTotalReal" style="color: #fff">Rp 0</span>
           </div>
-
           <div
             style="
               display: flex;
@@ -753,7 +861,6 @@
         Kirim bukti ini ke Mitra/Peserta
       </p>
       <img id="resImg" src="" />
-
       <div
         id="waActionContainer"
         style="
@@ -765,7 +872,6 @@
           margin-bottom: 15px;
         "
       ></div>
-
       <div style="display: flex; gap: 10px; width: 100%; max-width: 350px">
         <button onclick="downloadStruk()" class="btn-save-all">
           <i class="fas fa-download"></i> Simpan Gambar
@@ -830,39 +936,140 @@
         }
       }
 
+      // =====================================
+      // FUNGSI UBAH PAKET PESERTA (MODAL)
+      // =====================================
+      function bukaModalUbahPaket() {
+        if (masterPaket.length === 0)
+          return alert(
+            "Sistem belum siap. Tunggu beberapa saat lalu coba lagi.",
+          );
+        document.getElementById("modalUbahPaket").style.display = "flex";
+        document.getElementById("inpCariPeserta").value = "";
+        document.getElementById("hasilCariUbahPaket").innerHTML =
+          `<div style="text-align:center; color:#666; font-size:0.9rem; padding:20px;">Ketikkan nama peserta di atas untuk mulai mencari.</div>`;
+        document.getElementById("formUbahPaketArea").style.display = "none";
+      }
+
+      function tutupModalUbahPaket() {
+        document.getElementById("modalUbahPaket").style.display = "none";
+      }
+
+      let timeoutCari = null;
+      function cariPesertaUbahPaket(val) {
+        clearTimeout(timeoutCari);
+        const hasilDiv = document.getElementById("hasilCariUbahPaket");
+        if (val.trim().length < 3) {
+          hasilDiv.innerHTML = `<div style="text-align:center; color:#666; font-size:0.9rem; padding:20px;">Ketikkan minimal 3 huruf nama peserta...</div>`;
+          return;
+        }
+        hasilDiv.innerHTML = `<div style="text-align:center; color:var(--primary); font-size:0.9rem; padding:20px;"><i class="fas fa-spinner fa-spin"></i> Mencari...</div>`;
+
+        timeoutCari = setTimeout(async () => {
+          try {
+            const res = await fetchData("cariPeserta", { q: val });
+            if (res && res.length > 0) {
+              let html = "";
+              res.forEach((p) => {
+                html += `
+                          <div style="background:#111; border:1px solid #333; padding:12px; border-radius:8px; margin-bottom:10px; display:flex; justify-content:space-between; align-items:center;">
+                              <div>
+                                  <div style="font-weight:bold; font-size:0.95rem; color:#fff;">${p.nama} <span style="font-size:0.7rem; color:#aaa;">(${p.id})</span></div>
+                                  <div style="font-size:0.75rem; color:var(--primary); margin-top:3px;">Paket Saat Ini: ${p.paket}</div>
+                              </div>
+                              <button onclick="pilihPesertaUbahPaket('${p.id}', '${p.nama.replace(/'/g, "\\'")}', '${p.paket}')" style="background:#9b59b6; color:#fff; border:none; padding:6px 12px; border-radius:6px; font-weight:bold; cursor:pointer;">Pilih</button>
+                          </div>`;
+              });
+              hasilDiv.innerHTML = html;
+            } else {
+              hasilDiv.innerHTML = `<div style="text-align:center; color:#ff6b6b; font-size:0.9rem; padding:20px;">Tidak ada peserta ditemukan.</div>`;
+            }
+          } catch (e) {
+            hasilDiv.innerHTML = `<div style="text-align:center; color:#ff6b6b; font-size:0.9rem; padding:20px;">Gagal mencari data.</div>`;
+          }
+        }, 800);
+      }
+
+      function pilihPesertaUbahPaket(id, nama, paketLama) {
+        document.getElementById("targetUbahId").value = id;
+        document.getElementById("targetUbahNama").innerText = nama;
+
+        let optHtml = "";
+        masterPaket.forEach((p) => {
+          let sel = p.nama === paketLama ? "selected" : "";
+          optHtml += `<option value="${p.nama}" ${sel}>${p.nama}</option>`;
+        });
+        document.getElementById("selPaketBaru").innerHTML = optHtml;
+
+        document.getElementById("formUbahPaketArea").style.display = "flex";
+        document.getElementById("hasilCariUbahPaket").innerHTML = "";
+      }
+
+      async function simpanUbahPaket() {
+        const id = document.getElementById("targetUbahId").value;
+        const paketBaru = document.getElementById("selPaketBaru").value;
+        const nama = document.getElementById("targetUbahNama").innerText;
+
+        if (
+          !confirm(
+            `Yakin ingin mengubah paket ${nama} menjadi ${paketBaru}?\nSetoran akan otomatis dihitung ulang.`,
+          )
+        )
+          return;
+
+        const btn = document.getElementById("btnSubmitUbah");
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> MEMPROSES...';
+        btn.disabled = true;
+
+        try {
+          const res = await fetchData(
+            "ubahPaketPeserta",
+            { idPeserta: id, paketBaru: paketBaru },
+            "POST",
+          );
+          if (res && res.success) {
+            alert(
+              `Berhasil! Paket ${nama} telah diubah menjadi ${paketBaru}.\nSistem telah menyesuaikan ulang frekuensi setorannya menjadi ${res.newFreq}x.`,
+            );
+            tutupModalUbahPaket();
+          } else {
+            alert("Gagal merubah paket: " + (res.error || "Kesalahan Server"));
+          }
+        } catch (e) {
+          alert("Gagal menghubungi server.");
+        } finally {
+          btn.innerHTML = '<i class="fas fa-save"></i> TERAPKAN & HITUNG ULANG';
+          btn.disabled = false;
+        }
+      }
+
+      // =====================================
+      // FUNGSI PENDAFTARAN LAMA (TIDAK DIUBAH)
+      // =====================================
       function addParticipantCard() {
         pCardCount++;
         const cardId = pCardCount;
-
         const html = `
             <div class="p-card" id="peserta_${cardId}">
                 <div class="p-card-header">
                     <span class="card-num">Data Peserta #${cardId}</span>
                     <button class="btn-del-peserta" onclick="removeParticipantCard(${cardId})"><i class="fas fa-trash"></i> Hapus Peserta</button>
                 </div>
-                
                 <div class="form-group"><input type="text" class="form-input inp-nama" placeholder="Nama Lengkap Peserta"></div>
                 <div class="form-grid">
                     <input type="number" class="form-input inp-hp" placeholder="No HP/WA">
                     <input type="text" class="form-input inp-alamat" placeholder="Alamat / Wilayah">
                 </div>
-                
                 <div class="form-group" style="margin-top:10px;">
                     <select class="form-input inp-mitra">${generateMitraOptions()}</select>
                 </div>
-                
                 <div class="paket-section-title"><i class="fas fa-box-open"></i> Daftar Paket yang Diambil</div>
                 <div class="paket-wrap" id="paketWrap_${cardId}"></div>
-                
-                <button class="btn-add-paket" onclick="addPaketRow(${cardId})">
-                    <i class="fas fa-plus-circle"></i> Tambah Paket Lain Untuk Peserta Ini
-                </button>
+                <button class="btn-add-paket" onclick="addPaketRow(${cardId})"><i class="fas fa-plus-circle"></i> Tambah Paket Lain Untuk Peserta Ini</button>
             </div>`;
-
         document
           .getElementById("formsContainer")
           .insertAdjacentHTML("beforeend", html);
-
         if (cardId > 1) {
           const prev = document.getElementById(`peserta_${cardId - 1}`);
           if (prev) {
@@ -872,7 +1079,6 @@
               .querySelector(".inp-mitra").value = prevMitra;
           }
         }
-
         addPaketRow(cardId);
         return cardId;
       }
@@ -880,31 +1086,23 @@
       function addPaketRow(cardId) {
         pItemCount++;
         const pktId = pItemCount;
-
         const html = `
             <div class="paket-row" id="pkt_${pktId}">
                 <div class="paket-header">
                     <span class="paket-title">Pilihan Paket</span>
                     <button class="btn-del-paket" onclick="removePaketRow(${pktId})"><i class="fas fa-trash"></i> Hapus</button>
                 </div>
-                
                 <select class="form-input inp-paket" onchange="checkPaket(this, ${pktId})">${generatePaketOptions()}</select>
-                
                 <div id="customArea_${pktId}" style="display:block;">
                     <button class="btn-item-select" id="btnSelect_${pktId}" onclick="openItemModal(${pktId})">
                         <span id="btnText_${pktId}"><i class="fas fa-edit"></i> Request Barang (Opsional)</span>
                     </button>
-                    
-                    <div id="summaryBox_${pktId}" class="summary-box">
-                        <small class="summary-text" id="summary_${pktId}"></small>
-                    </div>
-                    
+                    <div id="summaryBox_${pktId}" class="summary-box"><small class="summary-text" id="summary_${pktId}"></small></div>
                     <input type="hidden" class="inp-harga-custom" id="valHarga_${pktId}" value="0">
                     <input type="hidden" class="inp-rincian" id="valRincian_${pktId}" value="">
                     <input type="hidden" class="inp-items-json" id="valItemsJson_${pktId}" value="">
                 </div>
-            </div>
-        `;
+            </div>`;
         document
           .getElementById(`paketWrap_${cardId}`)
           .insertAdjacentHTML("beforeend", html);
@@ -915,7 +1113,6 @@
         const el = document.getElementById(`peserta_${cardId}`);
         if (el) el.remove();
       }
-
       function removePaketRow(pktId) {
         const el = document.getElementById(`pkt_${pktId}`);
         if (el) el.remove();
@@ -927,14 +1124,12 @@
           return '<option value="">(Data Kosong)</option>';
         let opts = '<option value="">-- Pilih Mitra --</option>';
         masterMitra.forEach((m) => {
-          // Buang pilihan Pusat/Pusat Langsung
           if (m.nama !== "Pusat" && m.nama !== "Pusat (Langsung)") {
             opts += `<option value="${m.nama}">${m.nama}</option>`;
           }
         });
         return opts;
       }
-
       function generatePaketOptions() {
         if (masterPaket.length === 0)
           return '<option value="">(Data Kosong)</option>';
@@ -944,7 +1139,6 @@
         );
         return opts;
       }
-
       function refreshDropdowns() {
         document.querySelectorAll(".inp-mitra").forEach((el) => {
           const oldVal = el.value;
@@ -961,22 +1155,18 @@
       function parseWA() {
         const text = document.getElementById("waRaw").value;
         if (!text) return alert("Tempelkan teks WhatsApp dulu!");
-
-        if (masterBarang.length === 0 || masterPaket.length === 0) {
+        if (masterBarang.length === 0 || masterPaket.length === 0)
           return alert("Data Barang/Paket belum siap. Tunggu sebentar.");
-        }
 
         let entries = text.split(/(?=DATA PESERTA|Nama\s*[:=])/i);
         entries = entries.filter((e) => e.trim().length > 5);
         if (entries.length === 0) entries = [text];
-
         let successCount = 0;
 
         if (pCardCount === 1) {
           const firstCard = document.getElementById("peserta_1");
-          if (firstCard && firstCard.querySelector(".inp-nama").value === "") {
+          if (firstCard && firstCard.querySelector(".inp-nama").value === "")
             removeParticipantCard(1);
-          }
         }
 
         entries.forEach((entry) => {
@@ -991,13 +1181,9 @@
           let nm = nmMatch ? nmMatch[1].replace(/\*/g, "").trim() : "";
           let hp = hpMatch ? hpMatch[1].replace(/\D/g, "") : "";
           let al = alMatch ? alMatch[1].replace(/\*/g, "").trim() : "";
-
           let mt = "";
-          if (mtMatch) {
-            mt = mtMatch[1].replace(/\*/g, "").trim();
-          } else if (idMatch) {
-            mt = idMatch[1].trim();
-          }
+          if (mtMatch) mt = mtMatch[1].replace(/\*/g, "").trim();
+          else if (idMatch) mt = idMatch[1].trim();
 
           const paketSectionMatch = entry.match(
             /(?:PESANAN BARU|PAKET DIPILIH|PAKET YANG DIAMBIL)[\s\S]*/i,
@@ -1010,17 +1196,14 @@
                 )
                 .trim()
             : entry;
-
           paketString = paketString.split(/\n[-_]{3,}/)[0];
           paketString = paketString.split(/\n\s*(?:Mohon|Terima kasih)/i)[0];
 
           let rawPackages = paketString.split(
             /(?=\n\s*[-•*]*\s*(?:\d+[.x]\s*)?Paket)/i,
           );
-
-          if (rawPackages.length === 1 && rawPackages[0].includes("\n-")) {
+          if (rawPackages.length === 1 && rawPackages[0].includes("\n-"))
             rawPackages = paketString.split(/(?=\n\s*[-•]\s*)/);
-          }
 
           let hasValidPackage = false;
           let newCardId = null;
@@ -1065,16 +1248,12 @@
               if (!hasValidPackage) {
                 newCardId = addParticipantCard();
                 hasValidPackage = true;
-
                 const rowCard = document.getElementById(`peserta_${newCardId}`);
                 rowCard.querySelector(".inp-nama").value = nm;
                 if (hp) rowCard.querySelector(".inp-hp").value = hp;
                 if (al) rowCard.querySelector(".inp-alamat").value = al;
-
-                if (mt) {
+                if (mt)
                   setDropdownByText(rowCard.querySelector(".inp-mitra"), mt);
-                }
-
                 firstPaketId = rowCard
                   .querySelector(".paket-row")
                   .id.split("_")[1];
@@ -1113,12 +1292,10 @@
         if (!rowData[`pkt_${pktId}`])
           rowData[`pkt_${pktId}`] = { items: {}, total: 0 };
         const currentRowData = rowData[`pkt_${pktId}`];
-
         const selectEl = document.querySelector(`#pkt_${pktId} .inp-paket`);
         const mode = selectEl ? selectEl.dataset.mode : "normal";
 
         let matchCount = 0;
-
         let itemsStr = textEntry;
         const isiMatch = textEntry.match(
           /(?:Rincian Isi|Rincian Barang|Isi)\s*:\s*([\s\S]+)/i,
@@ -1130,19 +1307,15 @@
             /(?:Total Nilai|Target Setoran|Mohon diproses|Mohon dibantu|---)/i,
           )[0];
         }
-
         const parts = itemsStr.split(/[\n,;]+/);
 
         parts.forEach((part) => {
           if (!part.trim()) return;
           const lowerPart = part.toLowerCase();
-
           for (let b of masterBarang) {
             const bNameLower = b.nama.toLowerCase();
-
             if (lowerPart.includes(bNameLower)) {
               let qty = 1;
-
               const matchStartX = part.match(
                 /^\s*(?:[-*•]|\d+\.)?\s*(\d+)\s*[xX]/i,
               );
@@ -1166,25 +1339,21 @@
 
               if (mode === "cookies") {
                 let currentTotalCookies = 0;
-                for (const q of Object.values(currentRowData.items)) {
+                for (const q of Object.values(currentRowData.items))
                   currentTotalCookies += q;
-                }
-                if (currentTotalCookies + qty > 5) {
+                if (currentTotalCookies + qty > 5)
                   qty = 5 - currentTotalCookies;
-                }
                 if (qty <= 0) break;
               }
 
               if (currentRowData.items[b.nama])
                 currentRowData.items[b.nama] += qty;
               else currentRowData.items[b.nama] = qty;
-
               matchCount++;
               break;
             }
           }
         });
-
         if (matchCount > 0) recalculateRowTotal(pktId);
       }
 
@@ -1209,7 +1378,6 @@
         document.getElementById(`valHarga_${pktId}`).value = 0;
         document.getElementById(`valRincian_${pktId}`).value = "";
         document.getElementById(`valItemsJson_${pktId}`).value = "";
-
         summaryBox.style.display = "none";
         btnOuter.style.background = "#111";
         btnOuter.style.borderColor = "#444";
@@ -1235,9 +1403,6 @@
         }
       }
 
-      // ========================================================
-      // MODAL BARANG (ACCORDION, PENCARIAN & DAFTAR TERPILIH)
-      // ========================================================
       function openItemModal(pktId) {
         if (masterBarang.length === 0)
           return alert("Data barang belum termuat. Silakan refresh halaman.");
@@ -1245,10 +1410,8 @@
         const row = document.getElementById(`pkt_${pktId}`);
         const mode = row.querySelector(".inp-paket").dataset.mode;
         currentMode = mode;
-
         document.getElementById("modalSearch").value = "";
         document.getElementById("modalItems").style.display = "flex";
-
         renderAccordionItems();
         updateModalTotal();
       }
@@ -1258,14 +1421,11 @@
         const q = query.toLowerCase().trim();
         const savedItems =
           (rowData[`pkt_${currentEditingRowId}`] || {}).items || {};
-
         let grouped = {};
 
         masterBarang.forEach((b) => {
           if (q && !b.nama.toLowerCase().includes(q)) return;
-
           let cat = b.kategori || "Lainnya";
-
           if (currentMode === "mingguan") {
             const allowed = [
               "sembako",
@@ -1281,7 +1441,6 @@
           } else if (currentMode === "cookies") {
             if (cat.trim().toLowerCase() !== "cookies") return;
           }
-
           if (!grouped[cat]) grouped[cat] = [];
           grouped[cat].push(b);
         });
@@ -1289,21 +1448,26 @@
         let html = "";
         let catIndex = 0;
         let totalCategories = Object.keys(grouped).length;
-
         for (let cat in grouped) {
           catIndex++;
           let catId = "cat_" + catIndex;
           let itemsHtml = "";
-
           grouped[cat].forEach((b) => {
             const qty = savedItems[b.nama] || 0;
             let safeName = b.nama.replace(/"/g, "&quot;");
+
+            // Format Rupiah langsung agar tidak panggil fungsi lagi
+            let hargaTeks = new Intl.NumberFormat("id-ID", {
+              style: "currency",
+              currency: "IDR",
+              minimumFractionDigits: 0,
+            }).format(b.harga || 0);
 
             itemsHtml += `
                     <div class="item-row">
                         <div>
                             <div style="font-weight:bold; color:#fff; font-size:0.95rem; margin-bottom:2px;">${b.nama}</div>
-                            <div style="font-size:0.75rem; color:#aaa;">${formatRupiah(b.harga)} / ${b.satuan}</div>
+                            <div style="font-size:0.75rem; color:#aaa;">${hargaTeks} / ${b.satuan}</div>
                         </div>
                         <div class="qty-control">
                             <button class="btn-qty" onclick="changeQty(this, -1)">-</button>
@@ -1312,10 +1476,8 @@
                         </div>
                     </div>`;
           });
-
           let activeClass = q !== "" || totalCategories === 1 ? "active" : "";
           let showClass = q !== "" || totalCategories === 1 ? "show" : "";
-
           html += `
             <div class="category-section">
                 <div class="category-header ${activeClass}" id="head-${catId}" onclick="toggleCategoryModal('${catId}')">
@@ -1327,18 +1489,14 @@
                 </div>
             </div>`;
         }
-
-        if (html === "") {
+        if (html === "")
           html = `<div style="text-align:center; padding:30px; color:#666;"><i class="fas fa-search" style="font-size:2rem; margin-bottom:10px;"></i><br>Pencarian tidak ditemukan.</div>`;
-        }
-
         body.innerHTML = html;
       }
 
       function toggleCategoryModal(id) {
         const body = document.getElementById(`body-${id}`);
         const header = document.getElementById(`head-${id}`);
-
         if (body.classList.contains("show")) {
           body.classList.remove("show");
           header.classList.remove("active");
@@ -1351,32 +1509,25 @@
       function changeQty(btn, change) {
         const input = btn.parentElement.querySelector(".qty-val");
         let currentVal = parseInt(input.value);
-
         if (currentMode === "cookies" && change > 0) {
           const currentRowData = rowData[`pkt_${currentEditingRowId}`] || {
             items: {},
           };
           let totalQtyNow = 0;
-          for (const qty of Object.values(currentRowData.items)) {
+          for (const qty of Object.values(currentRowData.items))
             totalQtyNow += qty;
-          }
-          if (totalQtyNow >= 5) {
-            alert(
+          if (totalQtyNow >= 5)
+            return alert(
               "Maksimal hanya bisa memilih 5 toples kue untuk Paket Cookies!",
             );
-            return;
-          }
         }
-
         let val = currentVal + change;
         if (val < 0) val = 0;
         input.value = val;
-
         const name = input.getAttribute("data-name");
         if (!rowData[`pkt_${currentEditingRowId}`])
           rowData[`pkt_${currentEditingRowId}`] = { items: {}, total: 0 };
         rowData[`pkt_${currentEditingRowId}`].items[name] = val;
-
         updateModalTotal();
       }
 
@@ -1386,7 +1537,6 @@
         const currentRowData = rowData[`pkt_${currentEditingRowId}`] || {
           items: {},
         };
-
         let divisor = 1;
         let labelSatuan = "";
         if (currentMode === "mingguan") {
@@ -1398,7 +1548,6 @@
         }
 
         let cartHtml = "";
-
         for (const [name, qty] of Object.entries(currentRowData.items)) {
           if (qty > 0) {
             const item = masterBarang.find((b) => b.nama === name);
@@ -1406,55 +1555,63 @@
               let subtotal = item.harga * qty;
               total += subtotal;
               totalItems += qty;
-
               let textCicilan = "";
               if (divisor > 1) {
                 let cicilanItem = Math.ceil(subtotal / divisor);
-                textCicilan = `${formatRupiah(cicilanItem)}${labelSatuan}`;
+                let formatUang = new Intl.NumberFormat("id-ID", {
+                  style: "currency",
+                  currency: "IDR",
+                  minimumFractionDigits: 0,
+                }).format(cicilanItem);
+                textCicilan = `${formatUang}${labelSatuan}`;
               } else {
-                textCicilan = formatRupiah(subtotal);
+                textCicilan = new Intl.NumberFormat("id-ID", {
+                  style: "currency",
+                  currency: "IDR",
+                  minimumFractionDigits: 0,
+                }).format(subtotal);
               }
-
-              cartHtml += `
-                    <div class="modal-cart-item">
-                        <div class="mc-qty">${qty}x</div>
-                        <div class="mc-name">${name}</div>
-                        <div class="mc-price">${textCicilan}</div>
-                    </div>
-                  `;
+              cartHtml += `<div class="modal-cart-item"><div class="mc-qty">${qty}x</div><div class="mc-name">${name}</div><div class="mc-price">${textCicilan}</div></div>`;
             }
           }
         }
-
         const cartBox = document.getElementById("modalSelectedItems");
         const cartList = document.getElementById("modalCartList");
-
         if (cartHtml !== "") {
           cartList.innerHTML = cartHtml;
           document.getElementById("txtTotalCartItems").innerText =
             totalItems + " Barang";
           cartBox.style.display = "block";
           cartBox.scrollTop = cartBox.scrollHeight;
-        } else {
-          cartBox.style.display = "none";
-        }
+        } else cartBox.style.display = "none";
 
-        document.getElementById("txtTotalReal").innerText = formatRupiah(total);
+        let formatTotal = new Intl.NumberFormat("id-ID", {
+          style: "currency",
+          currency: "IDR",
+          minimumFractionDigits: 0,
+        }).format(total);
+        document.getElementById("txtTotalReal").innerText = formatTotal;
 
         let targetLabel = "Total Belanja:";
-        let targetVal = formatRupiah(total);
-
+        let targetVal = formatTotal;
         if (currentMode === "mingguan") {
           targetLabel = "Total Setoran per Minggu:";
-          targetVal = formatRupiah(Math.ceil(total / 40));
+          targetVal = new Intl.NumberFormat("id-ID", {
+            style: "currency",
+            currency: "IDR",
+            minimumFractionDigits: 0,
+          }).format(Math.ceil(total / 40));
         } else if (currentMode === "cookies") {
           targetLabel = "Total Setoran per Hari:";
-          targetVal = formatRupiah(Math.ceil(total / 330));
+          targetVal = new Intl.NumberFormat("id-ID", {
+            style: "currency",
+            currency: "IDR",
+            minimumFractionDigits: 0,
+          }).format(Math.ceil(total / 330));
         } else {
           targetLabel = "Status Setoran:";
           targetVal = "Mengikuti Paket Dasar";
         }
-
         document.getElementById("lblTarget").innerText = targetLabel;
         document.getElementById("txtTarget").innerText = targetVal;
         currentRowData.total = total;
@@ -1464,7 +1621,6 @@
         recalculateRowTotal(currentEditingRowId);
         closeModal();
       }
-
       function closeModal() {
         document.getElementById("modalItems").style.display = "none";
       }
@@ -1473,14 +1629,11 @@
         const data = rowData[`pkt_${pktId}`];
         const selectEl = document.querySelector(`#pkt_${pktId} .inp-paket`);
         const mode = selectEl.dataset.mode;
-
         const btnOuter = document.getElementById(`btnSelect_${pktId}`);
         const summaryBox = document.getElementById(`summaryBox_${pktId}`);
-
         let total = 0;
         let itemsList = [];
         let itemsForDB = {};
-
         let divisor = 1;
         let labelSatuan = "";
         if (mode === "mingguan") {
@@ -1498,28 +1651,45 @@
               const subtotal = itemMaster.harga * qty;
               total += subtotal;
               const cicilan = Math.ceil(subtotal / divisor);
-              const txtCicil =
-                divisor > 1 ? `${formatRupiah(cicilan)}${labelSatuan}` : "";
+
+              let txtCicil = "";
+              if (divisor > 1) {
+                let uangFormat = new Intl.NumberFormat("id-ID", {
+                  style: "currency",
+                  currency: "IDR",
+                  minimumFractionDigits: 0,
+                }).format(cicilan);
+                txtCicil = `${uangFormat}${labelSatuan}`;
+              }
+
               itemsList.push(`${name} (${qty}) ${txtCicil}`);
               itemsForDB[name] = qty;
             }
           }
         }
-
         data.total = total;
-
         let targetText = "";
-        if (mode === "mingguan")
-          targetText = `(Target Setoran: ${formatRupiah(Math.ceil(total / 40))} /mgg)`;
-        else if (mode === "cookies")
-          targetText = `(Target Setoran: ${formatRupiah(Math.ceil(total / 330))} /hr)`;
+        if (mode === "mingguan") {
+          let uangFormat = new Intl.NumberFormat("id-ID", {
+            style: "currency",
+            currency: "IDR",
+            minimumFractionDigits: 0,
+          }).format(Math.ceil(total / 40));
+          targetText = `(Target Setoran: ${uangFormat} /mgg)`;
+        } else if (mode === "cookies") {
+          let uangFormat = new Intl.NumberFormat("id-ID", {
+            style: "currency",
+            currency: "IDR",
+            minimumFractionDigits: 0,
+          }).format(Math.ceil(total / 330));
+          targetText = `(Target Setoran: ${uangFormat} /hr)`;
+        }
 
         if (itemsList.length > 0) {
           document.getElementById(`btnText_${pktId}`).innerHTML =
             `<i class="fas fa-check-circle"></i> ${itemsList.length} Item (Tersimpan)`;
           document.getElementById(`summary_${pktId}`).innerText =
             itemsList.join("\n") + (targetText ? `\n\n${targetText}` : "");
-
           summaryBox.style.display = "block";
           btnOuter.style.background = "rgba(74, 222, 128, 0.05)";
           btnOuter.style.borderColor = "#4ade80";
@@ -1528,12 +1698,10 @@
           document.getElementById(`btnText_${pktId}`).innerHTML =
             `<i class="fas fa-edit"></i> Request Barang (Opsional)`;
           summaryBox.style.display = "none";
-
           btnOuter.style.background = "#111";
           btnOuter.style.borderColor = "#444";
           btnOuter.style.color = "var(--primary)";
         }
-
         document.getElementById(`valHarga_${pktId}`).value = total;
         document.getElementById(`valRincian_${pktId}`).value =
           itemsList.join("\n");
@@ -1541,20 +1709,14 @@
           JSON.stringify(itemsForDB);
       }
 
-      // ========================================================
-      // SIMPAN & CETAK STRUK
-      // ========================================================
       async function saveAll() {
         const cards = document.querySelectorAll(".p-card");
         if (cards.length === 0) return;
-
         let adaError = false;
-
         cards.forEach((card) => {
           const nama = card.querySelector(".inp-nama").value.trim();
           const mitra = card.querySelector(".inp-mitra").value;
           const paketRows = card.querySelectorAll(".paket-row");
-
           if (!nama || !mitra || paketRows.length === 0) {
             card.style.border = "2px solid #ff4d4d";
             adaError = true;
@@ -1564,13 +1726,10 @@
               if (!pr.querySelector(".inp-paket").value) {
                 pr.style.border = "1px solid #ff4d4d";
                 adaError = true;
-              } else {
-                pr.style.border = "1px dashed #555";
-              }
+              } else pr.style.border = "1px dashed #555";
             });
           }
         });
-
         if (adaError)
           return alert(
             "⚠️ GAGAL MENYIMPAN!\n\nPastikan Nama, Mitra, dan Jenis Paket sudah terisi di kotak yang bergaris merah.",
@@ -1580,23 +1739,19 @@
         const btn = document.getElementById("btnSaveAll");
         btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> MEMPROSES...';
         btn.disabled = true;
-
         let successData = [];
 
         for (const card of cards) {
           const nama = card.querySelector(".inp-nama").value;
           const hp = card.querySelector(".inp-hp").value;
           const alamat = card.querySelector(".inp-alamat").value;
-          const mitra = card.querySelector(".inp-mitra").value; // BACA DARI DROPDOWN!
-
+          const mitra = card.querySelector(".inp-mitra").value;
           const paketRows = card.querySelectorAll(".paket-row");
-
           for (const pr of paketRows) {
             const paket = pr.querySelector(".inp-paket").value;
             let harga = 0,
               rincian = "",
               items_json = "";
-
             const customArea = pr.querySelector('div[id^="customArea_"]');
             if (customArea && customArea.style.display !== "none") {
               harga = pr.querySelector(".inp-harga-custom").value;
@@ -1605,15 +1760,23 @@
             }
 
             let setoranText = "";
+            let formatTeksUang = (num) =>
+              new Intl.NumberFormat("id-ID", {
+                style: "currency",
+                currency: "IDR",
+                minimumFractionDigits: 0,
+              }).format(num);
+
             if (paket.toLowerCase().includes("mingguan")) {
               if (harga > 0)
-                setoranText = formatRupiah(Math.ceil(harga / 40)) + " /minggu";
+                setoranText =
+                  formatTeksUang(Math.ceil(harga / 40)) + " /minggu";
             } else if (paket.toLowerCase().includes("cookies")) {
               if (harga > 0)
-                setoranText = formatRupiah(Math.ceil(harga / 330)) + " /hari";
+                setoranText = formatTeksUang(Math.ceil(harga / 330)) + " /hari";
             } else {
               let ext = paket.replace(/\./g, "").match(/\d+/);
-              if (ext) setoranText = formatRupiah(Number(ext[0])) + " /hari";
+              if (ext) setoranText = formatTeksUang(Number(ext[0])) + " /hari";
             }
 
             try {
@@ -1627,7 +1790,6 @@
                 rincian,
                 items_json: items_json,
               });
-
               if (res && res.success) {
                 successData.push({
                   nama,
@@ -1644,26 +1806,18 @@
               console.error("Gagal simpan:", e);
             }
           }
-
-          if (card.querySelectorAll(".paket-row").length === 0) {
-            card.remove();
-          }
+          if (card.querySelectorAll(".paket-row").length === 0) card.remove();
         }
 
         btn.innerHTML = '<i class="fas fa-save"></i> SIMPAN & CETAK STRUK';
         btn.disabled = false;
-
-        if (successData.length > 0) {
-          generateReceipt(successData);
-        } else {
-          alert("Gagal menyimpan ke server. Cek koneksi internet Anda.");
-        }
+        if (successData.length > 0) generateReceipt(successData);
+        else alert("Gagal menyimpan ke server. Cek koneksi internet Anda.");
       }
 
       async function generateReceipt(data) {
         const rContent = document.getElementById("rContent");
         const waContainer = document.getElementById("waActionContainer");
-
         document.getElementById("rDate").innerText = new Date().toLocaleString(
           "id-ID",
         );
@@ -1681,25 +1835,15 @@
           }
           if (d.setoran)
             extraHtml += `<div class="r-item" style="border-bottom:none; margin-bottom:5px;"><div class="r-label">Target Setoran:</div><span class="r-highlight">${d.setoran}</span></div>`;
-
-          rContent.innerHTML += `
-                <div class="r-item">
-                    <div class="r-label">Nama:</div><div class="r-val">${d.nama}</div>
-                    <div class="r-label">ID Peserta:</div><div class="r-val">${d.id}</div>
-                    <div class="r-label">Paket:</div><div class="r-val">${d.paket}</div>
-                    <div class="r-label">Mitra:</div><div class="r-val">${d.mitra}</div>
-                    ${extraHtml}
-                </div>`;
+          rContent.innerHTML += `<div class="r-item"><div class="r-label">Nama:</div><div class="r-val">${d.nama}</div><div class="r-label">ID Peserta:</div><div class="r-val">${d.id}</div><div class="r-label">Paket:</div><div class="r-val">${d.paket}</div><div class="r-label">Mitra:</div><div class="r-val">${d.mitra}</div>${extraHtml}</div>`;
 
           let hpClean = String(d.hp).replace(/\D/g, "");
           if (hpClean.startsWith("0")) hpClean = "62" + hpClean.substring(1);
-
           if (hpClean.length > 8) {
             let waText = `Halo *${d.nama}*,\n`;
             waText += `Pendaftaran Tabungan NIZAMI 2026-2027 Anda telah berhasil! 🎉\n\n`;
             waText += `*RINCIAN PENDAFTARAN*\n👤 Nama: ${d.nama}\n📦 Paket: ${d.paket}\n🤝 Mitra: ${d.mitra}\n\n`;
             waText += `👇 *ID PESERTA ANDA* 👇\n\n\`${d.id}\`\n\n_(Sentuh / tahan teks ID di atas untuk menyalin)_\n\n`;
-
             if (d.rincian) {
               waText += `*Rincian Barang:*\n`;
               let formatRincianWA = d.rincian
@@ -1708,20 +1852,12 @@
                 .join("\n");
               waText += `${formatRincianWA}\n\n`;
             }
-
             if (d.setoran) waText += `🎯 Target Setoran: *${d.setoran}*\n\n`;
-
             waText += `Untuk mengecek Kartu Setoran Digital & Kalender Tabungan Anda secara otomatis, klik link khusus di bawah ini:\n`;
             waText += `💳 https://nizami-26-27-fix.vercel.app/kartu-digital.html?id=${d.id}\n\nTerima kasih! 🙏`;
-
             const waLink = `https://wa.me/${hpClean}?text=${encodeURIComponent(waText)}`;
-
-            if (!waContainer.innerHTML.includes(hpClean)) {
-              waContainer.innerHTML += `
-                    <a href="${waLink}" target="_blank" style="background:#25D366; color:#fff; text-decoration:none; padding:12px; border-radius:8px; font-weight:bold; display:flex; align-items:center; justify-content:center; gap:8px;">
-                        <i class="fab fa-whatsapp" style="font-size:1.3rem;"></i> Kirim WA ke ${d.nama}
-                    </a>`;
-            }
+            if (!waContainer.innerHTML.includes(hpClean))
+              waContainer.innerHTML += `<a href="${waLink}" target="_blank" style="background:#25D366; color:#fff; text-decoration:none; padding:12px; border-radius:8px; font-weight:bold; display:flex; align-items:center; justify-content:center; gap:8px;"><i class="fab fa-whatsapp" style="font-size:1.3rem;"></i> Kirim WA ke ${d.nama}</a>`;
           }
         });
 
@@ -1732,7 +1868,6 @@
         document.getElementById("resImg").src = canvas.toDataURL("image/png");
         document.getElementById("modalResult").style.display = "flex";
         window.currentStruk = canvas.toDataURL("image/png");
-
         if (document.querySelectorAll(".p-card").length === 0)
           addParticipantCard();
       }
