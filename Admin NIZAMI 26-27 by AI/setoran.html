@@ -381,7 +381,7 @@
           type="text"
           id="cari"
           class="search-bar"
-          placeholder="🔍 Cari Nama / ID Peserta..."
+          placeholder="🔍 Cari No Anggota / Nama / ID..."
           oninput="filterLokal()"
           autocomplete="off"
         />
@@ -476,7 +476,6 @@
         const res = await fetchData("cariPeserta", { q: "" });
         if (res && res.length > 0) {
           // --- PERBAIKAN: UNIFIKASI NAMA MITRA PUSAT ---
-          // Menyisir semua data, jika mitra kosong atau aneh, jadikan 1 nama: "Pusat"
           semuaPeserta = res.map((p) => {
             let m = (p.mitra || "").trim();
             if (
@@ -522,9 +521,12 @@
           .value.toLowerCase();
 
         const hasilFilter = semuaPeserta.filter((p) => {
+          // --- PENAMBAHAN FUNGSI PENCARIAN BERDASARKAN NOMOR ANGGOTA ---
           const cocokTeks =
             p.nama.toLowerCase().includes(teks) ||
-            p.id.toLowerCase().includes(teks);
+            p.id.toLowerCase().includes(teks) ||
+            (p.no_anggota && String(p.no_anggota).toLowerCase().includes(teks));
+
           const cocokMitra =
             mitraTerpilih === "" ||
             (p.mitra || "").toLowerCase() === mitraTerpilih;
@@ -555,12 +557,18 @@
             infoSaldo = `<div class="saldo-badge">Saldo Aktif: ${formatRupiah(p.saldo_aktif)}</div>`;
           }
 
+          // --- PENAMBAHAN KODE LENCANA NOMOR ANGGOTA ---
+          let labelNoAnggota = p.no_anggota
+            ? `<span class="badge" style="background:#4CAF50; color:white; border:none; padding:2px 6px;">No: ${p.no_anggota}</span>`
+            : "";
+
           html += `
             <div class="card ${activeClass}" id="card-${p.id}">
                 <div class="card-header">
                     <a href="kartu-digital.html?id=${p.id}" target="_blank" title="Buka Kartu Digital">
                         <h4>
                             ${p.nama} 
+                            ${labelNoAnggota}
                             <span class="id-badge">${p.id}</span>
                         </h4>
                     </a>
