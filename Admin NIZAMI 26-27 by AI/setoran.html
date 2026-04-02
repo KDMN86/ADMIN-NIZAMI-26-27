@@ -311,6 +311,10 @@
         display: flex;
         align-items: center;
         gap: 8px;
+        transition: 0.2s;
+      }
+      .btn-save:active {
+        transform: scale(0.95);
       }
       .btn-save:disabled {
         background: #444;
@@ -365,9 +369,10 @@
       #previewImg img {
         max-width: 100%;
         height: auto;
+        max-height: 45vh;
         border: 5px solid #fff;
         border-radius: 5px;
-        margin: 20px 0;
+        margin: 15px 0;
       }
     </style>
   </head>
@@ -442,28 +447,62 @@
 
     <div id="modalResult">
       <h3 style="color: var(--primary); margin: 0">Transaksi Berhasil!</h3>
-      <small style="color: #aaa">Silakan simpan bukti di bawah ini</small>
+      <small style="color: #aaa; margin-top: 5px; display: block"
+        >Kirim bukti rekap ke Mitra atau simpan struknya</small
+      >
       <div id="previewImg"></div>
-      <div style="display: flex; gap: 10px; width: 100%; max-width: 350px">
+
+      <div
+        style="
+          display: flex;
+          flex-direction: column;
+          gap: 10px;
+          width: 100%;
+          max-width: 350px;
+        "
+      >
         <button
-          onclick="downloadBukti()"
-          class="btn-save"
-          style="flex: 1; justify-content: center"
-        >
-          <i class="fas fa-download"></i> SIMPAN
-        </button>
-        <button
-          onclick="location.reload()"
+          onclick="kirimWaMitra()"
           class="btn-save"
           style="
-            flex: 1;
+            width: 100%;
             justify-content: center;
-            background: #333;
+            background: #25d366;
             color: #fff;
+            padding: 15px;
+            font-size: 1.05rem;
           "
         >
-          SELESAI
+          <i class="fab fa-whatsapp" style="font-size: 1.3rem"></i> KIRIM REKAP
+          KE WA MITRA
         </button>
+        <div style="display: flex; gap: 10px">
+          <button
+            onclick="downloadBukti()"
+            class="btn-save"
+            style="
+              flex: 1;
+              justify-content: center;
+              background: #333;
+              color: #fff;
+            "
+          >
+            <i class="fas fa-download"></i> SIMPAN
+          </button>
+          <button
+            onclick="location.reload()"
+            class="btn-save"
+            style="
+              flex: 1;
+              justify-content: center;
+              background: #1a1a1a;
+              color: #aaa;
+              border: 1px solid #444;
+            "
+          >
+            TUTUP
+          </button>
+        </div>
       </div>
     </div>
 
@@ -475,7 +514,6 @@
       document.addEventListener("DOMContentLoaded", async () => {
         const res = await fetchData("cariPeserta", { q: "" });
         if (res && res.length > 0) {
-          // --- PERBAIKAN: UNIFIKASI NAMA MITRA PUSAT ---
           semuaPeserta = res.map((p) => {
             let m = (p.mitra || "").trim();
             if (
@@ -521,7 +559,6 @@
           .value.toLowerCase();
 
         const hasilFilter = semuaPeserta.filter((p) => {
-          // --- PENAMBAHAN FUNGSI PENCARIAN BERDASARKAN NOMOR ANGGOTA ---
           const cocokTeks =
             p.nama.toLowerCase().includes(teks) ||
             p.id.toLowerCase().includes(teks) ||
@@ -552,12 +589,24 @@
           const qty = inCart ? inCart.qty : 0;
           const activeClass = qty > 0 ? "active" : "";
 
+          // Hapus pemanggilan formatRupiah yang bisa jadi error jika script.js belum load sempurna.
+          // Kita pakai inline toLocaleString agar aman 100%
+          let displaySaldo = new Intl.NumberFormat("id-ID", {
+            style: "currency",
+            currency: "IDR",
+            minimumFractionDigits: 0,
+          }).format(p.saldo_aktif || 0);
+          let displayHarga = new Intl.NumberFormat("id-ID", {
+            style: "currency",
+            currency: "IDR",
+            minimumFractionDigits: 0,
+          }).format(p.harga || 0);
+
           let infoSaldo = "";
           if (p.paket.toLowerCase().includes("uang")) {
-            infoSaldo = `<div class="saldo-badge">Saldo Aktif: ${formatRupiah(p.saldo_aktif)}</div>`;
+            infoSaldo = `<div class="saldo-badge">Saldo Aktif: ${displaySaldo}</div>`;
           }
 
-          // --- PENAMBAHAN KODE LENCANA NOMOR ANGGOTA ---
           let labelNoAnggota = p.no_anggota
             ? `<span class="badge" style="background:#4CAF50; color:white; border:none; padding:2px 6px;">No: ${p.no_anggota}</span>`
             : "";
@@ -580,7 +629,7 @@
                     <div class="p-stats">
                         <span class="p-detail" style="color:var(--primary); font-weight:600;">${p.paket}</span>
                         <span class="p-detail">Setoran Sebelumnya: <b style="color:#fff;">${p.freq}x</b></span>
-                        <span class="p-price">${formatRupiah(p.harga)} <small style="color:#aaa; font-weight:normal;">/setoran</small></span>
+                        <span class="p-price">${displayHarga} <small style="color:#aaa; font-weight:normal;">/setoran</small></span>
                         ${infoSaldo}
                     </div>
                     <div class="counter-box">
@@ -637,10 +686,16 @@
           const subtotal = item.qty * item.data.harga;
           total += subtotal;
 
+          let displaySubtotal = new Intl.NumberFormat("id-ID", {
+            style: "currency",
+            currency: "IDR",
+            minimumFractionDigits: 0,
+          }).format(subtotal);
+
           recapHtml += `
             <div class="recap-item">
               <span>${item.data.nama} <small style="color:#aaa; font-weight:bold;">(${item.qty}x)</small></span>
-              <b>${formatRupiah(subtotal)}</b>
+              <b>${displaySubtotal}</b>
             </div>
           `;
         }
@@ -657,7 +712,11 @@
 
         document.getElementById("countItem").innerText =
           Object.keys(cart).length + " Peserta (" + count + "x)";
-        document.getElementById("totalMoney").innerText = formatRupiah(total);
+
+        document.getElementById("totalMoney").innerText = new Intl.NumberFormat(
+          "id-ID",
+          { style: "currency", currency: "IDR", minimumFractionDigits: 0 },
+        ).format(total);
 
         const btn = document.getElementById("btnProses");
         btn.disabled = total <= 0;
@@ -714,20 +773,41 @@
 
                 let rincianAdmin = "";
                 if (totalAdmin > 0) {
+                  let displayAdmin = new Intl.NumberFormat("id-ID", {
+                    style: "currency",
+                    currency: "IDR",
+                    minimumFractionDigits: 0,
+                  }).format(totalAdmin);
+                  let displayAktif = new Intl.NumberFormat("id-ID", {
+                    style: "currency",
+                    currency: "IDR",
+                    minimumFractionDigits: 0,
+                  }).format(saldoAktifBaru);
                   rincianAdmin = `
-                    <div>Potongan Admin: ${formatRupiah(totalAdmin)}</div>
-                    <div style="font-weight:bold; color:#000;">Saldo Aktif: ${formatRupiah(saldoAktifBaru)}</div>`;
+                    <div>Potongan Admin: ${displayAdmin}</div>
+                    <div style="font-weight:bold; color:#000;">Saldo Aktif: ${displayAktif}</div>`;
                 }
+
+                let displayNominal = new Intl.NumberFormat("id-ID", {
+                  style: "currency",
+                  currency: "IDR",
+                  minimumFractionDigits: 0,
+                }).format(nominal);
+                let displayHarga = new Intl.NumberFormat("id-ID", {
+                  style: "currency",
+                  currency: "IDR",
+                  minimumFractionDigits: 0,
+                }).format(p.harga);
 
                 rList.innerHTML += `
                   <div style="margin-bottom:10px; border-bottom:1px dashed #ccc; padding-bottom:8px;">
                       <div class="r-row" style="margin-bottom:2px; font-weight:bold;">
                           <span>${p.nama}</span>
-                          <span>${formatRupiah(nominal)}</span>
+                          <span>${displayNominal}</span>
                       </div>
                       <div style="color:#333; font-size:12px; margin-left:10px; line-height:1.5;">
                           <div>Paket: ${p.paket}</div>
-                          <div>Jml Setor: ${item.qty}x @ ${formatRupiah(p.harga)}</div>
+                          <div>Jml Setor: ${item.qty}x @ ${displayHarga}</div>
                           <div>Posisi: Ke-${p.freq} ➔ Ke-${p.freq + item.qty}</div>
                           ${rincianAdmin}
                       </div>
@@ -742,7 +822,11 @@
         }
 
         document.getElementById("rGrandTotal").innerText =
-          formatRupiah(grandTotal);
+          new Intl.NumberFormat("id-ID", {
+            style: "currency",
+            currency: "IDR",
+            minimumFractionDigits: 0,
+          }).format(grandTotal);
 
         if (successCount > 0) {
           if (failCount > 0)
@@ -769,6 +853,71 @@
         link.download = "STRUK-NIZAMI-" + Date.now() + ".png";
         link.href = window.currentImgData;
         link.click();
+      }
+
+      // ===============================================
+      // FUNGSI COPY GAMBAR + BUKA WHATSAPP MITRA
+      // ===============================================
+      async function kirimWaMitra() {
+        let total = 0;
+        let listMitra = new Set();
+        let msgRincian = "";
+
+        for (let id in cart) {
+          let item = cart[id];
+          let sub = item.qty * item.data.harga;
+          total += sub;
+
+          let mName = item.data.mitra || "Pusat";
+          listMitra.add(mName);
+
+          let displaySub = new Intl.NumberFormat("id-ID", {
+            style: "currency",
+            currency: "IDR",
+            minimumFractionDigits: 0,
+          }).format(sub);
+          let noAnggotaStr = item.data.no_anggota
+            ? `(#${item.data.no_anggota})`
+            : "";
+
+          msgRincian += `👤 *${item.data.nama}* ${noAnggotaStr}\n`;
+          msgRincian += `📦 ${item.data.paket}\n`;
+          msgRincian += `   ↳ ${item.qty}x Setor = ${displaySub}\n\n`;
+        }
+
+        let displayTotal = new Intl.NumberFormat("id-ID", {
+          style: "currency",
+          currency: "IDR",
+          minimumFractionDigits: 0,
+        }).format(total);
+        let mitraNames = Array.from(listMitra).join(", ");
+        let dateNow = new Date().toLocaleString("id-ID");
+
+        let msg = `Halo Mitra *${mitraNames}*, berikut rekap setoran yang baru saja diproses admin:\n\n`;
+        msg += `*REKAP BUKTI SETORAN* ✅\nTanggal: ${dateNow}\n\n`;
+        msg += msgRincian;
+        msg += `*💰 TOTAL DITERIMA: ${displayTotal}*\n\n`;
+        msg += `_Gambar struk fisik dapat dilampirkan setelah pesan ini (Tekan Tempel/Paste)._`;
+
+        // 1. Copy gambar ke Clipboard secara otomatis
+        try {
+          const response = await fetch(window.currentImgData);
+          const blob = await response.blob();
+          await navigator.clipboard.write([
+            new ClipboardItem({
+              [blob.type]: blob,
+            }),
+          ]);
+          alert(
+            "✅ Gambar Struk Berhasil Disalin (Di-Copy)!\n\nSaat WhatsApp terbuka, cukup klik kanan -> Paste (atau CTRL+V) untuk menempelkan gambar struknya di chat.",
+          );
+        } catch (err) {
+          console.log("Browser tidak mendukung copy gambar langsung: ", err);
+          // Tetap jalankan buka WA meskipun gagal copy gambar
+        }
+
+        // 2. Buka WhatsApp
+        window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`, "_blank");
       }
     </script>
   </body>
