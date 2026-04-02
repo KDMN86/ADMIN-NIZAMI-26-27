@@ -1044,7 +1044,30 @@
       }
 
       // =====================================
-      // FUNGSI PENDAFTARAN LAMA (TIDAK DIUBAH)
+      // FUNGSI ISI OTOMATIS HP & ALAMAT MITRA
+      // =====================================
+      function autofillMitra(selectEl, cardId) {
+        const mitraName = selectEl.value;
+        if (!mitraName) return;
+
+        const mitraData = masterMitra.find((m) => m.nama === mitraName);
+        if (mitraData) {
+          const card = document.getElementById(`peserta_${cardId}`);
+          const hpInput = card.querySelector(".inp-hp");
+          const alamatInput = card.querySelector(".inp-alamat");
+
+          // Hilangkan tanda kutip satu (jika dari google sheet)
+          let cleanHp = String(mitraData.hp || "").replace(/^'/, "");
+
+          // Hanya isi otomatis jika kolom masih kosong, agar ketikan manual admin tidak tertimpa
+          if (hpInput.value.trim() === "") hpInput.value = cleanHp;
+          if (alamatInput.value.trim() === "")
+            alamatInput.value = mitraData.alamat || "";
+        }
+      }
+
+      // =====================================
+      // FUNGSI PENDAFTARAN LAMA
       // =====================================
       function addParticipantCard() {
         pCardCount++;
@@ -1061,22 +1084,27 @@
                     <input type="text" class="form-input inp-alamat" placeholder="Alamat / Wilayah">
                 </div>
                 <div class="form-group" style="margin-top:10px;">
-                    <select class="form-input inp-mitra">${generateMitraOptions()}</select>
+                    <select class="form-input inp-mitra" onchange="autofillMitra(this, ${cardId})">${generateMitraOptions()}</select>
                 </div>
                 <div class="paket-section-title"><i class="fas fa-box-open"></i> Daftar Paket yang Diambil</div>
                 <div class="paket-wrap" id="paketWrap_${cardId}"></div>
                 <button class="btn-add-paket" onclick="addPaketRow(${cardId})"><i class="fas fa-plus-circle"></i> Tambah Paket Lain Untuk Peserta Ini</button>
             </div>`;
+
         document
           .getElementById("formsContainer")
           .insertAdjacentHTML("beforeend", html);
+
         if (cardId > 1) {
           const prev = document.getElementById(`peserta_${cardId - 1}`);
           if (prev) {
             const prevMitra = prev.querySelector(".inp-mitra").value;
-            document
+            const newMitraEl = document
               .getElementById(`peserta_${cardId}`)
-              .querySelector(".inp-mitra").value = prevMitra;
+              .querySelector(".inp-mitra");
+            newMitraEl.value = prevMitra;
+            // Panggil autofill untuk kartu baru ini juga jika mitra sudah terpilih
+            autofillMitra(newMitraEl, cardId);
           }
         }
         addPaketRow(cardId);
@@ -1252,8 +1280,15 @@
                 rowCard.querySelector(".inp-nama").value = nm;
                 if (hp) rowCard.querySelector(".inp-hp").value = hp;
                 if (al) rowCard.querySelector(".inp-alamat").value = al;
-                if (mt)
-                  setDropdownByText(rowCard.querySelector(".inp-mitra"), mt);
+
+                if (mt) {
+                  const selectMitra = rowCard.querySelector(".inp-mitra");
+                  if (setDropdownByText(selectMitra, mt)) {
+                    // Autofill jika berhasil memilih mitra dari text WA
+                    autofillMitra(selectMitra, newCardId);
+                  }
+                }
+
                 firstPaketId = rowCard
                   .querySelector(".paket-row")
                   .id.split("_")[1];
