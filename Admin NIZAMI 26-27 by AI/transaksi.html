@@ -15,6 +15,8 @@
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
     />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
     <style>
       :root {
         --primary: #ffd700;
@@ -252,7 +254,7 @@
         border-radius: 8px;
         margin: 12px 0;
         border: 1px solid #2a2a2a;
-        max-height: 300px; /* Diperbesar sedikit agar history terlihat lega */
+        max-height: 300px;
         overflow-y: auto;
       }
       .th-title {
@@ -326,6 +328,77 @@
         margin-bottom: 15px;
         opacity: 0.5;
         color: var(--primary);
+      }
+
+      /* MODAL & STRUK */
+      #modalResult {
+        display: none;
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.95);
+        z-index: 9999;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+        text-align: center;
+      }
+      #previewImg img {
+        max-width: 100%;
+        height: auto;
+        max-height: 45vh;
+        border: 5px solid #fff;
+        border-radius: 5px;
+        margin: 15px 0;
+      }
+      .btn-save {
+        background: var(--primary);
+        color: #000;
+        font-weight: bold;
+        padding: 12px;
+        border-radius: 8px;
+        border: none;
+        font-size: 1rem;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        justify-content: center;
+        transition: 0.2s;
+        width: 100%;
+      }
+      .btn-save:active {
+        transform: scale(0.95);
+      }
+
+      #receiptArea {
+        position: fixed;
+        top: -9999px;
+        left: -9999px;
+        width: 380px;
+        background: #fff;
+        color: #000;
+        padding: 25px;
+        font-family: "Courier New", monospace;
+      }
+      .r-header {
+        text-align: center;
+        border-bottom: 2px dashed #000;
+        padding-bottom: 15px;
+        margin-bottom: 15px;
+      }
+      .r-row {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 8px;
+        font-size: 14px;
+      }
+      .r-total {
+        border-top: 2px dashed #000;
+        margin-top: 15px;
+        padding-top: 10px;
+        font-weight: bold;
+        font-size: 16px;
       }
     </style>
   </head>
@@ -408,12 +481,94 @@
       </div>
     </div>
 
+    <div id="receiptArea">
+      <div class="r-header">
+        <h2 style="margin: 0">NIZAMI 2026</h2>
+        <span>REKAP TRANSAKSI</span><br />
+        <span
+          id="rFilterInfo"
+          style="
+            font-size: 11px;
+            color: #444;
+            margin-top: 5px;
+            display: inline-block;
+          "
+        ></span>
+      </div>
+      <div id="rItems"></div>
+      <div class="r-row r-total">
+        <span>TOTAL MASUK (KOTOR)</span>
+        <span id="rGrandTotal">Rp 0</span>
+      </div>
+      <div style="text-align: center; margin-top: 30px; font-size: 12px">
+        Admin Nizami
+      </div>
+    </div>
+
+    <div id="modalResult">
+      <h3 style="color: var(--primary); margin: 0">Struk Rekap Dibuat!</h3>
+      <small style="color: #aaa; margin-top: 5px; display: block"
+        >Kirim rekap transaksi ini ke Mitra atau simpan ke Galeri</small
+      >
+      <div id="previewImg"></div>
+
+      <div
+        style="
+          display: flex;
+          flex-direction: column;
+          gap: 10px;
+          width: 100%;
+          max-width: 350px;
+        "
+      >
+        <button
+          onclick="kirimWaTrx()"
+          class="btn-save"
+          style="background: #25d366; color: #fff"
+        >
+          <i class="fab fa-whatsapp" style="font-size: 1.3rem"></i> KIRIM REKAP
+          KE WA
+        </button>
+        <div style="display: flex; gap: 10px">
+          <button
+            onclick="downloadStrukTrx()"
+            class="btn-save"
+            style="flex: 1; background: #333; color: #fff"
+          >
+            <i class="fas fa-download"></i> SIMPAN
+          </button>
+          <button
+            onclick="tutupPreviewImg()"
+            class="btn-save"
+            style="
+              flex: 1;
+              background: #1a1a1a;
+              color: #aaa;
+              border: 1px solid #444;
+            "
+          >
+            TUTUP
+          </button>
+        </div>
+      </div>
+    </div>
+
     <script src="script.js"></script>
 
     <script>
       let rawData = [];
       let filteredData = [];
       let currentViewMode = "latest";
+      let appliedFilterText = "";
+
+      // Helper Format Rupiah inline agar tidak bentrok
+      function formatRupiahInline(angka) {
+        return new Intl.NumberFormat("id-ID", {
+          style: "currency",
+          currency: "IDR",
+          minimumFractionDigits: 0,
+        }).format(angka || 0);
+      }
 
       // ==========================================
       // 1. INISIALISASI DATA AWAL
@@ -425,27 +580,21 @@
 
         const res = await fetchData("getTransaksi");
         if (res && res.length > 0) {
-          // --- PREPROCESSING START ---
-          // Kita urutkan data dari yang TERLAMA ke TERBARU untuk menghitung urutan transaksi yang logis
           let chronologicalData = [...res].reverse();
-          let pStats = {}; // Wadah penyimpanan sementara untuk menghitung akumulasi per peserta
+          let pStats = {};
 
           chronologicalData.forEach((t) => {
             if (!pStats[t.id]) {
               pStats[t.id] = { count: 0, totalQty: 0 };
             }
-            // Tambah hitungan setiap kali orang tersebut setor
             pStats[t.id].count++;
             pStats[t.id].totalQty += Number(t.qty) || 0;
 
-            // Simpan data perhitungan ke dalam objek transaksi
-            t.trxSequence = pStats[t.id].count; // Ini akan jadi Setoran Ke-1, Ke-2, dst
-            t.akumulasiQty = pStats[t.id].totalQty; // Ini total keseluruhan setoran yang sudah masuk
+            t.trxSequence = pStats[t.id].count;
+            t.akumulasiQty = pStats[t.id].totalQty;
           });
 
-          // Kembalikan lagi datanya ke urutan TERBARU ke TERLAMA untuk ditampilkan di UI
           rawData = chronologicalData.reverse();
-          // --- PREPROCESSING END ---
 
           populateMitraDropdown();
           applyFilters();
@@ -496,14 +645,22 @@
           .getElementById("cari")
           .value.toLowerCase()
           .trim();
-        const mitraVal = document
-          .getElementById("filterMitra")
-          .value.toLowerCase();
+        const mitraSelect = document.getElementById("filterMitra");
+        const mitraVal = mitraSelect.value.toLowerCase();
         const startVal = document.getElementById("startDate").value;
         const endVal = document.getElementById("endDate").value;
 
         let startD = startVal ? new Date(startVal + "T00:00:00") : null;
         let endD = endVal ? new Date(endVal + "T23:59:59") : null;
+
+        // Simpan Teks Filter untuk dicetak ke struk
+        let mLabel = mitraVal
+          ? mitraSelect.options[mitraSelect.selectedIndex].text
+          : "Semua Mitra";
+        appliedFilterText = `Filter: ${mLabel}`;
+        if (startVal || endVal) {
+          appliedFilterText += `<br>Periode: ${startVal || "Awal"} s/d ${endVal || "Akhir"}`;
+        }
 
         filteredData = rawData.filter((t) => {
           let matchText = true;
@@ -561,12 +718,14 @@
         let totalTransaksi = filteredData.length;
         filteredData.forEach((t) => (totalUangKotor += Number(t.kotor) || 0));
 
+        // TAMBAHAN: Tombol Cetak Rekap di Summary Bar
         summaryCont.innerHTML = `
           <div class="summary-bar">
             <div>
               <div class="summary-title">Total Filter (${totalTransaksi} Trx)</div>
+              <div class="summary-value" id="summaryTotalTrx" data-val="${totalUangKotor}">+ ${formatRupiahInline(totalUangKotor)}</div>
             </div>
-            <div class="summary-value">+ ${formatRupiah(totalUangKotor)}</div>
+            <button onclick="generateStrukTrx()" style="background:var(--primary); color:#000; border:none; padding:8px 15px; border-radius:8px; font-weight:bold; cursor:pointer; display:flex; align-items:center; gap:5px;"><i class="fas fa-print"></i> Cetak Rekap</button>
           </div>
         `;
 
@@ -583,9 +742,6 @@
         let html = '<div class="trx-flat-card">';
 
         filteredData.forEach((h) => {
-          // Logika Tampilan:
-          // Jika ini transaksi ke-1, tampilkan "Setoran Ke-1 (Jml: Nx)"
-          // Jika ini transaksi ke-2 dst, tambahkan keterangan "Total Akumulasi" di bawahnya.
           html += `
             <div class="flat-item">
               <div class="flat-header">
@@ -600,7 +756,7 @@
                   <span>Setoran Ke-${h.trxSequence} (Jml: ${h.qty}x)</span>
                   ${h.trxSequence > 1 ? `<span style="font-size:0.75rem; color:#aaa;"><i class="fas fa-chart-line"></i> Total Terkumpul: ${h.akumulasiQty}x</span>` : ""}
                 </div>
-                <span class="h-amount" style="white-space:nowrap;">+ ${formatRupiah(h.kotor)}</span>
+                <span class="h-amount" style="white-space:nowrap;">+ ${formatRupiahInline(h.kotor)}</span>
               </div>
             </div>
           `;
@@ -648,14 +804,14 @@
                       <span>Setoran Ke-${h.trxSequence} (Jml: ${h.qty}x)</span>
                       ${h.trxSequence > 1 ? `<span style="font-size:0.75rem; color:#888;"><i class="fas fa-chart-line"></i> Total Terkumpul: ${h.akumulasiQty}x</span>` : ""}
                     </div>
-                    <span class="h-amount" style="white-space:nowrap;">+ ${formatRupiah(h.kotor)}</span>
+                    <span class="h-amount" style="white-space:nowrap;">+ ${formatRupiahInline(h.kotor)}</span>
                 </div>
             </div>`;
           });
 
           let adminRow = "";
           if (p.totalAdmin > 0) {
-            adminRow = `<div class="f-row admin"><span>Total Potongan Admin</span><span>- ${formatRupiah(p.totalAdmin)}</span></div>`;
+            adminRow = `<div class="f-row admin"><span>Total Potongan Admin</span><span>- ${formatRupiahInline(p.totalAdmin)}</span></div>`;
           }
 
           html += `
@@ -672,14 +828,105 @@
             </div>
 
             <div class="trx-footer">
-              <div class="f-row"><span>Total Masuk (Kotor)</span><span>${formatRupiah(p.totalKotor)}</span></div>
+              <div class="f-row"><span>Total Masuk (Kotor)</span><span>${formatRupiahInline(p.totalKotor)}</span></div>
               ${adminRow}
-              <div class="f-row total"><span>Total Saldo Aktif</span><span>${formatRupiah(p.totalBersih)}</span></div>
+              <div class="f-row total"><span>Total Saldo Aktif</span><span>${formatRupiahInline(p.totalBersih)}</span></div>
             </div>
           </div>`;
         });
 
         container.innerHTML = html;
+      }
+
+      // ==========================================
+      // 5. FITUR GENERATE STRUK & WA
+      // ==========================================
+      async function generateStrukTrx() {
+        if (filteredData.length === 0) return;
+
+        // Siapkan HTML untuk receipt
+        document.getElementById("rFilterInfo").innerHTML = appliedFilterText;
+
+        let rList = document.getElementById("rItems");
+        rList.innerHTML = "";
+        let totalVal = 0;
+
+        // Agar struk terbaca urut sesuai waktu (terlama ke terbaru) saat diprint
+        let printData = [...filteredData].reverse();
+
+        printData.forEach((t) => {
+          let kotor = Number(t.kotor) || 0;
+          totalVal += kotor;
+          rList.innerHTML += `
+            <div style="border-bottom:1px dashed #ccc; padding-bottom:5px; margin-bottom:5px; font-size:11px;">
+               <div style="display:flex; justify-content:space-between; font-weight:bold;">
+                   <span>${t.nama} <span style="font-weight:normal; font-size:9px; color:#555;">[${t.mitra || "Pusat"}]</span></span>
+                   <span>${formatRupiahInline(kotor)}</span>
+               </div>
+               <div style="display:flex; justify-content:space-between; color:#444; font-size:9px; margin-top:2px;">
+                   <span>${t.paket} (${t.qty}x)</span>
+                   <span>${t.waktu}</span>
+               </div>
+            </div>
+            `;
+        });
+
+        document.getElementById("rGrandTotal").innerText =
+          formatRupiahInline(totalVal);
+
+        const canvas = await html2canvas(
+          document.getElementById("receiptArea"),
+          { scale: 2 },
+        );
+        window.currentTrxImgData = canvas.toDataURL("image/png");
+        document.getElementById("previewImg").innerHTML =
+          `<img src="${window.currentTrxImgData}">`;
+        document.getElementById("modalResult").style.display = "flex";
+      }
+
+      function tutupPreviewImg() {
+        document.getElementById("modalResult").style.display = "none";
+      }
+
+      function downloadStrukTrx() {
+        const link = document.createElement("a");
+        link.download = "REKAP-TRANSAKSI-" + Date.now() + ".png";
+        link.href = window.currentTrxImgData;
+        link.click();
+      }
+
+      async function kirimWaTrx() {
+        // Ambil info total dan filter
+        let totalTrx = filteredData.length;
+        let totalVal = document
+          .getElementById("summaryTotalTrx")
+          .getAttribute("data-val");
+
+        // Membersihkan text HTML <br> menjadi baris baru \n untuk WA
+        let cleanFilterText = appliedFilterText.replace(/<br>/g, "\n");
+
+        let msg = `*REKAP TRANSAKSI NIZAMI* 🖨️\n\n`;
+        msg += `${cleanFilterText}\n`;
+        msg += `Total Transaksi: ${totalTrx} Trx\n`;
+        msg += `*Total Uang (Kotor): ${formatRupiahInline(Number(totalVal))}*\n\n`;
+        msg += `_Rincian transaksi terlampir pada gambar struk._`;
+
+        try {
+          const response = await fetch(window.currentTrxImgData);
+          const blob = await response.blob();
+          await navigator.clipboard.write([
+            new ClipboardItem({
+              [blob.type]: blob,
+            }),
+          ]);
+          alert(
+            "✅ Gambar Struk Berhasil Disalin (Di-Copy)!\n\nSaat WhatsApp terbuka, cukup klik kanan -> Paste (atau CTRL+V) untuk menempelkan gambar struknya di chat.",
+          );
+        } catch (err) {
+          console.log("Browser tidak mendukung copy gambar langsung: ", err);
+        }
+
+        window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`, "_blank");
       }
 
       document.addEventListener("DOMContentLoaded", initData);
