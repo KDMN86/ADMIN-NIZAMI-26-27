@@ -583,7 +583,6 @@
             '<div style="text-align:center; padding:20px; color:#ff6b6b;">Gagal memuat data analitik.</div>';
         }
       }
-
       function renderList(items) {
         const container = document.getElementById("listArea");
         container.innerHTML = "";
@@ -597,53 +596,81 @@
         items.forEach((m) => {
           let hpClean = String(m.hp).replace(/\D/g, "");
           if (hpClean.startsWith("0")) hpClean = "62" + hpClean.substring(1);
+
           const waLink = hpClean ? `https://wa.me/${hpClean}` : "#";
+          const linkMitra = `https://nizami-26-27-fix.vercel.app/mitra.html?id=${m.id}`;
 
           container.innerHTML += `
-                <div class="mitra-card">
-                    <div class="m-header">
-                        <div class="m-info">
-                            <h3><i class="fas fa-handshake" style="color:var(--primary);"></i> ${m.nama}</h3>
-                            <p><i class="fas fa-map-marker-alt"></i> ${m.alamat || "Tidak ada alamat"}</p>
-                            <p style="font-family:monospace; margin-top:5px; color:#ffd700;">ID: ${m.id}</p>
-                        </div>
-                        <div class="m-fee-box">
-                            <span class="m-fee-label">Total Fee Mitra</span>
-                            <span class="m-fee-val">${formatRupiah(m.total_fee)}</span>
-                            <span class="m-fee-unit">${formatRupiah(m.fee_satuan)} /peserta</span>
-                        </div>
-                    </div>
-                    
-                    <div class="stats-grid">
-                        <div class="stat-box" onclick="showList('${m.id}', 'total')">
-                            <span class="sb-val c-total">${m.stats.count.total}</span>
-                            <span class="sb-label">Total<br>Peserta</span>
-                        </div>
-                        <div class="stat-box" onclick="showList('${m.id}', 'lunasBarang')">
-                            <span class="sb-val c-lunas-b">${m.stats.count.lunasBarang}</span>
-                            <span class="sb-label">Lunas<br>Barang</span>
-                        </div>
-                        <div class="stat-box" onclick="showList('${m.id}', 'belumBarang')">
-                            <span class="sb-val c-belum">${m.stats.count.belumBarang}</span>
-                            <span class="sb-label">Belum<br>Lunas</span>
-                        </div>
-                        <div class="stat-box" onclick="showList('${m.id}', 'lunasTotal')">
-                            <span class="sb-val c-lunas-t">${m.stats.count.lunasTotal}</span>
-                            <span class="sb-label">Tamat<br>(100%)</span>
-                        </div>
-                    </div>
+      <div class="mitra-card">
+        
+        <div class="m-header">
+          <div class="m-info">
 
-                    ${
-                      m.hp && m.hp !== "-"
-                        ? `
-                    <div class="m-actions">
-                        <a href="${waLink}" target="_blank" class="btn-wa">
-                            <i class="fab fa-whatsapp"></i> Hubungi Mitra
-                        </a>
-                    </div>`
-                        : ""
-                    }
-                </div>`;
+            <!-- ✅ NAMA BISA DIKLIK -->
+            <h3 onclick="bukaMitra('${m.id}')" style="cursor:pointer;">
+              <i class="fas fa-handshake" style="color:var(--primary);"></i> 
+              <span style="text-decoration:underline;">${m.nama}</span>
+            </h3>
+
+            <p><i class="fas fa-map-marker-alt"></i> ${m.alamat || "Tidak ada alamat"}</p>
+            <p style="font-family:monospace; margin-top:5px; color:#ffd700;">ID: ${m.id}</p>
+          </div>
+
+          <div class="m-fee-box">
+            <span class="m-fee-label">Total Fee Mitra</span>
+            <span class="m-fee-val">${formatRupiah(m.total_fee)}</span>
+            <span class="m-fee-unit">${formatRupiah(m.fee_satuan)} /peserta</span>
+          </div>
+        </div>
+
+        <div class="stats-grid">
+          <div class="stat-box" onclick="showList('${m.id}', 'total')">
+            <span class="sb-val c-total">${m.stats.count.total}</span>
+            <span class="sb-label">Total<br>Peserta</span>
+          </div>
+          <div class="stat-box" onclick="showList('${m.id}', 'lunasBarang')">
+            <span class="sb-val c-lunas-b">${m.stats.count.lunasBarang}</span>
+            <span class="sb-label">Lunas<br>Barang</span>
+          </div>
+          <div class="stat-box" onclick="showList('${m.id}', 'belumBarang')">
+            <span class="sb-val c-belum">${m.stats.count.belumBarang}</span>
+            <span class="sb-label">Belum<br>Lunas</span>
+          </div>
+          <div class="stat-box" onclick="showList('${m.id}', 'lunasTotal')">
+            <span class="sb-val c-lunas-t">${m.stats.count.lunasTotal}</span>
+            <span class="sb-label">Tamat<br>(100%)</span>
+          </div>
+        </div>
+
+        <!-- ✅ ACTION BUTTON BARU -->
+        <div class="m-actions">
+
+          ${
+            m.hp && m.hp !== "-"
+              ? `
+          <a href="${waLink}" target="_blank" class="btn-wa">
+            <i class="fab fa-whatsapp"></i> Hubungi
+          </a>
+          `
+              : ""
+          }
+
+          <button onclick="kirimLinkMitra('${m.id}', '${m.nama}', '${hpClean}')" 
+            class="btn-wa" 
+            style="background:#1e90ff20; color:#1e90ff; border-color:#1e90ff40;">
+            🔗 Kirim Link
+          </button>
+
+          <button onclick="copyLinkMitra('${m.id}')" 
+            class="btn-wa" 
+            style="background:#ffaa0020; color:#ffaa00; border-color:#ffaa0040;">
+            📋 Copy
+          </button>
+
+        </div>
+
+      </div>
+    `;
         });
       }
 
@@ -802,7 +829,40 @@
         btn.innerHTML = "SIMPAN DATA";
         btn.disabled = false;
       }
+      function getLinkMitra(id) {
+        return `https://nizami-26-27-fix.vercel.app/mitra.html?id=${id}`;
+      }
 
+      // ✅ buka halaman mitra saat nama diklik
+      function bukaMitra(id) {
+        const link = getLinkMitra(id);
+        window.open(link, "_blank");
+      }
+
+      // ✅ kirim link via WhatsApp
+      function kirimLinkMitra(id, nama, hp) {
+        if (!hp) return alert("Nomor HP tidak tersedia");
+
+        const link = getLinkMitra(id);
+
+        let text = `Halo *${nama}*,\n\n`;
+        text += `Berikut link dashboard mitra Anda:\n`;
+        text += `${link}\n\n`;
+        text += `_Simpan link ini baik-baik ya_ 🙏`;
+
+        const wa = `https://wa.me/${hp}?text=${encodeURIComponent(text)}`;
+        window.open(wa, "_blank");
+      }
+
+      // ✅ copy link ke clipboard
+      function copyLinkMitra(id) {
+        const link = getLinkMitra(id);
+
+        navigator.clipboard
+          .writeText(link)
+          .then(() => alert("Link berhasil disalin:\n" + link))
+          .catch(() => alert("Gagal copy link"));
+      }
       load();
     </script>
   </body>
