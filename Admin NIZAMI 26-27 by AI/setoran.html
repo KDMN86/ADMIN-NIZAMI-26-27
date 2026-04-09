@@ -390,6 +390,49 @@
           autocomplete="off"
         />
       </div>
+      <div
+        style="
+          background: var(--surface);
+          padding: 15px;
+          border-radius: 12px;
+          margin-bottom: 20px;
+          border: 1px solid var(--primary);
+        "
+      >
+        <h4 style="margin-top: 0; color: var(--primary)">
+          <i class="fab fa-whatsapp"></i> Ekstrak Pesan WA Mitra
+        </h4>
+        <textarea
+          id="waPasteArea"
+          placeholder="Tempel (Paste) pesan WA dari mitra di sini..."
+          style="
+            width: 100%;
+            height: 80px;
+            background: #252525;
+            color: #fff;
+            border: 1px solid #444;
+            border-radius: 8px;
+            padding: 10px;
+            font-size: 12px;
+          "
+        ></textarea>
+        <button
+          onclick="prosesEkstrakWA()"
+          style="
+            width: 100%;
+            margin-top: 10px;
+            padding: 10px;
+            background: var(--primary);
+            color: #000;
+            border: none;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+          "
+        >
+          <i class="fas fa-magic"></i> Proses & Masukkan ke Daftar
+        </button>
+      </div>
       <select
         id="filterMitra"
         class="search-bar filter-select"
@@ -542,6 +585,76 @@
         mitras.sort().forEach((m) => {
           select.innerHTML += `<option value="${m}">${m}</option>`;
         });
+      }
+
+      function prosesEkstrakWA() {
+        const text = document.getElementById("waPasteArea").value;
+        if (!text.trim()) {
+          alert("Silakan tempel pesan WA terlebih dahulu!");
+          return;
+        }
+
+        // PERBAIKAN 1: Nama array yang benar adalah semuaPeserta
+        if (!semuaPeserta || semuaPeserta.length === 0) {
+          alert(
+            "⚠️ Data peserta belum termuat! Tunggu loading selesai atau refresh halaman Admin.",
+          );
+          return;
+        }
+
+        const lines = text.split("\n"); // Pisahkan teks per baris
+        let count = 0;
+        let notFound = [];
+
+        lines.forEach((line) => {
+          // 1. Cari pola kurung siku yang berisi ID, contoh: [Budi Santoso 1234]
+          let idMatch = line.match(/\[(.*?)\]/);
+          if (!idMatch) return; // Jika baris ini tidak punya [...], lewati.
+
+          let idPeserta = idMatch[1].trim().toLowerCase();
+
+          // 2. Cari pola jumlah setoran, contoh: +2x atau + 2 x
+          let qtyMatch = line.match(/\+\s*(\d+)\s*[xX]/);
+          let qty = qtyMatch ? parseInt(qtyMatch[1]) : 1; // Jika tidak ada angka, anggap 1x
+
+          // 3. Cari ID di database lokal Admin
+          let p = semuaPeserta.find(
+            (item) => String(item.id).trim().toLowerCase() === idPeserta,
+          );
+
+          if (p) {
+            // PERBAIKAN 2: Gunakan sistem Cart yang ada di setoran.html
+            let currentQty = cart[p.id] ? cart[p.id].qty : 0;
+            let newQty = currentQty + qty;
+
+            // Masukkan ke keranjang
+            updateCartLogic(p.id, newQty);
+            count++;
+          } else {
+            // Simpan ID yang gagal ditemukan untuk diinfokan ke Admin
+            notFound.push(idMatch[1].trim());
+          }
+        });
+
+        // 4. Berikan Feedback ke Admin
+        if (count > 0) {
+          alert(`✅ Berhasil mengekstrak ${count} setoran peserta.`);
+          document.getElementById("waPasteArea").value = ""; // Bersihkan area
+
+          // PERBAIKAN 3: Render ulang list agar angka di kotak input ikut berubah
+          filterLokal();
+        } else {
+          alert(
+            "❌ Tidak ada data yang cocok. Pastikan pesan WA memiliki format [ID].",
+          );
+        }
+
+        // Jika ada ID yang typo atau belum terdaftar
+        if (notFound.length > 0) {
+          alert(
+            `⚠️ Peringatan: ID berikut ada di pesan WA, tapi TIDAK DITEMUKAN di database Admin:\n\n${notFound.join("\n")}\n\nPastikan ID sesuai, atau reload halaman Admin.`,
+          );
+        }
       }
 
       function setMitraFilter(mitraName) {
