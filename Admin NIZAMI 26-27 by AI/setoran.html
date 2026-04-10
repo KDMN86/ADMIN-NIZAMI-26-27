@@ -627,25 +627,54 @@
       let cart = {};
 
       document.addEventListener("DOMContentLoaded", async () => {
-        const res = await fetchData("cariPeserta", { q: "" });
-        if (res && res.length > 0) {
-          semuaPeserta = res.map((p) => {
-            let m = (p.mitra || "").trim();
-            if (
-              m === "" ||
-              m.toLowerCase() === "pusat" ||
-              m.toLowerCase() === "pusat (langsung)"
-            ) {
-              p.mitra = "Pusat";
-            }
-            return p;
-          });
+        // 1. CEK CACHE LOKAL: Tampilkan data lama seketika tanpa loading
+        const cachedData = localStorage.getItem("nizami_cache_setoran");
+        if (cachedData) {
+          try {
+            semuaPeserta = JSON.parse(cachedData);
+            buatDropdownMitra();
+            renderList(semuaPeserta);
+          } catch (e) {
+            console.error("Gagal membaca cache:", e);
+          }
+        }
 
-          buatDropdownMitra();
-          renderList(semuaPeserta);
-        } else {
-          document.getElementById("containerList").innerHTML =
-            '<div style="text-align:center; padding:20px;">Data kosong atau gagal dimuat.</div>';
+        // 2. BACKGROUND SYNC: Tarik data terbaru secara diam-diam
+        try {
+          const res = await fetchData("cariPeserta", { q: "" });
+          if (res && res.length > 0) {
+            semuaPeserta = res.map((p) => {
+              let m = (p.mitra || "").trim();
+              if (
+                m === "" ||
+                m.toLowerCase() === "pusat" ||
+                m.toLowerCase() === "pusat (langsung)"
+              ) {
+                p.mitra = "Pusat";
+              }
+              return p;
+            });
+
+            // 3. SIMPAN CACHE TERBARU & RENDER ULANG
+            localStorage.setItem(
+              "nizami_cache_setoran",
+              JSON.stringify(semuaPeserta),
+            );
+            buatDropdownMitra();
+
+            // Gunakan filterLokal agar jika admin sedang mengetik di pencarian,
+            // layarnya tidak tiba-tiba kerestart ke awal.
+            filterLokal();
+          } else if (!cachedData) {
+            document.getElementById("containerList").innerHTML =
+              '<div style="text-align:center; padding:20px; color:#aaa;">Data kosong atau belum ada peserta.</div>';
+          }
+        } catch (err) {
+          // Jika gagal fetch (misal tidak ada sinyal) dan tidak ada cache
+          if (!cachedData) {
+            document.getElementById("containerList").innerHTML =
+              '<div style="text-align:center; padding:20px; color:#ff6b6b;">Gagal terhubung ke server. Periksa koneksi internet Anda.</div>';
+          }
         }
       });
 
