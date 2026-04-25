@@ -775,6 +775,51 @@
       </div>
     </div>
 
+    <div id="modalDetail" class="modal">
+      <div class="modal-content">
+        <div class="m-head">
+          <h3 style="margin: 0; color: var(--primary)">
+            <i class="fas fa-search-plus"></i> Rincian Kebutuhan
+          </h3>
+          <i
+            class="fas fa-times"
+            style="font-size: 1.5rem; color: #888; cursor: pointer"
+            onclick="tutupDetailItem()"
+          ></i>
+        </div>
+        <div
+          style="
+            padding: 15px 20px 10px;
+            border-bottom: 1px dashed #333;
+            background: #1a1a1a;
+          "
+        >
+          <h4
+            id="modalDetailTitle"
+            style="margin: 0 0 8px 0; font-size: 1.1rem; color: #fff"
+          >
+            Nama Barang
+          </h4>
+          <div
+            style="
+              display: flex;
+              justify-content: space-between;
+              font-size: 0.85rem;
+              font-weight: bold;
+            "
+          >
+            <span id="modalDetailTarget"></span>
+            <span id="modalDetailKurang"></span>
+          </div>
+        </div>
+        <div
+          class="m-body"
+          id="modalDetailBody"
+          style="background: #121212"
+        ></div>
+      </div>
+    </div>
+
     <script src="script.js"></script>
     <script>
       let masterData = {
@@ -903,16 +948,43 @@
           if (countPaket[r.paket] > 0) {
             let totalDibutuhkan = countPaket[r.paket] * r.qty;
             if (!keranjang[r.barang])
-              keranjang[r.barang] = { qty: 0, satuan: r.satuan };
+              keranjang[r.barang] = { qty: 0, satuan: r.satuan, detail: [] }; // Tambah array detail
             keranjang[r.barang].qty += totalDibutuhkan;
+
+            // LOGIKA BARU: Rekam jejak paket & peserta
+            let listNama = pesertaLolos
+              .filter((p) => p.paket === r.paket)
+              .map((p) => p.nama || p.id);
+            keranjang[r.barang].detail.push({
+              tipe: "Paket",
+              nama_sumber: r.paket,
+              qty_satuan: r.qty,
+              orang: countPaket[r.paket],
+              subtotal: totalDibutuhkan,
+              list_peserta: listNama,
+            });
           }
         });
 
         masterData.custom.forEach((c) => {
           if (idLolos.includes(c.id_peserta)) {
             if (!keranjang[c.barang])
-              keranjang[c.barang] = { qty: 0, satuan: c.satuan };
+              keranjang[c.barang] = { qty: 0, satuan: c.satuan, detail: [] }; // Tambah array detail
             keranjang[c.barang].qty += c.qty;
+
+            // LOGIKA BARU: Rekam jejak pesanan custom
+            let orangnya = pesertaLolos.find((p) => p.id === c.id_peserta);
+            let namaOrang = orangnya
+              ? orangnya.nama || orangnya.id
+              : c.id_peserta;
+            keranjang[c.barang].detail.push({
+              tipe: "Custom",
+              nama_sumber: namaOrang,
+              qty_satuan: c.qty,
+              orang: 1,
+              subtotal: c.qty,
+              list_peserta: [namaOrang],
+            });
           }
         });
 
@@ -936,6 +1008,7 @@
             ready: ready,
             kurang: kurang > 0 ? kurang : 0,
             harga: hargaBrg,
+            detail: keranjang[key].detail, // Masukkan data rekaman jejak ke hasil akhir
           });
         }
         listBelanjaFinal.sort((a, b) => b.kurang - a.kurang);
@@ -993,11 +1066,44 @@
         }
 
         barangTampil.forEach((b, index) => {
+          // Escape tanda kutip agar tidak merusak fungsi onClick
+          let strNamaBarangEscaped = b.barang
+            .replace(/'/g, "\\'")
+            .replace(/"/g, "&quot;");
+
           let isAman = b.kurang === 0;
           let clsAman = isAman ? "aman" : "kurang";
+
+          // Tambahkan efek cursor-pointer dan fungsi klik pada label Kurang
           let statusBdg = isAman
             ? `<div class="item-status status-aman">LENGKAP</div>`
-            : `<div class="item-status status-kurang">KURANG ${b.kurang}</div>`;
+            : `<div class="item-status status-kurang" style="cursor:pointer; text-decoration:underline;" onclick="bukaDetailItem('${strNamaBarangEscaped}')" title="Klik untuk lihat rincian">KURANG ${b.kurang}</div>`;
+
+          let isUang =
+            b.barang.toLowerCase().includes("uang") ||
+            b.satuan.toLowerCase().includes("rupiah") ||
+            b.satuan.toLowerCase() === "rp";
+
+          let infoHargaHTML = "";
+          if (!isUang) {
+            let totalDanaDibutuhkan = b.kurang * b.harga;
+            infoHargaHTML = `
+              <div style="margin-top: 10px; padding: 8px 10px; background: rgba(255, 215, 0, 0.05); border: 1px solid #333; border-radius: 8px; display: flex; flex-direction: column; gap: 4px; font-size: 0.75rem;">
+                  <div style="display: flex; justify-content: space-between;">
+                      <span style="color: #aaa;">Harga Satuan:</span>
+                      <b style="color: #fff;">${formatRp(b.harga)}<span style="color: #666; font-weight: normal;"> / ${b.satuan}</span></b>
+                  </div>
+                  <div style="display: flex; justify-content: space-between; border-top: 1px dashed #444; padding-top: 4px; margin-top: 2px;">
+                      <span style="color: #aaa;">Butuh Dana:</span>
+                      ${
+                        b.kurang > 0
+                          ? `<b style="color: var(--primary); font-size: 0.85rem;">${formatRp(totalDanaDibutuhkan)}</b>`
+                          : `<b style="color: var(--success);">Rp 0 (Stok Aman)</b>`
+                      }
+                  </div>
+              </div>
+            `;
+          }
 
           container.innerHTML += `
             <div class="shop-item ${clsAman}">
@@ -1005,10 +1111,11 @@
                     <div class="item-info">
                         <h4 class="item-name">${b.barang}</h4>
                         <div class="item-details">
-                            <span>Target: ${b.total}</span>
+                            <span onclick="bukaDetailItem('${strNamaBarangEscaped}')" style="cursor:pointer; border-color:var(--primary); color:var(--primary);" title="Klik untuk lihat asal usul target">Target: ${b.total}</span>
                             <span>Masuk: ${b.masuk}</span>
                             <span>Keluar: ${b.keluar}</span>
                         </div>
+                        ${infoHargaHTML}
                     </div>
                     ${statusBdg}
                 </div>
@@ -1262,6 +1369,51 @@
 
         btn.innerHTML = "PROSES BARANG KELUAR";
         btn.disabled = false;
+      }
+
+      // ========================================================
+      // LOGIKA RINCIAN TARGET & KURANG
+      // ========================================================
+      function bukaDetailItem(namaBarang) {
+        let b = listBelanjaFinal.find((x) => x.barang === namaBarang);
+        if (!b) return;
+
+        let html = ``;
+        b.detail.forEach((d) => {
+          html += `
+            <div style="background:#1e1e1e; margin-bottom:12px; padding:12px; border-radius:10px; border:1px solid #333;">
+                <div style="color:var(--primary); font-weight:bold; margin-bottom:4px; font-size:0.95rem; display:flex; align-items:center; gap:6px;">
+                    ${d.tipe === "Paket" ? '<i class="fas fa-box"></i> ' + d.nama_sumber : '<i class="fas fa-user-tag"></i> Request Custom'}
+                </div>
+                <div style="font-size:0.8rem; color:#ccc; margin-bottom:10px;">
+                    Menyumbang Target: <b style="color:#fff;">${d.subtotal.toLocaleString("id-ID")} ${b.satuan}</b>
+                    ${d.tipe === "Paket" ? `<span style="color:#888;">(${d.orang} peserta x ${d.qty_satuan.toLocaleString("id-ID")})</span>` : ""}
+                </div>
+                <div style="font-size:0.75rem; color:#aaa; display:flex; flex-wrap:wrap; gap:6px;">
+                    ${d.list_peserta.map((nama) => `<span style="background:#2a2a2a; padding:4px 8px; border-radius:6px; border:1px solid #444;">${nama}</span>`).join("")}
+                </div>
+            </div>`;
+        });
+
+        document.getElementById("modalDetailTitle").innerText = namaBarang;
+        document.getElementById("modalDetailBody").innerHTML = html;
+
+        // Penambahan toLocaleString('id-ID') pada total target dan jumlah kurang
+        document.getElementById("modalDetailTarget").innerText =
+          `Total Target: ${b.total.toLocaleString("id-ID")} ${b.satuan}`;
+        document.getElementById("modalDetailKurang").innerText =
+          `Status: ${b.kurang > 0 ? "Kurang " + b.kurang.toLocaleString("id-ID") : "Lengkap/Aman"}`;
+
+        document.getElementById("modalDetailTarget").style.color =
+          "var(--primary)";
+        document.getElementById("modalDetailKurang").style.color =
+          b.kurang > 0 ? "var(--danger)" : "var(--success)";
+
+        document.getElementById("modalDetail").style.display = "flex";
+      }
+
+      function tutupDetailItem() {
+        document.getElementById("modalDetail").style.display = "none";
       }
 
       tarikDataServer();
