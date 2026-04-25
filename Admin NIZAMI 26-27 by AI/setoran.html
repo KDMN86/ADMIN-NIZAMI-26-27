@@ -1088,6 +1088,7 @@
         let total = 0;
         let listMitra = new Set();
         let msgRincian = "";
+        let nomorTujuan = ""; // --- Wadah untuk Nomor HP ---
 
         for (let id in cart) {
           let item = cart[id];
@@ -1096,6 +1097,15 @@
 
           let mName = item.data.mitra || "Pusat";
           listMitra.add(mName);
+
+          // --- AMBIL NOMOR HP DARI DATA PESERTA ---
+          // Mengambil nomor HP dari item pertama yang diproses
+          if (!nomorTujuan && item.data.hp) {
+            nomorTujuan = String(item.data.hp).replace(/\D/g, ""); // Bersihkan dari karakter selain angka
+            if (nomorTujuan.startsWith("0")) {
+              nomorTujuan = "62" + nomorTujuan.substring(1); // Ubah awalan 0 menjadi 62
+            }
+          }
 
           let displaySub = new Intl.NumberFormat("id-ID", {
             style: "currency",
@@ -1140,7 +1150,12 @@
           console.log("Browser tidak mendukung copy gambar langsung: ", err);
         }
 
-        window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`, "_blank");
+        // --- ARAHKAN LANGSUNG KE NOMOR TUJUAN ---
+        let waLink = nomorTujuan
+          ? `https://wa.me/${nomorTujuan}?text=${encodeURIComponent(msg)}`
+          : `https://wa.me/?text=${encodeURIComponent(msg)}`;
+
+        window.open(waLink, "_blank");
       }
 
       // FUNGSI BARU: Buka/Tutup Daftar Rekap Bawah
