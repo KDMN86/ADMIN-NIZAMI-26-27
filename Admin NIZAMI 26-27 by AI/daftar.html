@@ -756,7 +756,42 @@
             id="selPaketBaru"
             class="form-input"
             style="margin-bottom: 15px"
+            onchange="checkPaket(this, 'ubah')"
           ></select>
+
+          <div id="customArea_ubah" style="display: block; margin-bottom: 15px">
+            <button
+              class="btn-item-select"
+              id="btnSelect_ubah"
+              onclick="openItemModal('ubah')"
+            >
+              <span id="btnText_ubah"
+                ><i class="fas fa-edit"></i> Ubah Isi Barang (Opsional)</span
+              >
+            </button>
+            <div id="summaryBox_ubah" class="summary-box" style="display: none">
+              <small class="summary-text" id="summary_ubah"></small>
+            </div>
+            <input
+              type="hidden"
+              class="inp-harga-custom"
+              id="valHarga_ubah"
+              value="0"
+            />
+            <input
+              type="hidden"
+              class="inp-rincian"
+              id="valRincian_ubah"
+              value=""
+            />
+            <input
+              type="hidden"
+              class="inp-items-json"
+              id="valItemsJson_ubah"
+              value=""
+            />
+          </div>
+
           <button
             onclick="simpanUbahPaket()"
             class="btn-save-all"
@@ -905,7 +940,8 @@
 
       let masterMitra = [],
         masterPaket = [],
-        masterBarang = [];
+        masterBarang = [],
+        masterIsiPaket = [];
       let currentEditingRowId = null;
       let rowData = {};
       let currentMode = "normal";
@@ -914,14 +950,16 @@
         const loading = document.getElementById("loadingInfo");
         loading.style.display = "block";
         try {
-          const [mitra, paket, barang] = await Promise.all([
+          const [mitra, paket, barang, isiPaket] = await Promise.all([
             fetchData("getMitra"),
             fetchData("getPaket"),
             fetchData("getBarang"),
+            fetchData("getIsiPaket"),
           ]);
           masterMitra = Array.isArray(mitra) ? mitra : [];
           masterPaket = Array.isArray(paket) ? paket : [];
           masterBarang = Array.isArray(barang) ? barang : [];
+          masterIsiPaket = Array.isArray(isiPaket) ? isiPaket : [];
           loading.style.display = "none";
 
           if (pCardCount === 0) addParticipantCard();
@@ -999,7 +1037,11 @@
           let sel = p.nama === paketLama ? "selected" : "";
           optHtml += `<option value="${p.nama}" ${sel}>${p.nama}</option>`;
         });
-        document.getElementById("selPaketBaru").innerHTML = optHtml;
+        const selEl = document.getElementById("selPaketBaru");
+        selEl.innerHTML = optHtml;
+
+        // Reset & inisialisasi tombol request barang untuk paket ini
+        checkPaket(selEl, "ubah");
 
         document.getElementById("formUbahPaketArea").style.display = "flex";
         document.getElementById("hasilCariUbahPaket").innerHTML = "";
@@ -1009,6 +1051,11 @@
         const id = document.getElementById("targetUbahId").value;
         const paketBaru = document.getElementById("selPaketBaru").value;
         const nama = document.getElementById("targetUbahNama").innerText;
+
+        // Tarik data barang yang baru disesuaikan
+        const harga = document.getElementById("valHarga_ubah").value;
+        const rincian = document.getElementById("valRincian_ubah").value;
+        const items_json = document.getElementById("valItemsJson_ubah").value;
 
         if (
           !confirm(
@@ -1024,12 +1071,18 @@
         try {
           const res = await fetchData(
             "ubahPaketPeserta",
-            { idPeserta: id, paketBaru: paketBaru },
+            {
+              idPeserta: id,
+              paketBaru: paketBaru,
+              harga: harga,
+              rincian: rincian,
+              items_json: items_json,
+            },
             "POST",
           );
           if (res && res.success) {
             alert(
-              `Berhasil! Paket ${nama} telah diubah menjadi ${paketBaru}.\nSistem telah menyesuaikan ulang frekuensi setorannya menjadi ${res.newFreq}x.`,
+              `Berhasil! Paket ${nama} telah diubah.\nSistem telah menyesuaikan ulang frekuensi setorannya menjadi ${res.newFreq}x.`,
             );
             tutupModalUbahPaket();
           } else {
@@ -1441,10 +1494,56 @@
       function openItemModal(pktId) {
         if (masterBarang.length === 0)
           return alert("Data barang belum termuat. Silakan refresh halaman.");
+
         currentEditingRowId = pktId;
-        const row = document.getElementById(`pkt_${pktId}`);
-        const mode = row.querySelector(".inp-paket").dataset.mode;
+
+        // Deteksi mode & nama paket berdasarkan ID (Ubah paket atau Daftar baru)
+        let mode = "normal";
+        let valPaket = "";
+
+        if (pktId === "ubah") {
+          const selectEl = document.getElementById("selPaketBaru");
+          mode = selectEl.dataset.mode || "normal";
+          valPaket = selectEl.value;
+        } else {
+          const row = document.getElementById(`pkt_${pktId}`);
+          const selectEl = row.querySelector(".inp-paket");
+          mode = selectEl.dataset.mode || "normal";
+          valPaket = selectEl.value;
+        }
+
         currentMode = mode;
+
+        // ==========================================
+        // FITUR BARU: AUTO-FILL BARANG BAWAAN PAKET
+        // ==========================================
+        if (!rowData[`pkt_${pktId}`]) {
+          rowData[`pkt_${pktId}`] = { items: {}, total: 0 };
+        }
+
+        // Jika keranjang request barang masih kosong DAN ada paket yang dipilih
+        if (
+          Object.keys(rowData[`pkt_${pktId}`].items).length === 0 &&
+          valPaket
+        ) {
+          if (
+            typeof masterIsiPaket !== "undefined" &&
+            masterIsiPaket.length > 0
+          ) {
+            masterIsiPaket.forEach((isi) => {
+              // Cocokkan nama paket
+              if (
+                String(isi.paket).trim().toLowerCase() ===
+                String(valPaket).trim().toLowerCase()
+              ) {
+                // Masukkan otomatis qty-nya ke dalam rincian
+                rowData[`pkt_${pktId}`].items[isi.barang] = Number(isi.qty);
+              }
+            });
+          }
+        }
+        // ==========================================
+
         document.getElementById("modalSearch").value = "";
         document.getElementById("modalItems").style.display = "flex";
         renderAccordionItems();
@@ -1662,7 +1761,15 @@
 
       function recalculateRowTotal(pktId) {
         const data = rowData[`pkt_${pktId}`];
-        const selectEl = document.querySelector(`#pkt_${pktId} .inp-paket`);
+
+        // Deteksi apakah ID-nya "ubah" (Modal Ubah Paket) atau angka (Pendaftaran Baru)
+        let selectEl;
+        if (pktId === "ubah") {
+          selectEl = document.getElementById("selPaketBaru");
+        } else {
+          selectEl = document.querySelector(`#pkt_${pktId} .inp-paket`);
+        }
+
         const mode = selectEl.dataset.mode;
         const btnOuter = document.getElementById(`btnSelect_${pktId}`);
         const summaryBox = document.getElementById(`summaryBox_${pktId}`);
