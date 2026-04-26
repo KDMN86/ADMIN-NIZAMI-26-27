@@ -970,7 +970,7 @@
         btn.disabled = true;
 
         // Panggil endpoint Apps Script untuk Update Data
-        const res = await fetchData("editMitra", { id, nama, hp, alamat, fee });
+        const res = await fetchData("editMitra", { id, nama, hp, alamat, fee }, "POST");
 
         if (res && res.success) {
           document.getElementById("modalEdit").style.display = "none";
@@ -998,7 +998,7 @@
         if (!konfirmasi) return;
 
         // Panggil endpoint Apps Script untuk Hapus Data
-        const res = await fetchData("hapusMitra", { id });
+       const res = await fetchData("hapusMitra", { id }, "POST");
 
         if (res && res.success) {
           document.getElementById("modalEdit").style.display = "none";
