@@ -567,6 +567,77 @@
       </div>
     </div>
 
+    <div id="modalEdit" class="modal">
+      <div class="modal-card">
+        <h3
+          style="
+            margin-top: 0;
+            color: var(--primary);
+            text-align: center;
+            margin-bottom: 15px;
+          "
+        >
+          <i class="fas fa-user-edit"></i> Pengaturan Mitra
+        </h3>
+
+        <input type="hidden" id="eId" />
+        <label class="form-label">Nama Lengkap</label>
+        <input type="text" id="eNama" class="form-input" />
+
+        <label class="form-label">Nomor WhatsApp</label>
+        <input type="number" id="eHP" class="form-input" />
+
+        <label class="form-label">Alamat / Wilayah</label>
+        <input type="text" id="eAlamat" class="form-input" />
+
+        <label class="form-label">Komisi / Fee per Peserta (Rp)</label>
+        <input
+          type="number"
+          id="eFee"
+          class="form-input"
+          style="color: var(--primary); font-weight: bold"
+        />
+
+        <button
+          onclick="simpanEditMitra()"
+          class="btn-full"
+          id="btnSimpanEdit"
+          style="margin-bottom: 15px"
+        >
+          SIMPAN PERUBAHAN
+        </button>
+
+        <div style="display: flex; gap: 10px">
+          <button
+            onclick="hapusMitra()"
+            class="btn-full"
+            style="
+              background: rgba(255, 107, 129, 0.1);
+              color: #ff6b81;
+              border: 1px solid rgba(255, 107, 129, 0.3);
+              flex: 1;
+            "
+          >
+            <i class="fas fa-trash"></i> Hapus
+          </button>
+          <button
+            onclick="
+              document.getElementById('modalEdit').style.display = 'none'
+            "
+            class="btn-full"
+            style="
+              background: transparent;
+              color: #888;
+              border: 1px solid #444;
+              flex: 1;
+            "
+          >
+            Batal
+          </button>
+        </div>
+      </div>
+    </div>
+
     <script src="script.js"></script>
     <script>
       let allMitra = [];
@@ -605,12 +676,15 @@
         
         <div class="m-header">
           <div class="m-info">
-
-            <!-- ✅ NAMA BISA DIKLIK -->
-            <h3 onclick="bukaMitra('${m.id}')" style="cursor:pointer;">
-              <i class="fas fa-handshake" style="color:var(--primary);"></i> 
-              <span style="text-decoration:underline;">${m.nama}</span>
-            </h3>
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; width: 100%;">
+                <h3 onclick="bukaMitra('${m.id}')" style="cursor:pointer; margin: 0 0 5px 0;">
+                  <i class="fas fa-handshake" style="color:var(--primary);"></i> 
+                  <span style="text-decoration:underline;">${m.nama}</span>
+                </h3>
+                <button onclick="bukaEditMitra('${m.id}')" style="background:none; border:none; color:#888; font-size:1.1rem; cursor:pointer; padding:0;">
+                  <i class="fas fa-cog"></i>
+                </button>
+            </div>
 
             <p><i class="fas fa-map-marker-alt"></i> ${m.alamat || "Tidak ada alamat"}</p>
             <p style="font-family:monospace; margin-top:5px; color:#ffd700;">ID: ${m.id}</p>
@@ -864,6 +938,77 @@
           .catch(() => alert("Gagal copy link"));
       }
       load();
+
+      // --- FUNGSI BUKA MODAL EDIT ---
+      function bukaEditMitra(id) {
+        const m = allMitra.find((x) => x.id === id);
+        if (!m) return;
+
+        // Isi form dengan data yang ada
+        document.getElementById("eId").value = m.id;
+        document.getElementById("eNama").value = m.nama;
+        document.getElementById("eHP").value = m.hp !== "-" ? m.hp : "";
+        document.getElementById("eAlamat").value = m.alamat;
+        document.getElementById("eFee").value = m.fee_satuan;
+
+        // Tampilkan modal
+        document.getElementById("modalEdit").style.display = "flex";
+      }
+
+      // --- FUNGSI SIMPAN PERUBAHAN KE SERVER ---
+      async function simpanEditMitra() {
+        const id = document.getElementById("eId").value;
+        const nama = document.getElementById("eNama").value;
+        const hp = document.getElementById("eHP").value;
+        const alamat = document.getElementById("eAlamat").value;
+        const fee = document.getElementById("eFee").value;
+
+        if (!nama) return alert("Nama Mitra wajib diisi!");
+
+        const btn = document.getElementById("btnSimpanEdit");
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Menyimpan...';
+        btn.disabled = true;
+
+        // Panggil endpoint Apps Script untuk Update Data
+        const res = await fetchData("editMitra", { id, nama, hp, alamat, fee });
+
+        if (res && res.success) {
+          document.getElementById("modalEdit").style.display = "none";
+          load(); // Refresh tampilan kartu secara otomatis
+        } else {
+          alert(
+            "Gagal mengupdate data. Pastikan fungsi 'editMitra' sudah ada di Google Apps Script.",
+          );
+        }
+
+        btn.innerHTML = "SIMPAN PERUBAHAN";
+        btn.disabled = false;
+      }
+
+      // --- FUNGSI HAPUS / NONAKTIFKAN MITRA ---
+      async function hapusMitra() {
+        const id = document.getElementById("eId").value;
+        const nama = document.getElementById("eNama").value;
+
+        // Konfirmasi ganda untuk mencegah salah klik
+        const konfirmasi = confirm(
+          `⚠️ PERINGATAN!\n\nApakah Anda yakin ingin menghapus data Mitra: ${nama}?\nPastikan mitra ini belum memiliki peserta.`,
+        );
+
+        if (!konfirmasi) return;
+
+        // Panggil endpoint Apps Script untuk Hapus Data
+        const res = await fetchData("hapusMitra", { id });
+
+        if (res && res.success) {
+          document.getElementById("modalEdit").style.display = "none";
+          load(); // Refresh tampilan
+        } else {
+          alert(
+            "Gagal menghapus mitra. Pastikan fungsi 'hapusMitra' sudah siap di Apps Script.",
+          );
+        }
+      }
     </script>
   </body>
 </html>
