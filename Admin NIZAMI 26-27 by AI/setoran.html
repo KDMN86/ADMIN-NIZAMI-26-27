@@ -1227,39 +1227,77 @@
 
       async function kirimWaMitra() {
         let total = 0;
-        let listMitra = new Set();
         let msgRincian = "";
-        let nomorTujuan = ""; // --- Wadah untuk Nomor HP ---
+        let nomorTujuan = ""; // Wadah untuk Nomor HP
+
+        // Garis pembatas struk
+        let garis = "------------------------------------------\n";
 
         for (let id in cart) {
           let item = cart[id];
-          let sub = item.qty * item.data.harga;
+          let p = item.data;
+          let sub = item.qty * p.harga;
           total += sub;
 
-          let mName = item.data.mitra || "Pusat";
-          listMitra.add(mName);
-
-          // --- AMBIL NOMOR HP DARI DATA PESERTA ---
-          // Mengambil nomor HP dari item pertama yang diproses
-          if (!nomorTujuan && item.data.hp) {
-            nomorTujuan = String(item.data.hp).replace(/\D/g, ""); // Bersihkan dari karakter selain angka
+          // Ekstrak Nomor HP
+          if (!nomorTujuan && p.hp) {
+            nomorTujuan = String(p.hp).replace(/\D/g, "");
             if (nomorTujuan.startsWith("0")) {
-              nomorTujuan = "62" + nomorTujuan.substring(1); // Ubah awalan 0 menjadi 62
+              nomorTujuan = "62" + nomorTujuan.substring(1);
             }
           }
+
+          // Kalkulasi Potongan Admin & Saldo Aktif (Sama persis seperti struk)
+          let adminFeePerQty = 0;
+          let pNama = p.paket.toLowerCase();
+
+          if (pNama.includes("uang")) {
+            if (pNama.includes("5.000")) adminFeePerQty = 300;
+            else if (pNama.includes("10.000") || pNama.includes("15.000"))
+              adminFeePerQty = 450;
+            else if (pNama.includes("20.000")) adminFeePerQty = 600;
+            else if (pNama.includes("25.000") || pNama.includes("30.000"))
+              adminFeePerQty = 750;
+          }
+
+          let totalAdmin = adminFeePerQty * item.qty;
+          let nominalBersih = sub - totalAdmin;
+          let saldoAktifBaru = p.saldo_aktif + nominalBersih;
 
           let displaySub = new Intl.NumberFormat("id-ID", {
             style: "currency",
             currency: "IDR",
             minimumFractionDigits: 0,
           }).format(sub);
-          let noAnggotaStr = item.data.no_anggota
-            ? `(#${item.data.no_anggota})`
-            : "";
+          let displayHarga = new Intl.NumberFormat("id-ID", {
+            style: "currency",
+            currency: "IDR",
+            minimumFractionDigits: 0,
+          }).format(p.harga);
 
-          msgRincian += `👤 *${item.data.nama}* ${noAnggotaStr}\n`;
-          msgRincian += `📦 ${item.data.paket}\n`;
-          msgRincian += `   ↳ ${item.qty}x Setor = ${displaySub}\n\n`;
+          // Susunan Teks Per Item (Meniru Struk)
+          msgRincian += `*${p.nama}* ${displaySub}\n`;
+          msgRincian += `   Paket: ${p.paket}\n`;
+          msgRincian += `   Jml Setor: ${item.qty}x @ ${displayHarga}\n`;
+          msgRincian += `   Posisi: Ke-${p.freq} ➔ Ke-${p.freq + item.qty}\n`;
+
+          // Tampilkan Potongan & Saldo hanya jika ada potongan admin
+          if (totalAdmin > 0) {
+            let displayAdmin = new Intl.NumberFormat("id-ID", {
+              style: "currency",
+              currency: "IDR",
+              minimumFractionDigits: 0,
+            }).format(totalAdmin);
+            let displayAktif = new Intl.NumberFormat("id-ID", {
+              style: "currency",
+              currency: "IDR",
+              minimumFractionDigits: 0,
+            }).format(saldoAktifBaru);
+
+            msgRincian += `   Potongan Admin: ${displayAdmin}\n`;
+            msgRincian += `   *Saldo Aktif: ${displayAktif}*\n`;
+          }
+          msgRincian += garis;
         }
 
         let displayTotal = new Intl.NumberFormat("id-ID", {
@@ -1267,13 +1305,18 @@
           currency: "IDR",
           minimumFractionDigits: 0,
         }).format(total);
-        let mitraNames = Array.from(listMitra).join(", ");
         let dateNow = new Date().toLocaleString("id-ID");
 
-        let msg = `Halo Mitra *${mitraNames}*, berikut rekap setoran yang baru saja diproses admin:\n\n`;
-        msg += `*REKAP BUKTI SETORAN* ✅\nTanggal: ${dateNow}\n\n`;
+        // --- SUSUNAN AKHIR HEADER & FOOTER STRUK WA ---
+        let msg = `*NIZAMI 2026*\n`;
+        msg += `BUKTI SETORAN TABUNGAN\n`;
+        msg += `${dateNow}\n\n`;
+
+        msg += garis;
         msg += msgRincian;
-        msg += `*💰 TOTAL DITERIMA: ${displayTotal}*\n\n`;
+        msg += `*TOTAL DISETOR* *${displayTotal}*\n\n`;
+
+        msg += `Terima Kasih\nAdmin Nizami\n\n`;
         msg += `_Gambar struk fisik dapat dilampirkan setelah pesan ini (Tekan Tempel/Paste)._`;
 
         try {
