@@ -434,6 +434,56 @@
         border-radius: 5px;
         margin: 15px 0;
       }
+
+      /* --- CUSTOM SELECT SEARCH MITRA --- */
+      .custom-select-container {
+        position: relative;
+        width: 100%;
+        margin-top: 10px;
+      }
+      .custom-select-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        cursor: pointer;
+        background: #222;
+        user-select: none;
+      }
+      .custom-select-body {
+        display: none;
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        background: var(--surface);
+        border: 1px solid var(--primary);
+        border-radius: 12px;
+        margin-top: 5px;
+        z-index: 1000;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.8);
+        flex-direction: column;
+      }
+      .custom-select-body.show {
+        display: flex;
+      }
+      #listMitraOptions {
+        max-height: 250px;
+        overflow-y: auto;
+      }
+      .mitra-option {
+        padding: 12px 20px;
+        color: #e0e0e0;
+        cursor: pointer;
+        border-bottom: 1px solid #333;
+        transition: background 0.2s;
+      }
+      .mitra-option:hover {
+        background: rgba(255, 215, 0, 0.1);
+        color: var(--primary);
+      }
+      .mitra-option:last-child {
+        border-bottom: none;
+      }
     </style>
   </head>
   <body>
@@ -496,13 +546,31 @@
         </div>
       </div>
 
-      <select
-        id="filterMitra"
-        class="search-bar filter-select"
-        onchange="filterLokal()"
-      >
-        <option value="">📁 Tampilkan Semua Mitra</option>
-      </select>
+      <div class="custom-select-container">
+        <div
+          class="search-bar custom-select-header"
+          onclick="toggleMitraMenu()"
+        >
+          <span id="teksMitraTerpilih">📁 Tampilkan Semua Mitra</span>
+          <i class="fas fa-chevron-down" id="iconMitraSelect"></i>
+        </div>
+
+        <div class="custom-select-body" id="menuMitraBody">
+          <input
+            type="text"
+            id="cariMitraInput"
+            class="search-bar"
+            placeholder="🔍 Cari nama mitra..."
+            oninput="saringListMitra()"
+            style="margin: 10px; width: calc(100% - 20px); background: #121212"
+          />
+          <div id="listMitraOptions"></div>
+        </div>
+      </div>
+
+      <input type="hidden" id="filterMitra" value="" />
+
+      <datalist id="mitraDataList"></datalist>
     </header>
 
     <div id="containerList">
@@ -692,15 +760,88 @@
         }
       }
 
+      // --- KUMPULAN FUNGSI CUSTOM SELECT MITRA ---
+
+      // 1. Mengisi daftar menu Mitra
       function buatDropdownMitra() {
         const mitras = [...new Set(semuaPeserta.map((p) => p.mitra))].filter(
           Boolean,
         );
-        const select = document.getElementById("filterMitra");
-        select.innerHTML = '<option value="">📁 Tampilkan Semua Mitra</option>';
+        const listContainer = document.getElementById("listMitraOptions");
+
+        let html = `<div class="mitra-option" onclick="pilihMitraItem('', '📁 Tampilkan Semua Mitra')">📁 Tampilkan Semua Mitra</div>`;
+
         mitras.sort().forEach((m) => {
-          select.innerHTML += `<option value="${m}">${m}</option>`;
+          html += `<div class="mitra-option" onclick="pilihMitraItem('${m}', '<i class=\\'fas fa-handshake\\'></i> ${m}')">${m}</div>`;
         });
+
+        listContainer.innerHTML = html;
+      }
+
+      // 2. Membuka / Menutup menu dropdown
+      function toggleMitraMenu() {
+        const body = document.getElementById("menuMitraBody");
+        const icon = document.getElementById("iconMitraSelect");
+        body.classList.toggle("show");
+
+        if (body.classList.contains("show")) {
+          icon.classList.replace("fa-chevron-down", "fa-chevron-up");
+          document.getElementById("cariMitraInput").focus(); // Otomatis siap mengetik
+        } else {
+          icon.classList.replace("fa-chevron-up", "fa-chevron-down");
+        }
+      }
+
+      // 3. Menyaring daftar nama saat admin mengetik
+      function saringListMitra() {
+        const keyword = document
+          .getElementById("cariMitraInput")
+          .value.toLowerCase();
+        const options = document.querySelectorAll(".mitra-option");
+        options.forEach((opt) => {
+          const text = opt.innerText.toLowerCase();
+          opt.style.display = text.includes(keyword) ? "block" : "none";
+        });
+      }
+
+      // 4. Eksekusi saat nama Mitra diklik
+      function pilihMitraItem(nilai, teksDisplay) {
+        document.getElementById("filterMitra").value = nilai;
+        document.getElementById("teksMitraTerpilih").innerHTML = teksDisplay;
+
+        // Tutup menu dan reset icon
+        document.getElementById("menuMitraBody").classList.remove("show");
+        document
+          .getElementById("iconMitraSelect")
+          .classList.replace("fa-chevron-up", "fa-chevron-down");
+
+        // Kosongkan kembali kolom ketik
+        document.getElementById("cariMitraInput").value = "";
+        saringListMitra();
+
+        // Panggil filter utama sistem
+        filterLokal();
+      }
+
+      // 5. Tutup dropdown otomatis jika admin mengklik area luar kotak
+      document.addEventListener("click", function (event) {
+        const container = document.querySelector(".custom-select-container");
+        if (container && !container.contains(event.target)) {
+          document.getElementById("menuMitraBody").classList.remove("show");
+          document
+            .getElementById("iconMitraSelect")
+            .classList.replace("fa-chevron-up", "fa-chevron-down");
+        }
+      });
+
+      // 6. (PERBAIKAN) Mengatur klik tombol mitra di dalam kartu peserta
+      function setMitraFilter(mitraName) {
+        let displayTeks =
+          mitraName === ""
+            ? "📁 Tampilkan Semua Mitra"
+            : `<i class="fas fa-handshake"></i> ${mitraName}`;
+        pilihMitraItem(mitraName, displayTeks);
+        window.scrollTo({ top: 0, behavior: "smooth" });
       }
 
       function prosesEkstrakWA() {
