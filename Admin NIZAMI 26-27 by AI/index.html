@@ -411,6 +411,29 @@
           opacity: 0.5;
         }
       }
+      .filter-input-normal {
+        background: #1a1a1a;
+        color: var(--primary);
+        border: 1px dashed #444;
+        padding: 12px;
+        border-radius: 10px;
+        font-size: 0.85rem;
+        outline: none;
+        font-weight: bold;
+        width: 100%;
+      }
+      .filter-input-normal::placeholder {
+        color: #666;
+      }
+      /* Menghilangkan panah naik/turun bawaan browser di input angka */
+      .filter-input-normal::-webkit-outer-spin-button,
+      .filter-input-normal::-webkit-inner-spin-button {
+        -webkit-appearance: none;
+        margin: 0;
+      }
+      .filter-input-normal[type="number"] {
+        -moz-appearance: textfield;
+      }
     </style>
   </head>
   <body>
@@ -494,18 +517,30 @@
         <div style="margin-bottom: 8px">STATISTIK & FILTER PESERTA</div>
 
         <div class="filter-group">
-          <select
-            id="filterSetoran"
-            class="filter-select-normal"
-            onchange="renderPaketList()"
-          >
-            <option value="ALL">🎯 Semua Jumlah Setoran</option>
-            <option value="0-50">0 - 50x Setor</option>
-            <option value="51-100">51 - 100x Setor</option>
-            <option value="101-150">101 - 150x Setor</option>
-            <option value="151-200">151 - 200x Setor</option>
-            <option value="201-9999">> 200x Setor</option>
-          </select>
+          <div style="display: flex; gap: 10px">
+            <select
+              id="filterOperator"
+              class="filter-select-normal"
+              style="flex: 1"
+              onchange="
+                toggleFilterInput();
+                renderPaketList();
+              "
+            >
+              <option value="ALL">🎯 Semua Setoran</option>
+              <option value=">">Lebih dari (>)</option>
+              <option value="<">Kurang dari (<)</option>
+              <option value="=">Sama dengan (=)</option>
+            </select>
+            <input
+              type="number"
+              id="filterAngka"
+              class="filter-input-normal"
+              style="flex: 1; display: none"
+              placeholder="Ketik angka..."
+              oninput="renderPaketList()"
+            />
+          </div>
           <div class="grid-2">
             <div class="cs-wrap" id="wrapMitra">
               <div
@@ -530,6 +565,24 @@
           </div>
         </div>
       </div>
+
+      <div
+        id="infoTotalFilter"
+        style="
+          font-size: 0.85rem;
+          color: #aaa;
+          margin-bottom: 12px;
+          display: none;
+        "
+      >
+        Total Peserta Terfilter:
+        <b style="color: var(--primary); font-size: 1rem" id="angkaTotalFilter"
+          >0</b
+        >
+        Orang
+      </div>
+
+      <div class="paket-list" id="paketList"></div>
 
       <div class="paket-list" id="paketList">
         <div class="skeleton"></div>
@@ -640,8 +693,25 @@
           });
       }
 
+      function toggleFilterInput() {
+        const operator = document.getElementById("filterOperator").value;
+        const inputAngka = document.getElementById("filterAngka");
+
+        if (operator === "ALL") {
+          inputAngka.style.display = "none";
+          inputAngka.value = ""; // Reset nilai jika memilih semua
+        } else {
+          inputAngka.style.display = "block";
+          inputAngka.focus();
+        }
+      }
+
       function renderPaketList() {
-        const valSetoran = document.getElementById("filterSetoran").value;
+        // --- KODE BARU UNTUK FILTER SETORAN ---
+        const operator = document.getElementById("filterOperator").value;
+        const inputVal = document.getElementById("filterAngka").value;
+        const angka = parseInt(inputVal);
+
         const arrMitra = Array.from(
           document.querySelectorAll(".chk-mitra:checked"),
         ).map((el) => el.value);
@@ -668,46 +738,56 @@
           headPaket.classList.remove("has-val");
         }
 
-        let min = 0,
-          max = 99999;
-        if (valSetoran !== "ALL") {
-          let parts = valSetoran.split("-");
-          min = parseInt(parts[0]);
-          max = parseInt(parts[1]);
-        }
-
         globalPaketData = {};
         const container = document.getElementById("paketList");
         container.innerHTML = "";
+
         let hasData = false;
+        let totalPesertaTerfilter = 0; // 1. Tambahkan variabel penghitung total
 
         for (let pkt in rawPaketData) {
           if (arrPaket.length > 0 && !arrPaket.includes(pkt)) continue;
 
           let filteredPeserta = rawPaketData[pkt].filter((p) => {
-            let freqOk = (p.freq || 0) >= min && (p.freq || 0) <= max;
+            let freqOk = true;
+            let freq = p.freq || 0;
+
+            if (operator !== "ALL" && inputVal !== "") {
+              if (operator === ">") freqOk = freq > angka;
+              else if (operator === "<") freqOk = freq < angka;
+              else if (operator === "=") freqOk = freq === angka;
+            }
+
             let mitraOk = arrMitra.length === 0 || arrMitra.includes(p.mitra);
             return freqOk && mitraOk;
           });
 
           if (filteredPeserta.length > 0) {
             hasData = true;
+            totalPesertaTerfilter += filteredPeserta.length; // 2. Tambahkan jumlah peserta ke total
             globalPaketData[pkt] = filteredPeserta;
             container.innerHTML += `
-              <div class="paket-item" onclick="bukaModal('${pkt}')">
-                <span>${pkt}</span>
-                <b>${filteredPeserta.length} Orang <i class="fas fa-chevron-right"></i></b>
-              </div>
-            `;
+        <div class="paket-item" onclick="bukaModal('${pkt}')">
+          <span>${pkt}</span>
+          <b>${filteredPeserta.length} Orang <i class="fas fa-chevron-right"></i></b>
+        </div>
+      `;
           }
         }
 
-        if (!hasData) {
+        // 3. Update tampilan teks total di UI
+        const infoBox = document.getElementById("infoTotalFilter");
+        const angkaBox = document.getElementById("angkaTotalFilter");
+
+        if (hasData) {
+          angkaBox.innerText = totalPesertaTerfilter; // Masukkan angkanya
+          infoBox.style.display = "block"; // Munculkan teksnya
+        } else {
+          infoBox.style.display = "none"; // Sembunyikan teks jika tidak ada data
           container.innerHTML =
             "<div style='color:#888; text-align:center; padding:30px; border:1px dashed #333; border-radius:12px;'>Tidak ada peserta yang cocok dengan kriteria filter tersebut.</div>";
         }
       }
-
       function bukaModal(paketName) {
         document.getElementById("modalTitle").innerText = paketName;
         const body = document.getElementById("modalBody");
