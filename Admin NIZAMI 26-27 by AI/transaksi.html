@@ -468,6 +468,36 @@
             title="Sampai Tanggal"
           />
         </div>
+        <div class="filter-row" style="margin-top: 5px; margin-bottom: 5px">
+          <label
+            style="
+              display: flex;
+              align-items: center;
+              gap: 8px;
+              font-size: 0.85rem;
+              color: #ff5252;
+              cursor: pointer;
+              background: rgba(255, 82, 82, 0.1);
+              padding: 8px 12px;
+              border-radius: 8px;
+              width: 100%;
+              border: 1px dashed #ff5252;
+            "
+          >
+            <input
+              type="checkbox"
+              id="filterDobelSaja"
+              onchange="applyFilters()"
+              style="
+                accent-color: #ff5252;
+                width: 16px;
+                height: 16px;
+                cursor: pointer;
+              "
+            />
+            <b>Tampilkan Transaksi Indikasi Dobel Saja</b>
+          </label>
+        </div>
 
         <div class="view-tabs">
           <button
@@ -690,10 +720,12 @@
         const startVal = document.getElementById("startDate").value;
         const endVal = document.getElementById("endDate").value;
 
+        // AMBIL STATUS CHECKBOX DOBEL
+        const cekDobelSaja = document.getElementById("filterDobelSaja").checked;
+
         let startD = startVal ? new Date(startVal + "T00:00:00") : null;
         let endD = endVal ? new Date(endVal + "T23:59:59") : null;
 
-        // Simpan Teks Filter untuk dicetak ke struk
         let mLabel = mitraVal
           ? mitraSelect.options[mitraSelect.selectedIndex].text
           : "Semua Mitra";
@@ -701,34 +733,41 @@
         if (startVal || endVal) {
           appliedFilterText += `<br>Periode: ${startVal || "Awal"} s/d ${endVal || "Akhir"}`;
         }
+        if (cekDobelSaja) {
+          appliedFilterText += `<br><span style="color:red;">Hanya menampilkan indikasi dobel</span>`;
+        }
 
         filteredData = rawData.filter((t) => {
           let matchText = true;
           let matchMitra = true;
           let matchDate = true;
+          let matchDobel = true; // VARIABEL BARU
 
           if (cariText) {
             matchText =
               (t.nama || "").toLowerCase().includes(cariText) ||
               (t.id || "").toLowerCase().includes(cariText);
           }
-
           if (mitraVal) {
             matchMitra = (t.mitra || "Pusat").toLowerCase().includes(mitraVal);
           }
-
           if (startD || endD) {
             let trxDate = parseIndoDate(t.waktu);
             if (startD && trxDate < startD) matchDate = false;
             if (endD && trxDate > endD) matchDate = false;
           }
 
-          return matchText && matchMitra && matchDate;
+          // JIKA CHECKBOX DICENTANG, HANYA TAMPILKAN YANG isDuplicate == true
+          if (cekDobelSaja) {
+            matchDobel = t.isDuplicate === true;
+          }
+
+          // Gabungkan semua kondisi (termasuk matchDobel)
+          return matchText && matchMitra && matchDate && matchDobel;
         });
 
         renderTampilan();
       }
-
       // ==========================================
       // 4. RENDER UI BERDASARKAN MODE
       // ==========================================
