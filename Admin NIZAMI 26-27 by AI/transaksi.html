@@ -400,6 +400,21 @@
         font-weight: bold;
         font-size: 16px;
       }
+
+      /* PERINGATAN DUPLIKAT */
+      .duplicate-warn {
+        background: rgba(255, 82, 82, 0.1) !important;
+        border-left: 4px solid #ff5252 !important;
+      }
+      .badge-warn {
+        background: #ff5252;
+        color: white;
+        padding: 2px 6px;
+        border-radius: 4px;
+        font-size: 0.65rem;
+        margin-left: 5px;
+        vertical-align: middle;
+      }
     </style>
   </head>
   <body>
@@ -578,33 +593,58 @@
         container.innerHTML =
           '<div class="empty-state"><i class="fas fa-spinner fa-spin"></i><br>Memuat database transaksi...</div>';
 
-        const res = await fetchData("getTransaksi");
-        if (res && res.length > 0) {
-          let chronologicalData = [...res].reverse();
-          let pStats = {};
+        try {
+          // Memanggil data dari server (pastikan fetchData ada di script.js)
+          const res = await fetchData("getTransaksi");
 
-          chronologicalData.forEach((t) => {
-            if (!pStats[t.id]) {
-              pStats[t.id] = { count: 0, totalQty: 0 };
-            }
-            pStats[t.id].count++;
-            pStats[t.id].totalQty += Number(t.qty) || 0;
+          if (res && res.length > 0) {
+            let chronologicalData = [...res].reverse();
+            let pStats = {};
+            let checkMap = {};
 
-            t.trxSequence = pStats[t.id].count;
-            t.akumulasiQty = pStats[t.id].totalQty;
-          });
+            chronologicalData.forEach((t) => {
+              // 1. Hitung urutan setoran dan akumulasi
+              if (!pStats[t.id]) {
+                pStats[t.id] = { count: 0, totalQty: 0 };
+              }
+              pStats[t.id].count++;
+              pStats[t.id].totalQty += Number(t.qty) || 0;
 
-          rawData = chronologicalData.reverse();
+              t.trxSequence = pStats[t.id].count;
+              t.akumulasiQty = pStats[t.id].totalQty;
 
-          populateMitraDropdown();
-          applyFilters();
-        } else {
+              // 2. Deteksi indikasi transaksi duplikat
+              let dateOnly = (t.waktu || "").split(",")[0].trim();
+              let key = `${t.id}_${t.paket}_${dateOnly}`;
+
+              if (!checkMap[key]) {
+                checkMap[key] = [];
+              }
+              checkMap[key].push(t);
+            });
+
+            // Berikan penanda (flag) jika ditemukan duplikat
+            Object.values(checkMap).forEach((group) => {
+              if (group.length > 1) {
+                group.forEach((t) => (t.isDuplicate = true));
+              }
+            });
+
+            rawData = chronologicalData.reverse();
+
+            populateMitraDropdown();
+            applyFilters();
+          } else {
+            container.innerHTML =
+              '<div class="empty-state"><i class="fas fa-folder-open"></i><br>Belum ada riwayat transaksi sama sekali.</div>';
+            document.getElementById("summaryContainer").innerHTML = "";
+          }
+        } catch (error) {
+          console.error("Gagal memuat data:", error);
           container.innerHTML =
-            '<div class="empty-state"><i class="fas fa-folder-open"></i><br>Belum ada riwayat transaksi sama sekali.</div>';
-          document.getElementById("summaryContainer").innerHTML = "";
+            '<div class="empty-state"><i class="fas fa-exclamation-triangle" style="color:#ff5252;"></i><br>Terjadi kesalahan saat memuat data.</div>';
         }
       }
-
       // ==========================================
       // 2. LOGIKA PARSING TANGGAL & DROPDOWN MITRA
       // ==========================================
@@ -743,23 +783,26 @@
 
         filteredData.forEach((h) => {
           html += `
-            <div class="flat-item">
-              <div class="flat-header">
-                <span class="flat-name">${h.nama} <span style="font-size:0.7rem; color:#888;">(${h.id})</span></span>
-                <span class="flat-date"><i class="far fa-clock"></i> ${h.waktu}</span>
-              </div>
-              <div class="flat-meta">
-                ${h.paket} • <i class="fas fa-handshake"></i> ${h.mitra || "Pusat"}
-              </div>
-              <div class="h-detail" style="align-items: flex-start;">
-                <div style="display:flex; flex-direction:column; gap:4px;">
-                  <span>Setoran Ke-${h.trxSequence} (Jml: ${h.qty}x)</span>
-                  ${h.trxSequence > 1 ? `<span style="font-size:0.75rem; color:#aaa;"><i class="fas fa-chart-line"></i> Total Terkumpul: ${h.akumulasiQty}x</span>` : ""}
-                </div>
-                <span class="h-amount" style="white-space:nowrap;">+ ${formatRupiahInline(h.kotor)}</span>
-              </div>
-            </div>
-          `;
+  <div class="flat-item ${h.isDuplicate ? "duplicate-warn" : ""}">
+    <div class="flat-header">
+      <span class="flat-name">
+        ${h.nama} <span style="font-size:0.7rem; color:#888;">(${h.id})</span>
+        ${h.isDuplicate ? '<span class="badge-warn"><i class="fas fa-exclamation-triangle"></i> Indikasi Dobel</span>' : ""}
+      </span>
+      <span class="flat-date"><i class="far fa-clock"></i> ${h.waktu}</span>
+    </div>
+    <div class="flat-meta">
+      ${h.paket} • <i class="fas fa-handshake"></i> ${h.mitra || "Pusat"}
+    </div>
+    <div class="h-detail" style="align-items: flex-start;">
+      <div style="display:flex; flex-direction:column; gap:4px;">
+        <span>Setoran Ke-${h.trxSequence} (Jml: ${h.qty}x)</span>
+        ${h.trxSequence > 1 ? `<span style="font-size:0.75rem; color:#aaa;"><i class="fas fa-chart-line"></i> Total Terkumpul: ${h.akumulasiQty}x</span>` : ""}
+      </div>
+      <span class="h-amount" style="white-space:nowrap;">+ ${formatRupiahInline(h.kotor)}</span>
+    </div>
+  </div>
+`;
         });
 
         html += "</div>";
@@ -797,16 +840,19 @@
           let historyHtml = "";
           p.history.forEach((h) => {
             historyHtml += `
-            <div class="h-item">
-                <div class="flat-date" style="margin-bottom:4px;"><i class="far fa-clock"></i> ${h.waktu}</div>
-                <div class="h-detail" style="align-items: flex-start;">
-                    <div style="display:flex; flex-direction:column; gap:4px;">
-                      <span>Setoran Ke-${h.trxSequence} (Jml: ${h.qty}x)</span>
-                      ${h.trxSequence > 1 ? `<span style="font-size:0.75rem; color:#888;"><i class="fas fa-chart-line"></i> Total Terkumpul: ${h.akumulasiQty}x</span>` : ""}
-                    </div>
-                    <span class="h-amount" style="white-space:nowrap;">+ ${formatRupiahInline(h.kotor)}</span>
-                </div>
-            </div>`;
+            <div class="h-item ${h.isDuplicate ? "duplicate-warn" : ""}" style="${h.isDuplicate ? "padding:8px;" : ""}">
+    <div class="flat-date" style="margin-bottom:4px;">
+      <i class="far fa-clock"></i> ${h.waktu}
+      ${h.isDuplicate ? '<span class="badge-warn"><i class="fas fa-exclamation-triangle"></i> Dobel</span>' : ""}
+    </div>
+    <div class="h-detail" style="align-items: flex-start;">
+        <div style="display:flex; flex-direction:column; gap:4px;">
+          <span>Setoran Ke-${h.trxSequence} (Jml: ${h.qty}x)</span>
+          ${h.trxSequence > 1 ? `<span style="font-size:0.75rem; color:#888;"><i class="fas fa-chart-line"></i> Total Terkumpul: ${h.akumulasiQty}x</span>` : ""}
+        </div>
+        <span class="h-amount" style="white-space:nowrap;">+ ${formatRupiahInline(h.kotor)}</span>
+    </div>
+</div>`;
           });
 
           let adminRow = "";
