@@ -992,10 +992,17 @@
           if (res && res.success && res.data.length > 0) {
             res.data.forEach((p) => {
               const akad = hitungAkad(p.saldo, p.paket);
-              // Pergantian teks label dinamis berdasarkan jenis paket akad
               const teksLabelSaldo = akad.isPaketUang
                 ? "Saldo Aktif"
                 : "Total Saldo";
+
+              // --- FIX NOMOR WA: OTOMATIS TAMBAH 62 ---
+              let noWaLengkap = String(p.no_hp || "");
+              if (noWaLengkap.startsWith("0")) {
+                noWaLengkap = "62" + noWaLengkap.substring(1);
+              } else if (noWaLengkap.startsWith("8")) {
+                noWaLengkap = "62" + noWaLengkap;
+              }
 
               const strukWa =
                 `*BUKTI PUTUS KONTRAK NIZAMI*%0A%0A` +
@@ -1022,7 +1029,7 @@
                   <div style="font-size: 0.95rem; color: var(--primary); font-weight: bold; text-align: right; padding-top: 2px;">
                     Uang Kembali: Rp ${akad.kembali.toLocaleString("id-ID")}
                   </div>
-                  <a href="https://wa.me/${p.no_hp || ""}?text=${strukWa}" target="_blank" style="background: #25d366; color: #fff; text-align: center; padding: 10px; border-radius: 8px; text-decoration: none; font-size: 0.88rem; font-weight: bold; display:block; margin-top:5px;">
+                  <a href="https://wa.me/${noWaLengkap}?text=${strukWa}" target="_blank" style="background: #25d366; color: #fff; text-align: center; padding: 10px; border-radius: 8px; text-decoration: none; font-size: 0.88rem; font-weight: bold; display:block; margin-top:5px;">
                     <i class="fab fa-whatsapp"></i> Kirim Struk Bukti WA
                   </a>
                 </div>
