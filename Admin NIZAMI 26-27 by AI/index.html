@@ -506,6 +506,21 @@
             >Transaksi</span
           ></a
         >
+        <a
+          href="#"
+          onclick="
+            bukaModalCheckout();
+            return false;
+          "
+          class="menu-item"
+          ><div
+            class="menu-box"
+            style="background: #2b1515; border-color: #ff5252"
+          >
+            <i class="fas fa-sign-out-alt" style="color: #ff5252"></i>
+          </div>
+          <span style="color: #ff5252; font-weight: bold">Checkout</span></a
+        >
       </div>
     </div>
 
@@ -867,11 +882,290 @@
           window.location.href = "login.html";
         }
       }
+      // --- FITUR CHECKOUT / PUTUS KONTRAK (VERSI PENUH) ---
+      let allPesertaCache = [];
 
+      function hitungAkad(saldo, namaPaket) {
+        let isPaketUang = namaPaket.toLowerCase().includes("uang");
+        let potongan = 0;
+        if (!isPaketUang) {
+          if (saldo < 200000) {
+            potongan = 20000;
+          } else {
+            potongan = saldo * 0.1;
+            if (potongan > 100000) potongan = 100000;
+          }
+        }
+        let kembali = saldo - potongan;
+        if (kembali < 0) kembali = 0;
+        return { potongan, kembali, isPaketUang };
+      }
+
+      async function bukaModalCheckout() {
+        document.getElementById("modalCheckout").style.display = "flex";
+        document.getElementById("inputIdsCheckout").value = "";
+        document.getElementById("searchNamaCheckout").value = "";
+        document.getElementById("hasilSearchNama").style.display = "none";
+        document.getElementById("hasilCheckoutArea").innerHTML = "";
+
+        // Load data singkat peserta untuk keperluan auto-complete pencarian nama
+        try {
+          const res = await fetchData("getPesertaSederhana", {}, "POST");
+          if (res && res.success) {
+            allPesertaCache = res.data;
+          }
+        } catch (e) {
+          console.log("Gagal memuat daftar pencarian.");
+        }
+      }
+
+      function tutupModalCheckout() {
+        document.getElementById("modalCheckout").style.display = "none";
+      }
+
+      function cariNamaCheckout() {
+        const keyword = document
+          .getElementById("searchNamaCheckout")
+          .value.toLowerCase();
+        const container = document.getElementById("hasilSearchNama");
+        container.innerHTML = "";
+
+        if (!keyword) {
+          container.style.display = "none";
+          return;
+        }
+
+        const cocok = allPesertaCache.filter((p) =>
+          p.nama.toLowerCase().includes(keyword),
+        );
+
+        if (cocok.length > 0) {
+          container.style.display = "flex";
+          cocok.forEach((p) => {
+            const row = document.createElement("div");
+            row.style =
+              "padding: 10px 12px; cursor: pointer; border-bottom: 1px solid #222; font-size: 0.88rem; color: #fff;";
+            row.innerHTML = `<i class="fas fa-user-plus" style="color:var(--primary); margin-right:8px;"></i> <b>${p.nama}</b> <span style="color:#aaa; font-size:0.78rem;">(${p.id} - ${p.paket})</span>`;
+            row.onclick = () => {
+              const textarea = document.getElementById("inputIdsCheckout");
+              let currentVal = textarea.value.trim();
+              if (currentVal) {
+                const arrExist = currentVal.split(",").map((i) => i.trim());
+                if (!arrExist.includes(p.id))
+                  textarea.value = currentVal + ", " + p.id;
+              } else {
+                textarea.value = p.id;
+              }
+              document.getElementById("searchNamaCheckout").value = "";
+              container.style.display = "none";
+            };
+            container.appendChild(row);
+          });
+        } else {
+          container.style.display = "flex";
+          container.innerHTML =
+            '<div style="padding: 10px; color: #ff5252; font-size: 0.85rem; text-align: center;">Nama peserta tidak ditemukan</div>';
+        }
+      }
+
+      async function prosesHitungCheckout() {
+        const inputVal = document.getElementById("inputIdsCheckout").value;
+        const ids = inputVal
+          .split(",")
+          .map((id) => id.trim())
+          .filter((id) => id !== "");
+
+        if (ids.length === 0)
+          return alert("Silakan pilih atau ketik minimal 1 ID Peserta!");
+
+        const btn = document.querySelector(
+          "button[onclick='prosesHitungCheckout()']",
+        );
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Menghitung...';
+        btn.disabled = true;
+        const areaHasil = document.getElementById("hasilCheckoutArea");
+        areaHasil.innerHTML = "";
+
+        try {
+          const res = await fetchData("getDataCheckout", { ids: ids }, "POST");
+
+          if (res && res.success && res.data.length > 0) {
+            res.data.forEach((p) => {
+              const akad = hitungAkad(p.saldo, p.paket);
+              // Pergantian teks label dinamis berdasarkan jenis paket akad
+              const teksLabelSaldo = akad.isPaketUang
+                ? "Saldo Aktif"
+                : "Total Saldo";
+
+              const strukWa =
+                `*BUKTI PUTUS KONTRAK NIZAMI*%0A%0A` +
+                `Halo, *${p.nama}* (${p.id})%0A` +
+                `Berikut rincian pengembalian dana tabungan untuk *Paket ${p.paket}*:%0A%0A` +
+                `${teksLabelSaldo}: Rp ${p.saldo.toLocaleString("id-ID")}%0A` +
+                `Jumlah Setoran: ${p.jumlah_setoran} kali%0A` +
+                `Potongan Admin: Rp ${akad.potongan.toLocaleString("id-ID")}%0A` +
+                `------------------------%0A` +
+                `*Uang Kembali: Rp ${akad.kembali.toLocaleString("id-ID")}*%0A%0A` +
+                `Terima kasih telah berkomitmen bersama kami selama ini.`;
+
+              areaHasil.innerHTML += `
+                <div class="detail-item" style="flex-direction: column; align-items: stretch; gap: 10px; background: #111; border-color: #ff5252; padding:15px; border-radius:10px;">
+                  <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <h4 style="margin:0; color:#fff; font-size:0.95rem;">${p.nama} <span style="font-size:0.75rem; color:#aaa;">(${p.id})</span></h4>
+                    <span class="badge-mitra" style="background:#ff5252; color:#fff; font-size:0.75rem;">${p.paket}</span>
+                  </div>
+                  <div style="font-size: 0.85rem; color: #ccc; display: flex; flex-direction: column; gap: 5px; background:#1a1a1c; padding:10px; border-radius:6px;">
+                    <div style="display:flex; justify-content:space-between;"><span>${teksLabelSaldo}:</span> <b>Rp ${p.saldo.toLocaleString("id-ID")}</b></div>
+                    <div style="display:flex; justify-content:space-between;"><span>Jumlah Setoran:</span> <b>${p.jumlah_setoran} kali</b></div>
+                    <div style="display:flex; justify-content:space-between;"><span>Potongan Admin:</span> <b style="color:#ff6b6b;">Rp ${akad.potongan.toLocaleString("id-ID")}</b></div>
+                  </div>
+                  <div style="font-size: 0.95rem; color: var(--primary); font-weight: bold; text-align: right; padding-top: 2px;">
+                    Uang Kembali: Rp ${akad.kembali.toLocaleString("id-ID")}
+                  </div>
+                  <a href="https://wa.me/${p.no_hp || ""}?text=${strukWa}" target="_blank" style="background: #25d366; color: #fff; text-align: center; padding: 10px; border-radius: 8px; text-decoration: none; font-size: 0.88rem; font-weight: bold; display:block; margin-top:5px;">
+                    <i class="fab fa-whatsapp"></i> Kirim Struk Bukti WA
+                  </a>
+                </div>
+              `;
+            });
+          } else {
+            areaHasil.innerHTML =
+              '<div style="text-align:center; color:#ff5252; padding:10px;">Data ID tidak ditemukan atau gagal dimuat.</div>';
+          }
+        } catch (error) {
+          areaHasil.innerHTML =
+            '<div style="text-align:center; color:#ff5252; padding:10px;">Terjadi kesalahan sistem saat menarik data.</div>';
+        } finally {
+          btn.innerHTML =
+            '<i class="fas fa-calculator"></i> Hitung Potongan Akad';
+          btn.disabled = false;
+        }
+      }
       document.addEventListener("DOMContentLoaded", () => {
         setGreeting();
         loadDashboard();
       });
     </script>
+    <div
+      id="modalCheckout"
+      class="modal"
+      style="
+        display: none;
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.85);
+        backdrop-filter: blur(5px);
+        z-index: 1000;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+      "
+    >
+      <div
+        class="modal-content"
+        style="
+          background: var(--surface);
+          width: 100%;
+          max-width: 500px;
+          border-radius: 16px;
+          border: 1px solid #ff5252;
+          overflow: hidden;
+          display: flex;
+          flex-direction: column;
+        "
+      >
+        <div
+          class="modal-header"
+          style="
+            padding: 15px 20px;
+            border-bottom: 1px dashed #333;
+            background: #1a1a1a;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+          "
+        >
+          <h3 style="margin: 0; color: #ff5252; font-size: 1.05rem">
+            <i class="fas fa-sign-out-alt"></i> Checkout Peserta
+          </h3>
+          <i
+            class="fas fa-times close-btn"
+            onclick="tutupModalCheckout()"
+            style="color: #aaa; cursor: pointer; font-size: 1.3rem"
+          ></i>
+        </div>
+        <div class="modal-body" style="padding: 20px; overflow-y: auto">
+          <label
+            style="
+              font-size: 0.85rem;
+              color: #ccc;
+              margin-bottom: 6px;
+              display: block;
+            "
+            >Cari Nama Peserta:</label
+          >
+          <input
+            type="text"
+            id="searchNamaCheckout"
+            class="filter-input-normal"
+            style="width: 100%; margin-bottom: 6px"
+            placeholder="Ketik nama di sini..."
+            oninput="cariNamaCheckout()"
+          />
+          <div
+            id="hasilSearchNama"
+            style="
+              max-height: 130px;
+              overflow-y: auto;
+              background: #161618;
+              border: 1px solid #333;
+              border-radius: 8px;
+              margin-bottom: 15px;
+              display: none;
+              flex-direction: column;
+            "
+          ></div>
+
+          <label
+            style="
+              font-size: 0.85rem;
+              color: #ccc;
+              margin-bottom: 8px;
+              display: block;
+            "
+            >Daftar ID Peserta yang di-Checkout (Bisa dipisahkan koma):</label
+          >
+          <textarea
+            id="inputIdsCheckout"
+            class="filter-input-normal"
+            style="width: 100%; height: 65px; margin-bottom: 15px; resize: none"
+            placeholder="ID akan otomatis masuk saat nama diklik"
+          ></textarea>
+
+          <button
+            onclick="prosesHitungCheckout()"
+            style="
+              width: 100%;
+              background: #ff5252;
+              color: #fff;
+              border: none;
+              padding: 12px;
+              border-radius: 10px;
+              font-weight: bold;
+              cursor: pointer;
+              font-size: 0.95rem;
+              margin-bottom: 15px;
+            "
+          >
+            <i class="fas fa-calculator"></i> Hitung Potongan Akad
+          </button>
+
+          <div
+            id="hasilCheckoutArea"
+            style="display: flex; flex-direction: column; gap: 10px"
+          ></div>
+        </div>
+      </div>
+    </div>
   </body>
 </html>
