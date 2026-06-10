@@ -1521,10 +1521,11 @@
           rowData[`pkt_${pktId}`] = { items: {}, total: 0 };
         }
 
-        // Jika keranjang request barang masih kosong DAN ada paket yang dipilih
+        // PERBAIKAN: Ditambahkan kondisi (mode !== "cookies") agar Paket Cookies tidak terisi otomatis
         if (
           Object.keys(rowData[`pkt_${pktId}`].items).length === 0 &&
-          valPaket
+          valPaket &&
+          mode !== "cookies"
         ) {
           if (
             typeof masterIsiPaket !== "undefined" &&
