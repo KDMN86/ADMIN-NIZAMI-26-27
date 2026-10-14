@@ -1368,33 +1368,57 @@
         document.getElementById("modalDetail").style.display = "flex";
       }
 
-
-// ========================================================
-      // FUNGSI UNTUK MEMBUKA DETAIL PESERTA KETIKA DI-KLIK
+// // ========================================================
+      // FUNGSI DETAIL PESERTA DENGAN CHECKLIST PILIHAN BARANG & SALDO
       // ========================================================
       function bukaDetailPeserta(idPeserta) {
           let peserta = masterData.peserta.find(p => p.id === idPeserta);
           if (!peserta) return alert("Data peserta tidak ditemukan!");
 
-          // Cari barang custom / pesanan khusus milik peserta ini jika ada
-          let barangCustomPeserta = masterData.custom.filter(c => c.id_peserta === idPeserta);
+          // Kumpulkan barang peserta (Cek request custom atau resep paket)
+          let barangPeserta = [];
+          let customItems = masterData.custom.filter(c => c.id_peserta === idPeserta);
           
+          if (customItems.length > 0) {
+              customItems.forEach(c => {
+                  barangPeserta.push({ barang: c.barang, qty: c.qty, satuan: c.satuan });
+              });
+          } else {
+              let resepPaket = masterData.resep.filter(r => r.paket === peserta.paket);
+              resepPaket.forEach(r => {
+                  barangPeserta.push({ barang: r.barang, qty: r.qty, satuan: r.satuan });
+              });
+          }
+
           let listBarangHtml = '';
-          if (barangCustomPeserta.length > 0) {
-              barangCustomPeserta.forEach(bc => {
-                  listBarangHtml += `<div style="padding:6px 0; border-bottom:1px dashed #333; display:flex; justify-content:space-between; font-size:0.85rem;">
-                      <span style="color:#fff;">${bc.barang}</span>
-                      <span style="color:var(--primary); font-weight:bold;">${bc.qty} ${bc.satuan}</span>
+          if (barangPeserta.length > 0) {
+              barangPeserta.forEach((bp, idx) => {
+                  // Ambil harga jual dari masterData.harga_jual_barang
+                  let hrgJual = (masterData.harga_jual_barang && masterData.harga_jual_barang[bp.barang]) || 0;
+                  let subtotalItem = bp.qty * hrgJual;
+
+                  listBarangHtml += `
+                  <div style="background:#222; padding:10px; border-radius:8px; margin-bottom:8px; border:1px solid #333; display:flex; justify-content:space-between; align-items:center;">
+                      <div style="display:flex; align-items:center; gap:10px; flex:1;">
+                          <input type="checkbox" class="chk-item-peserta" checked data-harga="${hrgJual}" data-subtotal="${subtotalItem}" onchange="hitungSisaSaldoPeserta(${peserta.saldo_rp})" style="width:18px; height:18px; accent-color:var(--primary); cursor:pointer;">
+                          <div>
+                              <div style="color:#fff; font-weight:bold; font-size:0.85rem;">${bp.barang}</div>
+                              <div style="color:#888; font-size:0.75rem;">Jumlah: ${bp.qty} ${bp.satuan} &bull; Harga Jual: ${formatRp(hrgJual)}</div>
+                          </div>
+                      </div>
+                      <div style="text-align:right;">
+                          <b style="color:var(--primary); font-size:0.85rem;">${formatRp(subtotalItem)}</b>
+                      </div>
                   </div>`;
               });
           } else {
-              listBarangHtml = `<div style="color:#888; font-size:0.8rem; font-style:italic;">Menggunakan standar resep ${peserta.paket}.</div>`;
+              listBarangHtml = `<div style="color:#888; font-size:0.8rem; font-style:italic;">Tidak ada rincian barang untuk peserta ini.</div>`;
           }
 
           let html = `
           <div style="background:#1e1e1e; padding:15px; border-radius:10px; border:1px solid #333; margin-bottom:15px;">
-              <h4 style="color:var(--primary); margin:0 0 10px 0; font-size:0.95rem;"><i class="fas fa-user-circle"></i> Informasi Peserta</h4>
-              <div style="font-size:0.85rem; color:#ccc; display:flex; flex-direction:column; gap:6px;">
+              <h4 style="color:var(--primary); margin:0 0 10px 0; font-size:0.9rem;"><i class="fas fa-user-circle"></i> Informasi Peserta</h4>
+              <div style="font-size:0.85rem; color:#ccc; display:flex; flex-direction:column; gap:5px;">
                   <div><b>ID:</b> ${peserta.id}</div>
                   <div><b>Nama:</b> ${peserta.nama || '-'}</div>
                   <div><b>Mitra:</b> ${peserta.mitra || '-'}</div>
@@ -1402,9 +1426,23 @@
                   <div><b>Saldo / Setoran:</b> <span style="color:var(--success); font-weight:bold;">${formatRp(peserta.saldo_rp)}</span></div>
               </div>
           </div>
-          <div style="background:#1e1e1e; padding:15px; border-radius:10px; border:1px solid #333;">
-              <h4 style="color:var(--success); margin:0 0 10px 0; font-size:0.95rem;"><i class="fas fa-shopping-basket"></i> Rincian Orderan / Request Barang</h4>
-              ${listBarangHtml}
+
+          <div style="background:#1e1e1e; padding:15px; border-radius:10px; border:1px solid #333; margin-bottom:15px;">
+              <h4 style="color:var(--success); margin:0 0 10px 0; font-size:0.9rem;"><i class="fas fa-check-square"></i> Pilih Barang (Antisipasi Belum Tuntas)</h4>
+              <div style="max-height:220px; overflow-y:auto; padding-right:5px;">
+                  ${listBarangHtml}
+              </div>
+          </div>
+
+          <div style="background:#151515; padding:15px; border-radius:10px; border:1px solid #333; display:flex; flex-direction:column; gap:8px;">
+              <div style="display:flex; justify-content:space-between; font-size:0.85rem;">
+                  <span style="color:#aaa;">Total Belanja Dipilih:</span>
+                  <b id="lblTotalBelanjaModal" style="color:var(--danger);">Rp 0</b>
+              </div>
+              <div style="display:flex; justify-content:space-between; font-size:0.9rem; border-top:1px dashed #333; padding-top:6px;">
+                  <span style="color:#fff; font-weight:bold;">Sisa Saldo / Kembalian:</span>
+                  <b id="lblSisaSaldoModal" style="color:var(--success);">Rp 0</b>
+              </div>
           </div>`;
 
           document.getElementById("modalDetailTitle").innerText = `👤 Rincian: ${peserta.nama || peserta.id}`;
@@ -1415,6 +1453,30 @@
           document.getElementById("modalDetailBody").innerHTML = html;
 
           document.getElementById("modalDetail").style.display = "flex";
+          
+          // Kalkulasi awal saat modal terbuka
+          hitungSisaSaldoPeserta(peserta.saldo_rp);
+      }
+
+      // Fungsi Kalkulasi Otomatis Total Belanja dan Sisa Saldo di Modal Peserta
+      function hitungSisaSaldoPeserta(totalSaldo) {
+          let totalBelanja = 0;
+          document.querySelectorAll('.chk-item-peserta').forEach(chk => {
+              if (chk.checked) {
+                  totalBelanja += parseFloat(chk.getAttribute('data-subtotal')) || 0;
+              }
+          });
+
+          let sisaSaldo = totalSaldo - totalBelanja;
+
+          let elTotal = document.getElementById('lblTotalBelanjaModal');
+          let elSisa = document.getElementById('lblSisaSaldoModal');
+
+          if (elTotal) elTotal.innerText = formatRp(totalBelanja);
+          if (elSisa) {
+              elSisa.innerText = formatRp(sisaSaldo);
+              elSisa.style.color = sisaSaldo < 0 ? 'var(--danger)' : 'var(--success)';
+          }
       }
 
       // ========================================================
