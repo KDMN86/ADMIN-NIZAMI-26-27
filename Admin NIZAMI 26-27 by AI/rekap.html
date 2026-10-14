@@ -594,7 +594,9 @@
 
     <div class="top-nav">
       <div class="nav-left">
-        <a href="index.html" class="back-btn"><i class="fas fa-arrow-left"></i></a>
+        <a href="index.html" class="back-btn"
+          ><i class="fas fa-arrow-left"></i
+        ></a>
         <h2 style="margin: 0; font-size: 1.1rem">Rekap Logistik</h2>
       </div>
       <button onclick="tarikDataServer()" class="btn-refresh">
@@ -603,40 +605,165 @@
     </div>
 
     <div class="filter-box" id="filterArea" style="display: none">
-      <select id="fMitra" class="filter-select" onchange="hitungUlangLogistik()">
+      <select
+        id="fMitra"
+        class="filter-select"
+        onchange="hitungUlangLogistik()"
+      >
         <option value="ALL">📁 Semua Mitra</option>
       </select>
       <div class="filter-grid">
-        <select id="fStatus" class="filter-select" onchange="hitungUlangLogistik()">
+        <select
+          id="fStatus"
+          class="filter-select"
+          onchange="hitungUlangLogistik()"
+        >
           <option value="ALL">🎯 Semua Status</option>
           <option value="LUNAS">🟢 Lunas Barang</option>
           <option value="BELUM">🔴 Belum Lunas</option>
         </select>
-        <select id="fPaket" class="filter-select" onchange="hitungUlangLogistik()">
-          <option value="ALL">📦 Semua Paket</option>
-        </select>
-      </div>
-      
-     
-      <!-- Filter Rentang Setoran -->
-      <div class="filter-grid" style="margin-top: 10px;">
-        <div style="display: flex; gap: 8px; align-items: center; background: #222; border: 1px solid #444; border-radius: 8px; padding: 0 10px;">
-          <span style="color: #888; font-size: 0.75rem; font-weight: bold;"><i class="fas fa-list-ol"></i> Min</span>
-          <input type="number" id="fMinSetoran" class="filter-select" style="border: none; padding: 10px 0; background: transparent; background-image: none;" placeholder="Berapa kali..." oninput="hitungUlangLogistik()">
+
+        <!-- DROPDOWN CHECKBOX MULTI-PAKET -->
+        <div style="position: relative; width: 100%">
+          <div
+            id="dropdownPaketBtn"
+            onclick="toggleDropdownPaket(event)"
+            class="filter-select"
+            style="
+              display: flex;
+              justify-content: space-between;
+              align-items: center;
+              cursor: pointer;
+            "
+          >
+            <span id="labelPaketTerpilih">📦 Semua Paket Terpilih</span>
+            <i
+              class="fas fa-chevron-down"
+              style="font-size: 0.75rem; color: #888"
+            ></i>
+          </div>
+          <div
+            id="dropdownPaketContent"
+            style="
+              display: none;
+              position: absolute;
+              top: 100%;
+              left: 0;
+              right: 0;
+              background: #1e1e1e;
+              border: 1px solid #444;
+              border-radius: 8px;
+              margin-top: 5px;
+              z-index: 100;
+              max-height: 250px;
+              overflow-y: auto;
+              padding: 10px;
+              box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+            "
+          >
+            <div
+              style="
+                display: flex;
+                justify-content: space-between;
+                padding-bottom: 8px;
+                border-bottom: 1px solid #333;
+                margin-bottom: 8px;
+                font-size: 0.75rem;
+              "
+            >
+              <span
+                onclick="ubahSemuaPaket(true)"
+                style="
+                  color: var(--primary);
+                  cursor: pointer;
+                  font-weight: bold;
+                "
+                >Pilih Semua</span
+              >
+              <span
+                onclick="ubahSemuaPaket(false)"
+                style="color: var(--danger); cursor: pointer; font-weight: bold"
+                >Hapus Semua</span
+              >
+            </div>
+            <div
+              id="listCheckboxPaket"
+              style="display: flex; flex-direction: column; gap: 6px"
+            ></div>
+          </div>
         </div>
-        <div style="display: flex; gap: 8px; align-items: center; background: #222; border: 1px solid #444; border-radius: 8px; padding: 0 10px;">
-          <span style="color: #888; font-size: 0.75rem; font-weight: bold;"><i class="fas fa-list-ol"></i> Max</span>
-          <input type="number" id="fMaxSetoran" class="filter-select" style="border: none; padding: 10px 0; background: transparent; background-image: none;" placeholder="Berapa kali..." oninput="hitungUlangLogistik()">
+      </div>
+
+      <!-- Filter Rentang Setoran -->
+      <div class="filter-grid" style="margin-top: 10px">
+        <div
+          style="
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            background: #222;
+            border: 1px solid #444;
+            border-radius: 8px;
+            padding: 0 10px;
+          "
+        >
+          <span style="color: #888; font-size: 0.75rem; font-weight: bold"
+            ><i class="fas fa-list-ol"></i> Min</span
+          >
+          <input
+            type="number"
+            id="fMinSetoran"
+            class="filter-select"
+            style="
+              border: none;
+              padding: 10px 0;
+              background: transparent;
+              background-image: none;
+            "
+            placeholder="Berapa kali..."
+            oninput="hitungUlangLogistik()"
+          />
+        </div>
+        <div
+          style="
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            background: #222;
+            border: 1px solid #444;
+            border-radius: 8px;
+            padding: 0 10px;
+          "
+        >
+          <span style="color: #888; font-size: 0.75rem; font-weight: bold"
+            ><i class="fas fa-list-ol"></i> Max</span
+          >
+          <input
+            type="number"
+            id="fMaxSetoran"
+            class="filter-select"
+            style="
+              border: none;
+              padding: 10px 0;
+              background: transparent;
+              background-image: none;
+            "
+            placeholder="Berapa kali..."
+            oninput="hitungUlangLogistik()"
+          />
         </div>
       </div>
     </div>
 
     <div id="loading">
-      <i class="fas fa-spinner fa-spin fa-2x" style="color: var(--primary); margin-bottom: 15px"></i><br />Menyinkronkan data gudang...
+      <i
+        class="fas fa-spinner fa-spin fa-2x"
+        style="color: var(--primary); margin-bottom: 15px"
+      ></i
+      ><br />Menyinkronkan data gudang...
     </div>
 
     <div id="content" style="display: none">
-      
       <!-- SEARCH CONTAINER MENGAMBANG DI ATAS -->
       <div class="search-container">
         <input
@@ -663,7 +790,11 @@
           <div class="val" id="estimasiBiaya">Rp 0</div>
         </div>
         <label class="toggle-container">
-          <input type="checkbox" id="toggleKurang" onchange="renderListUiLokal()" />
+          <input
+            type="checkbox"
+            id="toggleKurang"
+            onchange="renderListUiLokal()"
+          />
           <div class="toggle-switch"></div>
           Hanya Kurang
         </label>
@@ -671,7 +802,7 @@
 
       <div class="list-container">
         <div class="section-title">
-          <span>Stok Gudang Berjalan</span>
+          <span>Stok Gudang Berjalan (Anti-Overstok)</span>
           <span style="color: var(--primary)"><b id="lblTotal">0</b> Item</span>
         </div>
         <div id="belanjaList"></div>
@@ -680,13 +811,28 @@
 
     <div class="bottom-bar">
       <!-- Tombol Catatan Kas & Belanja -->
-      <button onclick="bukaModalCatatan()" class="btn-out" style="flex: 0.4; color: var(--primary); border-color: rgba(255,215,0,0.3); background: rgba(255, 215, 0, 0.1);" title="Catatan Kas & Belanja">
+      <button
+        onclick="bukaModalCatatan()"
+        class="btn-out"
+        style="
+          flex: 0.4;
+          color: var(--primary);
+          border-color: rgba(255, 215, 0, 0.3);
+          background: rgba(255, 215, 0, 0.1);
+        "
+        title="Catatan Kas & Belanja"
+      >
         <i class="fas fa-receipt"></i>
       </button>
-      <button onclick="bukaModalDistribusi()" class="btn-out" style="flex: 1;">
+      <button onclick="bukaModalDistribusi()" class="btn-out" style="flex: 1">
         <i class="fas fa-box-open"></i> DISTRIBUSI
       </button>
-      <button onclick="simpanBelanja()" class="btn-save" id="btnSave" style="flex: 1.2;">
+      <button
+        onclick="simpanBelanja()"
+        class="btn-save"
+        id="btnSave"
+        style="flex: 1.2"
+      >
         <i class="fas fa-save"></i> SIMPAN MASUK
       </button>
     </div>
@@ -698,30 +844,80 @@
           <h3 style="margin: 0; color: var(--danger)">
             <i class="fas fa-dolly"></i> Keluarkan Barang
           </h3>
-          <i class="fas fa-times" style="font-size: 1.5rem; color: #888; cursor: pointer" onclick="tutupModalDistribusi()"></i>
+          <i
+            class="fas fa-times"
+            style="font-size: 1.5rem; color: #888; cursor: pointer"
+            onclick="tutupModalDistribusi()"
+          ></i>
         </div>
         <div class="m-body">
           <div class="peserta-select-box">
             <label>Pilih Peserta (Drop Out / Cicil):</label>
-            <select id="distPeserta" class="peserta-select" onchange="pilihPesertaDist()">
+            <select
+              id="distPeserta"
+              class="peserta-select"
+              onchange="pilihPesertaDist()"
+            >
               <option value="">-- Pilih Peserta --</option>
             </select>
-            <div id="infoSaldo" style="margin-top: 12px; font-size: 0.85rem; color: var(--success); display: none;">
+            <div
+              id="infoSaldo"
+              style="
+                margin-top: 12px;
+                font-size: 0.85rem;
+                color: var(--success);
+                display: none;
+              "
+            >
               Saldo Tersedia:
-              <b id="txtSaldo" style="font-size: 1.2rem; display: block; margin-top: 3px">Rp 0</b>
+              <b
+                id="txtSaldo"
+                style="font-size: 1.2rem; display: block; margin-top: 3px"
+                >Rp 0</b
+              >
             </div>
           </div>
-          <div style="font-size: 0.85rem; color: #aaa; margin-bottom: 10px; font-weight: bold;">
+          <div
+            style="
+              font-size: 0.85rem;
+              color: #aaa;
+              margin-bottom: 10px;
+              font-weight: bold;
+            "
+          >
             Pilih Barang dari Sisa Gudang:
           </div>
           <div id="distItemsContainer"></div>
         </div>
         <div class="m-footer">
-          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
-            <span style="font-size: 0.85rem; color: #aaa">Total Nilai Diambil:</span>
-            <b id="txtTotalAmbil" style="color: var(--danger); font-size: 1.3rem">Rp 0</b>
+          <div
+            style="
+              display: flex;
+              justify-content: space-between;
+              align-items: center;
+              margin-bottom: 15px;
+            "
+          >
+            <span style="font-size: 0.85rem; color: #aaa"
+              >Total Nilai Diambil:</span
+            >
+            <b
+              id="txtTotalAmbil"
+              style="color: var(--danger); font-size: 1.3rem"
+              >Rp 0</b
+            >
           </div>
-          <button onclick="simpanDistribusi()" class="btn-save" style="width: 100%; background: var(--danger); color: #fff; padding: 16px;" id="btnSimpanDist">
+          <button
+            onclick="simpanDistribusi()"
+            class="btn-save"
+            style="
+              width: 100%;
+              background: var(--danger);
+              color: #fff;
+              padding: 16px;
+            "
+            id="btnSimpanDist"
+          >
             PROSES BARANG KELUAR
           </button>
         </div>
@@ -735,58 +931,170 @@
           <h3 style="margin: 0; color: var(--primary)">
             <i class="fas fa-search-plus"></i> Rincian Kebutuhan
           </h3>
-          <i class="fas fa-times" style="font-size: 1.5rem; color: #888; cursor: pointer" onclick="tutupDetailItem()"></i>
+          <i
+            class="fas fa-times"
+            style="font-size: 1.5rem; color: #888; cursor: pointer"
+            onclick="tutupDetailItem()"
+          ></i>
         </div>
-        <div style="padding: 15px 20px 10px; border-bottom: 1px dashed #333; background: #1a1a1a;">
-          <h4 id="modalDetailTitle" style="margin: 0 0 8px 0; font-size: 1.1rem; color: #fff">Nama Barang</h4>
-          <div style="display: flex; justify-content: space-between; font-size: 0.85rem; font-weight: bold;">
+        <div
+          style="
+            padding: 15px 20px 10px;
+            border-bottom: 1px dashed #333;
+            background: #1a1a1a;
+          "
+        >
+          <h4
+            id="modalDetailTitle"
+            style="margin: 0 0 8px 0; font-size: 1.1rem; color: #fff"
+          >
+            Nama Barang
+          </h4>
+          <div
+            style="
+              display: flex;
+              justify-content: space-between;
+              font-size: 0.85rem;
+              font-weight: bold;
+            "
+          >
             <span id="modalDetailTarget"></span>
             <span id="modalDetailKurang"></span>
           </div>
         </div>
-        <div class="m-body" id="modalDetailBody" style="background: #121212"></div>
+        <div
+          class="m-body"
+          id="modalDetailBody"
+          style="background: #121212"
+        ></div>
       </div>
     </div>
 
-   <!-- MODAL CATATAN BELANJA -->
+    <!-- MODAL CATATAN BELANJA -->
     <div id="modalCatatan" class="modal">
       <div class="modal-content">
         <div class="m-head">
           <h3 style="margin: 0; color: var(--primary)">
             <i class="fas fa-receipt"></i> Laporan Kas Besar
           </h3>
-          <i class="fas fa-times" style="font-size: 1.5rem; color: #888; cursor: pointer" onclick="document.getElementById('modalCatatan').style.display='none'"></i>
+          <i
+            class="fas fa-times"
+            style="font-size: 1.5rem; color: #888; cursor: pointer"
+            onclick="
+              document.getElementById('modalCatatan').style.display = 'none'
+            "
+          ></i>
         </div>
-        <div class="m-body" style="background: #121212;">
-            
-            <!-- Area Ringkasan -->
-            <div id="catatanHeader" style="display:flex; flex-direction:column; gap:10px; margin-bottom:15px;"></div>
-            
-            <!-- Form Pengeluaran Tambahan -->
-            <div style="background: #1a1a1a; padding: 15px; border-radius: 10px; border: 1px dashed var(--primary); margin-bottom: 20px;">
-                <h4 style="margin: 0 0 10px 0; color: var(--primary); font-size: 0.85rem;"><i class="fas fa-plus-circle"></i> Catat Pengeluaran Lain</h4>
-                <div style="display: flex; gap: 8px; flex-wrap: wrap;">
-                    <input type="text" id="inputKetKas" placeholder="Cth: Beli Emas, Dipinjam, dll..." style="flex: 1; min-width: 150px; padding: 10px; background: #111; border: 1px solid #333; color: #fff; border-radius: 8px;">
-                    <input type="number" id="inputNominalKas" placeholder="Nominal Rp..." style="width: 130px; padding: 10px; background: #111; border: 1px solid #333; color: #fff; border-radius: 8px;">
-                    <button onclick="tambahKasLain(this)" style="background: var(--primary); color: #000; border: none; font-weight: bold; padding: 10px 15px; border-radius: 8px; cursor: pointer;">Simpan</button>
-                </div>
+        <div class="m-body" style="background: #121212">
+          <!-- Area Ringkasan -->
+          <div
+            id="catatanHeader"
+            style="
+              display: flex;
+              flex-direction: column;
+              gap: 10px;
+              margin-bottom: 15px;
+            "
+          ></div>
+
+          <!-- Form Pengeluaran Tambahan -->
+          <div
+            style="
+              background: #1a1a1a;
+              padding: 15px;
+              border-radius: 10px;
+              border: 1px dashed var(--primary);
+              margin-bottom: 20px;
+            "
+          >
+            <h4
+              style="
+                margin: 0 0 10px 0;
+                color: var(--primary);
+                font-size: 0.85rem;
+              "
+            >
+              <i class="fas fa-plus-circle"></i> Catat Pengeluaran Lain
+            </h4>
+            <div style="display: flex; gap: 8px; flex-wrap: wrap">
+              <input
+                type="text"
+                id="inputKetKas"
+                placeholder="Cth: Beli Emas, Dipinjam, dll..."
+                style="
+                  flex: 1;
+                  min-width: 150px;
+                  padding: 10px;
+                  background: #111;
+                  border: 1px solid #333;
+                  color: #fff;
+                  border-radius: 8px;
+                "
+              />
+              <input
+                type="number"
+                id="inputNominalKas"
+                placeholder="Nominal Rp..."
+                style="
+                  width: 130px;
+                  padding: 10px;
+                  background: #111;
+                  border: 1px solid #333;
+                  color: #fff;
+                  border-radius: 8px;
+                "
+              />
+              <button
+                onclick="tambahKasLain(this)"
+                style="
+                  background: var(--primary);
+                  color: #000;
+                  border: none;
+                  font-weight: bold;
+                  padding: 10px 15px;
+                  border-radius: 8px;
+                  cursor: pointer;
+                "
+              >
+                Simpan
+              </button>
             </div>
+          </div>
 
-            <!-- List Pengeluaran Lain -->
-            <h4 style="color:#fff; font-size:0.9rem; border-bottom:1px dashed #444; padding-bottom:8px; margin-bottom:10px;">Riwayat Pengeluaran Lainnya</h4>
-            <div id="kasLainListContainer" style="margin-bottom: 20px;"></div>
+          <!-- List Pengeluaran Lain -->
+          <h4
+            style="
+              color: #fff;
+              font-size: 0.9rem;
+              border-bottom: 1px dashed #444;
+              padding-bottom: 8px;
+              margin-bottom: 10px;
+            "
+          >
+            Riwayat Pengeluaran Lainnya
+          </h4>
+          <div id="kasLainListContainer" style="margin-bottom: 20px"></div>
 
-            <!-- List Belanja Gudang -->
-            <h4 style="color:#fff; font-size:0.9rem; border-bottom:1px dashed #444; padding-bottom:8px; margin-bottom:10px;">Rincian Belanja Barang (Masuk Gudang)</h4>
-            <div id="catatanListContainer"></div>
-            
+          <!-- List Belanja Gudang -->
+          <h4
+            style="
+              color: #fff;
+              font-size: 0.9rem;
+              border-bottom: 1px dashed #444;
+              padding-bottom: 8px;
+              margin-bottom: 10px;
+            "
+          >
+            Rincian Belanja Barang (Masuk Gudang)
+          </h4>
+          <div id="catatanListContainer"></div>
         </div>
       </div>
     </div>
 
-    <!-- Eksternal Script untuk fetchData jika ada (Biarkan jika sistemmu membutuhkannya) -->
+    <!-- Eksternal Script untuk fetchData jika ada -->
     <script src="script.js"></script>
-    
+
     <script>
       let masterData = {
         peserta: [],
@@ -795,6 +1103,7 @@
         stok_dibeli: {},
         stok_keluar: {},
         harga_barang: {},
+        harga_jual_barang: {},
       };
       let listBelanjaFinal = [];
       let pesertaLolosGlobal = [];
@@ -823,10 +1132,9 @@
         document.getElementById("filterArea").style.display = "none";
         document.getElementById("loading").style.display = "block";
         document.getElementById("loading").innerHTML =
-          '<i class="fas fa-spinner fa-spin fa-2x" style="color: var(--primary); margin-bottom: 15px"></i><br />Menyinkronkan data gudang...';
+          '<i class="fas fa-spinner fa-spin fa-2x" style="color: var(--primary); margin-bottom: 15px"></i><br />Menyinkronkan data gudang (Anti-Overstok)...';
 
         try {
-          // Fungsi ini memanggil backend (via script.js)
           const data = await fetchData("getRekapBelanja");
 
           if (data && data.error) {
@@ -839,6 +1147,7 @@
             if (!data.stok_dibeli) data.stok_dibeli = {};
             if (!data.stok_keluar) data.stok_keluar = {};
             if (!data.harga_barang) data.harga_barang = {};
+            if (!data.harga_jual_barang) data.harga_jual_barang = {};
 
             masterData = data;
             buatOpsiFilter();
@@ -858,8 +1167,12 @@
       }
 
       function buatOpsiFilter() {
-        const mitras = [...new Set(masterData.peserta.map((p) => p.mitra))].filter(Boolean).sort();
-        const pakets = [...new Set(masterData.peserta.map((p) => p.paket))].filter(Boolean).sort();
+        const mitras = [...new Set(masterData.peserta.map((p) => p.mitra))]
+          .filter(Boolean)
+          .sort();
+        const pakets = [...new Set(masterData.peserta.map((p) => p.paket))]
+          .filter(Boolean)
+          .sort();
 
         let selMitra = '<option value="ALL">📁 Semua Mitra</option>';
         mitras.forEach((m) => {
@@ -869,43 +1182,102 @@
         });
         document.getElementById("fMitra").innerHTML = selMitra;
 
-        let selPaket = '<option value="ALL">📦 Semua Paket</option>';
-        pakets.forEach((p) => (selPaket += `<option value="${p}">${p}</option>`));
-        document.getElementById("fPaket").innerHTML = selPaket;
+        // Render Checkbox Paket (Default tercentang semua / checked)
+        let containerCheckbox = document.getElementById("listCheckboxPaket");
+        containerCheckbox.innerHTML = "";
+        pakets.forEach((p) => {
+          containerCheckbox.innerHTML += `
+            <label style="display: flex; align-items: center; gap: 8px; font-size: 0.85rem; color: #fff; cursor: pointer; padding: 4px; border-radius: 4px;" onmouseover="this.style.background='#2a2a2a'" onmouseout="this.style.background='transparent'">
+              <input type="checkbox" class="chk-paket-filter" value="${p}" checked onchange="hitungUlangLogistik(); updateLabelPaketBtn();" style="width: 16px; height: 16px; accent-color: var(--primary); cursor: pointer;">
+              <span>${p}</span>
+            </label>`;
+        });
+        updateLabelPaketBtn();
       }
 
+      function toggleDropdownPaket(e) {
+        e.stopPropagation();
+        const content = document.getElementById("dropdownPaketContent");
+        content.style.display =
+          content.style.display === "block" ? "none" : "block";
+      }
+
+      window.addEventListener("click", function (e) {
+        const dropdown = document.getElementById("dropdownPaketContent");
+        const btn = document.getElementById("dropdownPaketBtn");
+        if (
+          dropdown &&
+          btn &&
+          !btn.contains(e.target) &&
+          !dropdown.contains(e.target)
+        ) {
+          dropdown.style.display = "none";
+        }
+      });
+
+      function ubahSemuaPaket(status) {
+        document.querySelectorAll(".chk-paket-filter").forEach((chk) => {
+          chk.checked = status;
+        });
+        hitungUlangLogistik();
+        updateLabelPaketBtn();
+      }
+
+      function updateLabelPaketBtn() {
+        const checkboxes = document.querySelectorAll(".chk-paket-filter");
+        const checkedCount = document.querySelectorAll(
+          ".chk-paket-filter:checked",
+        ).length;
+        const label = document.getElementById("labelPaketTerpilih");
+
+        if (checkedCount === checkboxes.length) {
+          label.innerText = "📦 Semua Paket Terpilih";
+        } else if (checkedCount === 0) {
+          label.innerText = "⚠️ Tidak Ada Paket Dipilih";
+        } else {
+          label.innerText = `📦 ${checkedCount} Paket Dipilih`;
+        }
+      }
+
+      // =========================================================================
+      // LOGIKA ANTI-OVERSTOK (PRO-RATA BERDASARKAN SALDO/SETORAN AKTIF)
+      // =========================================================================
       function hitungUlangLogistik() {
         const valMitra = document.getElementById("fMitra").value;
         const valStatus = document.getElementById("fStatus").value;
-        const valPaket = document.getElementById("fPaket").value;
-        
-        // Cek filter batas JUMLAH KALI setoran
-        const minSetoran = parseInt(document.getElementById("fMinSetoran").value) || 0;
+
+        // Ambil daftar paket yang dicentang saja
+        const selectedPakets = Array.from(
+          document.querySelectorAll(".chk-paket-filter:checked"),
+        ).map((chk) => chk.value);
+
+        const minSetoran =
+          parseInt(document.getElementById("fMinSetoran").value) || 0;
         const rawMax = document.getElementById("fMaxSetoran").value;
         const maxSetoran = rawMax !== "" ? parseInt(rawMax) : Infinity;
 
         let pesertaLolos = masterData.peserta.filter((p) => {
           let passMitra = valMitra === "ALL" || p.mitra === valMitra;
-          let passPaket = valPaket === "ALL" || p.paket === valPaket;
+          let passPaket = selectedPakets.includes(p.paket);
           let passStatus = true;
 
           if (String(p.paket).includes("(Selesai/DO)")) return false;
 
-          // Menggunakan data indeks ke-11 (Berapa Kali Setor) yang di-mapping sebagai setoran_masuk
           let freqSetor = parseFloat(p.setoran_masuk) || 0;
 
           if (valStatus === "LUNAS")
             passStatus = p.target_barang > 0 && freqSetor >= p.target_barang;
           else if (valStatus === "BELUM")
-            passStatus = (p.target_barang > 0 && freqSetor < p.target_barang) || p.target_barang === 0;
+            passStatus =
+              (p.target_barang > 0 && freqSetor < p.target_barang) ||
+              p.target_barang === 0;
 
-          // LOGIKA FILTER RENTANG BERAPA KALI SETOR
           let passSetoran = freqSetor >= minSetoran && freqSetor <= maxSetoran;
 
           return passMitra && passPaket && passStatus && passSetoran;
         });
 
-        pesertaLolosGlobal = pesertaLolos; // Simpan untuk rincian modal
+        pesertaLolosGlobal = pesertaLolos;
 
         let countPaket = {};
         pesertaLolos.forEach((p) => {
@@ -916,51 +1288,116 @@
         let idLolos = pesertaLolos.map((p) => p.id);
         let keranjang = {};
 
+        let resepPerPaket = {};
         masterData.resep.forEach((r) => {
-          if (countPaket[r.paket] > 0) {
-            let totalDibutuhkan = countPaket[r.paket] * r.qty;
-            if (!keranjang[r.barang])
-              keranjang[r.barang] = { qty: 0, satuan: r.satuan, detail: [] }; 
-            keranjang[r.barang].qty += totalDibutuhkan;
+          if (!resepPerPaket[r.paket]) resepPerPaket[r.paket] = [];
+          resepPerPaket[r.paket].push(r);
+        });
 
-            let listNama = pesertaLolos
-              .filter((p) => p.paket === r.paket)
-              .map((p) => p.nama || p.id);
-            keranjang[r.barang].detail.push({
-              tipe: "Paket",
-              nama_sumber: r.paket,
-              qty_satuan: r.qty,
-              orang: countPaket[r.paket],
-              subtotal: totalDibutuhkan,
-              list_peserta: listNama,
+        pesertaLolos.forEach((p) => {
+          let paketNama = p.paket;
+          let resepList = resepPerPaket[paketNama] || [];
+          if (resepList.length === 0) return;
+
+          let totalHargaSatuPaketUtuh = 0;
+          let rincianNilaiResep = [];
+
+          resepList.forEach((r) => {
+            let hrgJual =
+              (masterData.harga_jual_barang &&
+                masterData.harga_jual_barang[r.barang]) ||
+              masterData.harga_barang[r.barang] ||
+              0;
+            let sub = r.qty * hrgJual;
+            totalHargaSatuPaketUtuh += sub;
+            rincianNilaiResep.push({
+              barang: r.barang,
+              qtySatu: r.qty,
+              satuan: r.satuan,
+              subtotal: sub,
+              hrgJual: hrgJual,
             });
+          });
+
+          let saldoAktif = p.saldo_rp || 0;
+          let rasio = 1.0;
+          if (totalHargaSatuPaketUtuh > 0) {
+            rasio = saldoAktif / totalHargaSatuPaketUtuh;
+            if (rasio > 1) rasio = 1.0;
+            if (rasio < 0) rasio = 0;
           }
+
+          rincianNilaiResep.forEach((item) => {
+            let porsiQty = item.qtySatu * rasio;
+            if (porsiQty > 0) {
+              if (!keranjang[item.barang])
+                keranjang[item.barang] = {
+                  qty: 0,
+                  satuan: item.satuan,
+                  detail: [],
+                };
+
+              keranjang[item.barang].qty += porsiQty;
+
+              keranjang[item.barang].detail.push({
+                tipe: "Paket (Pro-Rata)",
+                nama_sumber: paketNama,
+                qty_satuan: Number(porsiQty.toFixed(2)),
+                orang: 1,
+                subtotal: porsiQty,
+                list_peserta: [
+                  `${p.nama || p.id} (Sal: ${formatRp(saldoAktif)}, Rasio:${Math.round(rasio * 100)}%)`,
+                ],
+              });
+            }
+          });
         });
 
         masterData.custom.forEach((c) => {
           if (idLolos.includes(c.id_peserta)) {
-            if (!keranjang[c.barang])
-              keranjang[c.barang] = { qty: 0, satuan: c.satuan, detail: [] }; 
-            keranjang[c.barang].qty += c.qty;
-
             let orangnya = pesertaLolos.find((p) => p.id === c.id_peserta);
-            let namaOrang = orangnya
-              ? orangnya.nama || orangnya.id
-              : c.id_peserta;
-            keranjang[c.barang].detail.push({
-              tipe: "Custom",
-              nama_sumber: namaOrang,
-              qty_satuan: c.qty,
-              orang: 1,
-              subtotal: c.qty,
-              list_peserta: [namaOrang],
-            });
+            if (!orangnya) return;
+
+            let hrgJual =
+              (masterData.harga_jual_barang &&
+                masterData.harga_jual_barang[c.barang]) ||
+              masterData.harga_barang[c.barang] ||
+              0;
+            let totalSubCustom = c.qty * hrgJual;
+            let saldoAktif = orangnya.saldo_rp || 0;
+
+            let rasioCustom = 1.0;
+            if (totalSubCustom > 0) {
+              rasioCustom = saldoAktif / totalSubCustom;
+              if (rasioCustom > 1) rasioCustom = 1.0;
+              if (rasioCustom < 0) rasioCustom = 0;
+            }
+
+            let porsiQtyCustom = c.qty * rasioCustom;
+            if (porsiQtyCustom > 0) {
+              if (!keranjang[c.barang])
+                keranjang[c.barang] = { qty: 0, satuan: c.satuan, detail: [] };
+
+              keranjang[c.barang].qty += porsiQtyCustom;
+
+              let namaOrang = orangnya.nama || orangnya.id;
+              keranjang[c.barang].detail.push({
+                tipe: "Custom (Pro-Rata)",
+                nama_sumber: namaOrang,
+                qty_satuan: Number(porsiQtyCustom.toFixed(2)),
+                orang: 1,
+                subtotal: porsiQtyCustom,
+                list_peserta: [
+                  `${namaOrang} (Sal: ${formatRp(saldoAktif)}, Rasio:${Math.round(rasioCustom * 100)}%)`,
+                ],
+              });
+            }
           }
         });
 
         listBelanjaFinal = [];
         for (let key in keranjang) {
-          let butuh = keranjang[key].qty;
+          let butuh = Math.ceil(keranjang[key].qty);
           let masuk = masterData.stok_dibeli[key] || 0;
           let keluar = masterData.stok_keluar[key] || 0;
           let ready = masuk - keluar;
@@ -978,7 +1415,7 @@
             ready: ready,
             kurang: kurang > 0 ? kurang : 0,
             harga: hargaBrg,
-            detail: keranjang[key].detail, 
+            detail: keranjang[key].detail,
           });
         }
         listBelanjaFinal.sort((a, b) => b.kurang - a.kurang);
@@ -990,7 +1427,7 @@
       function renderStatsUi(totalPeserta, countPaket) {
         const paketBox = document.getElementById("paketList");
         let html = `<div class="summary-card">
-            <div class="sc-header"><span class="sc-val">${totalPeserta}</span><span class="sc-label">Peserta Disaring</span></div>
+            <div class="sc-header"><span class="sc-val">${totalPeserta}</span><span class="sc-label">Peserta Disaring (Pro-Rata)</span></div>
             <div class="sc-body">`;
 
         for (let pkt in countPaket) {
@@ -1005,22 +1442,26 @@
       }
 
       function renderListUiLokal() {
-        const query = document.getElementById("filterInput").value.toLowerCase();
+        const query = document
+          .getElementById("filterInput")
+          .value.toLowerCase();
         const onlyKurang = document.getElementById("toggleKurang").checked;
 
         let estimasiBiaya = 0;
 
         let barangTampil = listBelanjaFinal.filter((item) => {
-          let isUang = item.barang.toLowerCase().includes("uang") || item.satuan.toLowerCase().includes("rupiah") || item.satuan.toLowerCase() === "rp";
+          let isUang =
+            item.barang.toLowerCase().includes("uang") ||
+            item.satuan.toLowerCase().includes("rupiah") ||
+            item.satuan.toLowerCase() === "rp";
           let hargaAsli = isUang ? 1 : item.harga;
-          
-          // MENGHITUNG ESTIMASI SESUAI TOGGLE
+
           if (onlyKurang) {
-              if (item.kurang > 0) {
-                  estimasiBiaya += item.kurang * hargaAsli;
-              }
+            if (item.kurang > 0) {
+              estimasiBiaya += item.kurang * hargaAsli;
+            }
           } else {
-              estimasiBiaya += item.total * hargaAsli;
+            estimasiBiaya += item.total * hargaAsli;
           }
 
           let matchQuery = item.barang.toLowerCase().includes(query);
@@ -1028,28 +1469,34 @@
           return matchQuery && matchToggle;
         });
 
-        // UPDATE UI ESTIMASI BIAYA
-        document.getElementById("estimasiBiaya").innerText = formatRp(estimasiBiaya);
+        document.getElementById("estimasiBiaya").innerText =
+          formatRp(estimasiBiaya);
 
         const container = document.getElementById("belanjaList");
         container.innerHTML = "";
         document.getElementById("lblTotal").innerText = barangTampil.length;
 
         if (barangTampil.length === 0) {
-          container.innerHTML = '<div style="padding:40px 20px; text-align:center; color:#555; border:1px dashed #333; border-radius:12px;">Barang tidak ditemukan.</div>';
+          container.innerHTML =
+            '<div style="padding:40px 20px; text-align:center; color:#555; border:1px dashed #333; border-radius:12px;">Barang tidak ditemukan.</div>';
           return;
         }
 
         barangTampil.forEach((b, index) => {
-          let strNamaBarangEscaped = b.barang.replace(/'/g, "\\'").replace(/"/g, "&quot;");
+          let strNamaBarangEscaped = b.barang
+            .replace(/'/g, "\\'")
+            .replace(/"/g, "&quot;");
           let isAman = b.kurang === 0;
           let clsAman = isAman ? "aman" : "kurang";
 
           let statusBdg = isAman
             ? `<div class="item-status status-aman">LENGKAP</div>`
-            : `<div class="item-status status-kurang" style="cursor:pointer; text-decoration:underline;" onclick="bukaDetailItem('${strNamaBarangEscaped}')" title="Klik untuk lihat rincian">KURANG ${b.kurang.toLocaleString('id-ID')}</div>`;
+            : `<div class="item-status status-kurang" style="cursor:pointer; text-decoration:underline;" onclick="bukaDetailItem('${strNamaBarangEscaped}')" title="Klik untuk lihat rincian">KURANG ${b.kurang.toLocaleString("id-ID")}</div>`;
 
-          let isUang = b.barang.toLowerCase().includes("uang") || b.satuan.toLowerCase().includes("rupiah") || b.satuan.toLowerCase() === "rp";
+          let isUang =
+            b.barang.toLowerCase().includes("uang") ||
+            b.satuan.toLowerCase().includes("rupiah") ||
+            b.satuan.toLowerCase() === "rp";
 
           let infoHargaHTML = "";
           if (!isUang) {
@@ -1074,16 +1521,16 @@
                     <div class="item-info">
                         <h4 class="item-name">${b.barang}</h4>
                         <div class="item-details">
-                            <span onclick="bukaDetailItem('${strNamaBarangEscaped}')" style="cursor:pointer; border-color:var(--primary); color:var(--primary);" title="Klik untuk lihat asal usul target">Target: ${b.total.toLocaleString('id-ID')}</span>
-                            <span>Masuk: ${b.masuk.toLocaleString('id-ID')}</span>
-                            <span>Keluar: ${b.keluar.toLocaleString('id-ID')}</span>
+                            <span onclick="bukaDetailItem('${strNamaBarangEscaped}')" style="cursor:pointer; border-color:var(--primary); color:var(--primary);" title="Klik untuk lihat rincian pro-rata">Target Porsi: ${b.total.toLocaleString("id-ID")}</span>
+                            <span>Masuk: ${b.masuk.toLocaleString("id-ID")}</span>
+                            <span>Keluar: ${b.keluar.toLocaleString("id-ID")}</span>
                         </div>
                         ${infoHargaHTML}
                     </div>
                     ${statusBdg}
                 </div>
                 <div class="item-footer">
-                    <div class="ready-stock">Sisa Gudang: <b>${b.ready.toLocaleString('id-ID')}</b>${b.satuan}</div>
+                    <div class="ready-stock">Sisa Gudang: <b>${b.ready.toLocaleString("id-ID")}</b>${b.satuan}</div>
                     <div class="input-wrapper">
                         <label>+ Tambah</label>
                         <input type="number" id="input_qty_${index}" class="input-qty" data-name="${b.barang}" data-sat="${b.satuan}" placeholder="0" min="0">
@@ -1095,44 +1542,77 @@
 
       function copyToClipboard() {
         if (listBelanjaFinal.length === 0) return alert("Daftar kosong!");
-        const valMitra = document.getElementById("fMitra").options[document.getElementById("fMitra").selectedIndex].text;
-        const valPaket = document.getElementById("fPaket").options[document.getElementById("fPaket").selectedIndex].text;
+        const valMitra =
+          document.getElementById("fMitra").options[
+            document.getElementById("fMitra").selectedIndex
+          ].text;
 
-        let text = `🛒 *CATATAN BELANJA NIZAMI*\n📝 Filter: ${valMitra},${valPaket}\n\n`;
+        const checkedPakets = Array.from(
+          document.querySelectorAll(".chk-paket-filter:checked"),
+        ).map((chk) => chk.value);
+        const valPaket =
+          checkedPakets.length ===
+          document.querySelectorAll(".chk-paket-filter").length
+            ? "Semua Paket"
+            : `${checkedPakets.length} Paket Dipilih`;
+
+        let text = `🛒 *CATATAN BELANJA NIZAMI (PRO-RATA)*\n📝 Filter Mitra: ${valMitra}\n📦 Filter Paket: ${valPaket}\n\n`;
         let countKurang = 0;
         let estimasiRupiah = 0;
 
         listBelanjaFinal.forEach((b) => {
           if (b.kurang > 0) {
-            text += `• ${b.barang} : *Kurang ${b.kurang.toLocaleString('id-ID')}${b.satuan}*\n`;
+            text += `• ${b.barang} : *Kurang ${b.kurang.toLocaleString("id-ID")}${b.satuan}*\n`;
             countKurang++;
-            let isUang = b.barang.toLowerCase().includes("uang") || b.satuan.toLowerCase().includes("rupiah") || b.satuan.toLowerCase() === "rp";
+            let isUang =
+              b.barang.toLowerCase().includes("uang") ||
+              b.satuan.toLowerCase().includes("rupiah") ||
+              b.satuan.toLowerCase() === "rp";
             let hargaAsli = isUang ? 1 : b.harga;
             estimasiRupiah += b.kurang * hargaAsli;
           }
         });
 
-        if (countKurang === 0) text += "✅ Semua stok barang sudah aman/lengkap! 🎉";
-        else text += `\n_Total ${countKurang} jenis barang yang harus dibeli._\n💰 *Estimasi Budget Modal:* ${formatRp(estimasiRupiah)}`;
+        if (countKurang === 0)
+          text += "✅ Semua stok barang sudah aman/lengkap! 🎉";
+        else
+          text += `\n_Total ${countKurang} jenis barang yang harus dibeli._\n💰 *Estimasi Budget Modal:* ${formatRp(estimasiRupiah)}`;
 
-        navigator.clipboard.writeText(text).then(() => showToast("Daftar belanja disalin ke WA!"));
+        navigator.clipboard
+          .writeText(text)
+          .then(() => showToast("Daftar belanja disalin ke WA!"));
       }
 
       async function simpanBelanja() {
         let itemsToSave = [];
         document.querySelectorAll(".input-qty").forEach((inp) => {
           let val = parseInt(inp.value);
-          if (val > 0) itemsToSave.push({ nama: inp.getAttribute("data-name"), satuan: inp.getAttribute("data-sat"), qty: val });
+          if (val > 0)
+            itemsToSave.push({
+              nama: inp.getAttribute("data-name"),
+              satuan: inp.getAttribute("data-sat"),
+              qty: val,
+            });
         });
 
-        if (itemsToSave.length === 0) return alert("Belum ada angka penambahan stok yang diisi.");
-        if (!confirm(`Simpan penambahan untuk ${itemsToSave.length} jenis barang ini ke gudang?`)) return;
+        if (itemsToSave.length === 0)
+          return alert("Belum ada angka penambahan stok yang diisi.");
+        if (
+          !confirm(
+            `Simpan penambahan untuk ${itemsToSave.length} jenis barang ini ke gudang?`,
+          )
+        )
+          return;
 
         const btn = document.getElementById("btnSave");
         btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Menyimpan...';
         btn.disabled = true;
 
-        const res = await fetchData("simpanBelanja", { items: itemsToSave }, "POST");
+        const res = await fetchData(
+          "simpanBelanja",
+          { items: itemsToSave },
+          "POST",
+        );
         if (res && res.success) {
           showToast("Stok berhasil ditambahkan!");
           tarikDataServer();
@@ -1159,7 +1639,9 @@
         document.getElementById("modalDist").style.display = "flex";
       }
 
-      function tutupModalDistribusi() { document.getElementById("modalDist").style.display = "none"; }
+      function tutupModalDistribusi() {
+        document.getElementById("modalDist").style.display = "none";
+      }
 
       function pilihPesertaDist() {
         const id = document.getElementById("distPeserta").value;
@@ -1171,7 +1653,8 @@
         const p = masterData.peserta.find((x) => x.id === id);
         if (p) {
           selectedPesertaSaldo = p.saldo_rp;
-          document.getElementById("txtSaldo").innerText = formatRp(selectedPesertaSaldo);
+          document.getElementById("txtSaldo").innerText =
+            formatRp(selectedPesertaSaldo);
           document.getElementById("infoSaldo").style.display = "block";
         }
       }
@@ -1191,7 +1674,7 @@
                  <div class="item-dist-row">
                     <div style="flex:1; padding-right:10px;">
                         <div style="color:#fff; font-weight:bold; font-size:0.9rem; margin-bottom:2px;">${b.barang}</div>
-                        <div style="font-size:0.75rem; color:#aaa;">${formatRp(hrg)} &bull; Sisa: <span style="color:var(--success)">${b.ready.toLocaleString('id-ID')}</span></div>
+                        <div style="font-size:0.75rem; color:#aaa;">${formatRp(hrg)} &bull; Sisa: <span style="color:var(--success)">${b.ready.toLocaleString("id-ID")}</span></div>
                     </div>
                     <div class="stepper">
                         <button onclick="updateCartDist('${b.barang.replace(/'/g, "\\'")}', ${hrg},${b.ready}, -1)">-</button>
@@ -1202,14 +1685,17 @@
           }
         });
 
-        if (!adaReady) container.innerHTML = "<div style='color:#666; text-align:center; padding:30px; border:1px dashed #333; border-radius:12px;'>Sisa Gudang (Ready Stock) masih kosong.</div>";
+        if (!adaReady)
+          container.innerHTML =
+            "<div style='color:#666; text-align:center; padding:30px; border:1px dashed #333; border-radius:12px;'>Sisa Gudang (Ready Stock) masih kosong.</div>";
       }
 
       function updateCartDist(nmBarang, hrg, maxReady, change) {
         if (!distCart[nmBarang]) distCart[nmBarang] = { qty: 0, harga: hrg };
         let newQty = distCart[nmBarang].qty + change;
         if (newQty < 0) newQty = 0;
-        if (newQty > maxReady) return alert("Gagal! Melebihi batas Ready Stock di gudang.");
+        if (newQty > maxReady)
+          return alert("Gagal! Melebihi batas Ready Stock di gudang.");
 
         distCart[nmBarang].qty = newQty;
         if (distCart[nmBarang].qty === 0) delete distCart[nmBarang];
@@ -1221,10 +1707,11 @@
       function hitungTotalDist() {
         let total = 0;
         for (let k in distCart) total += distCart[k].qty * distCart[k].harga;
-        
+
         const txtTotal = document.getElementById("txtTotalAmbil");
         txtTotal.innerText = formatRp(total);
-        if (selectedPesertaSaldo > 0 && total > selectedPesertaSaldo) txtTotal.style.color = "var(--danger)";
+        if (selectedPesertaSaldo > 0 && total > selectedPesertaSaldo)
+          txtTotal.style.color = "var(--danger)";
         else txtTotal.style.color = "var(--success)";
       }
 
@@ -1238,18 +1725,33 @@
           totalRp += distCart[k].qty * distCart[k].harga;
         }
 
-        if (itemsOut.length === 0) return alert("Belum ada barang yang dipilih untuk dikeluarkan.");
+        if (itemsOut.length === 0)
+          return alert("Belum ada barang yang dipilih untuk dikeluarkan.");
         if (!idPeserta) return alert("Pilih peserta terlebih dahulu.");
         if (totalRp > selectedPesertaSaldo) {
-          if (!confirm(`PERINGATAN: Nilai barang (Rp ${totalRp.toLocaleString('id-ID')}) melebihi saldo peserta (Rp${selectedPesertaSaldo.toLocaleString('id-ID')}). Tetap lanjutkan?`)) return;
+          if (
+            !confirm(
+              `PERINGATAN: Nilai barang (Rp ${totalRp.toLocaleString("id-ID")}) melebihi saldo peserta (Rp${selectedPesertaSaldo.toLocaleString("id-ID")}). Tetap lanjutkan?`,
+            )
+          )
+            return;
         }
-        if (!confirm(`Keluarkan ${itemsOut.length} jenis barang dari Gudang untuk peserta ini?\n\nOtomatis merubah status peserta menjadi Selesai/DO.`)) return;
+        if (
+          !confirm(
+            `Keluarkan ${itemsOut.length} jenis barang dari Gudang untuk peserta ini?\n\nOtomatis merubah status peserta menjadi Selesai/DO.`,
+          )
+        )
+          return;
 
         const btn = document.getElementById("btnSimpanDist");
         btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
         btn.disabled = true;
 
-        const payload = { items: itemsOut, idPeserta: idPeserta, tandaiLunas: true };
+        const payload = {
+          items: itemsOut,
+          idPeserta: idPeserta,
+          tandaiLunas: true,
+        };
         const res = await fetchData("simpanDistribusi", payload, "POST");
 
         if (res && res.success) {
@@ -1262,9 +1764,6 @@
         btn.disabled = false;
       }
 
-      // ========================================================
-      // LOGIKA RINCIAN ITEM & PAKET (MODAL)
-      // ========================================================
       function bukaDetailItem(namaBarang) {
         let b = listBelanjaFinal.find((x) => x.barang === namaBarang);
         if (!b) return;
@@ -1274,10 +1773,10 @@
           html += `
             <div style="background:#1e1e1e; margin-bottom:12px; padding:12px; border-radius:10px; border:1px solid #333;">
                 <div style="color:var(--primary); font-weight:bold; margin-bottom:4px; font-size:0.95rem; display:flex; align-items:center; gap:6px;">
-                    ${d.tipe === "Paket" ? '<i class="fas fa-box"></i> ' + d.nama_sumber : '<i class="fas fa-user-tag"></i> Request Custom'}
+                    <i class="fas fa-balance-scale"></i> ${d.nama_sumber}
                 </div>
                 <div style="font-size:0.8rem; color:#ccc; margin-bottom:10px;">
-                    Menyumbang Target: <b style="color:#fff;">${d.subtotal.toLocaleString("id-ID")} ${b.satuan}</b>${d.tipe === "Paket" ? `<span style="color:#888;">(${d.orang} peserta x ${d.qty_satuan.toLocaleString("id-ID")})</span>` : ""}
+                    Alokasi Porsi: <b style="color:#fff;">${d.qty_satuan}${b.satuan}</b>
                 </div>
                 <div style="font-size:0.75rem; color:#aaa; display:flex; flex-wrap:wrap; gap:6px;">
                     ${d.list_peserta.map((nama) => `<span style="background:#2a2a2a; padding:4px 8px; border-radius:6px; border:1px solid #444;">${nama}</span>`).join("")}
@@ -1287,35 +1786,35 @@
 
         document.getElementById("modalDetailTitle").innerText = namaBarang;
         document.getElementById("modalDetailBody").innerHTML = html;
-        document.getElementById("modalDetailTarget").innerText = `Total Target: ${b.total.toLocaleString("id-ID")} ${b.satuan}`;
-        document.getElementById("modalDetailKurang").innerText = `Status: ${b.kurang > 0 ? "Kurang " + b.kurang.toLocaleString("id-ID") : "Lengkap/Aman"}`;
-        
-        document.getElementById("modalDetailTarget").style.color = "var(--primary)";
-        document.getElementById("modalDetailKurang").style.color = b.kurang > 0 ? "var(--danger)" : "var(--success)";
+        document.getElementById("modalDetailTarget").innerText =
+          `Total Porsi Target: ${b.total.toLocaleString("id-ID")} ${b.satuan}`;
+        document.getElementById("modalDetailKurang").innerText =
+          `Status: ${b.kurang > 0 ? "Kurang " + b.kurang.toLocaleString("id-ID") : "Lengkap/Aman"}`;
+
+        document.getElementById("modalDetailTarget").style.color =
+          "var(--primary)";
+        document.getElementById("modalDetailKurang").style.color =
+          b.kurang > 0 ? "var(--danger)" : "var(--success)";
         document.getElementById("modalDetail").style.display = "flex";
       }
 
-      function tutupDetailItem() { document.getElementById("modalDetail").style.display = "none"; }
+      function tutupDetailItem() {
+        document.getElementById("modalDetail").style.display = "none";
+      }
 
       function bukaDetailPaket(namaPaket) {
-        let pesertaPaket = pesertaLolosGlobal.filter((p) => p.paket === namaPaket);
+        let pesertaPaket = pesertaLolosGlobal.filter(
+          (p) => p.paket === namaPaket,
+        );
         let jumlahPeserta = pesertaPaket.length;
         if (jumlahPeserta === 0) return;
 
         let resepPaket = masterData.resep.filter((r) => r.paket === namaPaket);
-        let totalDana = 0;
         let listKebutuhanHTML = "";
 
         if (resepPaket.length > 0) {
           resepPaket.forEach((r) => {
             let totalButuh = r.qty * jumlahPeserta;
-            let hargaBrg = masterData.harga_barang[r.barang] || 0;
-            let isUang = r.barang.toLowerCase().includes("uang") || r.satuan.toLowerCase().includes("rupiah") || r.satuan.toLowerCase() === "rp";
-            let hargaAsli = isUang ? 1 : hargaBrg;
-            let subTotalRp = totalButuh * hargaAsli;
-
-            if (!isUang) totalDana += subTotalRp;
-
             listKebutuhanHTML += `
                 <div style="display:flex; justify-content:space-between; align-items:center; padding:8px 0; border-bottom:1px solid #333; font-size:0.85rem;">
                     <div>
@@ -1323,7 +1822,7 @@
                         <div style="color:#aaa;">Resep: ${r.qty}${r.satuan} / orang</div>
                     </div>
                     <div style="text-align:right;">
-                        <div style="color:var(--primary); font-weight:bold;">Butuh: ${totalButuh.toLocaleString("id-ID")} ${r.satuan}</div>${!isUang ? `<div style="color:#888; font-size:0.75rem;">Dana: Rp ${subTotalRp.toLocaleString("id-ID")}</div>` : ""}
+                        <div style="color:var(--primary); font-weight:bold;">Standar: ${totalButuh.toLocaleString("id-ID")} ${r.satuan}</div>
                     </div>
                 </div>`;
           });
@@ -1331,73 +1830,83 @@
           listKebutuhanHTML = `<div style="color:#888; font-size:0.85rem; font-style:italic;">Belum ada resep tercatat untuk paket ini.</div>`;
         }
 
-        // PENERAPAN KLIK DETAIL PESERTA DI SINI
         let listPesertaHTML = "";
         pesertaPaket.forEach((p) => {
           listPesertaHTML += `
             <div onclick="bukaDetailPeserta('${p.id}')" style="background:#2a2a2a; padding:10px 12px; border-radius:6px; margin-bottom:6px; border:1px solid #444; display:flex; justify-content:space-between; align-items:center; cursor:pointer; transition: background 0.2s;" onmouseover="this.style.background='#333'" onmouseout="this.style.background='#2a2a2a'" title="Klik untuk lihat rincian peserta">
-                <b style="color:#fff; font-size:0.9rem;">${p.nama || p.id}</b>
-                <span style="color:#aaa; background:#111; padding:3px 8px; border-radius:4px;"><i class="fas fa-map-marker-alt" style="color:var(--primary)"></i> Mitra: ${p.mitra || "-"}</span>
+                <div>
+                    <b style="color:#fff; font-size:0.9rem;">${p.nama || p.id}</b>
+                    <div style="font-size:0.75rem; color:var(--success);">Saldo: ${formatRp(p.saldo_rp)}</div>
+                </div>
+                <span style="color:#aaa; background:#111; padding:3px 8px; border-radius:4px;"><i class="fas fa-map-marker-alt" style="color:var(--primary)"></i> ${p.mitra || "-"}</span>
             </div>`;
         });
 
         let html = `
         <div style="background:#1e1e1e; padding:15px; border-radius:10px; border:1px solid #333; margin-bottom:15px;">
-            <h4 style="color:var(--primary); margin:0 0 10px 0; font-size:0.9rem;"><i class="fas fa-boxes"></i> Estimasi Kebutuhan Paket</h4>
+            <h4 style="color:var(--primary); margin:0 0 10px 0; font-size:0.9rem;"><i class="fas fa-boxes"></i> Standar Resep Paket</h4>
             <div style="max-height:200px; overflow-y:auto; padding-right:5px;">
                 ${listKebutuhanHTML}
             </div>
-            <div style="display:flex; justify-content:space-between; margin-top:10px; padding-top:10px; border-top:1px dashed #555; font-weight:bold;">
-                <span style="color:#aaa;">Total Kebutuhan Dana:</span>
-                <span style="color:var(--danger); font-size:1.1rem;">Rp ${totalDana.toLocaleString("id-ID")}</span>
-            </div>
         </div>
         <div style="background:#1e1e1e; padding:15px; border-radius:10px; border:1px solid #333;">
-            <h4 style="color:var(--success); margin:0 0 10px 0; font-size:0.9rem;"><i class="fas fa-users"></i> Daftar Peserta</h4>
+            <h4 style="color:var(--success); margin:0 0 10px 0; font-size:0.9rem;"><i class="fas fa-users"></i> Daftar Peserta (Pro-Rata Saldo)</h4>
             <div style="max-height:200px; overflow-y:auto; padding-right:5px;">
                 ${listPesertaHTML}
             </div>
         </div>`;
 
-        document.getElementById("modalDetailTitle").innerText = `📦 ${namaPaket}`;
-        document.getElementById("modalDetailTarget").innerText = `Jumlah: ${jumlahPeserta} Peserta`;
+        document.getElementById("modalDetailTitle").innerText =
+          `📦 ${namaPaket}`;
+        document.getElementById("modalDetailTarget").innerText =
+          `Jumlah: ${jumlahPeserta} Peserta`;
         document.getElementById("modalDetailTarget").style.color = "#fff";
-        document.getElementById("modalDetailKurang").innerText = ``; 
+        document.getElementById("modalDetailKurang").innerText = ``;
         document.getElementById("modalDetailBody").innerHTML = html;
 
         document.getElementById("modalDetail").style.display = "flex";
       }
 
-// // ========================================================
-      // FUNGSI DETAIL PESERTA DENGAN CHECKLIST PILIHAN BARANG & SALDO
-      // ========================================================
       function bukaDetailPeserta(idPeserta) {
-          let peserta = masterData.peserta.find(p => p.id === idPeserta);
-          if (!peserta) return alert("Data peserta tidak ditemukan!");
+        let peserta = masterData.peserta.find((p) => p.id === idPeserta);
+        if (!peserta) return alert("Data peserta tidak ditemukan!");
 
-          // Kumpulkan barang peserta (Cek request custom atau resep paket)
-          let barangPeserta = [];
-          let customItems = masterData.custom.filter(c => c.id_peserta === idPeserta);
-          
-          if (customItems.length > 0) {
-              customItems.forEach(c => {
-                  barangPeserta.push({ barang: c.barang, qty: c.qty, satuan: c.satuan });
-              });
-          } else {
-              let resepPaket = masterData.resep.filter(r => r.paket === peserta.paket);
-              resepPaket.forEach(r => {
-                  barangPeserta.push({ barang: r.barang, qty: r.qty, satuan: r.satuan });
-              });
-          }
+        let barangPeserta = [];
+        let customItems = masterData.custom.filter(
+          (c) => c.id_peserta === idPeserta,
+        );
 
-          let listBarangHtml = '';
-          if (barangPeserta.length > 0) {
-              barangPeserta.forEach((bp, idx) => {
-                  // Ambil harga jual dari masterData.harga_jual_barang
-                  let hrgJual = (masterData.harga_jual_barang && masterData.harga_jual_barang[bp.barang]) || 0;
-                  let subtotalItem = bp.qty * hrgJual;
+        if (customItems.length > 0) {
+          customItems.forEach((c) => {
+            barangPeserta.push({
+              barang: c.barang,
+              qty: c.qty,
+              satuan: c.satuan,
+            });
+          });
+        } else {
+          let resepPaket = masterData.resep.filter(
+            (r) => r.paket === peserta.paket,
+          );
+          resepPaket.forEach((r) => {
+            barangPeserta.push({
+              barang: r.barang,
+              qty: r.qty,
+              satuan: r.satuan,
+            });
+          });
+        }
 
-                  listBarangHtml += `
+        let listBarangHtml = "";
+        if (barangPeserta.length > 0) {
+          barangPeserta.forEach((bp, idx) => {
+            let hrgJual =
+              (masterData.harga_jual_barang &&
+                masterData.harga_jual_barang[bp.barang]) ||
+              0;
+            let subtotalItem = bp.qty * hrgJual;
+
+            listBarangHtml += `
                   <div style="background:#222; padding:10px; border-radius:8px; margin-bottom:8px; border:1px solid #333; display:flex; justify-content:space-between; align-items:center;">
                       <div style="display:flex; align-items:center; gap:10px; flex:1;">
                           <input type="checkbox" class="chk-item-peserta" checked data-harga="${hrgJual}" data-subtotal="${subtotalItem}" onchange="hitungSisaSaldoPeserta(${peserta.saldo_rp})" style="width:18px; height:18px; accent-color:var(--primary); cursor:pointer;">
@@ -1410,19 +1919,19 @@
                           <b style="color:var(--primary); font-size:0.85rem;">${formatRp(subtotalItem)}</b>
                       </div>
                   </div>`;
-              });
-          } else {
-              listBarangHtml = `<div style="color:#888; font-size:0.8rem; font-style:italic;">Tidak ada rincian barang untuk peserta ini.</div>`;
-          }
+          });
+        } else {
+          listBarangHtml = `<div style="color:#888; font-size:0.8rem; font-style:italic;">Tidak ada rincian barang untuk peserta ini.</div>`;
+        }
 
-          let html = `
+        let html = `
           <div style="background:#1e1e1e; padding:15px; border-radius:10px; border:1px solid #333; margin-bottom:15px;">
               <h4 style="color:var(--primary); margin:0 0 10px 0; font-size:0.9rem;"><i class="fas fa-user-circle"></i> Informasi Peserta</h4>
               <div style="font-size:0.85rem; color:#ccc; display:flex; flex-direction:column; gap:5px;">
                   <div><b>ID:</b> ${peserta.id}</div>
-                  <div><b>Nama:</b> ${peserta.nama || '-'}</div>
-                  <div><b>Mitra:</b> ${peserta.mitra || '-'}</div>
-                  <div><b>Paket:</b> ${peserta.paket || '-'}</div>
+                  <div><b>Nama:</b> ${peserta.nama || "-"}</div>
+                  <div><b>Mitra:</b> ${peserta.mitra || "-"}</div>
+                  <div><b>Paket:</b> ${peserta.paket || "-"}</div>
                   <div><b>Saldo / Setoran:</b> <span style="color:var(--success); font-weight:bold;">${formatRp(peserta.saldo_rp)}</span></div>
               </div>
           </div>
@@ -1445,66 +1954,67 @@
               </div>
           </div>`;
 
-          document.getElementById("modalDetailTitle").innerText = `👤 Rincian: ${peserta.nama || peserta.id}`;
-          document.getElementById("modalDetailTarget").innerText = `Mitra: ${peserta.mitra}`;
-          document.getElementById("modalDetailTarget").style.color = "var(--primary)";
-          document.getElementById("modalDetailKurang").innerText = `Paket: ${peserta.paket}`;
-          document.getElementById("modalDetailKurang").style.color = "#aaa";
-          document.getElementById("modalDetailBody").innerHTML = html;
+        document.getElementById("modalDetailTitle").innerText =
+          `👤 Rincian: ${peserta.nama || peserta.id}`;
+        document.getElementById("modalDetailTarget").innerText =
+          `Mitra: ${peserta.mitra}`;
+        document.getElementById("modalDetailTarget").style.color =
+          "var(--primary)";
+        document.getElementById("modalDetailKurang").innerText =
+          `Paket: ${peserta.paket}`;
+        document.getElementById("modalDetailKurang").style.color = "#aaa";
+        document.getElementById("modalDetailBody").innerHTML = html;
 
-          document.getElementById("modalDetail").style.display = "flex";
-          
-          // Kalkulasi awal saat modal terbuka
-          hitungSisaSaldoPeserta(peserta.saldo_rp);
+        document.getElementById("modalDetail").style.display = "flex";
+        hitungSisaSaldoPeserta(peserta.saldo_rp);
       }
 
-      // Fungsi Kalkulasi Otomatis Total Belanja dan Sisa Saldo di Modal Peserta
       function hitungSisaSaldoPeserta(totalSaldo) {
-          let totalBelanja = 0;
-          document.querySelectorAll('.chk-item-peserta').forEach(chk => {
-              if (chk.checked) {
-                  totalBelanja += parseFloat(chk.getAttribute('data-subtotal')) || 0;
-              }
-          });
-
-          let sisaSaldo = totalSaldo - totalBelanja;
-
-          let elTotal = document.getElementById('lblTotalBelanjaModal');
-          let elSisa = document.getElementById('lblSisaSaldoModal');
-
-          if (elTotal) elTotal.innerText = formatRp(totalBelanja);
-          if (elSisa) {
-              elSisa.innerText = formatRp(sisaSaldo);
-              elSisa.style.color = sisaSaldo < 0 ? 'var(--danger)' : 'var(--success)';
+        let totalBelanja = 0;
+        document.querySelectorAll(".chk-item-peserta").forEach((chk) => {
+          if (chk.checked) {
+            totalBelanja += parseFloat(chk.getAttribute("data-subtotal")) || 0;
           }
+        });
+
+        let sisaSaldo = totalSaldo - totalBelanja;
+        let elTotal = document.getElementById("lblTotalBelanjaModal");
+        let elSisa = document.getElementById("lblSisaSaldoModal");
+
+        if (elTotal) elTotal.innerText = formatRp(totalBelanja);
+        if (elSisa) {
+          elSisa.innerText = formatRp(sisaSaldo);
+          elSisa.style.color =
+            sisaSaldo < 0 ? "var(--danger)" : "var(--success)";
+        }
       }
 
-      // ========================================================
-      // LOGIKA LAPORAN KAS BESAR (UPDATED WITH EDIT/DELETE)
-      // ========================================================
       function bukaModalCatatan() {
-          let totalSetoranAll = 0;
-          masterData.peserta.forEach(p => {
-              totalSetoranAll += parseFloat(p.saldo_rp) || 0;
-          });
+        let totalSetoranAll = 0;
+        masterData.peserta.forEach((p) => {
+          totalSetoranAll += parseFloat(p.saldo_rp) || 0;
+        });
 
-          let totalTerpakaiBarang = 0;
-          let listHTML = '';
-          let countBarang = 0;
+        let totalTerpakaiBarang = 0;
+        let listHTML = "";
+        let countBarang = 0;
 
-          listBelanjaFinal.forEach(b => {
-              if (b.masuk > 0) {
-                  let isUang = b.barang.toLowerCase().includes("uang") || b.satuan.toLowerCase().includes("rupiah") || b.satuan.toLowerCase() === "rp";
-                  let hargaAsli = isUang ? 1 : b.harga;
-                  let subTotal = b.masuk * hargaAsli;
-                  
-                  if (!isUang) totalTerpakaiBarang += subTotal;
+        listBelanjaFinal.forEach((b) => {
+          if (b.masuk > 0) {
+            let isUang =
+              b.barang.toLowerCase().includes("uang") ||
+              b.satuan.toLowerCase().includes("rupiah") ||
+              b.satuan.toLowerCase() === "rp";
+            let hargaAsli = isUang ? 1 : b.harga;
+            let subTotal = b.masuk * hargaAsli;
 
-                  listHTML += `
+            if (!isUang) totalTerpakaiBarang += subTotal;
+
+            listHTML += `
                   <div style="background:#1e1e1e; padding:10px; border-radius:8px; border:1px solid #333; margin-bottom:8px; display:flex; justify-content:space-between; align-items:center;">
                       <div style="flex:1;">
                           <div style="color:#fff; font-weight:bold; font-size:0.85rem;">${b.barang}</div>
-                          <div style="color:#888; font-size:0.75rem;">Masuk: ${b.masuk.toLocaleString('id-ID')} ${b.satuan} <span style="color:#555;">(x ${formatRp(hargaAsli)})</span></div>
+                          <div style="color:#888; font-size:0.75rem;">Masuk: ${b.masuk.toLocaleString("id-ID")} ${b.satuan} <span style="color:#555;">(x ${formatRp(hargaAsli)})</span></div>
                       </div>
                       <div style="text-align:right; margin-right:15px;">
                           <b style="color:var(--primary); font-size:0.9rem;">${!isUang ? formatRp(subTotal) : '<span style="color:#555; font-size:0.75rem;">(Bukan)</span>'}</b>
@@ -1515,18 +2025,19 @@
                           </button>
                       </div>
                   </div>`;
-                  countBarang++;
-              }
-          });
-          if (countBarang === 0) listHTML = `<div style="text-align:center; color:#666; padding:20px; font-style:italic; border:1px dashed #333; border-radius:10px;">Belum ada riwayat belanja barang.</div>`;
+            countBarang++;
+          }
+        });
+        if (countBarang === 0)
+          listHTML = `<div style="text-align:center; color:#666; padding:20px; font-style:italic; border:1px dashed #333; border-radius:10px;">Belum ada riwayat belanja barang.</div>`;
 
-          let totalKasLain = 0;
-          let htmlKasLain = '';
-          if (masterData.kas_lain && masterData.kas_lain.length > 0) {
-              masterData.kas_lain.forEach(k => {
-                  totalKasLain += k.nominal;
-                  
-                  htmlKasLain += `
+        let totalKasLain = 0;
+        let htmlKasLain = "";
+        if (masterData.kas_lain && masterData.kas_lain.length > 0) {
+          masterData.kas_lain.forEach((k) => {
+            totalKasLain += k.nominal;
+
+            htmlKasLain += `
                   <div style="background:#1e1e1e; padding:10px; border-radius:8px; border:1px solid #333; margin-bottom:8px; display:flex; justify-content:space-between; align-items:center;">
                       <div style="flex:1;">
                           <div style="color:#fff; font-size:0.85rem;">${k.keterangan}</div>
@@ -1541,16 +2052,16 @@
                           </button>
                       </div>
                   </div>`;
-              });
-          } else {
-              htmlKasLain = `<div style="text-align:center; color:#666; padding:20px; font-style:italic; border:1px dashed #333; border-radius:10px;">Belum ada pengeluaran lain-lain.</div>`;
-          }
+          });
+        } else {
+          htmlKasLain = `<div style="text-align:center; color:#666; padding:20px; font-style:italic; border:1px dashed #333; border-radius:10px;">Belum ada pengeluaran lain-lain.</div>`;
+        }
 
-          let totalSeluruhPengeluaran = totalTerpakaiBarang + totalKasLain;
-          let sisaDana = totalSetoranAll - totalSeluruhPengeluaran;
-          let sisaColor = sisaDana < 0 ? 'var(--danger)' : 'var(--success)';
+        let totalSeluruhPengeluaran = totalTerpakaiBarang + totalKasLain;
+        let sisaDana = totalSetoranAll - totalSeluruhPengeluaran;
+        let sisaColor = sisaDana < 0 ? "var(--danger)" : "var(--success)";
 
-          document.getElementById('catatanHeader').innerHTML = `
+        document.getElementById("catatanHeader").innerHTML = `
               <div style="background:#1e1e1e; padding:12px 15px; border-radius:10px; border:1px solid #333; display:flex; justify-content:space-between; align-items:center;">
                   <span style="color:#aaa; font-size:0.85rem;">Total Setoran Keseluruhan</span>
                   <b style="color:#fff; font-size:1.1rem;">${formatRp(totalSetoranAll)}</b>
@@ -1565,96 +2076,117 @@
               </div>
           `;
 
-          document.getElementById('kasLainListContainer').innerHTML = htmlKasLain;
-          document.getElementById('catatanListContainer').innerHTML = listHTML;
-          document.getElementById('modalCatatan').style.display = 'flex';
+        document.getElementById("kasLainListContainer").innerHTML = htmlKasLain;
+        document.getElementById("catatanListContainer").innerHTML = listHTML;
+        document.getElementById("modalCatatan").style.display = "flex";
       }
 
-      // FUNGSI PENGIRIMAN DATA PENGELUARAN LAIN
       async function tambahKasLain(btn) {
-          const ket = document.getElementById('inputKetKas').value;
-          const nom = document.getElementById('inputNominalKas').value;
-          
-          if(!ket || !nom) return alert("Harap isi keterangan dan nominal pengeluaran!");
-          
-          const oldText = btn.innerHTML;
-          btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>'; 
-          btn.disabled = true;
+        const ket = document.getElementById("inputKetKas").value;
+        const nom = document.getElementById("inputNominalKas").value;
 
-          const res = await fetchData("simpanKasLain", { keterangan: ket, nominal: nom }, "POST");
-          
-          if(res && res.success) {
-              showToast("Pengeluaran lain berhasil dicatat!");
-              document.getElementById('inputKetKas').value = '';
-              document.getElementById('inputNominalKas').value = '';
-              document.getElementById('modalCatatan').style.display = 'none';
-              tarikDataServer(); 
-          } else alert("Gagal menyimpan data.");
-          
-          btn.innerHTML = oldText;
-          btn.disabled = false;
+        if (!ket || !nom)
+          return alert("Harap isi keterangan dan nominal pengeluaran!");
+
+        const oldText = btn.innerHTML;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+        btn.disabled = true;
+
+        const res = await fetchData(
+          "simpanKasLain",
+          { keterangan: ket, nominal: nom },
+          "POST",
+        );
+
+        if (res && res.success) {
+          showToast("Pengeluaran lain berhasil dicatat!");
+          document.getElementById("inputKetKas").value = "";
+          document.getElementById("inputNominalKas").value = "";
+          document.getElementById("modalCatatan").style.display = "none";
+          tarikDataServer();
+        } else alert("Gagal menyimpan data.");
+
+        btn.innerHTML = oldText;
+        btn.disabled = false;
       }
 
-      // ==========================================
-      // FUNGSI AKSI (EDIT & HAPUS) VIA PROMPT
-      // ==========================================
       async function promptEditStok(nama, qtyLama) {
-          let input = prompt(`Edit Jumlah Barang Masuk untuk:\n"${nama}"\n\nIsi dengan angka baru (Isi 0 jika ingin me-reset/menghapus barang ini dari riwayat):`, qtyLama);
-          if (input === null || input === "") return; // User cancel
-          
-          let qtyBaru = parseInt(input);
-          if (isNaN(qtyBaru) || qtyBaru < 0) return alert("Jumlah tidak valid! Harus berupa angka 0 atau lebih positif.");
+        let input = prompt(
+          `Edit Jumlah Barang Masuk untuk:\n"${nama}"\n\nIsi dengan angka baru (Isi 0 jika ingin me-reset/menghapus barang ini dari riwayat):`,
+          qtyLama,
+        );
+        if (input === null || input === "") return;
 
-          document.getElementById('modalCatatan').style.display = 'none';
-          document.getElementById("loading").style.display = "block";
+        let qtyBaru = parseInt(input);
+        if (isNaN(qtyBaru) || qtyBaru < 0)
+          return alert(
+            "Jumlah tidak valid! Harus berupa angka 0 atau lebih positif.",
+          );
 
-          const res = await fetchData("editStokBelanja", { namaBarang: nama, qtyBaru: qtyBaru }, "POST");
-          if(res && res.success) {
-              showToast("Jumlah barang masuk berhasil diubah!");
-              tarikDataServer();
-          } else {
-              alert("Gagal update data.");
-              document.getElementById("loading").style.display = "none";
-          }
+        document.getElementById("modalCatatan").style.display = "none";
+        document.getElementById("loading").style.display = "block";
+
+        const res = await fetchData(
+          "editStokBelanja",
+          { namaBarang: nama, qtyBaru: qtyBaru },
+          "POST",
+        );
+        if (res && res.success) {
+          showToast("Jumlah barang masuk berhasil diubah!");
+          tarikDataServer();
+        } else {
+          alert("Gagal update data.");
+          document.getElementById("loading").style.display = "none";
+        }
       }
 
       async function hapusRiwayatKasLain(waktu) {
-          if (!confirm("Yakin ingin menghapus catatan pengeluaran ini secara permanen?")) return;
-          
-          document.getElementById('modalCatatan').style.display = 'none';
-          document.getElementById("loading").style.display = "block";
+        if (
+          !confirm(
+            "Yakin ingin menghapus catatan pengeluaran ini secara permanen?",
+          )
+        )
+          return;
 
-          const res = await fetchData("hapusKasLain", { waktu: waktu }, "POST");
-          if(res && res.success) {
-              showToast("Catatan berhasil dihapus!");
-              tarikDataServer();
-          } else {
-              alert("Gagal menghapus catatan.");
-              document.getElementById("loading").style.display = "none";
-          }
+        document.getElementById("modalCatatan").style.display = "none";
+        document.getElementById("loading").style.display = "block";
+
+        const res = await fetchData("hapusKasLain", { waktu: waktu }, "POST");
+        if (res && res.success) {
+          showToast("Catatan berhasil dihapus!");
+          tarikDataServer();
+        } else {
+          alert("Gagal menghapus catatan.");
+          document.getElementById("loading").style.display = "none";
+        }
       }
 
       async function promptEditKasLain(waktu, ketLama, nomLama) {
-          let newKet = prompt("Edit Keterangan Pengeluaran:", ketLama);
-          if (newKet === null || newKet.trim() === "") return;
-          
-          let newNom = prompt("Edit Nominal (Rp):", nomLama);
-          if (newNom === null || newNom.trim() === "") return;
-          
-          let nomBaru = parseInt(newNom);
-          if(isNaN(nomBaru)) return alert("Nominal harus berupa angka murni tanpa titik/koma!");
+        let newKet = prompt("Edit Keterangan Pengeluaran:", ketLama);
+        if (newKet === null || newKet.trim() === "") return;
 
-          document.getElementById('modalCatatan').style.display = 'none';
-          document.getElementById("loading").style.display = "block";
+        let newNom = prompt("Edit Nominal (Rp):", nomLama);
+        if (newNom === null || newNom.trim() === "") return;
 
-          const res = await fetchData("editKasLain", { waktu: waktu, keterangan: newKet, nominal: nomBaru }, "POST");
-          if(res && res.success) {
-              showToast("Catatan berhasil diperbarui!");
-              tarikDataServer();
-          } else {
-              alert("Gagal mengubah catatan.");
-              document.getElementById("loading").style.display = "none";
-          }
+        let nomBaru = parseInt(newNom);
+        if (isNaN(nomBaru))
+          return alert("Nominal harus berupa angka murni tanpa titik/koma!");
+
+        document.getElementById("modalCatatan").style.display = "none";
+        document.getElementById("loading").style.display = "block";
+
+        const res = await fetchData(
+          "editKasLain",
+          { waktu: waktu, keterangan: newKet, nominal: nomBaru },
+          "POST",
+        );
+        if (res && res.success) {
+          showToast("Catatan berhasil diperbarui!");
+          tarikDataServer();
+        } else {
+          alert("Gagal mengubah catatan.");
+          document.getElementById("loading").style.display = "none";
+        }
       }
       tarikDataServer();
     </script>
