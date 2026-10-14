@@ -1011,10 +1011,16 @@
         let estimasiBiaya = 0;
 
         let barangTampil = listBelanjaFinal.filter((item) => {
-          if (item.kurang > 0) {
-            let isUang = item.barang.toLowerCase().includes("uang") || item.satuan.toLowerCase().includes("rupiah") || item.satuan.toLowerCase() === "rp";
-            let hargaAsli = isUang ? 1 : item.harga;
-            estimasiBiaya += item.kurang * hargaAsli;
+          let isUang = item.barang.toLowerCase().includes("uang") || item.satuan.toLowerCase().includes("rupiah") || item.satuan.toLowerCase() === "rp";
+          let hargaAsli = isUang ? 1 : item.harga;
+          
+          // MENGHITUNG ESTIMASI SESUAI TOGGLE
+          if (onlyKurang) {
+              if (item.kurang > 0) {
+                  estimasiBiaya += item.kurang * hargaAsli;
+              }
+          } else {
+              estimasiBiaya += item.total * hargaAsli;
           }
 
           let matchQuery = item.barang.toLowerCase().includes(query);
@@ -1022,6 +1028,7 @@
           return matchQuery && matchToggle;
         });
 
+        // UPDATE UI ESTIMASI BIAYA
         document.getElementById("estimasiBiaya").innerText = formatRp(estimasiBiaya);
 
         const container = document.getElementById("belanjaList");
@@ -1324,10 +1331,11 @@
           listKebutuhanHTML = `<div style="color:#888; font-size:0.85rem; font-style:italic;">Belum ada resep tercatat untuk paket ini.</div>`;
         }
 
+        // PENERAPAN KLIK DETAIL PESERTA DI SINI
         let listPesertaHTML = "";
         pesertaPaket.forEach((p) => {
           listPesertaHTML += `
-            <div style="background:#2a2a2a; padding:8px 12px; border-radius:6px; margin-bottom:6px; font-size:0.8rem; display:flex; justify-content:space-between; align-items:center; border:1px solid #444;">
+            <div onclick="bukaDetailPeserta('${p.id}')" style="background:#2a2a2a; padding:10px 12px; border-radius:6px; margin-bottom:6px; border:1px solid #444; display:flex; justify-content:space-between; align-items:center; cursor:pointer; transition: background 0.2s;" onmouseover="this.style.background='#333'" onmouseout="this.style.background='#2a2a2a'" title="Klik untuk lihat rincian peserta">
                 <b style="color:#fff; font-size:0.9rem;">${p.nama || p.id}</b>
                 <span style="color:#aaa; background:#111; padding:3px 8px; border-radius:4px;"><i class="fas fa-map-marker-alt" style="color:var(--primary)"></i> Mitra: ${p.mitra || "-"}</span>
             </div>`;
@@ -1360,18 +1368,64 @@
         document.getElementById("modalDetail").style.display = "flex";
       }
 
+
+// ========================================================
+      // FUNGSI UNTUK MEMBUKA DETAIL PESERTA KETIKA DI-KLIK
       // ========================================================
-      // LOGIKA LAPORAN KAS BESAR (UPDATED)
+      function bukaDetailPeserta(idPeserta) {
+          let peserta = masterData.peserta.find(p => p.id === idPeserta);
+          if (!peserta) return alert("Data peserta tidak ditemukan!");
+
+          // Cari barang custom / pesanan khusus milik peserta ini jika ada
+          let barangCustomPeserta = masterData.custom.filter(c => c.id_peserta === idPeserta);
+          
+          let listBarangHtml = '';
+          if (barangCustomPeserta.length > 0) {
+              barangCustomPeserta.forEach(bc => {
+                  listBarangHtml += `<div style="padding:6px 0; border-bottom:1px dashed #333; display:flex; justify-content:space-between; font-size:0.85rem;">
+                      <span style="color:#fff;">${bc.barang}</span>
+                      <span style="color:var(--primary); font-weight:bold;">${bc.qty} ${bc.satuan}</span>
+                  </div>`;
+              });
+          } else {
+              listBarangHtml = `<div style="color:#888; font-size:0.8rem; font-style:italic;">Menggunakan standar resep ${peserta.paket}.</div>`;
+          }
+
+          let html = `
+          <div style="background:#1e1e1e; padding:15px; border-radius:10px; border:1px solid #333; margin-bottom:15px;">
+              <h4 style="color:var(--primary); margin:0 0 10px 0; font-size:0.95rem;"><i class="fas fa-user-circle"></i> Informasi Peserta</h4>
+              <div style="font-size:0.85rem; color:#ccc; display:flex; flex-direction:column; gap:6px;">
+                  <div><b>ID:</b> ${peserta.id}</div>
+                  <div><b>Nama:</b> ${peserta.nama || '-'}</div>
+                  <div><b>Mitra:</b> ${peserta.mitra || '-'}</div>
+                  <div><b>Paket:</b> ${peserta.paket || '-'}</div>
+                  <div><b>Saldo / Setoran:</b> <span style="color:var(--success); font-weight:bold;">${formatRp(peserta.saldo_rp)}</span></div>
+              </div>
+          </div>
+          <div style="background:#1e1e1e; padding:15px; border-radius:10px; border:1px solid #333;">
+              <h4 style="color:var(--success); margin:0 0 10px 0; font-size:0.95rem;"><i class="fas fa-shopping-basket"></i> Rincian Orderan / Request Barang</h4>
+              ${listBarangHtml}
+          </div>`;
+
+          document.getElementById("modalDetailTitle").innerText = `👤 Rincian: ${peserta.nama || peserta.id}`;
+          document.getElementById("modalDetailTarget").innerText = `Mitra: ${peserta.mitra}`;
+          document.getElementById("modalDetailTarget").style.color = "var(--primary)";
+          document.getElementById("modalDetailKurang").innerText = `Paket: ${peserta.paket}`;
+          document.getElementById("modalDetailKurang").style.color = "#aaa";
+          document.getElementById("modalDetailBody").innerHTML = html;
+
+          document.getElementById("modalDetail").style.display = "flex";
+      }
+
+      // ========================================================
+      // LOGIKA LAPORAN KAS BESAR (UPDATED WITH EDIT/DELETE)
       // ========================================================
       function bukaModalCatatan() {
-          // 1. HITUNG TOTAL SETORAN KESELURUHAN (Semua Peserta di DB)
           let totalSetoranAll = 0;
           masterData.peserta.forEach(p => {
-              // Mengambil total saldo_rp kotor dari database
               totalSetoranAll += parseFloat(p.saldo_rp) || 0;
           });
 
-          // 2. HITUNG TOTAL BELANJA BARANG
           let totalTerpakaiBarang = 0;
           let listHTML = '';
           let countBarang = 0;
@@ -1386,12 +1440,17 @@
 
                   listHTML += `
                   <div style="background:#1e1e1e; padding:10px; border-radius:8px; border:1px solid #333; margin-bottom:8px; display:flex; justify-content:space-between; align-items:center;">
-                      <div>
+                      <div style="flex:1;">
                           <div style="color:#fff; font-weight:bold; font-size:0.85rem;">${b.barang}</div>
                           <div style="color:#888; font-size:0.75rem;">Masuk: ${b.masuk.toLocaleString('id-ID')} ${b.satuan} <span style="color:#555;">(x ${formatRp(hargaAsli)})</span></div>
                       </div>
-                      <div style="text-align:right;">
+                      <div style="text-align:right; margin-right:15px;">
                           <b style="color:var(--primary); font-size:0.9rem;">${!isUang ? formatRp(subTotal) : '<span style="color:#555; font-size:0.75rem;">(Bukan)</span>'}</b>
+                      </div>
+                      <div style="display:flex; align-items:center; border-left:1px dashed #444; padding-left:10px;">
+                          <button onclick="promptEditStok('${b.barang.replace(/'/g, "\\'")}', ${b.masuk})" style="background:transparent; border:none; color:#888; font-size:1rem; cursor:pointer;" title="Edit Jumlah Masuk">
+                              <i class="fas fa-edit"></i>
+                          </button>
                       </div>
                   </div>`;
                   countBarang++;
@@ -1399,28 +1458,36 @@
           });
           if (countBarang === 0) listHTML = `<div style="text-align:center; color:#666; padding:20px; font-style:italic; border:1px dashed #333; border-radius:10px;">Belum ada riwayat belanja barang.</div>`;
 
-          // 3. HITUNG TOTAL PENGELUARAN LAIN (Emas, Modal, dll)
           let totalKasLain = 0;
           let htmlKasLain = '';
           if (masterData.kas_lain && masterData.kas_lain.length > 0) {
               masterData.kas_lain.forEach(k => {
                   totalKasLain += k.nominal;
+                  
                   htmlKasLain += `
                   <div style="background:#1e1e1e; padding:10px; border-radius:8px; border:1px solid #333; margin-bottom:8px; display:flex; justify-content:space-between; align-items:center;">
-                      <div style="color:#fff; font-size:0.85rem;">${k.keterangan}</div>
-                      <div style="color:var(--danger); font-weight:bold; font-size:0.9rem;">${formatRp(k.nominal)}</div>
+                      <div style="flex:1;">
+                          <div style="color:#fff; font-size:0.85rem;">${k.keterangan}</div>
+                          <div style="color:var(--danger); font-weight:bold; font-size:0.9rem;">${formatRp(k.nominal)}</div>
+                      </div>
+                      <div style="display:flex; gap:12px; align-items:center; border-left:1px dashed #444; padding-left:12px;">
+                          <button onclick="promptEditKasLain('${k.waktu}', '${k.keterangan.replace(/'/g, "\\'")}', ${k.nominal})" style="background:transparent; border:none; color:#888; font-size:1rem; cursor:pointer;" title="Edit Kas">
+                              <i class="fas fa-edit"></i>
+                          </button>
+                          <button onclick="hapusRiwayatKasLain('${k.waktu}')" style="background:transparent; border:none; color:var(--danger); font-size:1rem; cursor:pointer;" title="Hapus Kas">
+                              <i class="fas fa-trash"></i>
+                          </button>
+                      </div>
                   </div>`;
               });
           } else {
               htmlKasLain = `<div style="text-align:center; color:#666; padding:20px; font-style:italic; border:1px dashed #333; border-radius:10px;">Belum ada pengeluaran lain-lain.</div>`;
           }
 
-          // 4. KALKULASI SISA KAS AKHIR
           let totalSeluruhPengeluaran = totalTerpakaiBarang + totalKasLain;
           let sisaDana = totalSetoranAll - totalSeluruhPengeluaran;
           let sisaColor = sisaDana < 0 ? 'var(--danger)' : 'var(--success)';
 
-          // 5. RENDER KE LAYAR
           document.getElementById('catatanHeader').innerHTML = `
               <div style="background:#1e1e1e; padding:12px 15px; border-radius:10px; border:1px solid #333; display:flex; justify-content:space-between; align-items:center;">
                   <span style="color:#aaa; font-size:0.85rem;">Total Setoran Keseluruhan</span>
@@ -1441,14 +1508,13 @@
           document.getElementById('modalCatatan').style.display = 'flex';
       }
 
-      // FUNGSI PENGIRIMAN DATA PENGELUARAN LAIN KE SERVER
+      // FUNGSI PENGIRIMAN DATA PENGELUARAN LAIN
       async function tambahKasLain(btn) {
           const ket = document.getElementById('inputKetKas').value;
           const nom = document.getElementById('inputNominalKas').value;
           
           if(!ket || !nom) return alert("Harap isi keterangan dan nominal pengeluaran!");
-          if(!confirm(`Simpan catatan pengeluaran:\n\nKeterangan: ${ket}\nNominal: Rp ${parseInt(nom).toLocaleString('id-ID')}\n\nLanjutkan?`)) return;
-
+          
           const oldText = btn.innerHTML;
           btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>'; 
           btn.disabled = true;
@@ -1460,13 +1526,73 @@
               document.getElementById('inputKetKas').value = '';
               document.getElementById('inputNominalKas').value = '';
               document.getElementById('modalCatatan').style.display = 'none';
-              tarikDataServer(); // Auto-refresh data agar nominal baru langsung terhitung
-          } else {
-              alert("Gagal menyimpan data: " + (res ? res.error : "Koneksi terputus"));
-          }
+              tarikDataServer(); 
+          } else alert("Gagal menyimpan data.");
           
           btn.innerHTML = oldText;
           btn.disabled = false;
+      }
+
+      // ==========================================
+      // FUNGSI AKSI (EDIT & HAPUS) VIA PROMPT
+      // ==========================================
+      async function promptEditStok(nama, qtyLama) {
+          let input = prompt(`Edit Jumlah Barang Masuk untuk:\n"${nama}"\n\nIsi dengan angka baru (Isi 0 jika ingin me-reset/menghapus barang ini dari riwayat):`, qtyLama);
+          if (input === null || input === "") return; // User cancel
+          
+          let qtyBaru = parseInt(input);
+          if (isNaN(qtyBaru) || qtyBaru < 0) return alert("Jumlah tidak valid! Harus berupa angka 0 atau lebih positif.");
+
+          document.getElementById('modalCatatan').style.display = 'none';
+          document.getElementById("loading").style.display = "block";
+
+          const res = await fetchData("editStokBelanja", { namaBarang: nama, qtyBaru: qtyBaru }, "POST");
+          if(res && res.success) {
+              showToast("Jumlah barang masuk berhasil diubah!");
+              tarikDataServer();
+          } else {
+              alert("Gagal update data.");
+              document.getElementById("loading").style.display = "none";
+          }
+      }
+
+      async function hapusRiwayatKasLain(waktu) {
+          if (!confirm("Yakin ingin menghapus catatan pengeluaran ini secara permanen?")) return;
+          
+          document.getElementById('modalCatatan').style.display = 'none';
+          document.getElementById("loading").style.display = "block";
+
+          const res = await fetchData("hapusKasLain", { waktu: waktu }, "POST");
+          if(res && res.success) {
+              showToast("Catatan berhasil dihapus!");
+              tarikDataServer();
+          } else {
+              alert("Gagal menghapus catatan.");
+              document.getElementById("loading").style.display = "none";
+          }
+      }
+
+      async function promptEditKasLain(waktu, ketLama, nomLama) {
+          let newKet = prompt("Edit Keterangan Pengeluaran:", ketLama);
+          if (newKet === null || newKet.trim() === "") return;
+          
+          let newNom = prompt("Edit Nominal (Rp):", nomLama);
+          if (newNom === null || newNom.trim() === "") return;
+          
+          let nomBaru = parseInt(newNom);
+          if(isNaN(nomBaru)) return alert("Nominal harus berupa angka murni tanpa titik/koma!");
+
+          document.getElementById('modalCatatan').style.display = 'none';
+          document.getElementById("loading").style.display = "block";
+
+          const res = await fetchData("editKasLain", { waktu: waktu, keterangan: newKet, nominal: nomBaru }, "POST");
+          if(res && res.success) {
+              showToast("Catatan berhasil diperbarui!");
+              tarikDataServer();
+          } else {
+              alert("Gagal mengubah catatan.");
+              document.getElementById("loading").style.display = "none";
+          }
       }
       tarikDataServer();
     </script>
