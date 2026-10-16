@@ -1,0 +1,1291 @@
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+    />
+    <title>Rekap Manual (Fix Barang)</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <style>
+      :root {
+        --primary: #ffd700;
+        --bg: #121212;
+        --surface: #1e1e1e;
+        --text: #e0e0e0;
+        --border: #333;
+        --danger: #ff4d4d;
+        --success: #4ade80;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        background: var(--bg);
+        color: var(--text);
+        font-family: "Inter", sans-serif;
+        margin: 0;
+        padding: 0;
+        padding-bottom: 100px;
+      }
+
+      /* NAVIGASI */
+      .top-nav {
+        background: rgba(18, 18, 18, 0.95);
+        backdrop-filter: blur(10px);
+        padding: 15px 20px;
+        position: sticky;
+        top: 0;
+        z-index: 50;
+        border-bottom: 1px solid var(--border);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+      .nav-left {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+      }
+      .back-btn {
+        background: #2a2a2a;
+        color: white;
+        width: 38px;
+        height: 38px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-decoration: none;
+      }
+
+      /* PENCARIAN & FILTER */
+      .search-box {
+        padding: 15px 20px;
+        background: #181818;
+        border-bottom: 1px dashed #333;
+      }
+      .search-input-wrap {
+        position: relative;
+        display: flex;
+        align-items: center;
+        margin-bottom: 10px;
+      }
+      .search-input-wrap i {
+        position: absolute;
+        left: 15px;
+        color: #888;
+      }
+      .search-input {
+        width: 100%;
+        padding: 12px 12px 12px 40px;
+        background: #222;
+        border: 1px solid #444;
+        color: white;
+        border-radius: 10px;
+        outline: none;
+        font-size: 0.9rem;
+        font-weight: bold;
+      }
+      .search-input:focus {
+        border-color: var(--primary);
+      }
+
+      /* FILTER EXTENDED */
+      .filter-group {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        margin-bottom: 5px;
+      }
+      .filter-select-normal,
+      .filter-input-normal {
+        background: #1a1a1a;
+        color: var(--primary);
+        border: 1px dashed #444;
+        padding: 10px;
+        border-radius: 8px;
+        font-size: 0.85rem;
+        outline: none;
+        font-weight: bold;
+        width: 100%;
+      }
+      .filter-select-normal {
+        appearance: none;
+        cursor: pointer;
+        background-image: url('data:image/svg+xml;utf8,<svg fill="%23ffd700" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M7 10l5 5 5-5z"/></svg>');
+        background-repeat: no-repeat;
+        background-position: right 10px center;
+      }
+      .grid-2 {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+      }
+
+      /* DROPDOWN MULTI-SELECT CHECKBOX */
+      .cs-wrap {
+        position: relative;
+        width: 100%;
+      }
+      .cs-header {
+        background: #1a1a1a;
+        border: 1px dashed #444;
+        padding: 10px;
+        border-radius: 8px;
+        font-size: 0.8rem;
+        color: #fff;
+        font-weight: bold;
+        cursor: pointer;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        user-select: none;
+      }
+      .cs-header.has-val {
+        color: var(--primary);
+        border-color: var(--primary);
+      }
+      .cs-list {
+        display: none;
+        position: absolute;
+        top: 105%;
+        left: 0;
+        width: 100%;
+        background: #111;
+        border: 1px solid #444;
+        border-radius: 8px;
+        z-index: 60;
+        max-height: 200px;
+        overflow-y: auto;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.8);
+        padding: 10px;
+        flex-direction: column;
+        gap: 8px;
+      }
+      .cs-list.show {
+        display: flex;
+      }
+      .cs-list label {
+        font-size: 0.85rem;
+        color: #ddd;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        cursor: pointer;
+      }
+
+      /* HASIL LIST PESERTA & ACCORDION */
+      #listPeserta {
+        max-height: calc(100vh - 280px);
+        overflow-y: auto;
+        background: #1e1e1e;
+        border-radius: 10px;
+        border: 1px solid #333;
+        margin-top: 10px;
+      }
+      .peserta-item-wrapper {
+        border-bottom: 1px solid #2a2a2a;
+      }
+      .peserta-item-wrapper:last-child {
+        border-bottom: none;
+      }
+
+      .peserta-header {
+        padding: 12px 15px;
+        cursor: pointer;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        background: #1e1e1e;
+        transition: 0.2s;
+      }
+      .peserta-header:hover {
+        background: #252525;
+      }
+
+      .badge-freq {
+        background: rgba(74, 222, 128, 0.1);
+        color: #4ade80;
+        padding: 3px 6px;
+        border-radius: 4px;
+        font-size: 0.7rem;
+        border: 1px solid rgba(74, 222, 128, 0.3);
+      }
+      .badge-mitra {
+        background: #222;
+        color: var(--primary);
+        padding: 3px 6px;
+        border-radius: 4px;
+        font-size: 0.7rem;
+        border: 1px solid #444;
+      }
+      .badge-status-pilih {
+        font-size: 0.7rem;
+        padding: 3px 8px;
+        border-radius: 4px;
+        font-weight: bold;
+      }
+      .badge-belum {
+        background: rgba(255, 215, 0, 0.1);
+        color: var(--primary);
+        border: 1px solid rgba(255, 215, 0, 0.3);
+      }
+      .badge-sudah {
+        background: rgba(74, 222, 128, 0.1);
+        color: var(--success);
+        border: 1px solid rgba(74, 222, 128, 0.3);
+      }
+
+      /* SALDO HIGHLIGHT & SUMMARY BOX */
+      .saldo-badge {
+        background: rgba(74, 222, 128, 0.15);
+        color: var(--success);
+        padding: 4px 8px;
+        border-radius: 6px;
+        font-weight: bold;
+        font-size: 0.75rem;
+        border: 1px solid rgba(74, 222, 128, 0.4);
+      }
+      .summary-box {
+        background: #111;
+        padding: 12px 15px;
+        border-radius: 8px;
+        border: 1px solid #444;
+        margin-bottom: 12px;
+        box-shadow: inset 0 2px 10px rgba(0, 0, 0, 0.5);
+      }
+      .sum-row {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 4px;
+        font-size: 0.8rem;
+        color: #ccc;
+      }
+      .sum-row b {
+        font-size: 0.85rem;
+      }
+      .sum-row.sisa {
+        border-top: 1px dashed #555;
+        padding-top: 6px;
+        margin-top: 6px;
+        color: #fff;
+        font-size: 0.85rem;
+      }
+      .sum-row.sisa b {
+        font-size: 1rem;
+      }
+
+      /* BUTTON WA & SELECT ALL */
+      .btn-wa {
+        background: #25d366;
+        color: #000;
+        border: none;
+        padding: 8px;
+        width: 100%;
+        border-radius: 8px;
+        font-weight: bold;
+        font-size: 0.8rem;
+        cursor: pointer;
+        display: flex;
+        gap: 6px;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 8px;
+      }
+      .btn-select-all {
+        background: #2a2a2a;
+        color: var(--primary);
+        border: 1px solid #444;
+        padding: 6px 10px;
+        border-radius: 8px;
+        font-size: 0.75rem;
+        font-weight: bold;
+        cursor: pointer;
+        margin-bottom: 10px;
+        width: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+      }
+      .btn-wa:active,
+      .btn-select-all:active {
+        transform: scale(0.98);
+      }
+
+      /* AREA DROPDOWN RINCIAN PESANAN */
+      .pesanan-container {
+        display: none;
+        padding: 12px 15px;
+        background: #1a1a1a;
+        border-top: 1px dashed #333;
+      }
+
+      /* TAMPILAN BARANG LEBIH RAMPING (COMPACT 1-2 BARIS) */
+      .barang-card {
+        background: #111;
+        border: 1px solid #333;
+        border-radius: 8px;
+        padding: 8px 12px;
+        margin-bottom: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        transition: 0.2s;
+        cursor: pointer;
+      }
+      .barang-card.checked {
+        border-color: var(--success);
+        background: rgba(74, 222, 128, 0.05);
+      }
+
+      .custom-checkbox {
+        width: 22px;
+        height: 22px;
+        border: 2px solid #555;
+        border-radius: 5px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: 0.2s;
+        flex-shrink: 0;
+        margin-left: 12px;
+      }
+      .custom-checkbox i {
+        color: transparent;
+        font-size: 0.75rem;
+      }
+      .barang-card.checked .custom-checkbox {
+        background: var(--success);
+        border-color: var(--success);
+      }
+      .barang-card.checked .custom-checkbox i {
+        color: #000;
+      }
+
+      /* BOTTOM BAR */
+      .bottom-bar {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: rgba(20, 20, 20, 0.95);
+        backdrop-filter: blur(10px);
+        padding: 15px 20px;
+        border-top: 1px solid #333;
+        z-index: 100;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+      }
+      .btn-save {
+        background: var(--primary);
+        color: #000;
+        border: none;
+        padding: 12px 15px;
+        flex: 1.2;
+        border-radius: 10px;
+        font-weight: bold;
+        font-size: 0.85rem;
+        cursor: pointer;
+        box-shadow: 0 4px 15px rgba(255, 215, 0, 0.2);
+        display: flex;
+        gap: 8px;
+        align-items: center;
+        justify-content: center;
+      }
+      .btn-belanja {
+        background: #2a2a2a;
+        color: var(--primary);
+        border: 1px solid var(--primary);
+        padding: 12px 15px;
+        flex: 1;
+        border-radius: 10px;
+        font-weight: bold;
+        font-size: 0.85rem;
+        cursor: pointer;
+        display: flex;
+        gap: 8px;
+        align-items: center;
+        justify-content: center;
+      }
+      #loading {
+        text-align: center;
+        padding: 40px;
+        color: #888;
+        display: none;
+      }
+
+      @keyframes slideUp {
+        from {
+          transform: translateY(100%);
+        }
+        to {
+          transform: translateY(0);
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="top-nav">
+      <div class="nav-left">
+        <a href="index.html" class="back-btn" onclick="return confirmExit();"
+          ><i class="fas fa-arrow-left"></i
+        ></a>
+        <h2 style="margin: 0; font-size: 1.1rem">Rekap Manual (Fix)</h2>
+      </div>
+    </div>
+
+    <!-- AREA PENCARIAN & FILTER -->
+    <div class="search-box" id="areaPencarian">
+      <div class="search-input-wrap">
+        <i class="fas fa-search"></i>
+        <input
+          type="text"
+          id="inputCari"
+          class="search-input"
+          placeholder="Cari nama atau ID peserta..."
+          oninput="terapkanFilter()"
+        />
+      </div>
+
+      <!-- FILTER EXTENDED -->
+      <div class="filter-group">
+        <div style="display: flex; gap: 10px">
+          <select
+            id="filterOperator"
+            class="filter-select-normal"
+            style="flex: 1"
+            onchange="
+              toggleFilterInput();
+              terapkanFilter();
+            "
+          >
+            <option value="ALL">🎯 Semua Setoran</option>
+            <option value="<">Kurang dari (<)</option>
+            <option value=">">Lebih dari (>)</option>
+            <option value="=">Sama dengan (=)</option>
+          </select>
+          <input
+            type="number"
+            id="filterAngka"
+            class="filter-input-normal"
+            style="flex: 1; display: none"
+            placeholder="Ketik freq..."
+            oninput="terapkanFilter()"
+          />
+        </div>
+        <div class="grid-2">
+          <div class="cs-wrap" id="wrapMitra">
+            <div
+              class="cs-header"
+              id="headMitra"
+              onclick="toggleDrop('listMitra')"
+            >
+              Mitra: Semua <i class="fas fa-caret-down"></i>
+            </div>
+            <div class="cs-list" id="listMitra"></div>
+          </div>
+          <div class="cs-wrap" id="wrapPaket">
+            <div
+              class="cs-header"
+              id="headPaket"
+              onclick="toggleDrop('listPaket')"
+            >
+              Paket: Semua <i class="fas fa-caret-down"></i>
+            </div>
+            <div class="cs-list" id="listPaket"></div>
+          </div>
+        </div>
+      </div>
+
+      <div
+        id="infoTotalFilter"
+        style="
+          font-size: 0.75rem;
+          color: #aaa;
+          margin-top: 10px;
+          text-align: right;
+        "
+      ></div>
+
+      <div id="listPeserta">
+        <div
+          style="
+            padding: 30px 20px;
+            text-align: center;
+            color: #555;
+            border: 1px dashed #333;
+            border-radius: 12px;
+            margin: 20px;
+          "
+        >
+          Gunakan filter dan cari peserta di atas.
+        </div>
+      </div>
+    </div>
+
+    <div id="loading">
+      <i class="fas fa-spinner fa-spin fa-2x" style="color: var(--primary)"></i
+      ><br /><br />Memuat data...
+    </div>
+
+    <!-- BOTTOM ACTION BAR -->
+    <div class="bottom-bar">
+      <div
+        style="display: none; flex-direction: column; justify-content: center"
+        id="infoTotalBottom"
+      >
+        <span
+          style="
+            display: block;
+            font-size: 0.65rem;
+            color: #888;
+            text-transform: uppercase;
+          "
+          >Total Dibeli</span
+        >
+        <b id="lblTotalHarga" style="font-size: 1rem; color: var(--success)"
+          >Rp 0</b
+        >
+      </div>
+      <button class="btn-belanja" onclick="bukaModalBelanja()">
+        <i class="fas fa-shopping-cart"></i> DAFTAR BELANJA
+      </button>
+      <button
+        class="btn-save"
+        id="btnSimpan"
+        onclick="simpanChecklistGlobal()"
+        style="display: none"
+      >
+        <i class="fas fa-save"></i> SIMPAN FIX
+      </button>
+    </div>
+
+    <!-- MODAL DAFTAR BELANJA DARI FIX -->
+    <div
+      id="modalBelanja"
+      style="
+        display: none;
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.9);
+        z-index: 9999;
+        flex-direction: column;
+        justify-content: flex-end;
+      "
+    >
+      <div
+        style="
+          background: #1e1e1e;
+          height: 88vh;
+          border-radius: 20px 20px 0 0;
+          display: flex;
+          flex-direction: column;
+          animation: slideUp 0.3s;
+          border-top: 1px solid #444;
+        "
+      >
+        <div
+          style="
+            padding: 20px;
+            border-bottom: 1px solid #333;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+          "
+        >
+          <div>
+            <h3 style="margin: 0 0 5px 0; color: var(--primary)">
+              <i class="fas fa-shopping-cart"></i> Daftar Belanja (Dari Fix)
+            </h3>
+            <div style="font-size: 0.75rem; color: #888">
+              Sinkronisasi otomatis dengan REKAP_BELANJA
+            </div>
+          </div>
+          <i
+            class="fas fa-times"
+            style="font-size: 1.5rem; color: #888; cursor: pointer"
+            onclick="
+              document.getElementById('modalBelanja').style.display = 'none'
+            "
+          ></i>
+        </div>
+
+        <div
+          style="
+            padding: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px dashed #333;
+            background: #151515;
+          "
+        >
+          <label
+            style="
+              color: #fff;
+              font-size: 0.85rem;
+              display: flex;
+              align-items: center;
+              gap: 8px;
+            "
+          >
+            <input
+              type="checkbox"
+              id="chkHanyaKurang"
+              onchange="renderBelanjaList()"
+              checked
+              style="width: 18px; height: 18px; accent-color: var(--primary)"
+            />
+            Tampilkan hanya yang kurang
+          </label>
+        </div>
+
+        <div
+          id="loadingBelanja"
+          style="
+            text-align: center;
+            padding: 50px 20px;
+            display: none;
+            color: var(--primary);
+          "
+        >
+          <i class="fas fa-spinner fa-spin fa-2x"></i><br /><br />Menarik rekap
+          gudang...
+        </div>
+
+        <div
+          style="padding: 15px; overflow-y: auto; flex: 1"
+          id="listBelanjaContainer"
+        ></div>
+
+        <div
+          style="
+            padding: 15px 20px;
+            background: #111;
+            border-top: 1px solid #333;
+          "
+        >
+          <button
+            onclick="simpanStokBelanja()"
+            id="btnSimpanBelanja"
+            style="
+              width: 100%;
+              padding: 14px;
+              background: var(--primary);
+              color: #000;
+              border: none;
+              border-radius: 10px;
+              font-weight: bold;
+              font-size: 0.9rem;
+            "
+          >
+            <i class="fas fa-save"></i> SIMPAN BARANG MASUK
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <script src="script.js"></script>
+    <script>
+      let dataPesertaManual = [];
+      let allDataBarang = {};
+      let saldoPeserta = {};
+      let dataBelanjaGlobal = [];
+
+      function formatUang(angka) {
+        return new Intl.NumberFormat("id-ID", {
+          style: "currency",
+          currency: "IDR",
+          minimumFractionDigits: 0,
+        }).format(angka || 0);
+      }
+
+      async function initData() {
+        document.getElementById("loading").style.display = "block";
+        document.getElementById("listPeserta").style.display = "none";
+        try {
+          const res = await fetchData("getAdminStats");
+          if (res && res.paketBreakdown) {
+            let tempAll = [];
+            let mitraSet = new Set();
+            let paketSet = new Set();
+
+            for (let pkt in res.paketBreakdown) {
+              paketSet.add(pkt);
+              res.paketBreakdown[pkt].forEach((p) => {
+                let m = (p.mitra || "Pusat").trim();
+                mitraSet.add(m);
+                tempAll.push({
+                  id: String(p.id || ""),
+                  nama: String(p.nama || ""),
+                  mitra: m,
+                  paket: pkt,
+                  freq: Number(p.freq) || 0,
+                });
+              });
+            }
+            dataPesertaManual = tempAll;
+            renderFilterDropdown("listMitra", mitraSet, "chk-mitra");
+            renderFilterDropdown("listPaket", paketSet, "chk-paket");
+          }
+        } catch (e) {
+          console.error("Gagal muat data", e);
+        } finally {
+          document.getElementById("loading").style.display = "none";
+          document.getElementById("listPeserta").style.display = "block";
+        }
+      }
+
+      function renderFilterDropdown(containerId, dataSet, className) {
+        const box = document.getElementById(containerId);
+        box.innerHTML = "";
+        Array.from(dataSet)
+          .sort()
+          .forEach((item) => {
+            box.innerHTML += `<label><input type="checkbox" class="${className}" value="${item}" onchange="terapkanFilter()"> ${item}</label>`;
+          });
+      }
+
+      function toggleDrop(idList) {
+        const allLists = document.querySelectorAll(".cs-list");
+        allLists.forEach((l) => {
+          if (l.id !== idList) l.classList.remove("show");
+        });
+        document.getElementById(idList).classList.toggle("show");
+      }
+      document.addEventListener("click", function (e) {
+        if (!e.target.closest(".cs-wrap"))
+          document
+            .querySelectorAll(".cs-list")
+            .forEach((l) => l.classList.remove("show"));
+      });
+      function toggleFilterInput() {
+        const op = document.getElementById("filterOperator").value;
+        const inp = document.getElementById("filterAngka");
+        if (op === "ALL") {
+          inp.style.display = "none";
+          inp.value = "";
+        } else {
+          inp.style.display = "block";
+          inp.focus();
+        }
+      }
+
+      function terapkanFilter() {
+        const keyword = document
+          .getElementById("inputCari")
+          .value.toLowerCase();
+        const operator = document.getElementById("filterOperator").value;
+        const inputAngka = document.getElementById("filterAngka").value;
+        const numAngka = parseInt(inputAngka);
+
+        const arrMitra = Array.from(
+          document.querySelectorAll(".chk-mitra:checked"),
+        ).map((el) => el.value);
+        const arrPaket = Array.from(
+          document.querySelectorAll(".chk-paket:checked"),
+        ).map((el) => el.value);
+
+        const headMitra = document.getElementById("headMitra");
+        if (arrMitra.length > 0) {
+          headMitra.innerHTML = `Mitra (${arrMitra.length}) <i class="fas fa-caret-down"></i>`;
+          headMitra.classList.add("has-val");
+        } else {
+          headMitra.innerHTML = `Mitra: Semua <i class="fas fa-caret-down"></i>`;
+          headMitra.classList.remove("has-val");
+        }
+
+        const headPaket = document.getElementById("headPaket");
+        if (arrPaket.length > 0) {
+          headPaket.innerHTML = `Paket (${arrPaket.length}) <i class="fas fa-caret-down"></i>`;
+          headPaket.classList.add("has-val");
+        } else {
+          headPaket.innerHTML = `Paket: Semua <i class="fas fa-caret-down"></i>`;
+          headPaket.classList.remove("has-val");
+        }
+
+        const boxList = document.getElementById("listPeserta");
+        boxList.innerHTML = "";
+
+        if (
+          keyword === "" &&
+          operator === "ALL" &&
+          arrMitra.length === 0 &&
+          arrPaket.length === 0
+        ) {
+          boxList.innerHTML = `<div style="padding:30px 20px; text-align:center; color:#555; border:1px dashed #333; border-radius:12px; margin:20px;">Gunakan filter dan cari peserta di atas.</div>`;
+          document.getElementById("infoTotalFilter").innerText = "";
+          return;
+        }
+
+        let hasil = dataPesertaManual.filter((p) => {
+          let matchKey =
+            keyword === "" ||
+            String(p.nama).toLowerCase().includes(keyword) ||
+            String(p.id).toLowerCase().includes(keyword);
+          let matchMitra = arrMitra.length === 0 || arrMitra.includes(p.mitra);
+          let matchPaket = arrPaket.length === 0 || arrPaket.includes(p.paket);
+          let matchFreq = true;
+          if (operator !== "ALL" && inputAngka !== "") {
+            if (operator === ">") matchFreq = p.freq > numAngka;
+            else if (operator === "<") matchFreq = p.freq < numAngka;
+            else if (operator === "=") matchFreq = p.freq === numAngka;
+          }
+          return matchKey && matchMitra && matchPaket && matchFreq;
+        });
+
+        document.getElementById("infoTotalFilter").innerText =
+          `Menampilkan ${hasil.length} Peserta`;
+
+        if (hasil.length > 0) {
+          hasil.slice(0, 50).forEach((p) => {
+            let namaEscaped = p.nama.replace(/'/g, "\\'");
+            let paketEscaped = p.paket.replace(/'/g, "\\'");
+
+            let isSudahDipilih = false;
+            if (allDataBarang[p.id]) {
+              isSudahDipilih = allDataBarang[p.id].some(
+                (b) => b.status_fix == 1,
+              );
+            }
+
+            let badgeStatusHtml = isSudahDipilih
+              ? `<span class="badge-status-pilih badge-sudah"><i class="fas fa-check-circle"></i> Sudah Dipilih</span>`
+              : `<span class="badge-status-pilih badge-belum"><i class="fas fa-clock"></i> Belum Dipilih</span>`;
+
+            boxList.innerHTML += `
+              <div class="peserta-item-wrapper">
+                <div class="peserta-header" onclick="toggleDropdownPesanan('${p.id}', '${namaEscaped}', '${paketEscaped}')">
+                  <div style="flex:1;">
+                    <div style="color:#fff; font-weight:bold; font-size:0.95rem; margin-bottom:6px; display:flex; justify-content:space-between; align-items:center;">
+                      <span>${p.nama}</span>
+                      <span id="badge-status-wrap-${p.id}">${badgeStatusHtml}</span>
+                    </div>
+                    <div style="display:flex; gap:5px; flex-wrap:wrap; margin-bottom:6px;">
+                      <span class="badge-freq"><i class="fas fa-coins"></i> ${p.freq}x Setor</span>
+                      <span class="badge-mitra"><i class="fas fa-box"></i> ${p.paket}</span>
+                    </div>
+                    <div style="display:flex; justify-content:space-between; align-items:center;">
+                      <span style="color:#666; font-size:0.75rem;">ID: ${p.id}</span>
+                      <span id="badge-saldo-${p.id}" class="saldo-badge" style="display:none;"></span>
+                    </div>
+                  </div>
+                  <i id="icon-${p.id}" class="fas fa-chevron-right" style="color:#555; padding-left:15px;"></i>
+                </div>
+                
+                <div id="dropdown-${p.id}" class="pesanan-container">
+                  <div id="loading-${p.id}" style="text-align:center; padding:15px; color:var(--primary); display:none;">
+                    <i class="fas fa-spinner fa-spin"></i> Memuat rincian...
+                  </div>
+                  <div id="summary-box-${p.id}"></div> 
+                  <div id="list-barang-${p.id}"></div>
+                </div>
+              </div>
+            `;
+          });
+        } else {
+          boxList.innerHTML = `<div style="padding:20px; text-align:center; color:#ff4d4d; font-size:0.85rem;">Peserta tidak ditemukan dari kriteria tersebut.</div>`;
+        }
+      }
+
+      async function toggleDropdownPesanan(id, pNama, pPaket) {
+        const dropdown = document.getElementById(`dropdown-${id}`);
+        const icon = document.getElementById(`icon-${id}`);
+
+        if (dropdown.style.display === "block") {
+          dropdown.style.display = "none";
+          icon.classList.replace("fa-chevron-down", "fa-chevron-right");
+        } else {
+          dropdown.style.display = "block";
+          icon.classList.replace("fa-chevron-right", "fa-chevron-down");
+
+          if (!allDataBarang[id]) {
+            document.getElementById(`loading-${id}`).style.display = "block";
+            try {
+              const [resDetail, resProfil] = await Promise.all([
+                fetchData(
+                  "getDetailPesananPeserta",
+                  { id_peserta: id },
+                  "POST",
+                ),
+                fetchData("getDetailAdmin", { id: id }),
+              ]);
+
+              if (resProfil && !resProfil.error) {
+                let saldoInt = Number(resProfil.saldo) || 0;
+                saldoPeserta[id] = saldoInt;
+                const badge = document.getElementById(`badge-saldo-${id}`);
+                badge.innerText = "Saldo Akhir: " + formatUang(saldoInt);
+                badge.style.display = "inline-block";
+              }
+
+              if (resDetail && resDetail.success) {
+                allDataBarang[id] = resDetail.data.map((b) => ({
+                  ...b,
+                  status_fix: b.status_fix == 1 || b.status_fix == "1" ? 1 : 0,
+                }));
+
+                document.getElementById("btnSimpan").style.display = "flex";
+                document.getElementById("infoTotalBottom").style.display =
+                  "flex";
+                renderBarangPeserta(id, pNama, pPaket);
+              } else {
+                allDataBarang[id] = [];
+                document.getElementById(`list-barang-${id}`).innerHTML = `
+                  <div style="text-align:center; padding:15px; color:#ff4d4d; font-size:0.8rem; border: 1px dashed #444; border-radius:8px;">
+                    Tidak ada pesanan barang di Database.
+                  </div>`;
+              }
+            } catch (e) {
+              alert("Gagal memuat rincian pesanan untuk peserta ini.");
+            } finally {
+              document.getElementById(`loading-${id}`).style.display = "none";
+            }
+          }
+        }
+      }
+
+      function renderBarangPeserta(id, pNama, pPaket) {
+        const boxList = document.getElementById(`list-barang-${id}`);
+        const summaryBox = document.getElementById(`summary-box-${id}`);
+        boxList.innerHTML = "";
+
+        const items = allDataBarang[id];
+        if (items.length === 0) return;
+
+        let pNamaEscaped = pNama.replace(/'/g, "\\'");
+        let pPaketEscaped = pPaket.replace(/'/g, "\\'");
+
+        summaryBox.innerHTML = `
+          <button class="btn-wa" onclick="bagikanWA('${id}', '${pNamaEscaped}', '${pPaketEscaped}')">
+            <i class="fab fa-whatsapp"></i> Kirim Konfirmasi Fix (WA)
+          </button>
+          <button class="btn-select-all" onclick="togglePilihSemuaBarang('${id}', '${pNamaEscaped}', '${pPaketEscaped}')">
+            <i class="fas fa-check-double"></i> Pilih / Batalkan Semua Barang
+          </button>
+          <div class="summary-box">
+            <div class="sum-row"><span>Saldo Akhir:</span> <b style="color:var(--primary);">${formatUang(saldoPeserta[id])}</b></div>
+            <div class="sum-row"><span>Total Terpilih:</span> <b id="tot-pilih-${id}" style="color:var(--danger);">Rp 0</b></div>
+            <div class="sum-row sisa"><span>Sisa Saldo:</span> <b id="sisa-saldo-${id}" style="color:var(--success);">${formatUang(saldoPeserta[id])}</b></div>
+          </div>
+        `;
+
+        // Render Barang Model Compact / Ramping 1-2 baris
+        items.forEach((b, index) => {
+          let isChecked = b.status_fix == 1 ? "checked" : "";
+          let hrgTotal = formatUang(b.total_harga);
+
+          boxList.innerHTML += `
+            <div class="barang-card ${isChecked}" id="card-${id}-${index}" onclick="toggleCheckItem('${id}', ${index})">
+              <div style="flex: 1; display:flex; justify-content:space-between; align-items:center; gap:10px;">
+                <div style="overflow:hidden;">
+                  <div style="color:#fff; font-weight:bold; font-size:0.85rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">
+                    ${b.qty}x ${b.nama_barang}
+                  </div>
+                  <div style="font-size:0.75rem; color:#888;">
+                    Subtotal: <span style="color:var(--primary); font-weight:bold;">${hrgTotal}</span>
+                  </div>
+                </div>
+              </div>
+              <div class="custom-checkbox">
+                <i class="fas fa-check"></i>
+              </div>
+            </div>
+          `;
+        });
+
+        updateUIPeserta(id);
+        kalkulasiTotalGlobal();
+      }
+
+      function toggleCheckItem(id, index) {
+        let item = allDataBarang[id][index];
+        let card = document.getElementById(`card-${id}-${index}`);
+        let isCurrentlyChecked = card.classList.contains("checked");
+
+        let currentTotal = hitungTotalPeserta(id);
+        let saldoAkhir = saldoPeserta[id] || 0;
+        let hargaItem = parseFloat(item.total_harga) || 0;
+
+        if (!isCurrentlyChecked) {
+          if (currentTotal + hargaItem > saldoAkhir) {
+            let sisa = saldoAkhir - currentTotal;
+            alert(
+              `⚠️ GAGAL DITAMBAHKAN!\n\nHarga barang (${formatUang(hargaItem)}) melebihi Sisa Saldo.\nSisa Saldo Anda saat ini hanya: ${formatUang(sisa)}`,
+            );
+            return;
+          }
+          item.status_fix = 1;
+          card.classList.add("checked");
+        } else {
+          item.status_fix = 0;
+          card.classList.remove("checked");
+        }
+
+        updateUIPeserta(id);
+        kalkulasiTotalGlobal();
+        perbaruiBadgeStatusPeserta(id);
+      }
+
+      function togglePilihSemuaBarang(id, pNama, pPaket) {
+        let items = allDataBarang[id];
+        if (!items || items.length === 0) return;
+
+        let semuaTercentang = items.every((b) => b.status_fix == 1);
+        let saldoAkhir = saldoPeserta[id] || 0;
+
+        if (!semuaTercentang) {
+          let totalSemua = items.reduce(
+            (sum, b) => sum + (parseFloat(b.total_harga) || 0),
+            0,
+          );
+          if (totalSemua > saldoAkhir) {
+            alert(
+              `⚠️ Total seluruh barang (${formatUang(totalSemua)}) melebihi saldo peserta (${formatUang(saldoAkhir)}). Harap pilih secara manual.`,
+            );
+            return;
+          }
+          items.forEach((b) => (b.status_fix = 1));
+        } else {
+          items.forEach((b) => (b.status_fix = 0));
+        }
+
+        renderBarangPeserta(id, pNama, pPaket);
+        perbaruiBadgeStatusPeserta(id);
+      }
+
+      function perbaruiBadgeStatusPeserta(id) {
+        const wrapBadge = document.getElementById(`badge-status-wrap-${id}`);
+        if (!wrapBadge) return;
+
+        let isSudahDipilih = allDataBarang[id].some((b) => b.status_fix == 1);
+        if (isSudahDipilih) {
+          wrapBadge.innerHTML = `<span class="badge-status-pilih badge-sudah"><i class="fas fa-check-circle"></i> Sudah Dipilih</span>`;
+        } else {
+          wrapBadge.innerHTML = `<span class="badge-status-pilih badge-belum"><i class="fas fa-clock"></i> Belum Dipilih</span>`;
+        }
+      }
+
+      function hitungTotalPeserta(id) {
+        let total = 0;
+        if (allDataBarang[id]) {
+          allDataBarang[id].forEach((b) => {
+            if (b.status_fix == 1) total += parseFloat(b.total_harga) || 0;
+          });
+        }
+        return total;
+      }
+
+      function updateUIPeserta(id) {
+        let totalPilih = hitungTotalPeserta(id);
+        let saldoAwal = saldoPeserta[id] || 0;
+        let sisa = saldoAwal - totalPilih;
+
+        document.getElementById(`tot-pilih-${id}`).innerText =
+          formatUang(totalPilih);
+        const elSisa = document.getElementById(`sisa-saldo-${id}`);
+        elSisa.innerText = formatUang(sisa);
+        if (sisa === 0) elSisa.style.color = "#888";
+        else elSisa.style.color = "var(--success)";
+      }
+
+      function bagikanWA(id, nama, paket) {
+        let itemsFix = allDataBarang[id].filter((b) => b.status_fix == 1);
+        if (itemsFix.length === 0)
+          return alert("Belum ada barang yang dicentang (Fix)!");
+
+        let totalPilih = hitungTotalPeserta(id);
+        let saldoAwal = saldoPeserta[id] || 0;
+        let sisa = saldoAwal - totalPilih;
+
+        let text = `📦 *KONFIRMASI REKAP BARANG NIZAMI*\n\n👤 *Nama:* ${nama}\n💳 *Paket:* ${paket}\n💰 *Saldo Akhir:* ${formatUang(saldoAwal)}\n\n*Rincian Barang Fix (Sanggup Terbeli):*\n`;
+        itemsFix.forEach((b) => {
+          text += `▪️ ${b.qty}x ${b.nama_barang} (${formatUang(b.total_harga)})\n`;
+        });
+        text += `\n---------------------------\n*Total Nilai Barang:* ${formatUang(totalPilih)}\n*Sisa Saldo:* ${formatUang(sisa)}\n\n_Mohon dicek kembali, terima kasih._ 🙏`;
+
+        window.open(
+          `https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`,
+          "_blank",
+        );
+      }
+
+      function kalkulasiTotalGlobal() {
+        let total = 0;
+        for (let id in allDataBarang) total += hitungTotalPeserta(id);
+        document.getElementById("lblTotalHarga").innerText = formatUang(total);
+      }
+
+      async function simpanChecklistGlobal() {
+        const keys = Object.keys(allDataBarang);
+        if (keys.length === 0)
+          return alert("Belum ada data peserta yang dibuka.");
+
+        const btn = document.getElementById("btnSimpan");
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> MENYIMPAN...';
+        btn.disabled = true;
+
+        let successCount = 0;
+        try {
+          for (let i = 0; i < keys.length; i++) {
+            let idPeserta = keys[i];
+            let itemsPeserta = allDataBarang[idPeserta];
+
+            const res = await fetchData(
+              "simpanRekapManual",
+              {
+                id_peserta: idPeserta,
+                items: itemsPeserta,
+              },
+              "POST",
+            );
+
+            if (res && res.success) successCount++;
+          }
+
+          if (successCount > 0) {
+            alert(
+              "✅ Data rekap manual berhasil disimpan secara bersih tanpa duplikasi ke DATA_PESANAN_DETAIL!",
+            );
+          } else {
+            alert("⚠️ Gagal menyimpan ke server.");
+          }
+        } catch (e) {
+          alert("⚠️ Terjadi kesalahan jaringan.");
+        } finally {
+          btn.innerHTML = '<i class="fas fa-save"></i> SIMPAN FIX';
+          btn.disabled = false;
+        }
+      }
+
+      /* =======================================================
+         FUNGSI MODAL DAFTAR BELANJA DARI FIX & GUDANG
+         ======================================================= */
+      async function bukaModalBelanja() {
+        document.getElementById("modalBelanja").style.display = "flex";
+        document.getElementById("loadingBelanja").style.display = "block";
+        document.getElementById("listBelanjaContainer").innerHTML = "";
+
+        try {
+          const res = await fetchData("getBelanjaFix");
+          if (res && res.success) {
+            dataBelanjaGlobal = res.data;
+            renderBelanjaList();
+          } else {
+            alert("Gagal menarik data dari server.");
+          }
+        } catch (e) {
+          alert("Terjadi kesalahan jaringan saat memuat rekap belanja.");
+        } finally {
+          document.getElementById("loadingBelanja").style.display = "none";
+        }
+      }
+
+      function renderBelanjaList() {
+        const container = document.getElementById("listBelanjaContainer");
+        const hanyaKurang = document.getElementById("chkHanyaKurang").checked;
+        container.innerHTML = "";
+
+        let tampil = dataBelanjaGlobal.filter((b) =>
+          hanyaKurang ? b.kurang > 0 : true,
+        );
+
+        if (tampil.length === 0) {
+          container.innerHTML = `<div style="text-align:center; color:#888; padding:40px; border:1px dashed #333; border-radius:10px; margin-top:20px;">🎉 Semua barang sudah terpenuhi di Gudang!</div>`;
+          return;
+        }
+
+        tampil.forEach((b) => {
+          let isAman = b.kurang === 0;
+          let badgeStatus = isAman
+            ? `<span style="background:var(--success); color:#000; padding:4px 10px; border-radius:6px; font-size:0.75rem; font-weight:bold;">AMAN</span>`
+            : `<span style="background:rgba(255,77,77,0.1); color:var(--danger); border:1px solid rgba(255,77,77,0.3); padding:4px 10px; border-radius:6px; font-size:0.75rem; font-weight:bold;">KURANG ${b.kurang.toLocaleString("id-ID")}</span>`;
+
+          container.innerHTML += `
+            <div style="background:#111; border:1px solid ${isAman ? "var(--success)" : "#333"}; border-radius:12px; padding:15px; margin-bottom:12px;">
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+                <b style="color:#fff; font-size:0.95rem;">${b.barang}</b>
+                ${badgeStatus}
+              </div>
+              <div style="display:flex; justify-content:space-between; font-size:0.8rem; color:#aaa; margin-bottom:15px; background:#1a1a1a; padding:10px; border-radius:8px;">
+                <div style="text-align:center;"><div style="font-size:0.7rem;">Target Fix</div><b style="color:#fff; font-size:1rem;">${b.butuh.toLocaleString("id-ID")}</b></div>
+                <div style="width:1px; background:#333;"></div>
+                <div style="text-align:center;"><div style="font-size:0.7rem;">Stok Gudang</div><b style="color:var(--primary); font-size:1rem;">${b.masuk.toLocaleString("id-ID")}</b></div>
+              </div>
+              <div style="display:flex; justify-content:space-between; align-items:center; border-top:1px dashed #333; padding-top:12px;">
+                <span style="font-size:0.8rem; color:#888; font-weight:bold;">+ Tambah Stok</span>
+                <input type="number" class="input-beli-stok" data-nama="${b.barang}" placeholder="0" min="0" style="width:80px; background:#000; border:1px solid var(--primary); color:#fff; padding:10px; border-radius:8px; text-align:center; font-weight:bold; font-size:0.9rem;">
+              </div>
+            </div>
+          `;
+        });
+      }
+
+      async function simpanStokBelanja() {
+        let itemsToSave = [];
+        document.querySelectorAll(".input-beli-stok").forEach((inp) => {
+          let val = parseInt(inp.value);
+          if (val > 0)
+            itemsToSave.push({
+              nama: inp.getAttribute("data-nama"),
+              qty: val,
+              satuan: "pcs",
+            });
+        });
+
+        if (itemsToSave.length === 0)
+          return alert(
+            "Belum ada input angka barang yang dibeli (ditambahkan).",
+          );
+
+        const btn = document.getElementById("btnSimpanBelanja");
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> MENYIMPAN...';
+        btn.disabled = true;
+
+        try {
+          const res = await fetchData(
+            "simpanBelanja",
+            { items: itemsToSave },
+            "POST",
+          );
+          if (res && res.success) {
+            alert(
+              "✅ Data belanja berhasil ditambahkan ke REKAP_BELANJA (Gudang)!",
+            );
+            bukaModalBelanja();
+          } else {
+            alert("⚠️ Gagal menyimpan data belanja.");
+          }
+        } catch (e) {
+          alert("⚠️ Terjadi kesalahan jaringan.");
+        } finally {
+          btn.innerHTML = '<i class="fas fa-save"></i> SIMPAN BARANG MASUK';
+          btn.disabled = false;
+        }
+      }
+
+      function confirmExit() {
+        if (Object.keys(allDataBarang).length > 0) {
+          return confirm(
+            "Kembali ke menu utama? Pastikan Anda sudah klik SIMPAN FIX jika ada perubahan checklist.",
+          );
+        }
+        return true;
+      }
+
+      window.onload = initData;
+    </script>
+  </body>
+</html>
