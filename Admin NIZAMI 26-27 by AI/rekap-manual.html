@@ -485,6 +485,29 @@
         align-items: center;
         justify-content: center;
       }
+      /* TOMBOL TAMBAH BELANJAAN MENGAMBANG (FLOATING) */
+      .floating-add-btn {
+        position: absolute;
+        bottom: 20px;
+        right: 20px;
+        background: var(--primary);
+        color: #000;
+        width: 52px;
+        height: 52px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.3rem;
+        box-shadow: 0 4px 15px rgba(255, 215, 0, 0.4);
+        cursor: pointer;
+        z-index: 90;
+        border: none;
+        transition: 0.2s;
+      }
+      .floating-add-btn:active {
+        transform: scale(0.92);
+      }
       #loading {
         text-align: center;
         padding: 40px;
@@ -836,6 +859,7 @@
             flex-direction: column;
             flex: 1;
             overflow: hidden;
+            position: relative;
           "
         >
           <div
@@ -891,6 +915,13 @@
             style="padding: 12px; overflow-y: auto; flex: 1"
             id="listRiwayatGudangContainer"
           ></div>
+          <button
+            class="floating-add-btn"
+            onclick="bukaModalFormTambahBelanja()"
+            title="Tambah Belanjaan"
+          >
+            <i class="fas fa-plus"></i>
+          </button>
         </div>
       </div>
     </div>
@@ -1440,7 +1471,13 @@
         try {
           for (let i = 0; i < keys.length; i++) {
             let idPeserta = keys[i];
-            let itemsPeserta = allDataBarang[idPeserta];
+
+            // Kirim SELURUH barang dengan penegasan status 1 (centang) atau 0 (tidak centang)
+            let itemsPeserta = allDataBarang[idPeserta].map((b) => ({
+              ...b,
+              status_fix: b.status_fix == 1 ? 1 : 0,
+              status: b.status_fix == 1 ? 1 : 0,
+            }));
 
             const res = await fetchData(
               "simpanRekapManual",
@@ -1460,7 +1497,7 @@
 
           if (successCount > 0) {
             alert(
-              "✅ Data rekap manual berhasil disimpan ke sheet FIX_BARANG!",
+              "✅ Data rekap manual (termasuk status 1 & 0) berhasil disimpan ke FIX_BARANG!",
             );
             location.reload();
           } else {
@@ -1473,12 +1510,8 @@
           btn.disabled = false;
         }
       }
-
       /* =======================================================
          MODAL BELANJA & TAB SWITCHING
-         ======================================================= */
-      /* =======================================================
-         MODAL BELANJA & TAB SWITCHING (PERBAIKAN)
          ======================================================= */
       function switchModalTab(tabName) {
         const btnBelanja = document.getElementById("tabBtnBelanja");
@@ -1506,10 +1539,9 @@
         modal.style.display = "flex";
         switchModalTab("belanja");
 
-        const loading = document.getElementById("loadingBelanja");
         const container = document.getElementById("listBelanjaContainer");
-        if (loading) loading.style.display = "block";
-        if (container) container.innerHTML = "";
+        if (container)
+          container.innerHTML = `<div style="text-align:center; color:var(--primary); padding:30px;"><i class="fas fa-spinner fa-spin"></i> Memuat daftar belanja...</div>`;
 
         try {
           const res = await fetchData("getBelanjaFix");
@@ -1522,8 +1554,6 @@
           }
         } catch (e) {
           alert("Terjadi kesalahan jaringan saat memuat rekap belanja.");
-        } finally {
-          if (loading) loading.style.display = "none";
         }
       }
 
@@ -1594,7 +1624,6 @@
           };
           let isAman = b.kurang === 0;
 
-          // SUSUNAN BARU: SEJAJAR NAMA BARANG DENGAN DETAIL DAN SATU BARIS UNTUK TARGET/STOK/MASUK
           container.innerHTML += `
             <div class="belanja-card-item ${isAman ? "aman" : "kurang"}">
               <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 6px;">
@@ -1679,7 +1708,6 @@
         }
 
         hasil.forEach((item) => {
-          let totalEstimasi = item.qty * item.hargaBeli;
           container.innerHTML += `
             <div class="belanja-card-item aman" style="margin-bottom: 6px; padding: 8px 12px;">
               <div style="display: flex; justify-content: space-between; align-items: center;">
@@ -1749,6 +1777,50 @@
           );
         }
         return true;
+      }
+
+      function bukaModalFormTambahBelanja() {
+        let namaBarangInput = prompt(
+          "Masukkan Nama Barang yang ingin ditambahkan ke rekap belanja:",
+        );
+        if (!namaBarangInput || !namaBarangInput.trim()) return;
+
+        let qtyInput = prompt("Masukkan Jumlah (Qty) yang dibeli:", "1");
+        let qtyNum = parseInt(qtyInput);
+        if (isNaN(qtyNum) || qtyNum <= 0) {
+          return alert("Jumlah/Qty harus berupa angka lebih dari 0!");
+        }
+
+        let satuanInput =
+          prompt("Masukkan Satuan barang (contoh: Pcs, Pack, Dus):", "Pcs") ||
+          "pcs";
+
+        simpanBelanjaManualCustom(
+          namaBarangInput.trim(),
+          qtyNum,
+          satuanInput.trim(),
+        );
+      }
+
+      async function simpanBelanjaManualCustom(nama, qty, satuan) {
+        try {
+          const res = await fetchData(
+            "simpanBelanja",
+            {
+              items: [{ nama: nama, qty: qty, satuan: satuan }],
+            },
+            "POST",
+          );
+
+          if (res && res.success) {
+            alert("✅ Berhasil menambahkan belanjaan baru!");
+            loadRiwayatGudang();
+          } else {
+            alert("⚠️ Gagal menyimpan data belanja.");
+          }
+        } catch (e) {
+          alert("⚠️ Terjadi kesalahan jaringan.");
+        }
       }
 
       window.onload = initData;
