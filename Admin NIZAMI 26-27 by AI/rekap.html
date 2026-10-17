@@ -1395,6 +1395,12 @@
           }
         });
 
+        for (let stokBrg in masterData.stok_dibeli) {
+          if (!keranjang[stokBrg]) {
+            keranjang[stokBrg] = { qty: 0, satuan: "-", detail: [] };
+          }
+        }
+
         listBelanjaFinal = [];
         for (let key in keranjang) {
           let butuh = Math.ceil(keranjang[key].qty);
@@ -1489,9 +1495,10 @@
           let isAman = b.kurang === 0;
           let clsAman = isAman ? "aman" : "kurang";
 
+          // Tambahkan event.stopPropagation() agar saat di-klik, dropdown tidak ikut membuka/menutup
           let statusBdg = isAman
             ? `<div class="item-status status-aman">LENGKAP</div>`
-            : `<div class="item-status status-kurang" style="cursor:pointer; text-decoration:underline;" onclick="bukaDetailItem('${strNamaBarangEscaped}')" title="Klik untuk lihat rincian">KURANG ${b.kurang.toLocaleString("id-ID")}</div>`;
+            : `<div class="item-status status-kurang" style="cursor:pointer; text-decoration:underline;" onclick="event.stopPropagation(); bukaDetailItem('${strNamaBarangEscaped}')" title="Klik untuk lihat rincian">KURANG ${b.kurang.toLocaleString("id-ID")}</div>`;
 
           let isUang =
             b.barang.toLowerCase().includes("uang") ||
@@ -1515,27 +1522,49 @@
             `;
           }
 
+          // RENDER KARTU COMPACT DENGAN DROPDOWN
           container.innerHTML += `
             <div class="shop-item ${clsAman}">
-                <div class="item-main">
-                    <div class="item-info">
-                        <h4 class="item-name">${b.barang}</h4>
-                        <div class="item-details">
-                            <span onclick="bukaDetailItem('${strNamaBarangEscaped}')" style="cursor:pointer; border-color:var(--primary); color:var(--primary);" title="Klik untuk lihat rincian pro-rata">Target Porsi: ${b.total.toLocaleString("id-ID")}</span>
+                
+                <!-- HEADER (Ringkas, Bisa Diklik untuk Buka Rincian) -->
+                <div onclick="let body = this.nextElementSibling; let icon = this.querySelector('.fa-chevron-down'); if(body.style.display==='none'){body.style.display='block'; icon.style.transform='rotate(180deg)';}else{body.style.display='none'; icon.style.transform='rotate(0deg)';}" 
+                     style="padding: 12px 15px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; transition: background 0.2s;" 
+                     onmouseover="this.style.background='#222'" onmouseout="this.style.background='transparent'">
+                    
+                    <div style="flex: 1; padding-right: 10px;">
+                        <h4 class="item-name" style="margin: 0 0 4px 0; font-size: 0.95rem;">${b.barang}</h4>
+                        <div style="font-size: 0.75rem; color: #888;">Target: <b style="color: #fff;">${b.total.toLocaleString("id-ID")}</b> ${b.satuan}</div>
+                    </div>
+                    
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        ${statusBdg}
+                        <i class="fas fa-chevron-down" style="color: #666; font-size: 0.9rem; transition: transform 0.3s;"></i>
+                    </div>
+                </div>
+
+                <!-- BODY (Disembunyikan secara Default) -->
+                <div style="display: none; border-top: 1px dashed #333; background: #151515;">
+                    <div style="padding: 12px 15px;">
+                        <div class="item-details" style="margin-bottom: 8px;">
+                            <span onclick="bukaDetailItem('${strNamaBarangEscaped}')" style="cursor:pointer; border-color:var(--primary); color:var(--primary); background:rgba(255,215,0,0.1);" title="Klik untuk lihat rincian peserta">
+                                <i class="fas fa-users"></i> Rincian Peserta
+                            </span>
                             <span>Masuk: ${b.masuk.toLocaleString("id-ID")}</span>
                             <span>Keluar: ${b.keluar.toLocaleString("id-ID")}</span>
                         </div>
                         ${infoHargaHTML}
                     </div>
-                    ${statusBdg}
-                </div>
-                <div class="item-footer">
-                    <div class="ready-stock">Sisa Gudang: <b>${b.ready.toLocaleString("id-ID")}</b>${b.satuan}</div>
-                    <div class="input-wrapper">
-                        <label>+ Tambah</label>
-                        <input type="number" id="input_qty_${index}" class="input-qty" data-name="${b.barang}" data-sat="${b.satuan}" placeholder="0" min="0">
+                    
+                    <!-- FOOTER INPUT TAMBAH -->
+                    <div class="item-footer">
+                        <div class="ready-stock">Sisa Gudang: <b>${b.ready.toLocaleString("id-ID")}</b>${b.satuan}</div>
+                        <div class="input-wrapper">
+                            <label>+ Tambah</label>
+                            <input type="number" id="input_qty_${index}" class="input-qty" data-name="${b.barang}" data-sat="${b.satuan}" placeholder="0" min="0">
+                        </div>
                     </div>
                 </div>
+                
             </div>`;
         });
       }
@@ -1768,22 +1797,88 @@
         let b = listBelanjaFinal.find((x) => x.barang === namaBarang);
         if (!b) return;
 
-        let html = ``;
+        // 1. KELOMPOKKAN DATA BERDASARKAN NAMA SUMBER (Paket / Custom)
+        let grupDetail = {};
         b.detail.forEach((d) => {
-          html += `
-            <div style="background:#1e1e1e; margin-bottom:12px; padding:12px; border-radius:10px; border:1px solid #333;">
-                <div style="color:var(--primary); font-weight:bold; margin-bottom:4px; font-size:0.95rem; display:flex; align-items:center; gap:6px;">
-                    <i class="fas fa-balance-scale"></i> ${d.nama_sumber}
-                </div>
-                <div style="font-size:0.8rem; color:#ccc; margin-bottom:10px;">
-                    Alokasi Porsi: <b style="color:#fff;">${d.qty_satuan}${b.satuan}</b>
-                </div>
-                <div style="font-size:0.75rem; color:#aaa; display:flex; flex-wrap:wrap; gap:6px;">
-                    ${d.list_peserta.map((nama) => `<span style="background:#2a2a2a; padding:4px 8px; border-radius:6px; border:1px solid #444;">${nama}</span>`).join("")}
-                </div>
-            </div>`;
+          let key = d.nama_sumber;
+          if (!grupDetail[key]) {
+            grupDetail[key] = {
+              total_porsi: 0,
+              tipe: d.tipe,
+              list: [],
+            };
+          }
+          // Akumulasi total porsi per paket
+          grupDetail[key].total_porsi += d.subtotal;
+
+          // Masukkan daftar peserta ke dalam grup ini
+          grupDetail[key].list.push({
+            infoPeserta: d.list_peserta[0],
+            porsi: d.qty_satuan,
+          });
         });
 
+        let html = ``;
+
+        // 2. RENDER HTML SECARA ACCORDION (DROPDOWN)
+        for (let sumber in grupDetail) {
+          let grup = grupDetail[sumber];
+          let jumlahPeserta = grup.list.length;
+
+          // Membulatkan total porsi grup agar rapi (maksimal 2 desimal)
+          let totalPorsiStr = Number(grup.total_porsi.toFixed(2));
+
+          // Bedakan ikon antara Paket biasa dan Request Custom
+          let iconTitle = grup.tipe.includes("Custom")
+            ? "fa-user-edit"
+            : "fa-box-open";
+
+          // Susun elemen list rincian pesertanya
+          let rincianHtml = grup.list
+            .map(
+              (p) => `
+              <div style="display:flex; justify-content:space-between; align-items:center; background:#111; padding:10px; border-radius:8px; border:1px solid #2a2a2a; margin-bottom:6px;">
+                  <span style="color:#aaa; font-size:0.75rem; flex:1; line-height:1.4;">${p.infoPeserta}</span>
+                  <b style="color:var(--primary); font-size:0.85rem; margin-left:10px; white-space:nowrap;">${p.porsi} <span style="font-size:0.7rem; color:#888;">${b.satuan}</span></b>
+              </div>
+          `,
+            )
+            .join("");
+
+          // Render Body Accordion
+          html += `
+            <div style="background:#1e1e1e; margin-bottom:12px; border-radius:10px; border:1px solid #333; overflow:hidden;">
+                
+                <!-- HEADER DROPDOWN (Bisa Diklik) -->
+                <div onclick="let body = this.nextElementSibling; let icon = this.querySelector('.fa-chevron-down'); if(body.style.display==='none'){body.style.display='block'; icon.style.transform='rotate(180deg)';}else{body.style.display='none'; icon.style.transform='rotate(0deg)';}" 
+                     style="padding:15px 12px; cursor:pointer; display:flex; justify-content:space-between; align-items:center; background:#222; transition:0.2s;" 
+                     onmouseover="this.style.background='#2a2a2a'" onmouseout="this.style.background='#222'">
+                    
+                    <div>
+                        <div style="color:var(--primary); font-weight:bold; margin-bottom:6px; font-size:0.95rem; display:flex; align-items:center; gap:8px;">
+                            <i class="fas ${iconTitle}"></i> ${sumber}
+                        </div>
+                        <div style="font-size:0.8rem; color:#ccc;">
+                            Total Alokasi: <b style="color:#fff; font-size:0.9rem;">${totalPorsiStr} ${b.satuan}</b> <span style="color:#888; margin-left:4px;">(${jumlahPeserta} Peserta)</span>
+                        </div>
+                    </div>
+                    
+                    <!-- Ikon Panah Dropdown -->
+                    <i class="fas fa-chevron-down" style="color:#888; font-size:1.1rem; transition:transform 0.3s;"></i>
+                </div>
+                
+                <!-- BODY DROPDOWN (Rincian Disembunyikan Default) -->
+                <div style="display:none; padding:15px 12px; background:#151515; border-top:1px dashed #333;">
+                    <div style="font-size:0.75rem; color:#888; margin-bottom:10px; text-transform:uppercase; letter-spacing:1px; font-weight:bold;">
+                        <i class="fas fa-list-ul"></i> Rincian Porsi Peserta:
+                    </div>
+                    ${rincianHtml}
+                </div>
+                
+            </div>`;
+        }
+
+        // Tampilkan ke Modal
         document.getElementById("modalDetailTitle").innerText = namaBarang;
         document.getElementById("modalDetailBody").innerHTML = html;
         document.getElementById("modalDetailTarget").innerText =
