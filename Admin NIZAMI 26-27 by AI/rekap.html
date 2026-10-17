@@ -1148,6 +1148,7 @@
             if (!data.stok_keluar) data.stok_keluar = {};
             if (!data.harga_barang) data.harga_barang = {};
             if (!data.harga_jual_barang) data.harga_jual_barang = {};
+            if (!data.foto_barang) data.foto_barang = {};
 
             masterData = data;
             buatOpsiFilter();
@@ -1411,6 +1412,7 @@
           let kurang = butuh - ready;
 
           let hargaBrg = masterData.harga_barang[key] || 0;
+          let fotoBrg = masterData.foto_barang[key] || "";
 
           listBelanjaFinal.push({
             barang: key,
@@ -1421,6 +1423,7 @@
             ready: ready,
             kurang: kurang > 0 ? kurang : 0,
             harga: hargaBrg,
+            foto: fotoBrg,
             detail: keranjang[key].detail,
           });
         }
@@ -1522,11 +1525,16 @@
             `;
           }
 
-          // RENDER KARTU COMPACT DENGAN DROPDOWN
+          // Logika jika gambar kosong atau link error, ganti icon FontAwesome
+          let imgTag = b.foto
+            ? `<img src="${b.foto}" style="width:100%; height:100%; object-fit:cover; border-radius:6px;" onerror="this.outerHTML='<i class=\\'fas fa-box\\' style=\\'font-size:2rem; color:#444;\\'></i>'"/>`
+            : `<i class="fas fa-image" style="font-size:2rem; color:#444;"></i>`;
+
+          // RENDER KARTU COMPACT DENGAN FOTO DI DROPDOWN
           container.innerHTML += `
             <div class="shop-item ${clsAman}">
                 
-                <!-- HEADER (Ringkas, Bisa Diklik untuk Buka Rincian) -->
+                <!-- HEADER (Ringkas, Bisa Diklik) -->
                 <div onclick="let body = this.nextElementSibling; let icon = this.querySelector('.fa-chevron-down'); if(body.style.display==='none'){body.style.display='block'; icon.style.transform='rotate(180deg)';}else{body.style.display='none'; icon.style.transform='rotate(0deg)';}" 
                      style="padding: 12px 15px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; transition: background 0.2s;" 
                      onmouseover="this.style.background='#222'" onmouseout="this.style.background='transparent'">
@@ -1544,15 +1552,27 @@
 
                 <!-- BODY (Disembunyikan secara Default) -->
                 <div style="display: none; border-top: 1px dashed #333; background: #151515;">
-                    <div style="padding: 12px 15px;">
-                        <div class="item-details" style="margin-bottom: 8px;">
-                            <span onclick="bukaDetailItem('${strNamaBarangEscaped}')" style="cursor:pointer; border-color:var(--primary); color:var(--primary); background:rgba(255,215,0,0.1);" title="Klik untuk lihat rincian peserta">
-                                <i class="fas fa-users"></i> Rincian Peserta
-                            </span>
-                            <span>Masuk: ${b.masuk.toLocaleString("id-ID")}</span>
-                            <span>Keluar: ${b.keluar.toLocaleString("id-ID")}</span>
+                    
+                    <!-- AREA FLEX: FOTO (KIRI) DAN RINCIAN (KANAN) -->
+                    <div style="padding: 15px; display: flex; gap: 15px; align-items: flex-start;">
+                        
+                        <!-- KOTAK FOTO -->
+                        <div style="width: 80px; height: 80px; flex-shrink: 0; background: #111; border: 1px solid #333; border-radius: 8px; display: flex; justify-content: center; align-items: center; overflow: hidden;">
+                            ${imgTag}
                         </div>
-                        ${infoHargaHTML}
+                        
+                        <!-- AREA KANAN (Rincian & Harga) -->
+                        <div style="flex: 1;">
+                            <div class="item-details" style="margin-bottom: 8px;">
+                                <span onclick="event.stopPropagation(); bukaDetailItem('${strNamaBarangEscaped}')" style="cursor:pointer; border-color:var(--primary); color:var(--primary); background:rgba(255,215,0,0.1);" title="Klik untuk lihat rincian peserta">
+                                    <i class="fas fa-users"></i> Rincian Peserta
+                                </span>
+                                <span>Masuk: ${b.masuk.toLocaleString("id-ID")}</span>
+                                <span>Keluar: ${b.keluar.toLocaleString("id-ID")}</span>
+                            </div>
+                            ${infoHargaHTML}
+                        </div>
+                        
                     </div>
                     
                     <!-- FOOTER INPUT TAMBAH -->
