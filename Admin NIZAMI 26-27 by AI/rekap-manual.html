@@ -398,7 +398,7 @@
         color: #000;
       }
 
-      /* KARTU DAFTAR BELANJA BARU (LEBIH RAPI & HEMAT TEMPAT) */
+      /* KARTU DAFTAR BELANJA BARU */
       .belanja-card-item {
         background: #151515;
         border: 1px solid #333;
@@ -485,7 +485,7 @@
         align-items: center;
         justify-content: center;
       }
-      /* TOMBOL TAMBAH BELANJAAN MENGAMBANG (FLOATING) */
+
       .floating-add-btn {
         position: absolute;
         bottom: 20px;
@@ -851,7 +851,7 @@
           </div>
         </div>
 
-        <!-- KONTEN TAB 2: RIWAYAT SUDAH DIBELI (REKAP_BELANJA) -->
+        <!-- KONTEN TAB 2: RIWAYAT SUDAH DIBELI -->
         <div
           id="contentTabSudahBeli"
           style="
@@ -1186,15 +1186,22 @@
               }
 
               if (resDetail && resDetail.success) {
-                allDataBarang[id] = resDetail.data.map((b) => ({
-                  ...b,
-                  status_fix:
-                    b.sumber === "FIX" ||
-                    b.status_fix == 1 ||
-                    b.status_fix == "1"
-                      ? 1
-                      : 0,
-                }));
+                // DIPERBAIKI: HANYA DIBERI CETANG HINAU JIKA NILAI STATUS_FIX/STATUS PERSIS ADALAH 1
+                allDataBarang[id] = resDetail.data.map((b) => {
+                  let statusFixVal = 1;
+                  if (b.sumber === "FIX") {
+                    let st =
+                      b.status_fix !== undefined ? b.status_fix : b.status;
+                    statusFixVal = st == 1 || st === "1" ? 1 : 0;
+                  } else if (b.status_fix !== undefined) {
+                    statusFixVal =
+                      b.status_fix == 1 || b.status_fix === "1" ? 1 : 0;
+                  }
+                  return {
+                    ...b,
+                    status_fix: statusFixVal,
+                  };
+                });
 
                 document.getElementById("btnSimpan").style.display = "flex";
                 document.getElementById("infoTotalBottom").style.display =
@@ -1288,11 +1295,7 @@
             "Mulai edit pilihan barang untuk peserta ini? Anda dapat mengubah kuantitas atau mencentang ulang sesuai kebutuhan.",
           )
         ) {
-          let items = allDataBarang[id];
-          if (items) {
-            items.forEach((b) => (b.status_fix = 1));
-            renderBarangPeserta(id, pNama, pPaket);
-          }
+          renderBarangPeserta(id, pNama, pPaket);
         }
       }
 
@@ -1472,17 +1475,24 @@
           for (let i = 0; i < keys.length; i++) {
             let idPeserta = keys[i];
 
-            // Kirim SELURUH barang dengan penegasan status 1 (centang) atau 0 (tidak centang)
+            // Cari data profil peserta dari daftar lokal
+            let pesertaInfo =
+              dataPesertaManual.find((p) => p.id === idPeserta) || {};
+
             let itemsPeserta = allDataBarang[idPeserta].map((b) => ({
               ...b,
               status_fix: b.status_fix == 1 ? 1 : 0,
               status: b.status_fix == 1 ? 1 : 0,
             }));
 
+            // DIPERBAIKI: MENGIRIM NAMA_PESERTA, JENIS_PAKET, DAN MITRA KE BACKEND
             const res = await fetchData(
               "simpanRekapManual",
               {
                 id_peserta: idPeserta,
+                nama_peserta: pesertaInfo.nama || "",
+                jenis_paket: pesertaInfo.paket || "",
+                mitra: pesertaInfo.mitra || "ADMIN",
                 items: itemsPeserta,
               },
               "POST",
@@ -1496,9 +1506,7 @@
           }
 
           if (successCount > 0) {
-            alert(
-              "✅ Data rekap manual (termasuk status 1 & 0) berhasil disimpan ke FIX_BARANG!",
-            );
+            alert("✅ Data rekap manual berhasil disimpan ke FIX_BARANG!");
             location.reload();
           } else {
             alert("⚠️ Gagal menyimpan ke server.");
@@ -1510,6 +1518,7 @@
           btn.disabled = false;
         }
       }
+
       /* =======================================================
          MODAL BELANJA & TAB SWITCHING
          ======================================================= */
@@ -1528,7 +1537,7 @@
           if (btnSudahBeli) btnSudahBeli.classList.add("active");
           if (btnBelanja) btnBelanja.classList.remove("active");
           if (contentSudahBeli) contentSudahBeli.style.display = "flex";
-          if (contentBelanja) contentBelanja.style.display = "none";
+          if (contentSudahBeli) contentSudahBeli.style.display = "none";
           loadRiwayatGudang();
         }
       }
