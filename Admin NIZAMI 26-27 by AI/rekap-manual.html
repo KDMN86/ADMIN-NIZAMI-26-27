@@ -187,13 +187,16 @@
       #listPeserta {
         max-height: calc(100vh - 280px);
         overflow-y: auto;
-        background: #1e1e1e;
+        background: #121212;
         border-radius: 10px;
-        border: 1px solid #333;
         margin-top: 10px;
       }
       .peserta-item-wrapper {
-        border-bottom: 1px solid #2a2a2a;
+        border: 1px solid #333; /* Memberi bingkai kotak penuh per peserta */
+        margin-bottom: 12px; /* Memberi jarak antar peserta */
+        border-radius: 8px;
+        background: #1e1e1e;
+        overflow: hidden;
       }
       .peserta-item-wrapper:last-child {
         border-bottom: none;
@@ -205,11 +208,13 @@
         display: flex;
         justify-content: space-between;
         align-items: center;
-        background: #1e1e1e;
+        /* Background dibuat lebih terang dengan sedikit gradasi hitam-abu */
+        background: linear-gradient(145deg, #2a2a2a, #1f1f1f);
+        border-left: 4px solid var(--primary); /* Aksen garis kuning di sisi kiri */
         transition: 0.2s;
       }
       .peserta-header:hover {
-        background: #252525;
+        background: linear-gradient(145deg, #333, #252525);
       }
 
       .badge-freq {
@@ -243,6 +248,14 @@
         background: rgba(74, 222, 128, 0.1);
         color: var(--success);
         border: 1px solid rgba(74, 222, 128, 0.3);
+      }
+
+      /* AREA DROPDOWN RINCIAN PESANAN */
+      .pesanan-container {
+        display: none;
+        padding: 12px 15px;
+        background: #0f0f0f; /* Background barang lebih gelap, membedakan dari header */
+        border-top: 1px dashed #444;
       }
 
       /* SALDO HIGHLIGHT & SUMMARY BOX */
@@ -993,6 +1006,7 @@
                   mitra: m,
                   paket: pkt,
                   freq: Number(p.freq) || 0,
+                  nilai_setoran: Number(p.nilai_setoran) || 0,
                 });
               });
             }
@@ -1130,13 +1144,17 @@
                     <div style="display:flex; gap:5px; flex-wrap:wrap; margin-bottom:6px;">
                       <span class="badge-freq"><i class="fas fa-coins"></i> ${p.freq}x Setor</span>
                       <span class="badge-mitra"><i class="fas fa-box"></i> ${p.paket}</span>
+                      <span class="badge-mitra" style="background: rgba(255, 255, 255, 0.1); color: #ddd; border-color: #555;"><i class="fas fa-money-bill-wave"></i> Rp ${formatUang(p.nilai_setoran)}/Setor</span>
                     </div>
-                    <div style="display:flex; justify-content:space-between; align-items:center;">
+                    <div style="display:flex; justify-content:space-between; align-items:flex-end;">
                       <span style="color:#666; font-size:0.75rem;">ID: ${p.id}</span>
-                      <span id="badge-saldo-${p.id}" class="saldo-badge" style="display:none;"></span>
+                      <div style="text-align: right; display: flex; flex-direction: column; gap: 4px; align-items: flex-end;">
+                        <span id="badge-saldo-${p.id}" class="saldo-badge" style="display:none;"></span>
+                        <span id="badge-total-barang-${p.id}" style="display:none; font-size: 0.75rem; color: #ff4d4d; background: rgba(255, 77, 77, 0.1); border: 1px solid rgba(255, 77, 77, 0.3); padding: 3px 6px; border-radius: 4px; font-weight: bold;"></span>
+                      </div>
                     </div>
                   </div>
-                  <i id="icon-${p.id}" class="fas fa-chevron-right" style="color:#555; padding-left:15px;"></i>
+                  <i id="icon-${p.id}" class="fas fa-chevron-right" style="color:#555; padding-left:15px; align-self: center;"></i>
                 </div>
                 
                 <div id="dropdown-${p.id}" class="pesanan-container">
@@ -1316,11 +1334,10 @@
         let saldoAkhir = saldoPeserta[id] || 0;
 
         if (item.status_fix == 1 && potentialTotal > saldoAkhir) {
+          // UBAH ALERT DAN HAPUS return; SERTA HAPUS inputEl.value = oldQty;
           alert(
-            `⚠️ Melebihi Saldo!\nSisa Saldo tidak cukup untuk menambah jumlah kuantitas barang ini.`,
+            `⚠️ PERINGATAN SALDO MINUS!\nTotal tagihan melebihi Sisa Saldo. Kuantitas barang tetap diubah (Kasbon).`,
           );
-          inputEl.value = oldQty;
-          return;
         }
 
         item.qty = newQty;
@@ -1345,10 +1362,10 @@
         if (!isCurrentlyChecked) {
           if (currentTotal + hargaItem > saldoAkhir) {
             let sisa = saldoAkhir - currentTotal;
+            // UBAH ALERT DAN HAPUS return;
             alert(
-              `⚠️ GAGAL DITAMBAHKAN!\n\nHarga barang (${formatUang(hargaItem)}) melebihi Sisa Saldo.\nSisa Saldo Anda saat ini hanya: ${formatUang(sisa)}`,
+              `⚠️ PERINGATAN SALDO MINUS!\n\nHarga barang (${formatUang(hargaItem)}) melebihi Sisa Saldo Anda yang hanya ${formatUang(sisa)}.\n\nBarang tetap ditambahkan ke dalam daftar (Kasbon).`,
             );
-            return;
           }
           item.status_fix = 1;
           card.classList.add("checked");
@@ -1377,10 +1394,10 @@
             0,
           );
           if (totalSemua > saldoAkhir) {
+            // UBAH ALERT DAN HAPUS return;
             alert(
-              `⚠️ Total seluruh barang (${formatUang(totalSemua)}) melebihi saldo peserta (${formatUang(saldoAkhir)}). Harap sesuaikan kuantitas atau pilih secara manual.`,
+              `⚠️ PERINGATAN SALDO MINUS!\nTotal seluruh barang (${formatUang(totalSemua)}) melebihi saldo peserta (${formatUang(saldoAkhir)}).\n\nSemua barang tetap dipilih (Kasbon).`,
             );
-            return;
           }
           items.forEach((b) => {
             if (b.qty > 0) b.status_fix = 1;
@@ -1428,8 +1445,30 @@
           formatUang(totalPilih);
         const elSisa = document.getElementById(`sisa-saldo-${id}`);
         elSisa.innerText = formatUang(sisa);
-        if (sisa === 0) elSisa.style.color = "#888";
+
+        if (sisa < 0) elSisa.style.color = "var(--danger)";
+        else if (sisa === 0) elSisa.style.color = "#888";
         else elSisa.style.color = "var(--success)";
+
+        // --- PERBAIKAN: HITUNG TOTAL SELURUH PESANAN PESERTA (Tanpa peduli dicentang atau tidak) ---
+        let totalPesananPeserta = 0;
+        if (allDataBarang[id]) {
+          allDataBarang[id].forEach((b) => {
+            totalPesananPeserta += parseFloat(b.total_harga) || 0;
+          });
+        }
+
+        // Tampilkan Total Pesanan Peserta di Header
+        let badgeTotalBrg = document.getElementById(`badge-total-barang-${id}`);
+        if (badgeTotalBrg) {
+          if (totalPesananPeserta > 0) {
+            badgeTotalBrg.innerText =
+              "Tot. Pesanan: " + formatUang(totalPesananPeserta);
+            badgeTotalBrg.style.display = "inline-block";
+          } else {
+            badgeTotalBrg.style.display = "none";
+          }
+        }
       }
 
       function bagikanWA(id, nama, paket) {
