@@ -284,7 +284,7 @@
         font-size: 1rem;
       }
 
-      /* BUTTON WA & SELECT ALL */
+      /* TOMBOL AKSI DALAM DROPDOWN */
       .btn-wa {
         background: #25d366;
         color: #000;
@@ -310,16 +310,28 @@
         font-size: 0.75rem;
         font-weight: bold;
         cursor: pointer;
-        margin-bottom: 10px;
+        margin-bottom: 8px;
         width: 100%;
         display: flex;
         align-items: center;
         justify-content: center;
         gap: 6px;
       }
-      .btn-wa:active,
-      .btn-select-all:active {
-        transform: scale(0.98);
+      .btn-edit-mode {
+        background: rgba(255, 215, 0, 0.15);
+        color: var(--primary);
+        border: 1px dashed var(--primary);
+        padding: 6px 10px;
+        border-radius: 8px;
+        font-size: 0.75rem;
+        font-weight: bold;
+        cursor: pointer;
+        margin-bottom: 10px;
+        width: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
       }
 
       /* AREA DROPDOWN RINCIAN PESANAN */
@@ -330,7 +342,6 @@
         border-top: 1px dashed #333;
       }
 
-      /* TAMPILAN BARANG LEBIH RAMPING (COMPACT 1-2 BARIS) */
       .barang-card {
         background: #111;
         border: 1px solid #333;
@@ -341,24 +352,39 @@
         align-items: center;
         justify-content: space-between;
         transition: 0.2s;
-        cursor: pointer;
       }
       .barang-card.checked {
         border-color: var(--success);
         background: rgba(74, 222, 128, 0.05);
       }
 
+      .input-qty-custom {
+        width: 55px;
+        background: #000;
+        border: 1px solid var(--primary);
+        color: #fff;
+        padding: 6px;
+        border-radius: 6px;
+        text-align: center;
+        font-weight: bold;
+        font-size: 0.85rem;
+        outline: none;
+      }
+      .input-qty-custom:focus {
+        border-color: var(--success);
+      }
+
       .custom-checkbox {
-        width: 22px;
-        height: 22px;
+        width: 24px;
+        height: 24px;
         border: 2px solid #555;
         border-radius: 5px;
         display: flex;
         align-items: center;
         justify-content: center;
         transition: 0.2s;
+        cursor: pointer;
         flex-shrink: 0;
-        margin-left: 12px;
       }
       .custom-checkbox i {
         color: transparent;
@@ -370,6 +396,46 @@
       }
       .barang-card.checked .custom-checkbox i {
         color: #000;
+      }
+
+      /* KARTU DAFTAR BELANJA BARU (LEBIH RAPI & HEMAT TEMPAT) */
+      .belanja-card-item {
+        background: #151515;
+        border: 1px solid #333;
+        border-radius: 10px;
+        padding: 10px 12px;
+        margin-bottom: 8px;
+        transition: 0.2s;
+      }
+      .belanja-card-item.aman {
+        border-left: 4px solid var(--success);
+      }
+      .belanja-card-item.kurang {
+        border-left: 4px solid var(--danger);
+      }
+
+      /* TABS MODAL BELANJA */
+      .modal-tabs {
+        display: flex;
+        background: #111;
+        border-bottom: 1px solid #333;
+      }
+      .modal-tab-btn {
+        flex: 1;
+        padding: 12px;
+        background: none;
+        border: none;
+        color: #888;
+        font-weight: bold;
+        font-size: 0.85rem;
+        cursor: pointer;
+        text-align: center;
+        border-bottom: 2px solid transparent;
+      }
+      .modal-tab-btn.active {
+        color: var(--primary);
+        border-bottom-color: var(--primary);
+        background: #181818;
       }
 
       /* BOTTOM BAR */
@@ -459,7 +525,6 @@
         />
       </div>
 
-      <!-- FILTER EXTENDED -->
       <div class="filter-group">
         <div style="display: flex; gap: 10px">
           <select
@@ -572,7 +637,7 @@
       </button>
     </div>
 
-    <!-- MODAL DAFTAR BELANJA DARI FIX -->
+    <!-- MODAL DAFTAR BELANJA & RIWAYAT GUDANG -->
     <div
       id="modalBelanja"
       style="
@@ -588,7 +653,7 @@
       <div
         style="
           background: #1e1e1e;
-          height: 88vh;
+          height: 90vh;
           border-radius: 20px 20px 0 0;
           display: flex;
           flex-direction: column;
@@ -598,7 +663,7 @@
       >
         <div
           style="
-            padding: 20px;
+            padding: 15px 20px;
             border-bottom: 1px solid #333;
             display: flex;
             justify-content: space-between;
@@ -606,93 +671,226 @@
           "
         >
           <div>
-            <h3 style="margin: 0 0 5px 0; color: var(--primary)">
-              <i class="fas fa-shopping-cart"></i> Daftar Belanja (Dari Fix)
+            <h3
+              style="
+                margin: 0 0 3px 0;
+                color: var(--primary);
+                font-size: 1.05rem;
+              "
+            >
+              <i class="fas fa-shopping-cart"></i> Manajemen Belanja & Gudang
             </h3>
-            <div style="font-size: 0.75rem; color: #888">
-              Sinkronisasi otomatis dengan REKAP_BELANJA
+            <div style="font-size: 0.7rem; color: #888">
+              Sinkronisasi FIX_BARANG & REKAP_BELANJA
             </div>
           </div>
           <i
             class="fas fa-times"
-            style="font-size: 1.5rem; color: #888; cursor: pointer"
+            style="font-size: 1.4rem; color: #888; cursor: pointer"
             onclick="
               document.getElementById('modalBelanja').style.display = 'none'
             "
           ></i>
         </div>
 
+        <!-- TABS NAVIGASI MODAL -->
+        <div class="modal-tabs">
+          <button
+            class="modal-tab-btn active"
+            id="tabBtnBelanja"
+            onclick="switchModalTab('belanja')"
+          >
+            <i class="fas fa-list-check"></i> Daftar Belanja (Kurang)
+          </button>
+          <button
+            class="modal-tab-btn"
+            id="tabBtnSudahBeli"
+            onclick="switchModalTab('sudahBeli')"
+          >
+            <i class="fas fa-warehouse"></i> Riwayat Di Gudang
+          </button>
+        </div>
+
+        <!-- KONTEN TAB 1: DAFTAR BELANJA -->
         <div
+          id="contentTabBelanja"
           style="
-            padding: 15px;
             display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-bottom: 1px dashed #333;
-            background: #151515;
+            flex-direction: column;
+            flex: 1;
+            overflow: hidden;
           "
         >
-          <label
+          <div
             style="
-              color: #fff;
-              font-size: 0.85rem;
+              padding: 10px 15px;
+              background: #151515;
+              border-bottom: 1px dashed #333;
               display: flex;
-              align-items: center;
+              flex-direction: column;
               gap: 8px;
             "
           >
-            <input
-              type="checkbox"
-              id="chkHanyaKurang"
-              onchange="renderBelanjaList()"
-              checked
-              style="width: 18px; height: 18px; accent-color: var(--primary)"
-            />
-            Tampilkan hanya yang kurang
-          </label>
-        </div>
+            <div style="position: relative; display: flex; align-items: center">
+              <i
+                class="fas fa-search"
+                style="
+                  position: absolute;
+                  left: 12px;
+                  color: #888;
+                  font-size: 0.8rem;
+                "
+              ></i>
+              <input
+                type="text"
+                id="cariBarangBelanja"
+                class="search-input"
+                style="
+                  padding-top: 7px;
+                  padding-bottom: 7px;
+                  font-size: 0.85rem;
+                "
+                placeholder="Cari nama barang..."
+                oninput="renderBelanjaList()"
+              />
+            </div>
+            <div
+              style="
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                gap: 10px;
+              "
+            >
+              <select
+                id="filterKategoriBarang"
+                class="filter-select-normal"
+                style="flex: 1; padding: 7px; font-size: 0.8rem"
+                onchange="renderBelanjaList()"
+              >
+                <option value="ALL">📂 Semua Kategori</option>
+              </select>
+              <label
+                style="
+                  color: #fff;
+                  font-size: 0.75rem;
+                  display: flex;
+                  align-items: center;
+                  gap: 6px;
+                  white-space: nowrap;
+                  cursor: pointer;
+                "
+              >
+                <input
+                  type="checkbox"
+                  id="chkHanyaKurang"
+                  onchange="renderBelanjaList()"
+                  checked
+                  style="
+                    width: 16px;
+                    height: 16px;
+                    accent-color: var(--primary);
+                  "
+                />
+                Hanya kurang
+              </label>
+            </div>
+          </div>
 
-        <div
-          id="loadingBelanja"
-          style="
-            text-align: center;
-            padding: 50px 20px;
-            display: none;
-            color: var(--primary);
-          "
-        >
-          <i class="fas fa-spinner fa-spin fa-2x"></i><br /><br />Menarik rekap
-          gudang...
-        </div>
+          <div
+            style="padding: 12px; overflow-y: auto; flex: 1"
+            id="listBelanjaContainer"
+          ></div>
 
-        <div
-          style="padding: 15px; overflow-y: auto; flex: 1"
-          id="listBelanjaContainer"
-        ></div>
-
-        <div
-          style="
-            padding: 15px 20px;
-            background: #111;
-            border-top: 1px solid #333;
-          "
-        >
-          <button
-            onclick="simpanStokBelanja()"
-            id="btnSimpanBelanja"
+          <div
             style="
-              width: 100%;
-              padding: 14px;
-              background: var(--primary);
-              color: #000;
-              border: none;
-              border-radius: 10px;
-              font-weight: bold;
-              font-size: 0.9rem;
+              padding: 12px 20px;
+              background: #111;
+              border-top: 1px solid #333;
             "
           >
-            <i class="fas fa-save"></i> SIMPAN BARANG MASUK
-          </button>
+            <button
+              onclick="simpanStokBelanja()"
+              id="btnSimpanBelanja"
+              style="
+                width: 100%;
+                padding: 12px;
+                background: var(--primary);
+                color: #000;
+                border: none;
+                border-radius: 10px;
+                font-weight: bold;
+                font-size: 0.85rem;
+              "
+            >
+              <i class="fas fa-save"></i> SIMPAN BARANG MASUK KE GUDANG
+            </button>
+          </div>
+        </div>
+
+        <!-- KONTEN TAB 2: RIWAYAT SUDAH DIBELI (REKAP_BELANJA) -->
+        <div
+          id="contentTabSudahBeli"
+          style="
+            display: none;
+            flex-direction: column;
+            flex: 1;
+            overflow: hidden;
+          "
+        >
+          <div
+            style="
+              padding: 10px 15px;
+              background: #151515;
+              border-bottom: 1px dashed #333;
+              display: flex;
+              gap: 10px;
+            "
+          >
+            <div
+              style="
+                position: relative;
+                display: flex;
+                align-items: center;
+                flex: 1;
+              "
+            >
+              <i
+                class="fas fa-search"
+                style="
+                  position: absolute;
+                  left: 12px;
+                  color: #888;
+                  font-size: 0.8rem;
+                "
+              ></i>
+              <input
+                type="text"
+                id="cariRiwayatGudang"
+                class="search-input"
+                style="
+                  padding-top: 7px;
+                  padding-bottom: 7px;
+                  font-size: 0.85rem;
+                "
+                placeholder="Cari barang di gudang..."
+                oninput="renderRiwayatGudangList()"
+              />
+            </div>
+            <select
+              id="filterKategoriRiwayat"
+              class="filter-select-normal"
+              style="width: 140px; padding: 7px; font-size: 0.8rem"
+              onchange="renderRiwayatGudangList()"
+            >
+              <option value="ALL">📂 Semua</option>
+            </select>
+          </div>
+
+          <div
+            style="padding: 12px; overflow-y: auto; flex: 1"
+            id="listRiwayatGudangContainer"
+          ></div>
         </div>
       </div>
     </div>
@@ -703,6 +901,8 @@
       let allDataBarang = {};
       let saldoPeserta = {};
       let dataBelanjaGlobal = [];
+      let masterBarangGlobal = {};
+      let setSudahFixServer = new Set();
 
       function formatUang(angka) {
         return new Intl.NumberFormat("id-ID", {
@@ -716,15 +916,44 @@
         document.getElementById("loading").style.display = "block";
         document.getElementById("listPeserta").style.display = "none";
         try {
-          const res = await fetchData("getAdminStats");
-          if (res && res.paketBreakdown) {
+          const [resStats, resMaster, resFixList] = await Promise.all([
+            fetchData("getAdminStats"),
+            fetchData("getBarang"),
+            fetchData("getListSudahFix"),
+          ]);
+
+          let rawBarang = resMaster;
+          if (resMaster && resMaster.data) rawBarang = resMaster.data;
+          if (Array.isArray(rawBarang)) {
+            rawBarang.forEach((b) => {
+              if (b.nama) {
+                masterBarangGlobal[b.nama.trim().toLowerCase()] = {
+                  kategori: b.kategori || "Lainnya",
+                  satuan: b.satuan || "pcs",
+                  hargaBeli: Number(b.hargaBeli || b.harga_beli) || 0,
+                  hargaJual:
+                    Number(b.hargaJual || b.harga_jual || b.harga) || 0,
+                };
+              }
+            });
+          }
+
+          if (
+            resFixList &&
+            resFixList.success &&
+            Array.isArray(resFixList.list)
+          ) {
+            resFixList.list.forEach((id) => setSudahFixServer.add(id));
+          }
+
+          if (resStats && resStats.paketBreakdown) {
             let tempAll = [];
             let mitraSet = new Set();
             let paketSet = new Set();
 
-            for (let pkt in res.paketBreakdown) {
+            for (let pkt in resStats.paketBreakdown) {
               paketSet.add(pkt);
-              res.paketBreakdown[pkt].forEach((p) => {
+              resStats.paketBreakdown[pkt].forEach((p) => {
                 let m = (p.mitra || "Pusat").trim();
                 mitraSet.add(m);
                 tempAll.push({
@@ -854,16 +1083,10 @@
             let namaEscaped = p.nama.replace(/'/g, "\\'");
             let paketEscaped = p.paket.replace(/'/g, "\\'");
 
-            let isSudahDipilih = false;
-            if (allDataBarang[p.id]) {
-              isSudahDipilih = allDataBarang[p.id].some(
-                (b) => b.status_fix == 1,
-              );
-            }
-
-            let badgeStatusHtml = isSudahDipilih
-              ? `<span class="badge-status-pilih badge-sudah"><i class="fas fa-check-circle"></i> Sudah Dipilih</span>`
-              : `<span class="badge-status-pilih badge-belum"><i class="fas fa-clock"></i> Belum Dipilih</span>`;
+            let isSudah = setSudahFixServer.has(p.id);
+            let badgeStatusHtml = isSudah
+              ? `<span class="badge-status-pilih badge-sudah" id="badge-status-wrap-${p.id}"><i class="fas fa-check-circle"></i> Sudah Dipilih</span>`
+              : `<span class="badge-status-pilih badge-belum" id="badge-status-wrap-${p.id}"><i class="fas fa-clock"></i> Belum Dipilih</span>`;
 
             boxList.innerHTML += `
               <div class="peserta-item-wrapper">
@@ -871,7 +1094,7 @@
                   <div style="flex:1;">
                     <div style="color:#fff; font-weight:bold; font-size:0.95rem; margin-bottom:6px; display:flex; justify-content:space-between; align-items:center;">
                       <span>${p.nama}</span>
-                      <span id="badge-status-wrap-${p.id}">${badgeStatusHtml}</span>
+                      ${badgeStatusHtml}
                     </div>
                     <div style="display:flex; gap:5px; flex-wrap:wrap; margin-bottom:6px;">
                       <span class="badge-freq"><i class="fas fa-coins"></i> ${p.freq}x Setor</span>
@@ -934,7 +1157,12 @@
               if (resDetail && resDetail.success) {
                 allDataBarang[id] = resDetail.data.map((b) => ({
                   ...b,
-                  status_fix: b.status_fix == 1 || b.status_fix == "1" ? 1 : 0,
+                  status_fix:
+                    b.sumber === "FIX" ||
+                    b.status_fix == 1 ||
+                    b.status_fix == "1"
+                      ? 1
+                      : 0,
                 }));
 
                 document.getElementById("btnSimpan").style.display = "flex";
@@ -967,6 +1195,14 @@
 
         let pNamaEscaped = pNama.replace(/'/g, "\\'");
         let pPaketEscaped = pPaket.replace(/'/g, "\\'");
+        let isSudahFix = setSudahFixServer.has(id);
+
+        let editButtonHtml = isSudahFix
+          ? `
+          <button class="btn-edit-mode" onclick="bukaModeEdit('${id}', '${pNamaEscaped}', '${pPaketEscaped}')">
+            <i class="fas fa-edit"></i> Edit / Atur Ulang Pilihan
+          </button>`
+          : "";
 
         summaryBox.innerHTML = `
           <button class="btn-wa" onclick="bagikanWA('${id}', '${pNamaEscaped}', '${pPaketEscaped}')">
@@ -975,6 +1211,7 @@
           <button class="btn-select-all" onclick="togglePilihSemuaBarang('${id}', '${pNamaEscaped}', '${pPaketEscaped}')">
             <i class="fas fa-check-double"></i> Pilih / Batalkan Semua Barang
           </button>
+          ${editButtonHtml}
           <div class="summary-box">
             <div class="sum-row"><span>Saldo Akhir:</span> <b style="color:var(--primary);">${formatUang(saldoPeserta[id])}</b></div>
             <div class="sum-row"><span>Total Terpilih:</span> <b id="tot-pilih-${id}" style="color:var(--danger);">Rp 0</b></div>
@@ -982,25 +1219,29 @@
           </div>
         `;
 
-        // Render Barang Model Compact / Ramping 1-2 baris
         items.forEach((b, index) => {
           let isChecked = b.status_fix == 1 ? "checked" : "";
-          let hrgTotal = formatUang(b.total_harga);
+          let hrgSatuan = Number(b.harga_satuan) || 0;
+          let subtotal = hrgSatuan * (Number(b.qty) || 0);
+          b.total_harga = subtotal;
 
           boxList.innerHTML += `
-            <div class="barang-card ${isChecked}" id="card-${id}-${index}" onclick="toggleCheckItem('${id}', ${index})">
-              <div style="flex: 1; display:flex; justify-content:space-between; align-items:center; gap:10px;">
+            <div class="barang-card ${isChecked}" id="card-${id}-${index}">
+              <div style="flex: 1; display:flex; justify-content:space-between; align-items:center; gap:10px; overflow:hidden;">
                 <div style="overflow:hidden;">
                   <div style="color:#fff; font-weight:bold; font-size:0.85rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">
-                    ${b.qty}x ${b.nama_barang}
+                    ${b.nama_barang}
                   </div>
                   <div style="font-size:0.75rem; color:#888;">
-                    Subtotal: <span style="color:var(--primary); font-weight:bold;">${hrgTotal}</span>
+                    Subtotal: <span id="subtotal-${id}-${index}" style="color:var(--primary); font-weight:bold;">${formatUang(subtotal)}</span>
                   </div>
                 </div>
               </div>
-              <div class="custom-checkbox">
-                <i class="fas fa-check"></i>
+              <div style="display:flex; align-items:center; gap:10px;">
+                <input type="number" class="input-qty-custom" id="qty-${id}-${index}" value="${b.qty}" min="0" oninput="ubahQtyItem('${id}', ${index})">
+                <div class="custom-checkbox" onclick="toggleCheckItem('${id}', ${index})">
+                  <i class="fas fa-check"></i>
+                </div>
               </div>
             </div>
           `;
@@ -1008,6 +1249,54 @@
 
         updateUIPeserta(id);
         kalkulasiTotalGlobal();
+      }
+
+      function bukaModeEdit(id, pNama, pPaket) {
+        if (
+          confirm(
+            "Mulai edit pilihan barang untuk peserta ini? Anda dapat mengubah kuantitas atau mencentang ulang sesuai kebutuhan.",
+          )
+        ) {
+          let items = allDataBarang[id];
+          if (items) {
+            items.forEach((b) => (b.status_fix = 1));
+            renderBarangPeserta(id, pNama, pPaket);
+          }
+        }
+      }
+
+      function ubahQtyItem(id, index) {
+        let item = allDataBarang[id][index];
+        let inputEl = document.getElementById(`qty-${id}-${index}`);
+        let newQty = parseInt(inputEl.value);
+        if (isNaN(newQty) || newQty < 0) newQty = 0;
+
+        let hrgSatuan = Number(item.harga_satuan) || 0;
+        let oldQty = item.qty;
+        let oldTotal = item.total_harga;
+
+        let potentialTotal =
+          hitungTotalPeserta(id) -
+          (item.status_fix == 1 ? oldTotal : 0) +
+          (item.status_fix == 1 ? hrgSatuan * newQty : 0);
+        let saldoAkhir = saldoPeserta[id] || 0;
+
+        if (item.status_fix == 1 && potentialTotal > saldoAkhir) {
+          alert(
+            `⚠️ Melebihi Saldo!\nSisa Saldo tidak cukup untuk menambah jumlah kuantitas barang ini.`,
+          );
+          inputEl.value = oldQty;
+          return;
+        }
+
+        item.qty = newQty;
+        item.total_harga = hrgSatuan * newQty;
+        document.getElementById(`subtotal-${id}-${index}`).innerText =
+          formatUang(item.total_harga);
+
+        updateUIPeserta(id);
+        kalkulasiTotalGlobal();
+        perbaruiBadgeStatusPeserta(id);
       }
 
       function toggleCheckItem(id, index) {
@@ -1043,7 +1332,9 @@
         let items = allDataBarang[id];
         if (!items || items.length === 0) return;
 
-        let semuaTercentang = items.every((b) => b.status_fix == 1);
+        let semuaTercentang = items.every(
+          (b) => b.status_fix == 1 && b.qty > 0,
+        );
         let saldoAkhir = saldoPeserta[id] || 0;
 
         if (!semuaTercentang) {
@@ -1053,11 +1344,13 @@
           );
           if (totalSemua > saldoAkhir) {
             alert(
-              `⚠️ Total seluruh barang (${formatUang(totalSemua)}) melebihi saldo peserta (${formatUang(saldoAkhir)}). Harap pilih secara manual.`,
+              `⚠️ Total seluruh barang (${formatUang(totalSemua)}) melebihi saldo peserta (${formatUang(saldoAkhir)}). Harap sesuaikan kuantitas atau pilih secara manual.`,
             );
             return;
           }
-          items.forEach((b) => (b.status_fix = 1));
+          items.forEach((b) => {
+            if (b.qty > 0) b.status_fix = 1;
+          });
         } else {
           items.forEach((b) => (b.status_fix = 0));
         }
@@ -1070,11 +1363,15 @@
         const wrapBadge = document.getElementById(`badge-status-wrap-${id}`);
         if (!wrapBadge) return;
 
-        let isSudahDipilih = allDataBarang[id].some((b) => b.status_fix == 1);
+        let isSudahDipilih = allDataBarang[id].some(
+          (b) => b.status_fix == 1 && b.qty > 0,
+        );
         if (isSudahDipilih) {
-          wrapBadge.innerHTML = `<span class="badge-status-pilih badge-sudah"><i class="fas fa-check-circle"></i> Sudah Dipilih</span>`;
+          setSudahFixServer.add(id);
+          wrapBadge.outerHTML = `<span class="badge-status-pilih badge-sudah" id="badge-status-wrap-${id}"><i class="fas fa-check-circle"></i> Sudah Dipilih</span>`;
         } else {
-          wrapBadge.innerHTML = `<span class="badge-status-pilih badge-belum"><i class="fas fa-clock"></i> Belum Dipilih</span>`;
+          setSudahFixServer.delete(id);
+          wrapBadge.outerHTML = `<span class="badge-status-pilih badge-belum" id="badge-status-wrap-${id}"><i class="fas fa-clock"></i> Belum Dipilih</span>`;
         }
       }
 
@@ -1102,7 +1399,9 @@
       }
 
       function bagikanWA(id, nama, paket) {
-        let itemsFix = allDataBarang[id].filter((b) => b.status_fix == 1);
+        let itemsFix = allDataBarang[id].filter(
+          (b) => b.status_fix == 1 && b.qty > 0,
+        );
         if (itemsFix.length === 0)
           return alert("Belum ada barang yang dicentang (Fix)!");
 
@@ -1152,13 +1451,18 @@
               "POST",
             );
 
-            if (res && res.success) successCount++;
+            if (res && res.success) {
+              successCount++;
+              setSudahFixServer.add(idPeserta);
+              perbaruiBadgeStatusPeserta(idPeserta);
+            }
           }
 
           if (successCount > 0) {
             alert(
-              "✅ Data rekap manual berhasil disimpan secara bersih tanpa duplikasi ke DATA_PESANAN_DETAIL!",
+              "✅ Data rekap manual berhasil disimpan ke sheet FIX_BARANG!",
             );
+            location.reload();
           } else {
             alert("⚠️ Gagal menyimpan ke server.");
           }
@@ -1171,17 +1475,47 @@
       }
 
       /* =======================================================
-         FUNGSI MODAL DAFTAR BELANJA DARI FIX & GUDANG
+         MODAL BELANJA & TAB SWITCHING
          ======================================================= */
+      /* =======================================================
+         MODAL BELANJA & TAB SWITCHING (PERBAIKAN)
+         ======================================================= */
+      function switchModalTab(tabName) {
+        const btnBelanja = document.getElementById("tabBtnBelanja");
+        const btnSudahBeli = document.getElementById("tabBtnSudahBeli");
+        const contentBelanja = document.getElementById("contentTabBelanja");
+        const contentSudahBeli = document.getElementById("contentTabSudahBeli");
+
+        if (tabName === "belanja") {
+          if (btnBelanja) btnBelanja.classList.add("active");
+          if (btnSudahBeli) btnSudahBeli.classList.remove("active");
+          if (contentBelanja) contentBelanja.style.display = "flex";
+          if (contentSudahBeli) contentSudahBeli.style.display = "none";
+        } else {
+          if (btnSudahBeli) btnSudahBeli.classList.add("active");
+          if (btnBelanja) btnBelanja.classList.remove("active");
+          if (contentSudahBeli) contentSudahBeli.style.display = "flex";
+          if (contentBelanja) contentBelanja.style.display = "none";
+          loadRiwayatGudang();
+        }
+      }
+
       async function bukaModalBelanja() {
-        document.getElementById("modalBelanja").style.display = "flex";
-        document.getElementById("loadingBelanja").style.display = "block";
-        document.getElementById("listBelanjaContainer").innerHTML = "";
+        const modal = document.getElementById("modalBelanja");
+        if (!modal) return;
+        modal.style.display = "flex";
+        switchModalTab("belanja");
+
+        const loading = document.getElementById("loadingBelanja");
+        const container = document.getElementById("listBelanjaContainer");
+        if (loading) loading.style.display = "block";
+        if (container) container.innerHTML = "";
 
         try {
           const res = await fetchData("getBelanjaFix");
           if (res && res.success) {
             dataBelanjaGlobal = res.data;
+            setupKategoriDropdown();
             renderBelanjaList();
           } else {
             alert("Gagal menarik data dari server.");
@@ -1189,44 +1523,175 @@
         } catch (e) {
           alert("Terjadi kesalahan jaringan saat memuat rekap belanja.");
         } finally {
-          document.getElementById("loadingBelanja").style.display = "none";
+          if (loading) loading.style.display = "none";
         }
+      }
+
+      function setupKategoriDropdown() {
+        const selectKategori = document.getElementById("filterKategoriBarang");
+        const selectRiwayat = document.getElementById("filterKategoriRiwayat");
+        let kategoriSet = new Set();
+
+        dataBelanjaGlobal.forEach((b) => {
+          let key = b.barang.trim().toLowerCase();
+          let kat = masterBarangGlobal[key]
+            ? masterBarangGlobal[key].kategori
+            : "Lainnya";
+          kategoriSet.add(kat);
+        });
+
+        let optHtml = `<option value="ALL">📂 Semua Kategori</option>`;
+        Array.from(kategoriSet)
+          .sort()
+          .forEach((kat) => {
+            optHtml += `<option value="${kat}">${kat}</option>`;
+          });
+        selectKategori.innerHTML = optHtml;
+        selectRiwayat.innerHTML = optHtml;
       }
 
       function renderBelanjaList() {
         const container = document.getElementById("listBelanjaContainer");
         const hanyaKurang = document.getElementById("chkHanyaKurang").checked;
+        const keyword = document
+          .getElementById("cariBarangBelanja")
+          .value.toLowerCase();
+        const selectedKategori = document.getElementById(
+          "filterKategoriBarang",
+        ).value;
         container.innerHTML = "";
 
-        let tampil = dataBelanjaGlobal.filter((b) =>
-          hanyaKurang ? b.kurang > 0 : true,
-        );
+        let tampil = dataBelanjaGlobal.filter((b) => {
+          let key = b.barang.trim().toLowerCase();
+          let info = masterBarangGlobal[key] || {
+            kategori: "Lainnya",
+            satuan: "pcs",
+            hargaBeli: 0,
+            hargaJual: 0,
+          };
+
+          let matchKurang = hanyaKurang ? b.kurang > 0 : true;
+          let matchKeyword =
+            keyword === "" || b.barang.toLowerCase().includes(keyword);
+          let matchKategori =
+            selectedKategori === "ALL" || info.kategori === selectedKategori;
+
+          return matchKurang && matchKeyword && matchKategori;
+        });
 
         if (tampil.length === 0) {
-          container.innerHTML = `<div style="text-align:center; color:#888; padding:40px; border:1px dashed #333; border-radius:10px; margin-top:20px;">🎉 Semua barang sudah terpenuhi di Gudang!</div>`;
+          container.innerHTML = `<div style="text-align:center; color:#888; padding:30px; border:1px dashed #333; border-radius:10px; margin-top:10px;">🎉 Tidak ada barang yang sesuai kriteria!</div>`;
           return;
         }
 
         tampil.forEach((b) => {
+          let key = b.barang.trim().toLowerCase();
+          let info = masterBarangGlobal[key] || {
+            kategori: "Lainnya",
+            satuan: "pcs",
+            hargaBeli: 0,
+            hargaJual: 0,
+          };
           let isAman = b.kurang === 0;
-          let badgeStatus = isAman
-            ? `<span style="background:var(--success); color:#000; padding:4px 10px; border-radius:6px; font-size:0.75rem; font-weight:bold;">AMAN</span>`
-            : `<span style="background:rgba(255,77,77,0.1); color:var(--danger); border:1px solid rgba(255,77,77,0.3); padding:4px 10px; border-radius:6px; font-size:0.75rem; font-weight:bold;">KURANG ${b.kurang.toLocaleString("id-ID")}</span>`;
 
+          // SUSUNAN BARU: SEJAJAR NAMA BARANG DENGAN DETAIL DAN SATU BARIS UNTUK TARGET/STOK/MASUK
           container.innerHTML += `
-            <div style="background:#111; border:1px solid ${isAman ? "var(--success)" : "#333"}; border-radius:12px; padding:15px; margin-bottom:12px;">
-              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
-                <b style="color:#fff; font-size:0.95rem;">${b.barang}</b>
-                ${badgeStatus}
+            <div class="belanja-card-item ${isAman ? "aman" : "kurang"}">
+              <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 6px;">
+                <div style="flex: 1; overflow: hidden; padding-right: 8px;">
+                  <div style="display: flex; align-items: center; gap: 6px; flex-wrap: wrap;">
+                    <span style="font-size: 0.6rem; background: #222; color: var(--primary); padding: 1px 5px; border-radius: 3px; border: 1px solid #444; font-weight: bold;">${info.kategori}</span>
+                    <b style="color: #fff; font-size: 0.9rem;">${b.barang}</b>
+                    <span style="font-size: 0.72rem; color: #aaa;">/ <b>${info.satuan}</b> / <span style="color:var(--primary);">${formatUang(info.hargaBeli)}</span> / <span>${formatUang(info.hargaJual)}</span></span>
+                  </div>
+                </div>
+                <span style="font-size: 0.7rem; padding: 2px 7px; border-radius: 5px; font-weight: bold; background: ${isAman ? "rgba(74,222,128,0.15)" : "rgba(255,77,77,0.15)"}; color: ${isAman ? "var(--success)" : "var(--danger)"}; border: 1px solid ${isAman ? "rgba(74,222,128,0.3)" : "rgba(255,77,77,0.3)"}; white-space: nowrap;">
+                  ${isAman ? "AMAN" : "KURANG " + b.kurang}
+                </span>
               </div>
-              <div style="display:flex; justify-content:space-between; font-size:0.8rem; color:#aaa; margin-bottom:15px; background:#1a1a1a; padding:10px; border-radius:8px;">
-                <div style="text-align:center;"><div style="font-size:0.7rem;">Target Fix</div><b style="color:#fff; font-size:1rem;">${b.butuh.toLocaleString("id-ID")}</b></div>
-                <div style="width:1px; background:#333;"></div>
-                <div style="text-align:center;"><div style="font-size:0.7rem;">Stok Gudang</div><b style="color:var(--primary); font-size:1rem;">${b.masuk.toLocaleString("id-ID")}</b></div>
+
+              <div style="display: flex; justify-content: space-between; align-items: center; background: #111; border-radius: 6px; padding: 6px 10px; font-size: 0.75rem; border: 1px solid #2a2a2a;">
+                <span style="color: #bbb;">Target: <b style="color:#fff;">${b.butuh}</b> | Stok: <b style="color:var(--success);">${b.masuk}</b> | Kurang: <b style="color:${isAman ? "var(--success)" : "var(--danger)"};">${b.kurang}</b></span>
+                <div style="display: flex; align-items: center; gap: 5px;">
+                  <span style="font-size: 0.7rem; color: var(--primary); font-weight: bold;">+ Masuk:</span>
+                  <input type="number" class="input-beli-stok" data-nama="${b.barang}" placeholder="0" min="0" style="width: 55px; background: #000; border: 1px solid var(--primary); color: #fff; padding: 4px; border-radius: 5px; text-align: center; font-weight: bold; font-size: 0.8rem;">
+                </div>
               </div>
-              <div style="display:flex; justify-content:space-between; align-items:center; border-top:1px dashed #333; padding-top:12px;">
-                <span style="font-size:0.8rem; color:#888; font-weight:bold;">+ Tambah Stok</span>
-                <input type="number" class="input-beli-stok" data-nama="${b.barang}" placeholder="0" min="0" style="width:80px; background:#000; border:1px solid var(--primary); color:#fff; padding:10px; border-radius:8px; text-align:center; font-weight:bold; font-size:0.9rem;">
+            </div>
+          `;
+        });
+      }
+
+      /* RENDER TAB 2: RIWAYAT GUDANG (REKAP_BELANJA) */
+      let dataRiwayatGudangGlobal = [];
+      async function loadRiwayatGudang() {
+        const container = document.getElementById("listRiwayatGudangContainer");
+        container.innerHTML = `<div style="text-align:center; padding:30px; color:var(--primary);"><i class="fas fa-spinner fa-spin"></i> Memuat riwayat gudang...</div>`;
+        try {
+          const res = await fetchData("getRekapBelanja");
+          if (res && res.stok_dibeli) {
+            dataRiwayatGudangGlobal = [];
+            for (let namaBrg in res.stok_dibeli) {
+              let qtyMasuk = res.stok_dibeli[namaBrg] || 0;
+              let key = namaBrg.trim().toLowerCase();
+              let info = masterBarangGlobal[key] || {
+                kategori: "Lainnya",
+                satuan: "pcs",
+                hargaBeli: 0,
+              };
+              dataRiwayatGudangGlobal.push({
+                barang: namaBrg,
+                qty: qtyMasuk,
+                satuan: info.satuan,
+                kategori: info.kategori,
+                hargaBeli: info.hargaBeli,
+              });
+            }
+            renderRiwayatGudangList();
+          } else {
+            container.innerHTML = `<div style="text-align:center; color:#888; padding:30px;">Belum ada riwayat barang di REKAP_BELANJA.</div>`;
+          }
+        } catch (e) {
+          container.innerHTML = `<div style="text-align:center; color:#ff4d4d; padding:30px;">Gagal memuat data gudang.</div>`;
+        }
+      }
+
+      function renderRiwayatGudangList() {
+        const container = document.getElementById("listRiwayatGudangContainer");
+        const keyword = document
+          .getElementById("cariRiwayatGudang")
+          .value.toLowerCase();
+        const selectedKat = document.getElementById(
+          "filterKategoriRiwayat",
+        ).value;
+        container.innerHTML = "";
+
+        let hasil = dataRiwayatGudangGlobal.filter((item) => {
+          let matchKey =
+            keyword === "" || item.barang.toLowerCase().includes(keyword);
+          let matchKat = selectedKat === "ALL" || item.kategori === selectedKat;
+          return matchKey && matchKat;
+        });
+
+        if (hasil.length === 0) {
+          container.innerHTML = `<div style="text-align:center; color:#888; padding:30px; border:1px dashed #333; border-radius:10px;">Tidak ada riwayat barang yang cocok.</div>`;
+          return;
+        }
+
+        hasil.forEach((item) => {
+          let totalEstimasi = item.qty * item.hargaBeli;
+          container.innerHTML += `
+            <div class="belanja-card-item aman" style="margin-bottom: 6px; padding: 8px 12px;">
+              <div style="display: flex; justify-content: space-between; align-items: center;">
+                <div>
+                  <span style="font-size: 0.6rem; background: #222; color: var(--primary); padding: 1px 5px; border-radius: 3px; border: 1px solid #444; font-weight: bold;">${item.kategori}</span>
+                  <div style="color: #fff; font-weight: bold; font-size: 0.85rem; margin-top: 2px;">${item.barang}</div>
+                </div>
+                <div style="text-align: right;">
+                  <span style="font-size: 0.8rem; font-weight: bold; color: var(--success); background: rgba(74,222,128,0.1); padding: 3px 8px; border-radius: 5px; border: 1px solid rgba(74,222,128,0.3);">
+                    ${item.qty} ${item.satuan}
+                  </span>
+                </div>
               </div>
             </div>
           `;
@@ -1237,12 +1702,12 @@
         let itemsToSave = [];
         document.querySelectorAll(".input-beli-stok").forEach((inp) => {
           let val = parseInt(inp.value);
+          let namaBrg = inp.getAttribute("data-nama");
+          let key = namaBrg.trim().toLowerCase();
+          let info = masterBarangGlobal[key] || { satuan: "pcs" };
+
           if (val > 0)
-            itemsToSave.push({
-              nama: inp.getAttribute("data-nama"),
-              qty: val,
-              satuan: "pcs",
-            });
+            itemsToSave.push({ nama: namaBrg, qty: val, satuan: info.satuan });
         });
 
         if (itemsToSave.length === 0)
@@ -1271,7 +1736,8 @@
         } catch (e) {
           alert("⚠️ Terjadi kesalahan jaringan.");
         } finally {
-          btn.innerHTML = '<i class="fas fa-save"></i> SIMPAN BARANG MASUK';
+          btn.innerHTML =
+            '<i class="fas fa-save"></i> SIMPAN BARANG MASUK KE GUDANG';
           btn.disabled = false;
         }
       }
