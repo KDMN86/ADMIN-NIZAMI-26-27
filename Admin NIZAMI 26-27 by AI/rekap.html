@@ -1295,112 +1295,107 @@
           resepPerPaket[r.paket].push(r);
         });
 
-        pesertaLolos.forEach((p) => {
-          let paketNama = p.paket;
-          let resepList = resepPerPaket[paketNama] || [];
-          if (resepList.length === 0) return;
-
-          let totalHargaSatuPaketUtuh = 0;
-          let rincianNilaiResep = [];
-
-          resepList.forEach((r) => {
-            let hrgJual =
-              (masterData.harga_jual_barang &&
-                masterData.harga_jual_barang[r.barang]) ||
-              masterData.harga_barang[r.barang] ||
-              0;
-            let sub = r.qty * hrgJual;
-            totalHargaSatuPaketUtuh += sub;
-            rincianNilaiResep.push({
-              barang: r.barang,
-              qtySatu: r.qty,
-              satuan: r.satuan,
-              subtotal: sub,
-              hrgJual: hrgJual,
-            });
-          });
-
-          let saldoAktif = p.saldo_rp || 0;
-          let rasio = 1.0;
-          if (totalHargaSatuPaketUtuh > 0) {
-            rasio = saldoAktif / totalHargaSatuPaketUtuh;
-            if (rasio > 1) rasio = 1.0;
-            if (rasio < 0) rasio = 0;
-          }
-
-          rincianNilaiResep.forEach((item) => {
-            let porsiQty = item.qtySatu * rasio;
-            if (porsiQty > 0) {
-              if (!keranjang[item.barang])
-                keranjang[item.barang] = {
-                  qty: 0,
-                  satuan: item.satuan,
-                  detail: [],
-                };
-
-              keranjang[item.barang].qty += porsiQty;
-
-              keranjang[item.barang].detail.push({
-                tipe: "Paket (Pro-Rata)",
-                nama_sumber: paketNama,
-                qty_satuan: Number(porsiQty.toFixed(2)),
-                orang: 1,
-                subtotal: porsiQty,
-                list_peserta: [
-                  `${p.nama || p.id} (Sal: ${formatRp(saldoAktif)}, Rasio:${Math.round(rasio * 100)}%)`,
-                ],
-              });
-            }
-          });
-        });
+        // 1. Kumpulkan data barang custom (FIX_BARANG) per peserta & Hitung Total Belanja Custom-nya
+        let idPunyaCustom = [];
+        let totalCustomPerPeserta = {};
 
         masterData.custom.forEach((c) => {
           if (idLolos.includes(c.id_peserta)) {
-            let orangnya = pesertaLolos.find((p) => p.id === c.id_peserta);
-            if (!orangnya) return;
+            if (!idPunyaCustom.includes(c.id_peserta))
+              idPunyaCustom.push(c.id_peserta);
 
             let hrgJual =
               (masterData.harga_jual_barang &&
                 masterData.harga_jual_barang[c.barang]) ||
               masterData.harga_barang[c.barang] ||
               0;
-            let totalSubCustom = c.qty * hrgJual;
-            let saldoAktif = orangnya.saldo_rp || 0;
+            if (!totalCustomPerPeserta[c.id_peserta])
+              totalCustomPerPeserta[c.id_peserta] = 0;
 
-            let rasioCustom = 1.0;
-            if (totalSubCustom > 0) {
-              rasioCustom = saldoAktif / totalSubCustom;
-              if (rasioCustom > 1) rasioCustom = 1.0;
-              if (rasioCustom < 0) rasioCustom = 0;
-            }
+            totalCustomPerPeserta[c.id_peserta] += c.qty * hrgJual;
+          }
+        });
 
-            let porsiQtyCustom = c.qty * rasioCustom;
-            if (porsiQtyCustom > 0) {
-              if (!keranjang[c.barang])
-                keranjang[c.barang] = { qty: 0, satuan: c.satuan, detail: [] };
+        // 2. Loop setiap peserta yang lolos filter
+        pesertaLolos.forEach((p) => {
+          let paketNama = p.paket;
 
-              keranjang[c.barang].qty += porsiQtyCustom;
+          // AMBIL DATA SETORAN, TARGET, DAN MITRA
+          let infoSetor = p.setoran_masuk || 0;
+          let infoTarget = p.target_barang || 0;
+          let infoMitra = p.mitra || "-";
 
-              let namaOrang = orangnya.nama || orangnya.id;
-              keranjang[c.barang].detail.push({
-                tipe: "Custom (Pro-Rata)",
-                nama_sumber: namaOrang,
-                qty_satuan: Number(porsiQtyCustom.toFixed(2)),
-                orang: 1,
-                subtotal: porsiQtyCustom,
-                list_peserta: [
-                  `${namaOrang} (Sal: ${formatRp(saldoAktif)}, Rasio:${Math.round(rasioCustom * 100)}%)`,
-                ],
+          // HITUNG RASIO BERDASARKAN FREKUENSI SETORAN (BUKAN UANG)
+          let rasioBarang = 1.0;
+          if (infoTarget > 0) {
+            rasioBarang = infoSetor / infoTarget;
+            if (rasioBarang > 1) rasioBarang = 1.0;
+            if (rasioBarang < 0) rasioBarang = 0;
+          }
+
+          // JIKA DIA PUNYA BARANG CUSTOM DI FIX_BARANG / PESANAN_DETAIL
+          if (idPunyaCustom.includes(p.id)) {
+            masterData.custom.forEach((c) => {
+              if (c.id_peserta === p.id) {
+                let porsiQty = c.qty * rasioBarang;
+                if (porsiQty > 0) {
+                  if (!keranjang[c.barang])
+                    keranjang[c.barang] = {
+                      qty: 0,
+                      satuan: c.satuan,
+                      detail: [],
+                    };
+
+                  keranjang[c.barang].qty += porsiQty;
+
+                  let namaOrang = p.nama || p.id;
+                  keranjang[c.barang].detail.push({
+                    tipe: "Custom (Pro-Rata)",
+                    nama_sumber: `${namaOrang} (Custom Request)`,
+                    qty_satuan: Number(porsiQty.toFixed(2)),
+                    orang: 1,
+                    subtotal: porsiQty,
+                    list_peserta: [
+                      `${namaOrang} (Mitra: ${infoMitra}, Setor: ${infoSetor}x)`,
+                    ],
+                  });
+                }
+              }
+            });
+          }
+          // JIKA TIDAK PUNYA BARANG CUSTOM -> GUNAKAN STANDAR MASTER_ISI_PAKET
+          else {
+            let resepList = resepPerPaket[paketNama] || [];
+            if (resepList.length > 0) {
+              let headerPaketText = `${paketNama} (Target: ${infoTarget}x)`;
+
+              resepList.forEach((r) => {
+                let porsiQty = r.qty * rasioBarang;
+                if (porsiQty > 0) {
+                  if (!keranjang[r.barang])
+                    keranjang[r.barang] = {
+                      qty: 0,
+                      satuan: r.satuan,
+                      detail: [],
+                    };
+
+                  keranjang[r.barang].qty += porsiQty;
+
+                  keranjang[r.barang].detail.push({
+                    tipe: "Paket (Pro-Rata)",
+                    nama_sumber: headerPaketText,
+                    qty_satuan: Number(porsiQty.toFixed(2)),
+                    orang: 1,
+                    subtotal: porsiQty,
+                    list_peserta: [
+                      `${p.nama || p.id} (Mitra: ${infoMitra}, Setor: ${infoSetor}x)`,
+                    ],
+                  });
+                }
               });
             }
           }
         });
-
-        for (let stokBrg in masterData.stok_dibeli) {
-          if (!keranjang[stokBrg]) {
-            keranjang[stokBrg] = { qty: 0, satuan: "-", detail: [] };
-          }
-        }
 
         listBelanjaFinal = [];
         for (let key in keranjang) {
