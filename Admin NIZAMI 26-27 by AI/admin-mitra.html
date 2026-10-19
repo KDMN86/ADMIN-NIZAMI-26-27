@@ -21,6 +21,7 @@
         --border: #333;
         --danger: #ff6b81;
         --success: #4ade80;
+        --warning: #ff9f43;
       }
       body {
         background: var(--bg);
@@ -238,17 +239,17 @@
         margin-top: 3px;
       }
 
-      /* STATS GRID */
+      /* STATS GRID (5 KOLOM) */
       .stats-grid {
         display: grid;
-        grid-template-columns: repeat(4, 1fr);
-        gap: 10px;
+        grid-template-columns: repeat(5, 1fr);
+        gap: 8px;
       }
       .stat-box {
         background: #111;
         border: 1px solid #2a2a2a;
         border-radius: 10px;
-        padding: 10px 5px;
+        padding: 10px 4px;
         text-align: center;
         cursor: pointer;
         transition: 0.2s;
@@ -264,20 +265,20 @@
         font-family: "Font Awesome 6 Free";
         font-weight: 900;
         position: absolute;
-        top: 5px;
-        right: 5px;
+        top: 4px;
+        right: 4px;
         font-size: 0.5rem;
         color: #444;
       }
 
       .sb-val {
-        font-size: 1.3rem;
+        font-size: 1.2rem;
         font-weight: bold;
         display: block;
         line-height: 1.2;
       }
       .sb-label {
-        font-size: 0.65rem;
+        font-size: 0.6rem;
         color: #888;
         text-transform: uppercase;
       }
@@ -286,6 +287,7 @@
       .c-lunas-b { color: #4ade80; }
       .c-belum { color: #ff6b81; }
       .c-lunas-t { color: var(--primary); }
+      .c-checkout { color: var(--warning); }
 
       .m-actions {
         display: flex;
@@ -733,7 +735,7 @@
                             <p style="font-family:monospace; margin-top:5px; color:#ffd700;">ID: ${m.id}</p>
                         </div>
                         
-                        <!-- FEE BOX BESERTA KLIK UNTUK RINCIAN -->
+                        <!-- FEE BOX INTERAKTIF (KLIK UNTUK DETAIL) -->
                         <div class="m-fee-box clickable" onclick="showFeeDetail('${m.id}')" title="Klik untuk lihat rincian fee">
                             <span class="m-fee-label">TOTAL FEE MITRA <i class="fas fa-search-plus" style="font-size:0.65rem;"></i></span>
                             <span class="m-fee-val">${formatRupiah(m.total_fee || 0)}</span>
@@ -741,6 +743,7 @@
                         </div>
                     </div>
                     
+                    <!-- GRID STATISTIK 5 KOLOM (TERMASUK CHECKOUT) -->
                     <div class="stats-grid">
                         <div class="stat-box" onclick="showList('${m.id}', 'total')">
                             <span class="sb-val c-total">${m.stats.count.total}</span>
@@ -757,6 +760,10 @@
                         <div class="stat-box" onclick="showList('${m.id}', 'lunasTotal')">
                             <span class="sb-val c-lunas-t">${m.stats.count.lunasTotal}</span>
                             <span class="sb-label">Tamat<br>(100%)</span>
+                        </div>
+                        <div class="stat-box" onclick="showList('${m.id}', 'checkout')">
+                            <span class="sb-val c-checkout">${m.stats.count.checkout || 0}</span>
+                            <span class="sb-label">Putus<br>(Checkout)</span>
                         </div>
                     </div>
 
@@ -847,6 +854,9 @@
         } else if (type === "lunasTotal") {
           title = "Tamat Setoran (100%)";
           listData = mitra.stats.list.lunasTotal;
+        } else if (type === "checkout") {
+          title = "Peserta Checkout / Putus";
+          listData = mitra.stats.list.checkout || [];
         }
 
         document.getElementById("ml-title").innerText = title;
@@ -876,7 +886,7 @@
         document.getElementById("modalListPeserta").style.display = "flex";
       }
 
-      /* FUNGSI TAMPILKAN RINCIAN FEE PER PESERTA */
+      /* TAMPILKAN RINCIAN FEE PER PESERTA */
       function showFeeDetail(mitraId) {
         const mitra = allMitra.find((m) => m.id === mitraId);
         if (!mitra) return;
