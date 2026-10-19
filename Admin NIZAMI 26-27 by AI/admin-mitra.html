@@ -202,7 +202,7 @@
         background: rgba(255, 107, 129, 0.15);
       }
 
-      /* FEE BOX INTERAKTIF (KLIKABLE) */
+      /* FEE BOX INTERAKTIF */
       .m-fee-box {
         text-align: right;
       }
@@ -341,7 +341,7 @@
       .modal-card {
         background: var(--surface);
         width: 100%;
-        max-width: 400px;
+        max-width: 420px;
         padding: 25px;
         border-radius: 16px;
         border: 1px solid var(--border);
@@ -379,19 +379,19 @@
         font-size: 1rem;
       }
 
-      /* MODAL LIST DETAIL PESERTA */
+      /* MODAL LIST DETAIL PESERTA & FILTER BAR */
       #modalListPeserta {
         z-index: 200;
       }
       .list-card {
         background: var(--surface);
         width: 100%;
-        max-width: 400px;
+        max-width: 440px;
         border-radius: 16px;
         border: 1px solid var(--border);
         display: flex;
         flex-direction: column;
-        max-height: 80vh;
+        max-height: 85vh;
         animation: slideUp 0.3s ease;
       }
       .list-header {
@@ -403,6 +403,34 @@
         background: #1a1a1a;
         border-radius: 16px 16px 0 0;
       }
+
+      /* KONTROL FILTER POPUP */
+      .popup-filter-bar {
+        padding: 12px 15px;
+        background: #161616;
+        border-bottom: 1px solid #2a2a2a;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+      }
+      .filter-row {
+        display: flex;
+        gap: 8px;
+      }
+      .filter-row input, .filter-row select {
+        background: #222;
+        border: 1px solid #444;
+        color: #fff;
+        padding: 8px 10px;
+        border-radius: 8px;
+        font-size: 0.75rem;
+        outline: none;
+        flex: 1;
+      }
+      .filter-row input:focus, .filter-row select:focus {
+        border-color: var(--primary);
+      }
+
       .list-body {
         padding: 15px;
         overflow-y: auto;
@@ -634,7 +662,7 @@
       </div>
     </div>
 
-    <!-- MODAL LIST DETAIL PESERTA & RINCIAN FEE -->
+    <!-- MODAL LIST DETAIL PESERTA DENGAN BAR FILTER -->
     <div id="modalListPeserta" class="modal">
       <div class="list-card">
         <div class="list-header">
@@ -660,6 +688,41 @@
             "
           ></i>
         </div>
+
+        <!-- BAR KONTROL FILTER POPUP -->
+        <div class="popup-filter-bar" id="popupFilterBar">
+          <div class="filter-row">
+            <input
+              type="text"
+              id="pfSearch"
+              placeholder="🔍 Cari nama peserta..."
+              onkeyup="applyPopupFilters()"
+            />
+            <select id="pfSort" onchange="applyPopupFilters()">
+              <option value="default">Urutan Asli</option>
+              <option value="desc">Setoran Terbanyak ↓</option>
+              <option value="asc">Setoran Tersedikit ↑</option>
+            </select>
+          </div>
+          <div class="filter-row">
+            <input
+              type="number"
+              id="pfMin"
+              placeholder="Min Setor (x)"
+              oninput="applyPopupFilters()"
+            />
+            <input
+              type="number"
+              id="pfMax"
+              placeholder="Max Setor (x)"
+              oninput="applyPopupFilters()"
+            />
+            <select id="pfPaket" onchange="applyPopupFilters()">
+              <option value="ALL">Semua Paket</option>
+            </select>
+          </div>
+        </div>
+
         <div class="list-body" id="modalListBody"></div>
       </div>
     </div>
@@ -667,6 +730,8 @@
     <script src="script.js"></script>
     <script>
       let allMitra = [];
+      let currentPopupRawList = []; // Menyimpan data mentah peserta yang sedang aktif di popup
+      let isFeeModalActive = false; // Menandai apakah popup sedang menampilkan fee
 
       document.addEventListener("click", function (e) {
         if (!e.target.closest(".action-menu-container")) {
@@ -735,7 +800,6 @@
                             <p style="font-family:monospace; margin-top:5px; color:#ffd700;">ID: ${m.id}</p>
                         </div>
                         
-                        <!-- FEE BOX INTERAKTIF (KLIK UNTUK DETAIL) -->
                         <div class="m-fee-box clickable" onclick="showFeeDetail('${m.id}')" title="Klik untuk lihat rincian fee">
                             <span class="m-fee-label">TOTAL FEE MITRA <i class="fas fa-search-plus" style="font-size:0.65rem;"></i></span>
                             <span class="m-fee-val">${formatRupiah(m.total_fee || 0)}</span>
@@ -743,7 +807,6 @@
                         </div>
                     </div>
                     
-                    <!-- GRID STATISTIK 5 KOLOM (TERMASUK CHECKOUT) -->
                     <div class="stats-grid">
                         <div class="stat-box" onclick="showList('${m.id}', 'total')">
                             <span class="sb-val c-total">${m.stats.count.total}</span>
@@ -835,9 +898,13 @@
         }
       }
 
+      /* TAMPILKAN DAFTAR PESERTA DENGAN KONTROL FILTER */
       function showList(mitraId, type) {
         const mitra = allMitra.find((m) => m.id === mitraId);
         if (!mitra) return;
+
+        isFeeModalActive = false;
+        document.getElementById("popupFilterBar").style.display = "flex";
 
         let title = "";
         let listData = [];
@@ -862,26 +929,20 @@
         document.getElementById("ml-title").innerText = title;
         document.getElementById("ml-mitra").innerText = "Mitra: " + mitra.nama;
 
-        const body = document.getElementById("modalListBody");
-        body.innerHTML = "";
+        currentPopupRawList = [...listData];
 
-        if (listData.length === 0) {
-          body.innerHTML =
-            '<div style="text-align:center; padding:30px; color:#666;">Tidak ada peserta di kategori ini.</div>';
-        } else {
-          listData.forEach((p, index) => {
-            body.innerHTML += `
-                    <div class="p-detail-item">
-                        <div>
-                            <div class="p-name"><span style="color:#aaa; margin-right:5px;">${index + 1}.</span> ${p.nama}</div>
-                            <div class="p-paket">${p.paket}</div>
-                        </div>
-                        <div class="p-setoran">
-                            Setoran: ${p.tercapai}x
-                        </div>
-                    </div>`;
-          });
-        }
+        // Isikan opsi Jenis Paket secara dinamis
+        const selectPaket = document.getElementById("pfPaket");
+        selectPaket.innerHTML = '<option value="ALL">Semua Paket</option>';
+        const uniquePaket = [...new Set(currentPopupRawList.map((p) => p.paket))];
+        uniquePaket.forEach((pkt) => {
+          if (pkt) {
+            selectPaket.innerHTML += `<option value="${pkt}">${pkt}</option>`;
+          }
+        });
+
+        resetPopupFilterInputs();
+        applyPopupFilters();
 
         document.getElementById("modalListPeserta").style.display = "flex";
       }
@@ -890,6 +951,9 @@
       function showFeeDetail(mitraId) {
         const mitra = allMitra.find((m) => m.id === mitraId);
         if (!mitra) return;
+
+        isFeeModalActive = true;
+        document.getElementById("popupFilterBar").style.display = "none"; // Sembunyikan filter saat rincian fee
 
         document.getElementById("ml-title").innerText = "Rincian Fee Mitra";
         document.getElementById("ml-mitra").innerText = "Mitra: " + mitra.nama + " (Total: " + formatRupiah(mitra.total_fee) + ")";
@@ -917,6 +981,77 @@
         }
 
         document.getElementById("modalListPeserta").style.display = "flex";
+      }
+
+      /* FUNGSI UTAMA PENERAP FILTER & SORTIR DI POPUP */
+      function applyPopupFilters() {
+        if (isFeeModalActive) return;
+
+        const searchVal = document.getElementById("pfSearch").value.toLowerCase().trim();
+        const sortVal = document.getElementById("pfSort").value;
+        const minVal = parseInt(document.getElementById("pfMin").value);
+        const maxVal = parseInt(document.getElementById("pfMax").value);
+        const paketVal = document.getElementById("pfPaket").value;
+
+        let filtered = [...currentPopupRawList];
+
+        // 1. Filter Search Nama
+        if (searchVal) {
+          filtered = filtered.filter((p) => p.nama.toLowerCase().includes(searchVal));
+        }
+
+        // 2. Filter Rentang Setoran
+        if (!isNaN(minVal)) {
+          filtered = filtered.filter((p) => p.tercapai >= minVal);
+        }
+        if (!isNaN(maxVal)) {
+          filtered = filtered.filter((p) => p.tercapai <= maxVal);
+        }
+
+        // 3. Filter Jenis Paket
+        if (paketVal !== "ALL") {
+          filtered = filtered.filter((p) => p.paket === paketVal);
+        }
+
+        // 4. Urutkan / Sortir
+        if (sortVal === "desc") {
+          filtered.sort((a, b) => b.tercapai - a.tercapai);
+        } else if (sortVal === "asc") {
+          filtered.sort((a, b) => a.tercapai - b.tercapai);
+        }
+
+        renderPopupList(filtered);
+      }
+
+      function renderPopupList(listData) {
+        const body = document.getElementById("modalListBody");
+        body.innerHTML = "";
+
+        if (listData.length === 0) {
+          body.innerHTML = '<div style="text-align:center; padding:30px; color:#666;">Tidak ada peserta yang cocok dengan filter.</div>';
+          return;
+        }
+
+        listData.forEach((p, index) => {
+          body.innerHTML += `
+            <div class="p-detail-item">
+                <div>
+                    <div class="p-name"><span style="color:#aaa; margin-right:5px;">${index + 1}.</span> ${p.nama}</div>
+                    <div class="p-paket">${p.paket}</div>
+                </div>
+                <div class="p-setoran">
+                    Setoran: ${p.tercapai}x
+                </div>
+            </div>`;
+        });
+      }
+
+      function resetPopupFilterInputs() {
+        document.getElementById("pfSearch").value = "";
+        document.getElementById("pfSort").value = "default";
+        document.getElementById("pfMin").value = "";
+        document.getElementById("pfMax").value = "";
+        document.getElementById("pfPaket").value = "ALL";
       }
 
       function closeListModal() {
