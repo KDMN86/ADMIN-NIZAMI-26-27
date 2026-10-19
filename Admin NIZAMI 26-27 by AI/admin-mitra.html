@@ -19,6 +19,8 @@
         --surface: #1e1e1e;
         --text: #e0e0e0;
         --border: #333;
+        --danger: #ff6b81;
+        --success: #4ade80;
       }
       body {
         background: var(--bg);
@@ -92,6 +94,11 @@
         border-radius: 16px;
         padding: 20px;
         overflow: hidden;
+        position: relative;
+      }
+      .mitra-card.non-aktif {
+        opacity: 0.6;
+        filter: grayscale(0.8);
       }
 
       .m-header {
@@ -101,6 +108,7 @@
         margin-bottom: 15px;
         border-bottom: 1px dashed #333;
         padding-bottom: 15px;
+        padding-right: 30px;
       }
       .m-info h3 {
         margin: 0 0 5px 0;
@@ -116,8 +124,101 @@
         color: #888;
       }
 
+      .badge-status {
+        display: inline-block;
+        padding: 2px 8px;
+        border-radius: 6px;
+        font-size: 0.65rem;
+        font-weight: bold;
+        text-transform: uppercase;
+        margin-left: 5px;
+      }
+      .badge-aktif {
+        background: rgba(74, 222, 128, 0.15);
+        color: var(--success);
+        border: 1px solid rgba(74, 222, 128, 0.3);
+      }
+      .badge-nonaktif {
+        background: rgba(255, 107, 129, 0.15);
+        color: var(--danger);
+        border: 1px solid rgba(255, 107, 129, 0.3);
+      }
+
+      /* ACTION MENU DROPDOWN */
+      .action-menu-container {
+        position: absolute;
+        top: 15px;
+        right: 15px;
+      }
+      .menu-btn {
+        background: transparent;
+        border: none;
+        color: #aaa;
+        font-size: 1.2rem;
+        cursor: pointer;
+        padding: 5px 10px;
+        border-radius: 8px;
+        transition: 0.2s;
+      }
+      .menu-btn:hover {
+        background: #2a2a2a;
+        color: #fff;
+      }
+      .dropdown-menu {
+        display: none;
+        position: absolute;
+        right: 0;
+        top: 35px;
+        background: #222;
+        border: 1px solid #444;
+        border-radius: 10px;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+        z-index: 80;
+        min-width: 160px;
+        overflow: hidden;
+      }
+      .dropdown-menu.show {
+        display: block;
+      }
+      .dropdown-item {
+        padding: 10px 15px;
+        font-size: 0.85rem;
+        color: #ddd;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        cursor: pointer;
+        transition: 0.2s;
+      }
+      .dropdown-item:hover {
+        background: #333;
+        color: #fff;
+      }
+      .dropdown-item.text-danger {
+        color: var(--danger);
+      }
+      .dropdown-item.text-danger:hover {
+        background: rgba(255, 107, 129, 0.15);
+      }
+
+      /* FEE BOX INTERAKTIF (KLIKABLE) */
       .m-fee-box {
         text-align: right;
+      }
+      .m-fee-box.clickable {
+        cursor: pointer;
+        transition: transform 0.2s, background 0.2s;
+        padding: 6px 10px;
+        border-radius: 8px;
+        border: 1px dashed rgba(76, 175, 80, 0.4);
+        background: rgba(76, 175, 80, 0.05);
+      }
+      .m-fee-box.clickable:hover {
+        background: rgba(76, 175, 80, 0.15);
+        transform: scale(1.02);
+      }
+      .m-fee-box.clickable:active {
+        transform: scale(0.98);
       }
       .m-fee-label {
         font-size: 0.7rem;
@@ -181,18 +282,10 @@
         text-transform: uppercase;
       }
 
-      .c-total {
-        color: #48dbfb;
-      }
-      .c-lunas-b {
-        color: #4ade80;
-      }
-      .c-belum {
-        color: #ff6b81;
-      }
-      .c-lunas-t {
-        color: var(--primary);
-      }
+      .c-total { color: #48dbfb; }
+      .c-lunas-b { color: #4ade80; }
+      .c-belum { color: #ff6b81; }
+      .c-lunas-t { color: var(--primary); }
 
       .m-actions {
         display: flex;
@@ -231,7 +324,7 @@
         border: none;
       }
 
-      /* MODAL TAMBAH MITRA & RESULT */
+      /* MODAL TAMBAH/EDIT MITRA & RESULT */
       .modal {
         display: none;
         position: fixed;
@@ -360,9 +453,7 @@
   <body>
     <div class="top-nav">
       <div class="header-content">
-        <a href="index.html" class="back-btn"
-          ><i class="fas fa-arrow-left"></i
-        ></a>
+        <a href="index.html" class="back-btn"><i class="fas fa-arrow-left"></i></a>
         <h2 class="page-title">Manajemen Mitra</h2>
       </div>
       <input
@@ -384,13 +475,15 @@
       </div>
     </div>
 
-    <button class="fab-add" onclick="toggleAddModal(true)">
+    <button class="fab-add" onclick="openFormModal()">
       <i class="fas fa-user-plus"></i>
     </button>
 
+    <!-- MODAL FORM (TAMBAH / EDIT) -->
     <div id="modalAdd" class="modal">
       <div class="modal-card">
         <h3
+          id="modalTitle"
           style="
             margin-top: 0;
             color: var(--primary);
@@ -402,6 +495,7 @@
         </h3>
 
         <div
+          id="waExtractSection"
           style="
             background: linear-gradient(135deg, #075e54, #128c7e);
             border-radius: 12px;
@@ -453,6 +547,8 @@
             <i class="fas fa-magic"></i> ISI FORM OTOMATIS
           </button>
         </div>
+
+        <input type="hidden" id="mId" />
 
         <label class="form-label">Nama Lengkap</label>
         <input
@@ -527,9 +623,7 @@
         <div id="waMitraAction" style="margin-top: 25px"></div>
 
         <button
-          onclick="
-            document.getElementById('modalResultMitra').style.display = 'none'
-          "
+          onclick="document.getElementById('modalResultMitra').style.display = 'none'"
           class="btn-full"
           style="background: #333; color: #fff; margin-top: 15px"
         >
@@ -538,6 +632,7 @@
       </div>
     </div>
 
+    <!-- MODAL LIST DETAIL PESERTA & RINCIAN FEE -->
     <div id="modalListPeserta" class="modal">
       <div class="list-card">
         <div class="list-header">
@@ -567,80 +662,17 @@
       </div>
     </div>
 
-    <div id="modalEdit" class="modal">
-      <div class="modal-card">
-        <h3
-          style="
-            margin-top: 0;
-            color: var(--primary);
-            text-align: center;
-            margin-bottom: 15px;
-          "
-        >
-          <i class="fas fa-user-edit"></i> Pengaturan Mitra
-        </h3>
-
-        <input type="hidden" id="eId" />
-        <label class="form-label">Nama Lengkap</label>
-        <input type="text" id="eNama" class="form-input" />
-
-        <label class="form-label">Nomor WhatsApp</label>
-        <input type="number" id="eHP" class="form-input" />
-
-        <label class="form-label">Alamat / Wilayah</label>
-        <input type="text" id="eAlamat" class="form-input" />
-
-        <label class="form-label">Komisi / Fee per Peserta (Rp)</label>
-        <input
-          type="number"
-          id="eFee"
-          class="form-input"
-          style="color: var(--primary); font-weight: bold"
-        />
-
-        <button
-          onclick="simpanEditMitra()"
-          class="btn-full"
-          id="btnSimpanEdit"
-          style="margin-bottom: 15px"
-        >
-          SIMPAN PERUBAHAN
-        </button>
-
-        <div style="display: flex; gap: 10px">
-          <button
-            onclick="hapusMitra()"
-            class="btn-full"
-            style="
-              background: rgba(255, 107, 129, 0.1);
-              color: #ff6b81;
-              border: 1px solid rgba(255, 107, 129, 0.3);
-              flex: 1;
-            "
-          >
-            <i class="fas fa-trash"></i> Hapus
-          </button>
-          <button
-            onclick="
-              document.getElementById('modalEdit').style.display = 'none'
-            "
-            class="btn-full"
-            style="
-              background: transparent;
-              color: #888;
-              border: 1px solid #444;
-              flex: 1;
-            "
-          >
-            Batal
-          </button>
-        </div>
-      </div>
-    </div>
-
     <script src="script.js"></script>
     <script>
       let allMitra = [];
+
+      document.addEventListener("click", function (e) {
+        if (!e.target.closest(".action-menu-container")) {
+          document.querySelectorAll(".dropdown-menu").forEach((el) => {
+            el.classList.remove("show");
+          });
+        }
+      });
 
       async function load() {
         const container = document.getElementById("listArea");
@@ -654,6 +686,7 @@
             '<div style="text-align:center; padding:20px; color:#ff6b6b;">Gagal memuat data analitik.</div>';
         }
       }
+
       function renderList(items) {
         const container = document.getElementById("listArea");
         container.innerHTML = "";
@@ -665,90 +698,136 @@
         }
 
         items.forEach((m) => {
-          let hpClean = String(m.hp).replace(/\D/g, "");
+          let hpClean = String(m.hp || "").replace(/\D/g, "");
           if (hpClean.startsWith("0")) hpClean = "62" + hpClean.substring(1);
-
           const waLink = hpClean ? `https://wa.me/${hpClean}` : "#";
-          const linkMitra = `https://nizami-26-27-fix.vercel.app/mitra.html?id=${m.id}`;
+          
+          const isAktif = m.status === undefined || m.status === true || m.status === "Aktif";
 
           container.innerHTML += `
-      <div class="mitra-card">
-        
-        <div class="m-header">
-          <div class="m-info">
-            <div style="display: flex; justify-content: space-between; align-items: flex-start; width: 100%;">
-                <h3 onclick="bukaMitra('${m.id}')" style="cursor:pointer; margin: 0 0 5px 0;">
-                  <i class="fas fa-handshake" style="color:var(--primary);"></i> 
-                  <span style="text-decoration:underline;">${m.nama}</span>
-                </h3>
-                <button onclick="bukaEditMitra('${m.id}')" style="background:none; border:none; color:#888; font-size:1.1rem; cursor:pointer; padding:0;">
-                  <i class="fas fa-cog"></i>
-                </button>
-            </div>
+                <div class="mitra-card ${isAktif ? '' : 'non-aktif'}" id="card-${m.id}">
+                    <div class="action-menu-container">
+                        <button class="menu-btn" onclick="toggleDropdown(event, '${m.id}')">
+                            <i class="fas fa-ellipsis-v"></i>
+                        </button>
+                        <div class="dropdown-menu" id="dropdown-${m.id}">
+                            <div class="dropdown-item" onclick="openFormModal('${m.id}')">
+                                <i class="fas fa-edit" style="color:var(--primary);"></i> Edit Data
+                            </div>
+                            <div class="dropdown-item ${isAktif ? 'text-danger' : ''}" onclick="toggleStatusMitra('${m.id}', ${isAktif})">
+                                <i class="fas ${isAktif ? 'fa-user-slash' : 'fa-user-check'}" style="color:${isAktif ? 'var(--danger)' : 'var(--success)'};"></i> 
+                                ${isAktif ? 'Nonaktifkan' : 'Aktifkan'}
+                            </div>
+                        </div>
+                    </div>
 
-            <p><i class="fas fa-map-marker-alt"></i> ${m.alamat || "Tidak ada alamat"}</p>
-            <p style="font-family:monospace; margin-top:5px; color:#ffd700;">ID: ${m.id}</p>
-          </div>
+                    <div class="m-header">
+                        <div class="m-info">
+                            <h3>
+                              <i class="fas fa-handshake" style="color:var(--primary);"></i> ${m.nama}
+                              <span class="badge-status ${isAktif ? 'badge-aktif' : 'badge-nonaktif'}">
+                                ${isAktif ? 'Aktif' : 'Non-Aktif'}
+                              </span>
+                            </h3>
+                            <p><i class="fas fa-map-marker-alt"></i> ${m.alamat || "Tidak ada alamat"}</p>
+                            <p style="font-family:monospace; margin-top:5px; color:#ffd700;">ID: ${m.id}</p>
+                        </div>
+                        
+                        <!-- FEE BOX BESERTA KLIK UNTUK RINCIAN -->
+                        <div class="m-fee-box clickable" onclick="showFeeDetail('${m.id}')" title="Klik untuk lihat rincian fee">
+                            <span class="m-fee-label">TOTAL FEE MITRA <i class="fas fa-search-plus" style="font-size:0.65rem;"></i></span>
+                            <span class="m-fee-val">${formatRupiah(m.total_fee || 0)}</span>
+                            <span class="m-fee-unit">${formatRupiah(m.fee_satuan || 0)} /peserta</span>
+                        </div>
+                    </div>
+                    
+                    <div class="stats-grid">
+                        <div class="stat-box" onclick="showList('${m.id}', 'total')">
+                            <span class="sb-val c-total">${m.stats.count.total}</span>
+                            <span class="sb-label">Total<br>Peserta</span>
+                        </div>
+                        <div class="stat-box" onclick="showList('${m.id}', 'lunasBarang')">
+                            <span class="sb-val c-lunas-b">${m.stats.count.lunasBarang}</span>
+                            <span class="sb-label">Lunas<br>Barang</span>
+                        </div>
+                        <div class="stat-box" onclick="showList('${m.id}', 'belumBarang')">
+                            <span class="sb-val c-belum">${m.stats.count.belumBarang}</span>
+                            <span class="sb-label">Belum<br>Lunas</span>
+                        </div>
+                        <div class="stat-box" onclick="showList('${m.id}', 'lunasTotal')">
+                            <span class="sb-val c-lunas-t">${m.stats.count.lunasTotal}</span>
+                            <span class="sb-label">Tamat<br>(100%)</span>
+                        </div>
+                    </div>
 
-          <div class="m-fee-box">
-            <span class="m-fee-label">Total Fee Mitra</span>
-            <span class="m-fee-val">${formatRupiah(m.total_fee)}</span>
-            <span class="m-fee-unit">${formatRupiah(m.fee_satuan)} /peserta</span>
-          </div>
-        </div>
-
-        <div class="stats-grid">
-          <div class="stat-box" onclick="showList('${m.id}', 'total')">
-            <span class="sb-val c-total">${m.stats.count.total}</span>
-            <span class="sb-label">Total<br>Peserta</span>
-          </div>
-          <div class="stat-box" onclick="showList('${m.id}', 'lunasBarang')">
-            <span class="sb-val c-lunas-b">${m.stats.count.lunasBarang}</span>
-            <span class="sb-label">Lunas<br>Barang</span>
-          </div>
-          <div class="stat-box" onclick="showList('${m.id}', 'belumBarang')">
-            <span class="sb-val c-belum">${m.stats.count.belumBarang}</span>
-            <span class="sb-label">Belum<br>Lunas</span>
-          </div>
-          <div class="stat-box" onclick="showList('${m.id}', 'lunasTotal')">
-            <span class="sb-val c-lunas-t">${m.stats.count.lunasTotal}</span>
-            <span class="sb-label">Tamat<br>(100%)</span>
-          </div>
-        </div>
-
-        <!-- ✅ ACTION BUTTON BARU -->
-        <div class="m-actions">
-
-          ${
-            m.hp && m.hp !== "-"
-              ? `
-          <a href="${waLink}" target="_blank" class="btn-wa">
-            <i class="fab fa-whatsapp"></i> Hubungi
-          </a>
-          `
-              : ""
-          }
-
-          <button onclick="kirimLinkMitra('${m.id}', '${m.nama}', '${hpClean}')" 
-            class="btn-wa" 
-            style="background:#1e90ff20; color:#1e90ff; border-color:#1e90ff40;">
-            🔗 Kirim Link
-          </button>
-
-          <button onclick="copyLinkMitra('${m.id}')" 
-            class="btn-wa" 
-            style="background:#ffaa0020; color:#ffaa00; border-color:#ffaa0040;">
-            📋 Copy
-          </button>
-
-        </div>
-
-      </div>
-    `;
+                    ${
+                      m.hp && m.hp !== "-"
+                        ? `
+                    <div class="m-actions">
+                        <a href="${waLink}" target="_blank" class="btn-wa">
+                            <i class="fab fa-whatsapp"></i> Hubungi Mitra
+                        </a>
+                    </div>`
+                        : ""
+                    }
+                </div>`;
         });
       }
 
-      // --- FUNGSI KLIK BOX & MUNCULKAN POPUP ---
+      function toggleDropdown(e, id) {
+        e.stopPropagation();
+        document.querySelectorAll(".dropdown-menu").forEach((el) => {
+          if (el.id !== `dropdown-${id}`) el.classList.remove("show");
+        });
+        
+        const target = document.getElementById(`dropdown-${id}`);
+        if (target) target.classList.toggle("show");
+      }
+
+      function openFormModal(mitraId = null) {
+        document.querySelectorAll(".dropdown-menu").forEach((el) => el.classList.remove("show"));
+
+        if (mitraId) {
+          const m = allMitra.find((item) => item.id === mitraId);
+          if (!m) return;
+
+          document.getElementById("modalTitle").innerText = "Edit Data Mitra";
+          document.getElementById("mId").value = m.id;
+          document.getElementById("mNama").value = m.nama || "";
+          document.getElementById("mHP").value = m.hp || "";
+          document.getElementById("mAlamat").value = m.alamat || "";
+          document.getElementById("mFee").value = m.fee_satuan || 0;
+          document.getElementById("waExtractSection").style.display = "none";
+        } else {
+          document.getElementById("modalTitle").innerText = "Tambah Mitra Baru";
+          document.getElementById("mId").value = "";
+          document.getElementById("mNama").value = "";
+          document.getElementById("mHP").value = "";
+          document.getElementById("mAlamat").value = "";
+          document.getElementById("mFee").value = "";
+          document.getElementById("waExtractSection").style.display = "block";
+        }
+
+        toggleAddModal(true);
+      }
+
+      async function toggleStatusMitra(id, currentStatus) {
+        document.querySelectorAll(".dropdown-menu").forEach((el) => el.classList.remove("show"));
+
+        const newStatus = !currentStatus;
+        const actionName = newStatus ? "mengaktifkan" : "menonaktifkan";
+
+        if (!confirm(`Apakah Anda yakin ingin ${actionName} mitra ini?`)) return;
+
+        const res = await fetchData("updateStatusMitra", { id, status: newStatus });
+
+        if (res && res.success) {
+          load();
+        } else {
+          alert(`Gagal ${actionName} mitra.`);
+        }
+      }
+
       function showList(mitraId, type) {
         const mitra = allMitra.find((m) => m.id === mitraId);
         if (!mitra) return;
@@ -797,6 +876,39 @@
         document.getElementById("modalListPeserta").style.display = "flex";
       }
 
+      /* FUNGSI TAMPILKAN RINCIAN FEE PER PESERTA */
+      function showFeeDetail(mitraId) {
+        const mitra = allMitra.find((m) => m.id === mitraId);
+        if (!mitra) return;
+
+        document.getElementById("ml-title").innerText = "Rincian Fee Mitra";
+        document.getElementById("ml-mitra").innerText = "Mitra: " + mitra.nama + " (Total: " + formatRupiah(mitra.total_fee) + ")";
+
+        const body = document.getElementById("modalListBody");
+        body.innerHTML = "";
+
+        const details = mitra.stats.feeDetails || [];
+
+        if (details.length === 0) {
+          body.innerHTML = '<div style="text-align:center; padding:30px; color:#666;">Belum ada rincian fee untuk mitra ini.</div>';
+        } else {
+          details.forEach((item, index) => {
+            body.innerHTML += `
+              <div class="p-detail-item">
+                  <div>
+                      <div class="p-name"><span style="color:#aaa; margin-right:5px;">${index + 1}.</span> ${item.nama}</div>
+                      <div class="p-paket">${item.paket} &bull; <span style="color:#4ade80;">${item.keterangan}</span></div>
+                  </div>
+                  <div class="p-setoran" style="color:#4ade80; background:rgba(74, 222, 128, 0.1); border-color:rgba(74, 222, 128, 0.2);">
+                      +${formatRupiah(item.nominal)}
+                  </div>
+              </div>`;
+          });
+        }
+
+        document.getElementById("modalListPeserta").style.display = "flex";
+      }
+
       function closeListModal() {
         document.getElementById("modalListPeserta").style.display = "none";
       }
@@ -812,12 +924,9 @@
       }
 
       function toggleAddModal(show) {
-        document.getElementById("modalAdd").style.display = show
-          ? "flex"
-          : "none";
+        document.getElementById("modalAdd").style.display = show ? "flex" : "none";
       }
 
-      // --- FUNGSI EKSTRAK WA CALON MITRA ---
       function parseWAMitra() {
         const raw = document.getElementById("waMitraRaw").value;
         if (!raw) return alert("Paste chat WA terlebih dahulu!");
@@ -827,27 +936,21 @@
         const alMatch = raw.match(/Alamat\s*[:=]\s*([^\n]+)/i);
 
         if (nmMatch)
-          document.getElementById("mNama").value = nmMatch[1]
-            .replace(/\*/g, "")
-            .trim();
+          document.getElementById("mNama").value = nmMatch[1].replace(/\*/g, "").trim();
         if (hpMatch)
           document.getElementById("mHP").value = hpMatch[1].replace(/\D/g, "");
         if (alMatch)
-          document.getElementById("mAlamat").value = alMatch[1]
-            .replace(/\*/g, "")
-            .trim();
+          document.getElementById("mAlamat").value = alMatch[1].replace(/\*/g, "").trim();
 
         if (!nmMatch && !hpMatch && !alMatch) {
-          alert(
-            "Format WA tidak dikenali. Pastikan ada tulisan Nama:, WA:, atau Alamat:",
-          );
+          alert("Format WA tidak dikenali. Pastikan ada tulisan Nama:, WA:, atau Alamat:");
         } else {
           document.getElementById("waMitraRaw").value = "";
         }
       }
 
-      // --- FUNGSI SIMPAN & GENERATE LINK WA MITRA ---
       async function simpanMitra() {
+        const id = document.getElementById("mId").value;
         const nama = document.getElementById("mNama").value;
         const hp = document.getElementById("mHP").value;
         const alamat = document.getElementById("mAlamat").value;
@@ -859,43 +962,39 @@
         btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Menyimpan...';
         btn.disabled = true;
 
-        const res = await fetchData("tambahMitra", { nama, hp, alamat, fee });
+        const actionType = id ? "editMitra" : "tambahMitra";
+        const res = await fetchData(actionType, { id, nama, hp, alamat, fee });
 
         if (res && res.success) {
           toggleAddModal(false);
 
-          // Format Nomor HP untuk WA Link
-          let hpClean = String(hp).replace(/\D/g, "");
-          if (hpClean.startsWith("0")) hpClean = "62" + hpClean.substring(1);
+          if (!id) {
+            let hpClean = String(hp).replace(/\D/g, "");
+            if (hpClean.startsWith("0")) hpClean = "62" + hpClean.substring(1);
 
-          // Susun Pesan WA Cantik (Hapus teks deskripsi panjang dan fix link ke mitra.html)
-          let waText = `Halo *${nama}*,\n\n`;
-          waText += `Selamat! Pengajuan Anda sebagai *Mitra/Agen Tabungan NIZAMI 2026-2027* telah disetujui. 🎉\n\n`;
-          waText += `Berikut adalah ID Resmi Mitra Anda:\n`;
-          waText += `*${res.id}*\n\n`;
-          waText += `Silakan klik tautan khusus di bawah ini untuk masuk ke Dashboard Anda:\n`;
-          waText += `🔗 https://nizami-26-27-fix.vercel.app/mitra.html?id=${res.id}\n\n`;
-          waText += `_(Mohon simpan dan jangan bagikan tautan ini ke orang lain)_\n\n`;
-          waText += `Mari semangat menabung bersama! 🙏`;
+            let waText = `Halo *${nama}*,\n\n`;
+            waText += `Selamat! Pengajuan Anda sebagai *Mitra/Agen Tabungan NIZAMI 2026-2027* telah disetujui. 🥳\n\n`;
+            waText += `Berikut adalah ID Resmi Mitra Anda:\n`;
+            waText += `*${res.id}*\n\n`;
+            waText += `Silakan klik tautan khusus di bawah ini untuk masuk ke Dashboard Anda:\n`;
+            waText += `👉 https://nizami-26-27-fix.vercel.app/mitra.html?id=${res.id}\n\n`;
+            waText += `_(Mohon simpan dan jangan bagikan tautan ini ke orang lain)_\n\n`;
+            waText += `Mari semangat menabung bersama! 💸`;
 
-          const waLink = `https://wa.me/${hpClean}?text=${encodeURIComponent(waText)}`;
+            const waLink = `https://wa.me/${hpClean}?text=${encodeURIComponent(waText)}`;
 
-          // Tampilkan Modal Result dengan Tombol WA
-          document.getElementById("resMitraId").innerText = res.id;
-          document.getElementById("waMitraAction").innerHTML = `
-              <a href="${waLink}" target="_blank" style="background:#25D366; color:#fff; text-decoration:none; padding:15px; border-radius:10px; font-weight:bold; display:flex; align-items:center; justify-content:center; gap:8px; box-shadow: 0 5px 15px rgba(37, 211, 102, 0.4);">
-                  <i class="fab fa-whatsapp" style="font-size:1.5rem;"></i> Kirim Akses ke ${nama}
-              </a>
-          `;
-          document.getElementById("modalResultMitra").style.display = "flex";
+            document.getElementById("resMitraId").innerText = res.id;
+            document.getElementById("waMitraAction").innerHTML = `
+                <a href="${waLink}" target="_blank" style="background:#25D366; color:#fff; text-decoration:none; padding:15px; border-radius:10px; font-weight:bold; display:flex; align-items:center; justify-content:center; gap:8px; box-shadow: 0 5px 15px rgba(37, 211, 102, 0.4);">
+                    <i class="fab fa-whatsapp" style="font-size:1.5rem;"></i> Kirim Akses ke ${nama}
+                </a>
+            `;
+            document.getElementById("modalResultMitra").style.display = "flex";
+          } else {
+            alert("Data mitra berhasil diperbarui!");
+          }
 
-          // Reset Form
-          document.getElementById("mNama").value = "";
-          document.getElementById("mHP").value = "";
-          document.getElementById("mAlamat").value = "";
-          document.getElementById("mFee").value = "";
-
-          load(); // Refresh Analytics
+          load();
         } else {
           alert("Gagal menyimpan ke server");
         }
@@ -903,112 +1002,8 @@
         btn.innerHTML = "SIMPAN DATA";
         btn.disabled = false;
       }
-      function getLinkMitra(id) {
-        return `https://nizami-26-27-fix.vercel.app/mitra.html?id=${id}`;
-      }
 
-      // ✅ buka halaman mitra saat nama diklik
-      function bukaMitra(id) {
-        const link = getLinkMitra(id);
-        window.open(link, "_blank");
-      }
-
-      // ✅ kirim link via WhatsApp
-      function kirimLinkMitra(id, nama, hp) {
-        if (!hp) return alert("Nomor HP tidak tersedia");
-
-        const link = getLinkMitra(id);
-
-        let text = `Halo *${nama}*,\n\n`;
-        text += `Berikut link dashboard mitra Anda:\n`;
-        text += `${link}\n\n`;
-        text += `_Simpan link ini baik-baik ya_ 🙏`;
-
-        const wa = `https://wa.me/${hp}?text=${encodeURIComponent(text)}`;
-        window.open(wa, "_blank");
-      }
-
-      // ✅ copy link ke clipboard
-      function copyLinkMitra(id) {
-        const link = getLinkMitra(id);
-
-        navigator.clipboard
-          .writeText(link)
-          .then(() => alert("Link berhasil disalin:\n" + link))
-          .catch(() => alert("Gagal copy link"));
-      }
       load();
-
-      // --- FUNGSI BUKA MODAL EDIT ---
-      function bukaEditMitra(id) {
-        const m = allMitra.find((x) => x.id === id);
-        if (!m) return;
-
-        // Isi form dengan data yang ada
-        document.getElementById("eId").value = m.id;
-        document.getElementById("eNama").value = m.nama;
-        document.getElementById("eHP").value = m.hp !== "-" ? m.hp : "";
-        document.getElementById("eAlamat").value = m.alamat;
-        document.getElementById("eFee").value = m.fee_satuan;
-
-        // Tampilkan modal
-        document.getElementById("modalEdit").style.display = "flex";
-      }
-
-      // --- FUNGSI SIMPAN PERUBAHAN KE SERVER ---
-      async function simpanEditMitra() {
-        const id = document.getElementById("eId").value;
-        const nama = document.getElementById("eNama").value;
-        const hp = document.getElementById("eHP").value;
-        const alamat = document.getElementById("eAlamat").value;
-        const fee = document.getElementById("eFee").value;
-
-        if (!nama) return alert("Nama Mitra wajib diisi!");
-
-        const btn = document.getElementById("btnSimpanEdit");
-        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Menyimpan...';
-        btn.disabled = true;
-
-        // Panggil endpoint Apps Script untuk Update Data
-        const res = await fetchData("editMitra", { id, nama, hp, alamat, fee }, "POST");
-
-        if (res && res.success) {
-          document.getElementById("modalEdit").style.display = "none";
-          load(); // Refresh tampilan kartu secara otomatis
-        } else {
-          alert(
-            "Gagal mengupdate data. Pastikan fungsi 'editMitra' sudah ada di Google Apps Script.",
-          );
-        }
-
-        btn.innerHTML = "SIMPAN PERUBAHAN";
-        btn.disabled = false;
-      }
-
-      // --- FUNGSI HAPUS / NONAKTIFKAN MITRA ---
-      async function hapusMitra() {
-        const id = document.getElementById("eId").value;
-        const nama = document.getElementById("eNama").value;
-
-        // Konfirmasi ganda untuk mencegah salah klik
-        const konfirmasi = confirm(
-          `⚠️ PERINGATAN!\n\nApakah Anda yakin ingin menghapus data Mitra: ${nama}?\nPastikan mitra ini belum memiliki peserta.`,
-        );
-
-        if (!konfirmasi) return;
-
-        // Panggil endpoint Apps Script untuk Hapus Data
-       const res = await fetchData("hapusMitra", { id }, "POST");
-
-        if (res && res.success) {
-          document.getElementById("modalEdit").style.display = "none";
-          load(); // Refresh tampilan
-        } else {
-          alert(
-            "Gagal menghapus mitra. Pastikan fungsi 'hapusMitra' sudah siap di Apps Script.",
-          );
-        }
-      }
     </script>
   </body>
 </html>
