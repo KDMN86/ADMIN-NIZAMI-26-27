@@ -1,0 +1,348 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Checkout Peserta - NIZAMI</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <style>
+    :root {
+      --primary: #ffd700;
+      --bg: #121212;
+      --surface: #1e1e1e;
+      --text: #e0e0e0;
+      --danger: #ff5252;
+      --success: #4ade80;
+    }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: "Inter", sans-serif;
+      margin: 0;
+      padding-bottom: 60px;
+    }
+    header {
+      padding: 20px;
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      background: var(--surface);
+      border-bottom: 1px solid #333;
+    }
+    .back-btn { color: #aaa; text-decoration: none; font-size: 1.2rem; padding: 5px; }
+    .brand-title { margin: 0; font-size: 1.2rem; color: #fff; }
+    .brand-title span { color: var(--danger); }
+    
+    .checkout-container { padding: 20px; }
+    .checkout-card {
+      background: var(--surface);
+      padding: 20px;
+      border-radius: 16px;
+      border: 1px solid var(--danger);
+      box-shadow: 0 10px 30px rgba(255, 82, 82, 0.1);
+    }
+    .input-label { font-size: 0.85rem; color: #ccc; margin-bottom: 8px; display: block; }
+    .filter-input-normal {
+      background: #1a1a1a;
+      color: #fff;
+      border: 1px dashed #444;
+      padding: 12px;
+      border-radius: 10px;
+      font-size: 0.85rem;
+      outline: none;
+      width: 100%;
+      box-sizing: border-box;
+    }
+    .filter-input-normal:focus { border-color: var(--danger); }
+    
+    .search-wrap { display: flex; gap: 10px; margin-bottom: 10px; }
+    .btn-search {
+      background: var(--primary);
+      color: #000;
+      border: none;
+      border-radius: 8px;
+      padding: 0 20px;
+      cursor: pointer;
+      font-size: 1rem;
+    }
+    .btn-search:active { opacity: 0.8; }
+    
+    .search-result {
+      max-height: 180px;
+      overflow-y: auto;
+      background: #111;
+      border: 1px solid #333;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      display: none;
+      flex-direction: column;
+    }
+    .search-item {
+      padding: 12px;
+      cursor: pointer;
+      border-bottom: 1px solid #222;
+      font-size: 0.88rem;
+      transition: background 0.2s;
+    }
+    .search-item:hover { background: #1a1a1a; }
+    
+    .btn-checkout {
+      width: 100%;
+      background: var(--danger);
+      color: #fff;
+      border: none;
+      padding: 14px;
+      border-radius: 10px;
+      font-weight: bold;
+      cursor: pointer;
+      font-size: 1rem;
+      margin-bottom: 20px;
+      transition: 0.2s;
+    }
+    .btn-checkout:active { transform: scale(0.98); }
+
+    .btn-wa-send {
+      background: #25d366;
+      color: #fff;
+      text-align: center;
+      padding: 12px;
+      border-radius: 8px;
+      border: none;
+      font-size: 0.9rem;
+      font-weight: bold;
+      display: block;
+      width: 100%;
+      margin-top: 10px;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+    .btn-wa-send:active { transform: scale(0.98); opacity: 0.9; }
+
+    .toast-container {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      z-index: 9999;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .toast {
+      background: #333;
+      color: #fff;
+      padding: 12px 20px;
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      animation: slideIn 0.3s ease-out forwards;
+      font-size: 0.9rem;
+    }
+    .toast.error { border-left: 4px solid var(--danger); }
+    .toast.success { border-left: 4px solid var(--success); }
+    @keyframes slideIn {
+      from { transform: translateX(100%); opacity: 0; }
+      to { transform: translateX(0); opacity: 1; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <a href="index.html" class="back-btn"><i class="fas fa-arrow-left"></i></a>
+    <h1 class="brand-title">Checkout <span>Peserta</span></h1>
+  </header>
+
+  <div class="checkout-container">
+    <div class="checkout-card">
+      
+      <label class="input-label">Cari Nama / Nomor / ID Peserta:</label>
+      <div class="search-wrap">
+        <input type="text" id="inputSearchNama" class="filter-input-normal" placeholder="Ketik nama, nomor, atau ID..." />
+        <button id="btnSearch" class="btn-search"><i class="fas fa-search"></i></button>
+      </div>
+      <div id="hasilSearchNama" class="search-result"></div>
+
+      <label class="input-label">Daftar ID Peserta (Pisahkan dengan koma):</label>
+      <textarea id="inputIdsCheckout" class="filter-input-normal" style="height: 80px; margin-bottom: 15px; resize: none;" placeholder="Contoh: TEHESA-2995"></textarea>
+
+      <button id="btnHitungCheckout" class="btn-checkout">
+        <i class="fas fa-calculator"></i> Hitung Akad
+      </button>
+
+      <div id="hasilCheckoutArea" style="display: flex; flex-direction: column; gap: 15px;"></div>
+    </div>
+  </div>
+
+  <div id="toastContainer" class="toast-container"></div>
+
+  <script src="script.js"></script>
+  <script>
+    function showToast(message, type = 'error') {
+      const container = document.getElementById('toastContainer');
+      const toast = document.createElement('div');
+      toast.className = `toast ${type}`;
+      toast.innerHTML = `<i class="fas ${type === 'error' ? 'fa-exclamation-triangle' : 'fa-check-circle'}"></i> <span>${message}</span>`;
+      container.appendChild(toast);
+      setTimeout(() => { toast.remove(); }, 4000);
+    }
+
+    // Pencarian Peserta
+    document.getElementById('btnSearch').addEventListener('click', async () => {
+      const keyword = document.getElementById('inputSearchNama').value.trim();
+      const container = document.getElementById('hasilSearchNama');
+      container.innerHTML = '';
+
+      if (!keyword) {
+        container.style.display = 'none';
+        return;
+      }
+
+      const btnSearch = document.getElementById('btnSearch');
+      btnSearch.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+      btnSearch.disabled = true;
+
+      try {
+        const res = await fetchData("searchPeserta", { keyword: keyword }, "POST");
+        
+        if (res && res.success && res.data.length > 0) {
+          container.style.display = 'flex';
+          res.data.forEach(p => {
+            const row = document.createElement('div');
+            row.className = 'search-item';
+            row.innerHTML = `<i class="fas fa-user" style="color:var(--primary); margin-right:8px;"></i> <b>${p.nama}</b> <span style="color:#aaa; font-size:0.75rem;">(${p.id} - ${p.paket} | Mitra: <b style="color:var(--primary);">${p.mitra}</b>)</span>`;
+            
+            row.addEventListener('click', () => {
+              const textarea = document.getElementById('inputIdsCheckout');
+              let currentVal = textarea.value.trim();
+              if (currentVal) {
+                const arrExist = currentVal.split(',').map(i => i.trim());
+                if (!arrExist.includes(p.id)) textarea.value = currentVal + ', ' + p.id;
+              } else {
+                textarea.value = p.id;
+              }
+              document.getElementById('inputSearchNama').value = '';
+              container.style.display = 'none';
+            });
+            container.appendChild(row);
+          });
+        } else {
+          container.style.display = 'flex';
+          container.innerHTML = '<div style="padding: 12px; color: #ff5252; text-align: center;">Nama/ID tidak ditemukan.</div>';
+        }
+      } catch (error) {
+        showToast("Koneksi server gagal.", "error");
+      } finally {
+        btnSearch.innerHTML = '<i class="fas fa-search"></i>';
+        btnSearch.disabled = false;
+      }
+    });
+
+    document.getElementById('inputSearchNama').addEventListener('keyup', (e) => {
+      if (e.key === 'Enter') document.getElementById('btnSearch').click();
+    });
+
+    // 1. PROSES HITUNG AKAD (Hanya Menampilkan Simulasi, Belum Mengubah Sheet)
+    document.getElementById('btnHitungCheckout').addEventListener('click', async () => {
+      const inputVal = document.getElementById('inputIdsCheckout').value;
+      const ids = inputVal.split(',').map(id => id.trim()).filter(id => id !== '');
+
+      if (ids.length === 0) {
+        showToast("Masukkan minimal 1 ID Peserta!", "error");
+        return;
+      }
+
+      const btn = document.getElementById('btnHitungCheckout');
+      btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Menghitung...';
+      btn.disabled = true;
+      const areaHasil = document.getElementById('hasilCheckoutArea');
+      areaHasil.innerHTML = '';
+
+      try {
+        const res = await fetchData("hitungCheckout", { ids: ids }, "POST");
+
+        if (res && res.success && res.data.length > 0) {
+          res.data.forEach(p => {
+            let noWaLengkap = String(p.no_hp || "");
+            if (noWaLengkap.startsWith("0")) noWaLengkap = "62" + noWaLengkap.substring(1);
+            else if (noWaLengkap.startsWith("8")) noWaLengkap = "62" + noWaLengkap;
+
+            const strukWa = `*BUKTI PUTUS KONTRAK NIZAMI*%0A%0A` +
+              `Halo, *${p.nama}* (${p.id})%0A` +
+              `Mitra: *${p.mitra}*%0A` +
+              `Berikut rincian pengembalian dana tabungan untuk *Paket ${p.paket}*:%0A%0A` +
+              `${p.label_saldo}: Rp ${p.saldo.toLocaleString("id-ID")}%0A` +
+              `Jumlah Setoran: ${p.jumlah_setoran} kali%0A` +
+              `Potongan Admin: Rp ${p.potongan.toLocaleString("id-ID")}%0A` +
+              `------------------------%0A` +
+              `*Uang Kembali: Rp ${p.kembali.toLocaleString("id-ID")}*%0A%0A` +
+              `Terima kasih telah berkomitmen bersama kami selama ini.`;
+
+            const div = document.createElement('div');
+            div.id = `card-checkout-${p.id}`;
+            div.style.cssText = "background: #111; border: 1px solid #ff5252; padding:15px; border-radius:10px;";
+            div.innerHTML = `
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                <h4 style="margin:0; color:#fff; font-size:0.95rem;">${p.nama} <span style="color:#aaa; font-size:0.75rem;">(${p.id})</span></h4>
+                <span style="background:#ff5252; color:#fff; font-size:0.7rem; padding: 3px 6px; border-radius: 4px;">${p.paket}</span>
+              </div>
+              <div style="font-size: 0.85rem; color: #ccc; display: flex; flex-direction: column; gap: 5px; background:#1a1a1c; padding:10px; border-radius:6px; margin-bottom: 10px;">
+                <div style="display:flex; justify-content:space-between;"><span>Nama Mitra:</span> <b style="color:var(--primary);">${p.mitra}</b></div>
+                <div style="display:flex; justify-content:space-between;"><span>${p.label_saldo}:</span> <b>Rp ${p.saldo.toLocaleString("id-ID")}</b></div>
+                <div style="display:flex; justify-content:space-between;"><span>Setoran Masuk:</span> <b>${p.jumlah_setoran} kali</b></div>
+                <div style="display:flex; justify-content:space-between;"><span>Potongan Admin:</span> <b style="color:#ff5252;">Rp ${p.potongan.toLocaleString("id-ID")}</b></div>
+                <div style="display:flex; justify-content:space-between;"><span>Fee Reseller (40%):</span> <b style="color:#4ade80;">Rp ${p.fee_reseller.toLocaleString("id-ID")}</b></div>
+              </div>
+              <div style="font-size: 0.95rem; color: var(--primary); font-weight: bold; text-align: right; margin-bottom:10px;">
+                Uang Kembali: Rp ${p.kembali.toLocaleString("id-ID")}
+              </div>
+              <button onclick="kirimDanEksekusi('${p.id}', '${noWaLengkap}', '${strukWa}', ${p.fee_reseller})" class="btn-wa-send" id="btn-wa-${p.id}">
+                <i class="fab fa-whatsapp"></i> Kirim Struk via WA & Selesaikan
+              </button>
+            `;
+            areaHasil.appendChild(div);
+          });
+          
+          showToast("Hasil perhitungan berhasil dimuat!", "success");
+        } else {
+          showToast("Data Peserta gagal dihitung atau ID tidak valid.", "error");
+        }
+      } catch (error) {
+        showToast("Kesalahan sistem pada sisi server.", "error");
+      } finally {
+        btn.innerHTML = '<i class="fas fa-calculator"></i> Hitung Akad';
+        btn.disabled = false;
+      }
+    });
+
+    // 2. PROSES EKSEKUSI (Buka WA + Eksekusi Spreadsheet)
+    async function kirimDanEksekusi(id, noWa, strukWa, feeReseller) {
+      const btnWA = document.getElementById(`btn-wa-${id}`);
+      btnWA.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Memproses...';
+      btnWA.disabled = true;
+
+      // 1. Buka Chat WhatsApp
+      window.open(`https://wa.me/${noWa}?text=${strukWa}`, '_blank');
+
+      // 2. Eksekusi Perubahan Data ke Spreadsheet
+      try {
+        const res = await fetchData("eksekusiCheckout", { id: id, fee_reseller: feeReseller }, "POST");
+        if (res && res.success) {
+          showToast(`✅ Checkout ${id} Berhasil! Data Spreadsheet diperbarui.`, "success");
+          btnWA.style.background = "#555";
+          btnWA.innerHTML = '<i class="fas fa-check-circle"></i> Selesai di-Checkout';
+        } else {
+          showToast("Gagal memperbarui Spreadsheet: " + (res ? res.error : "Koneksi terputus"), "error");
+          btnWA.disabled = false;
+          btnWA.innerHTML = '<i class="fab fa-whatsapp"></i> Coba Kirim WA Lagi';
+        }
+      } catch (e) {
+        showToast("Gagal memperbarui database.", "error");
+        btnWA.disabled = false;
+        btnWA.innerHTML = '<i class="fab fa-whatsapp"></i> Coba Kirim WA Lagi';
+      }
+    }
+  </script>
+</body>
+</html>
