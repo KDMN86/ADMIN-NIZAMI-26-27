@@ -1487,21 +1487,15 @@
         }
 
         barangTampil.forEach((b, index) => {
-          let strNamaBarangEscaped = b.barang
-            .replace(/'/g, "\\'")
-            .replace(/"/g, "&quot;");
+          let strNamaBarangEscaped = b.barang.replace(/'/g, "\\'").replace(/"/g, "&quot;");
           let isAman = b.kurang === 0;
           let clsAman = isAman ? "aman" : "kurang";
 
-          // Tambahkan event.stopPropagation() agar saat di-klik, dropdown tidak ikut membuka/menutup
           let statusBdg = isAman
-            ? `<div class="item-status status-aman">LENGKAP</div>`
-            : `<div class="item-status status-kurang" style="cursor:pointer; text-decoration:underline;" onclick="event.stopPropagation(); bukaDetailItem('${strNamaBarangEscaped}')" title="Klik untuk lihat rincian">KURANG ${b.kurang.toLocaleString("id-ID")}</div>`;
+            ? `<div id="badge_status_${index}" class="item-status status-aman">LENGKAP</div>`
+            : `<div id="badge_status_${index}" class="item-status status-kurang" style="cursor:pointer; text-decoration:underline;" onclick="event.stopPropagation(); bukaDetailItem('${strNamaBarangEscaped}')" title="Klik untuk lihat rincian">KURANG ${b.kurang.toLocaleString("id-ID")}</div>`;
 
-          let isUang =
-            b.barang.toLowerCase().includes("uang") ||
-            b.satuan.toLowerCase().includes("rupiah") ||
-            b.satuan.toLowerCase() === "rp";
+          let isUang = b.barang.toLowerCase().includes("uang") || b.satuan.toLowerCase().includes("rupiah") || b.satuan.toLowerCase() === "rp";
 
           let infoHargaHTML = "";
           if (!isUang) {
@@ -1509,7 +1503,7 @@
             infoHargaHTML = `
               <div style="margin-top: 10px; padding: 8px 10px; background: rgba(255, 215, 0, 0.05); border: 1px solid #333; border-radius: 8px; display: flex; flex-direction: column; gap: 4px; font-size: 0.75rem;">
                   <div style="display: flex; justify-content: space-between;">
-                      <span style="color: #aaa;">Harga Satuan:</span>
+                      <span style="color: #aaa;">Harga Acuan:</span>
                       <b style="color: #fff;">${formatRp(b.harga)}<span style="color: #666; font-weight: normal;"> / ${b.satuan}</span></b>
                   </div>
                   <div style="display: flex; justify-content: space-between; border-top: 1px dashed #444; padding-top: 4px; margin-top: 2px;">
@@ -1520,16 +1514,10 @@
             `;
           }
 
-          // Logika jika gambar kosong atau link error, ganti icon FontAwesome
-          let imgTag = b.foto
-            ? `<img src="${b.foto}" style="width:100%; height:100%; object-fit:cover; border-radius:6px;" onerror="this.outerHTML='<i class=\\'fas fa-box\\' style=\\'font-size:2rem; color:#444;\\'></i>'"/>`
-            : `<i class="fas fa-image" style="font-size:2rem; color:#444;"></i>`;
+          let imgTag = b.foto ? `<img src="${b.foto}" style="width:100%; height:100%; object-fit:cover; border-radius:6px;" onerror="this.outerHTML='<i class=\\'fas fa-box\\' style=\\'font-size:2rem; color:#444;\\'></i>'"/>` : `<i class="fas fa-image" style="font-size:2rem; color:#444;"></i>`;
 
-          // RENDER KARTU COMPACT DENGAN FOTO DI DROPDOWN
           container.innerHTML += `
             <div class="shop-item ${clsAman}">
-                
-                <!-- HEADER (Ringkas, Bisa Diklik) -->
                 <div onclick="let body = this.nextElementSibling; let icon = this.querySelector('.fa-chevron-down'); if(body.style.display==='none'){body.style.display='block'; icon.style.transform='rotate(180deg)';}else{body.style.display='none'; icon.style.transform='rotate(0deg)';}" 
                      style="padding: 12px 15px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; transition: background 0.2s;" 
                      onmouseover="this.style.background='#222'" onmouseout="this.style.background='transparent'">
@@ -1545,42 +1533,40 @@
                     </div>
                 </div>
 
-                <!-- BODY (Disembunyikan secara Default) -->
                 <div style="display: none; border-top: 1px dashed #333; background: #151515;">
-                    
-                    <!-- AREA FLEX: FOTO (KIRI) DAN RINCIAN (KANAN) -->
                     <div style="padding: 15px; display: flex; gap: 15px; align-items: flex-start;">
-                        
-                        <!-- KOTAK FOTO -->
                         <div style="width: 80px; height: 80px; flex-shrink: 0; background: #111; border: 1px solid #333; border-radius: 8px; display: flex; justify-content: center; align-items: center; overflow: hidden;">
                             ${imgTag}
                         </div>
-                        
-                        <!-- AREA KANAN (Rincian & Harga) -->
                         <div style="flex: 1;">
                             <div class="item-details" style="margin-bottom: 8px;">
                                 <span onclick="event.stopPropagation(); bukaDetailItem('${strNamaBarangEscaped}')" style="cursor:pointer; border-color:var(--primary); color:var(--primary); background:rgba(255,215,0,0.1);" title="Klik untuk lihat rincian peserta">
                                     <i class="fas fa-users"></i> Rincian Peserta
                                 </span>
-                                <span>Masuk: ${b.masuk.toLocaleString("id-ID")}</span>
+                                <span>Masuk: <b id="lbl_masuk_${index}">${b.masuk.toLocaleString("id-ID")}</b></span>
                                 <span>Keluar: ${b.keluar.toLocaleString("id-ID")}</span>
                             </div>
                             ${infoHargaHTML}
                         </div>
-                        
                     </div>
                     
-                    <!-- FOOTER INPUT TAMBAH -->
                     <div class="item-footer">
-                        <div class="ready-stock">Sisa Gudang: <b>${b.ready.toLocaleString("id-ID")}</b>${b.satuan}</div>
-                        <div class="input-wrapper">
-                            <label>+ Tambah</label>
-                            <input type="number" id="input_qty_${index}" class="input-qty" data-name="${b.barang}" data-sat="${b.satuan}" placeholder="0" min="0">
+                        <div class="ready-stock">Sisa Gudang: <b id="lbl_sisa_${index}">${b.ready.toLocaleString("id-ID")}</b>&nbsp;${b.satuan}</div>
+                        <div class="input-wrapper" style="gap: 12px;">
+                            <div style="display:flex; flex-direction:column; gap:4px; align-items:center;">
+                                <label style="font-size:0.65rem;">Harga Satuan</label>
+                                <input type="number" id="input_hrg_${index}" class="input-qty" style="width: 85px;" value="${b.harga || ''}" placeholder="Rp" oninput="kalkulasiRealtime(${index}, ${b.total}, ${b.masuk}, ${b.keluar})">
+                            </div>
+                            <div style="display:flex; flex-direction:column; gap:4px; align-items:center;">
+                                <label style="font-size:0.65rem;">+ Tambah Qty</label>
+                                <input type="number" id="input_qty_${index}" class="input-qty input-tambah-stok" data-name="${b.barang}" data-sat="${b.satuan}" data-idx="${index}" placeholder="0" min="0" oninput="kalkulasiRealtime(${index}, ${b.total}, ${b.masuk}, ${b.keluar})">
+                            </div>
                         </div>
                     </div>
                 </div>
-                
             </div>`;
+                
+          
         });
       }
 
@@ -1629,34 +1615,28 @@
 
       async function simpanBelanja() {
         let itemsToSave = [];
-        document.querySelectorAll(".input-qty").forEach((inp) => {
+        document.querySelectorAll(".input-tambah-stok").forEach((inp) => {
           let val = parseInt(inp.value);
-          if (val > 0)
+          if (val > 0) {
+            let idx = inp.getAttribute("data-idx");
+            let hrgVal = parseInt(document.getElementById(`input_hrg_${idx}`).value) || 0; // Tarik Harga
             itemsToSave.push({
               nama: inp.getAttribute("data-name"),
               satuan: inp.getAttribute("data-sat"),
               qty: val,
+              harga_satuan: hrgVal
             });
+          }
         });
 
-        if (itemsToSave.length === 0)
-          return alert("Belum ada angka penambahan stok yang diisi.");
-        if (
-          !confirm(
-            `Simpan penambahan untuk ${itemsToSave.length} jenis barang ini ke gudang?`,
-          )
-        )
-          return;
+        if (itemsToSave.length === 0) return alert("Belum ada angka penambahan stok yang diisi.");
+        if (!confirm(`Simpan penambahan untuk ${itemsToSave.length} jenis barang ini ke gudang?`)) return;
 
         const btn = document.getElementById("btnSave");
         btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Menyimpan...';
         btn.disabled = true;
 
-        const res = await fetchData(
-          "simpanBelanja",
-          { items: itemsToSave },
-          "POST",
-        );
+        const res = await fetchData("simpanBelanja", { items: itemsToSave }, "POST");
         if (res && res.success) {
           showToast("Stok berhasil ditambahkan!");
           tarikDataServer();
@@ -1665,7 +1645,7 @@
         btn.innerHTML = '<i class="fas fa-save"></i> SIMPAN MASUK';
         btn.disabled = false;
       }
-
+     
       function bukaModalDistribusi() {
         const sel = document.getElementById("distPeserta");
         sel.innerHTML = '<option value="">-- Pilih Peserta --</option>';
@@ -2299,6 +2279,41 @@
         }
       }
       tarikDataServer();
+
+      function kalkulasiRealtime(idx, target, currentMasuk, currentKeluar) {
+        let inputQty = parseInt(document.getElementById(`input_qty_${idx}`).value) || 0;
+        
+        let newMasuk = currentMasuk + inputQty;
+        let newReady = newMasuk - currentKeluar;
+        if (newReady < 0) newReady = 0;
+        
+        let newKurang = target - newReady;
+        if (newKurang < 0) newKurang = 0;
+
+        // Update Label UI secara Live!
+        let lblMasuk = document.getElementById(`lbl_masuk_${idx}`);
+        if(lblMasuk) {
+            lblMasuk.innerText = newMasuk.toLocaleString("id-ID");
+            lblMasuk.style.color = inputQty > 0 ? "var(--primary)" : "#fff";
+        }
+        
+        let lblSisa = document.getElementById(`lbl_sisa_${idx}`);
+        if(lblSisa) {
+            lblSisa.innerText = newReady.toLocaleString("id-ID");
+            lblSisa.style.color = inputQty > 0 ? "var(--primary)" : "var(--primary)";
+        }
+
+        let badge = document.getElementById(`badge_status_${idx}`);
+        if(badge) {
+            if(newKurang === 0) {
+                badge.className = "item-status status-aman";
+                badge.innerText = "LENGKAP";
+            } else {
+                badge.className = "item-status status-kurang";
+                badge.innerText = "KURANG " + newKurang.toLocaleString("id-ID");
+            }
+        }
+      }
     </script>
   </body>
 </html>
