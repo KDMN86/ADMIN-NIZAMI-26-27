@@ -222,17 +222,25 @@
 
       <div id="infoTotalFilter" style="font-size: 0.75rem; color: #aaa; margin-top: 10px; text-align: right;"></div>
 
-      <!-- KOTAK AKSI CHECKLIST MASSAL (MUNCUL OTOMATIS SAAT FILTER BARANG) -->
+      <!-- KOTAK AKSI CHECKLIST MASSAL (DENGAN BADGE TOTAL BARANG MENONJOL) -->
       <div id="bulkCheckArea" style="margin-top: 15px; display: none; padding: 12px; background: rgba(74,222,128,0.1); border-radius: 8px; border: 1px dashed var(--success);">
-        <div style="font-size: 0.8rem; color: var(--success); font-weight: bold; margin-bottom: 8px;">
-          <i class="fas fa-check-double"></i> Aksi Massal: Checklist Otomatis
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; gap: 8px; flex-wrap: wrap;">
+          <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+            <span style="font-size: 0.8rem; color: var(--success); font-weight: bold;">
+              <i class="fas fa-check-double"></i> Aksi Checklist Massal
+            </span>
+            <!-- BADGE TOTAL JUMLAH BARANG MENONJOL -->
+            <span style="background: var(--primary); color: #000; padding: 3px 10px; border-radius: 20px; font-size: 0.85rem; font-weight: 800; box-shadow: 0 0 10px rgba(255, 215, 0, 0.4); display: inline-flex; align-items: center; gap: 4px;">
+              <i class="fas fa-boxes-stacked"></i> Total: <span id="lblQtyBarangMassal">0</span> Pcs
+            </span>
+          </div>
+          <button onclick="terapkanChecklistMassal(event)" style="background: var(--success); color: #000; border: none; border-radius: 6px; font-weight: bold; padding: 6px 14px; font-size: 0.78rem; cursor: pointer; display: flex; align-items: center; gap: 5px; flex-shrink: 0;">
+            <i class="fas fa-bolt"></i> Auto-Checklist
+          </button>
         </div>
-        <div style="font-size: 0.75rem; color: #ccc; margin-bottom: 10px;">
-          Centang otomatis barang <b id="lblBarangMassal" style="color:#fff;"></b> untuk semua <b id="lblJmlPesertaMassal">0</b> peserta di bawah ini.
+        <div style="font-size: 0.75rem; color: #ccc;">
+          Centang otomatis barang <b id="lblBarangMassal" style="color:#fff;"></b> untuk <b id="lblJmlPesertaMassal" style="color:var(--primary);">0</b> peserta di bawah ini.
         </div>
-        <button onclick="terapkanChecklistMassal(event)" style="width: 100%; background: var(--success); color: #000; border: none; border-radius: 6px; font-weight: bold; padding: 10px; cursor: pointer;">
-          JALANKAN CHECKLIST MASSAL (AUTO-SAVE)
-        </button>
       </div>
 
       <div id="listPeserta">
@@ -320,7 +328,7 @@
       let dataBelanjaGlobal = [];
       let masterBarangGlobal = {};
       let setSudahFixServer = new Set();
-      let mapOrderanPeserta = {}; // Menyimpan data "ID -> Kumpulan Barang yang Dipesan"
+      let mapOrderanPeserta = {}; // Menyimpan data "ID -> Kumpulan Barang yang Dipesan" beserta Qty
 
       function formatUang(angka) {
         return new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR", minimumFractionDigits: 0 }).format(angka || 0);
@@ -383,27 +391,31 @@
             renderFilterDropdown("listPaket", paketSet, "chk-paket");
           }
 
-          // MEMBANGUN PETA BARANG PER PESERTA (Untuk Filter Spesifik Barang)
+          // MEMBANGUN PETA BARANG PER PESERTA (Untuk Filter Spesifik Barang & Menghitung Qty)
           if (resRekap && resRekap.peserta) {
-              let resepMap = {};
+              let resepMap = {}; 
               (resRekap.resep || []).forEach(r => {
                   let pkt = String(r.paket).trim().toLowerCase();
-                  if (!resepMap[pkt]) resepMap[pkt] = new Set();
-                  resepMap[pkt].add(String(r.barang).trim().toLowerCase());
+                  if (!resepMap[pkt]) resepMap[pkt] = {};
+                  let brg = String(r.barang).trim().toLowerCase();
+                  resepMap[pkt][brg] = (resepMap[pkt][brg] || 0) + Number(r.qty || 1);
               });
 
               (resRekap.custom || []).forEach(c => {
                   let pid = String(c.id_peserta).trim();
-                  if (!mapOrderanPeserta[pid]) mapOrderanPeserta[pid] = new Set();
-                  mapOrderanPeserta[pid].add(String(c.barang).trim().toLowerCase());
+                  if (!mapOrderanPeserta[pid]) mapOrderanPeserta[pid] = {};
+                  let brg = String(c.barang).trim().toLowerCase();
+                  mapOrderanPeserta[pid][brg] = (mapOrderanPeserta[pid][brg] || 0) + Number(c.qty || 1);
               });
 
               dataPesertaManual.forEach(p => {
                   let pid = String(p.id).trim();
                   let pkt = String(p.paket).trim().toLowerCase();
-                  if (!mapOrderanPeserta[pid]) mapOrderanPeserta[pid] = new Set();
+                  if (!mapOrderanPeserta[pid]) mapOrderanPeserta[pid] = {};
                   if (resepMap[pkt]) {
-                      resepMap[pkt].forEach(b => mapOrderanPeserta[pid].add(b));
+                      for (let b in resepMap[pkt]) {
+                          mapOrderanPeserta[pid][b] = (mapOrderanPeserta[pid][b] || 0) + resepMap[pkt][b];
+                      }
                   }
               });
           }
@@ -473,6 +485,8 @@
           document.getElementById("bulkCheckArea").style.display = "none";
           return;
         }
+        
+        let totalQtyBarangFilter = 0; // Variabel penyimpan total barang dari peserta yang tampil
 
         let hasil = dataPesertaManual.filter((p) => {
           let matchKey = keyword === "" || String(p.nama).toLowerCase().includes(keyword) || String(p.id).toLowerCase().includes(keyword);
@@ -487,12 +501,29 @@
           }
 
           let matchBrg = true;
+          let qtyBrgTerkait = 0;
+          
           if (filterBrgText !== "") {
-              let items = mapOrderanPeserta[p.id];
-              if (!items) { matchBrg = false; } 
-              else { matchBrg = Array.from(items).some(brg => brg.includes(filterBrgText)); }
+              let itemsDict = mapOrderanPeserta[p.id];
+              if (!itemsDict) { 
+                  matchBrg = false; 
+              } else { 
+                  matchBrg = false;
+                  for(let brgName in itemsDict){
+                      if(brgName.includes(filterBrgText)) {
+                          matchBrg = true;
+                          qtyBrgTerkait += itemsDict[brgName]; // Kumpulkan qty-nya
+                      }
+                  }
+              }
           }
-          return matchKey && matchMitra && matchPaket && matchFreq && matchBrg;
+          
+          // Jika peserta ini lolos semua filter, tambahkan qty barang terkaitnya ke total global
+          if (matchKey && matchMitra && matchPaket && matchFreq && matchBrg) {
+              totalQtyBarangFilter += qtyBrgTerkait;
+              return true;
+          }
+          return false;
         });
 
         currentFilteredPeserta = hasil;
@@ -504,6 +535,7 @@
             bulkArea.style.display = "block";
             document.getElementById("lblBarangMassal").innerText = `"${filterBrgText}"`;
             document.getElementById("lblJmlPesertaMassal").innerText = hasil.length;
+            document.getElementById("lblQtyBarangMassal").innerText = totalQtyBarangFilter;
         } else {
             bulkArea.style.display = "none";
         }
@@ -522,7 +554,7 @@
                 <div class="peserta-header" onclick="toggleDropdownPesanan('${p.id}', '${namaEscaped}', '${paketEscaped}')">
                   <div style="flex:1;">
                     <div style="color:#fff; font-weight:bold; font-size:0.95rem; margin-bottom:6px; display:flex; justify-content:space-between; align-items:center;">
-                      <span>${p.nama}</span>
+                      <span>${p.nama} <span style="font-size:0.75rem; color:#aaa; font-weight:normal;">- ${p.mitra}</span></span>
                       ${badgeStatusHtml}
                     </div>
                     <div style="display:flex; gap:5px; flex-wrap:wrap; margin-bottom:6px;">
@@ -592,19 +624,21 @@
                   } else if (b.status_fix !== undefined) {
                     statusFixVal = b.status_fix == 1 || b.status_fix === "1" ? 1 : 0;
                   }
+                  
+                  // Sinkronisasi Harga Satuan dari Master Barang
                   let namaBrgClean = b.nama_barang ? b.nama_barang.trim().toLowerCase() : "";
                   let hrgSatuan = Number(b.harga_satuan);
                   
-                  // Jika harga satuan tidak ada/Nol di database pesanan, ambil dari Master Barang
                   if (isNaN(hrgSatuan) || hrgSatuan === 0) {
                       let masterInfo = masterBarangGlobal[namaBrgClean];
                       if (masterInfo && masterInfo.hargaJual > 0) {
                           hrgSatuan = masterInfo.hargaJual;
                       } else {
-                          hrgSatuan = 0; // Tetap 0 jika di master juga tidak ada
+                          hrgSatuan = 0;
                       }
                   }
-                  return { ...b, status_fix: statusFixVal };
+
+                  return { ...b, status_fix: statusFixVal, harga_satuan: hrgSatuan };
                 });
                 document.getElementById("btnSimpan").style.display = "flex";
                 document.getElementById("infoTotalBottom").style.display = "flex";
@@ -887,7 +921,7 @@
         for (let i = 0; i < total; i++) {
           let p = uniqueFiltered[i];
           let id = p.id;
-          btn.innerHTML = `<i class="fas fa-spinner fa-spin"></i> Memproses ${i+1} dari ${total}...`;
+          btn.innerHTML = `<i class="fas fa-spinner fa-spin"></i>`;
 
           // Tarik rincian dari database jika panel rincian peserta belum pernah dibuka oleh admin di sesi ini
           if (!allDataBarang[id]) {
@@ -900,7 +934,20 @@
               if (resDetail && resDetail.success) {
                 allDataBarang[id] = resDetail.data.map((b) => {
                   let st = b.sumber === "FIX" ? (b.status_fix !== undefined ? b.status_fix : b.status) : (b.status_fix !== undefined ? b.status_fix : 0);
-                  return { ...b, status_fix: st == 1 || st === "1" ? 1 : 0 };
+                  
+                  // Sinkronisasi harga satuan dari master barang saat penarikan di background
+                  let namaBrgClean = b.nama_barang ? b.nama_barang.trim().toLowerCase() : "";
+                  let hrgSatuan = Number(b.harga_satuan);
+                  if (isNaN(hrgSatuan) || hrgSatuan === 0) {
+                      let masterInfo = masterBarangGlobal[namaBrgClean];
+                      if (masterInfo && masterInfo.hargaJual > 0) {
+                          hrgSatuan = masterInfo.hargaJual;
+                      } else {
+                          hrgSatuan = 0;
+                      }
+                  }
+                  
+                  return { ...b, status_fix: st == 1 || st === "1" ? 1 : 0, harga_satuan: hrgSatuan };
                 });
               } else { allDataBarang[id] = []; }
             } catch (e) { allDataBarang[id] = []; }
