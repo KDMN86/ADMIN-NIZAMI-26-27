@@ -2,19 +2,10 @@
 <html lang="id">
   <head>
     <meta charset="UTF-8" />
-    <meta
-      name="viewport"
-      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
-    />
-    <title>Sistem Inventory & Logistik</title>
-    <link
-      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap"
-      rel="stylesheet"
-    />
-    <link
-      rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
-    />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>Sistem Terpadu - Rekap Manual & Logistik Gudang</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
     <style>
       :root {
         --primary: #ffd700;
@@ -25,2295 +16,1441 @@
         --danger: #ff4d4d;
         --success: #4ade80;
       }
-      * {
-        box-sizing: border-box;
-      }
+      * { box-sizing: border-box; }
       body {
-        background: var(--bg);
-        color: var(--text);
-        font-family: "Inter", sans-serif;
-        margin: 0;
-        padding: 0;
-        padding-bottom: 120px;
+        background: var(--bg); color: var(--text); font-family: "Inter", sans-serif;
+        margin: 0; padding: 0; padding-bottom: 120px;
       }
 
-      /* NAVIGASI ATAS */
+      /* NAVIGASI UTAMA */
       .top-nav {
-        background: rgba(18, 18, 18, 0.95);
-        backdrop-filter: blur(10px);
-        padding: 15px 20px;
-        position: sticky;
-        top: 0;
-        z-index: 50;
-        border-bottom: 1px solid var(--border);
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
+        background: rgba(18, 18, 18, 0.95); backdrop-filter: blur(10px);
+        padding: 12px 20px; position: sticky; top: 0; z-index: 50;
+        border-bottom: 1px solid var(--border); display: flex;
+        justify-content: space-between; align-items: center;
       }
-      .nav-left {
-        display: flex;
-        align-items: center;
-        gap: 15px;
-      }
+      .nav-left { display: flex; align-items: center; gap: 12px; }
       .back-btn {
-        background: #2a2a2a;
-        color: white;
-        width: 38px;
-        height: 38px;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        text-decoration: none;
+        background: #2a2a2a; color: white; width: 36px; height: 36px;
+        border-radius: 50%; display: flex; align-items: center; justify-content: center; text-decoration: none;
       }
       .btn-refresh {
-        background: rgba(255, 215, 0, 0.1);
-        color: var(--primary);
-        border: 1px solid rgba(255, 215, 0, 0.3);
-        padding: 8px 15px;
-        border-radius: 20px;
-        cursor: pointer;
-        font-size: 0.8rem;
-        font-weight: bold;
+        background: rgba(255, 215, 0, 0.1); color: var(--primary);
+        border: 1px solid rgba(255, 215, 0, 0.3); padding: 6px 14px;
+        border-radius: 20px; cursor: pointer; font-size: 0.78rem; font-weight: bold;
       }
 
-      /* AREA FILTER */
-      .filter-box {
-        padding: 15px 20px;
-        display: flex;
-        flex-direction: column;
-        gap: 10px;
-        background: #181818;
-        border-bottom: 1px dashed #333;
+      /* MODE SWITCHER (TAB NAVIGASI) */
+      .mode-switcher {
+        display: flex; background: #181818; border-bottom: 1px solid var(--border);
+        position: sticky; top: 61px; z-index: 49;
       }
-      .filter-grid {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 10px;
+      .mode-tab {
+        flex: 1; padding: 12px; text-align: center; font-size: 0.85rem; font-weight: bold;
+        color: #888; cursor: pointer; border-bottom: 3px solid transparent; transition: 0.2s;
+        display: flex; align-items: center; justify-content: center; gap: 8px;
       }
-      .filter-select {
-        width: 100%;
-        padding: 10px;
-        background: #222;
-        border: 1px solid #444;
-        color: #fff;
-        border-radius: 8px;
-        outline: none;
-        font-size: 0.85rem;
-        appearance: none;
-        background-image: url('data:image/svg+xml;utf8,<svg fill="%23888" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M7 10l5 5 5-5z"/></svg>');
-        background-repeat: no-repeat;
-        background-position: right 10px center;
-      }
-      .filter-select:focus {
-        border-color: var(--primary);
+      .mode-tab.active {
+        color: var(--primary); border-bottom-color: var(--primary); background: #1e1e1e;
       }
 
-      /* STATISTIK PESERTA (COMPACT) */
-      .stats-container {
-        padding: 15px 20px;
-      }
-      .summary-card {
-        background: #1a1a1a;
-        border: 1px solid #333;
-        border-radius: 12px;
-        padding: 15px;
-      }
-      .sc-header {
-        display: flex;
-        align-items: baseline;
-        gap: 10px;
-        margin-bottom: 10px;
-      }
-      .sc-val {
-        font-size: 1.8rem;
-        font-weight: bold;
-        color: var(--primary);
-        line-height: 1;
-      }
-      .sc-label {
-        font-size: 0.8rem;
-        color: #aaa;
-        text-transform: uppercase;
-        letter-spacing: 1px;
-      }
-
-      .sc-body {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 6px;
-      }
-      .sc-chip {
-        background: #252525;
-        border: 1px solid #444;
-        color: #ccc;
-        font-size: 0.75rem;
-        padding: 4px 10px;
-        border-radius: 20px;
-        display: flex;
-        gap: 5px;
-        align-items: center;
-      }
-      .sc-chip b {
-        color: #fff;
-        background: #444;
-        padding: 2px 6px;
-        border-radius: 10px;
-        font-size: 0.7rem;
-      }
-
-      /* PENCARIAN & ACTION BAR (MENGAMBANG) */
-      .search-container {
-        position: sticky;
-        top: 69px;
-        z-index: 45;
-        background: rgba(18, 18, 18, 0.95);
-        backdrop-filter: blur(10px);
-        padding: 15px 20px;
-        display: flex;
-        gap: 10px;
-        align-items: center;
-        border-bottom: 1px solid #333;
-        margin-bottom: 15px;
-      }
+      /* SEARCH & FILTER STYLES */
+      .filter-box { padding: 15px 20px; background: #181818; border-bottom: 1px dashed #333; display: flex; flex-direction: column; gap: 10px; }
+      .search-input-wrap { position: relative; display: flex; align-items: center; margin-bottom: 5px; }
+      .search-input-wrap i { position: absolute; left: 15px; color: #888; }
       .search-input {
-        flex: 1;
-        padding: 12px 15px;
-        background: #1a1a1a;
-        border: 1px solid #444;
-        color: white;
-        border-radius: 10px;
-        outline: none;
-        font-size: 0.95rem;
+        width: 100%; padding: 10px 12px 10px 40px; background: #222;
+        border: 1px solid #444; color: white; border-radius: 8px; outline: none; font-size: 0.88rem; font-weight: bold;
       }
-      .search-input:focus {
-        border-color: var(--primary);
-      }
-      .btn-share {
-        background: rgba(74, 222, 128, 0.1);
-        color: var(--success);
-        border: 1px solid rgba(74, 222, 128, 0.3);
-        padding: 0 15px;
-        height: 44px;
-        border-radius: 10px;
-        cursor: pointer;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        transition: 0.2s;
-        font-size: 1.1rem;
-      }
-      .btn-share:active {
-        transform: scale(0.95);
+      .search-input:focus { border-color: var(--primary); }
+      .filter-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+      .filter-select-normal, .filter-input-normal {
+        background: #1a1a1a; color: var(--primary); border: 1px dashed #444;
+        padding: 9px; border-radius: 8px; font-size: 0.82rem; outline: none; font-weight: bold; width: 100%;
       }
 
-      /* FINANCIAL ESTIMATE & TOGGLE BAR */
-      .finance-bar {
-        margin: 0 20px 15px 20px;
-        background: linear-gradient(
-          135deg,
-          rgba(255, 215, 0, 0.1) 0%,
-          rgba(20, 20, 20, 0) 100%
-        );
-        border: 1px dashed var(--primary);
-        padding: 12px 15px;
-        border-radius: 10px;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
+      /* CS DROPDOWN CHECKBOX */
+      .cs-wrap { position: relative; width: 100%; }
+      .cs-header {
+        background: #1a1a1a; border: 1px dashed #444; padding: 9px;
+        border-radius: 8px; font-size: 0.8rem; color: #fff; font-weight: bold;
+        cursor: pointer; display: flex; justify-content: space-between; align-items: center; user-select: none;
       }
-      .finance-info h4 {
-        margin: 0 0 3px 0;
-        font-size: 0.7rem;
-        color: #aaa;
-        text-transform: uppercase;
-        letter-spacing: 1px;
+      .cs-list {
+        display: none; position: absolute; top: 105%; left: 0; width: 100%;
+        background: #111; border: 1px solid #444; border-radius: 8px; z-index: 60;
+        max-height: 200px; overflow-y: auto; box-shadow: 0 10px 25px rgba(0, 0, 0, 0.8); padding: 10px; flex-direction: column; gap: 8px;
       }
-      .finance-info .val {
-        font-size: 1.2rem;
-        font-weight: bold;
-        color: var(--primary);
-      }
+      .cs-list.show { display: flex; }
+      .cs-list label { font-size: 0.83rem; color: #ddd; display: flex; align-items: center; gap: 8px; cursor: pointer; }
 
-      .toggle-container {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        font-size: 0.75rem;
-        color: #aaa;
-        cursor: pointer;
+      /* PESERTA ACCORDION (MODE 1) */
+      .peserta-item-wrapper { border: 1px solid #333; margin-bottom: 10px; border-radius: 8px; background: #1e1e1e; overflow: hidden; }
+      .peserta-header {
+        padding: 12px 15px; cursor: pointer; display: flex; justify-content: space-between; align-items: center;
+        background: linear-gradient(145deg, #2a2a2a, #1f1f1f); border-left: 4px solid var(--primary); transition: 0.2s;
       }
-      .toggle-switch {
-        position: relative;
-        width: 36px;
-        height: 20px;
-        background: #333;
-        border-radius: 20px;
-        transition: 0.3s;
-      }
-      .toggle-switch::after {
-        content: "";
-        position: absolute;
-        top: 2px;
-        left: 2px;
-        width: 16px;
-        height: 16px;
-        background: #fff;
-        border-radius: 50%;
-        transition: 0.3s;
-      }
-      .toggle-container input {
-        display: none;
-      }
-      .toggle-container input:checked + .toggle-switch {
-        background: var(--primary);
-      }
-      .toggle-container input:checked + .toggle-switch::after {
-        left: calc(100% - 18px);
-        background: #000;
-      }
+      .badge-freq { background: rgba(74, 222, 128, 0.1); color: #4ade80; padding: 2px 6px; border-radius: 4px; font-size: 0.7rem; border: 1px solid rgba(74, 222, 128, 0.3); }
+      .badge-mitra { background: #222; color: var(--primary); padding: 2px 6px; border-radius: 4px; font-size: 0.7rem; border: 1px solid #444; }
+      .badge-status-pilih { font-size: 0.7rem; padding: 2px 6px; border-radius: 4px; font-weight: bold; }
+      .badge-belum { background: rgba(255, 215, 0, 0.1); color: var(--primary); border: 1px solid rgba(255, 215, 0, 0.3); }
+      .badge-sudah { background: rgba(74, 222, 128, 0.1); color: var(--success); border: 1px solid rgba(74, 222, 128, 0.3); }
+      .pesanan-container { display: none; padding: 12px 15px; background: #0f0f0f; border-top: 1px dashed #444; }
+      .summary-box { background: #111; padding: 10px 12px; border-radius: 8px; border: 1px solid #444; margin-bottom: 10px; }
+      .sum-row { display: flex; justify-content: space-between; margin-bottom: 4px; font-size: 0.8rem; color: #ccc; }
+      .sum-row.sisa { border-top: 1px dashed #555; padding-top: 6px; margin-top: 6px; color: #fff; }
+      .btn-wa { background: #25d366; color: #000; border: none; padding: 8px; width: 100%; border-radius: 6px; font-weight: bold; font-size: 0.78rem; cursor: pointer; margin-bottom: 6px; }
+      .btn-select-all { background: #2a2a2a; color: var(--primary); border: 1px solid #444; padding: 6px; width: 100%; border-radius: 6px; font-weight: bold; font-size: 0.75rem; cursor: pointer; margin-bottom: 8px; }
+      .btn-edit-mode { background: rgba(255, 215, 0, 0.15); color: var(--primary); border: 1px dashed var(--primary); padding: 6px; width: 100%; border-radius: 6px; font-weight: bold; font-size: 0.75rem; cursor: pointer; margin-bottom: 8px; }
 
-      /* LIST BARANG */
-      .list-container {
-        padding: 0 20px 20px 20px;
-      }
-      .section-title {
-        font-size: 0.8rem;
-        color: #888;
-        margin-bottom: 10px;
-        text-transform: uppercase;
-        letter-spacing: 1px;
-        display: flex;
-        justify-content: space-between;
-        font-weight: bold;
-      }
+      .barang-card { background: #111; border: 1px solid #333; border-radius: 8px; padding: 8px 12px; margin-bottom: 8px; display: flex; align-items: center; justify-content: space-between; }
+      .barang-card.checked { border-color: var(--success); background: rgba(74, 222, 128, 0.05); }
+      .input-qty-custom { width: 55px; background: #000; border: 1px solid var(--primary); color: #fff; padding: 5px; border-radius: 6px; text-align: center; font-weight: bold; font-size: 0.85rem; outline: none; }
+      .custom-checkbox { width: 24px; height: 24px; border: 2px solid #555; border-radius: 5px; display: flex; align-items: center; justify-content: center; cursor: pointer; flex-shrink: 0; }
+      .custom-checkbox i { color: transparent; font-size: 0.75rem; }
+      .barang-card.checked .custom-checkbox { background: var(--success); border-color: var(--success); }
+      .barang-card.checked .custom-checkbox i { color: #000; }
 
-      .shop-item {
-        background: var(--surface);
-        border: 1px solid #333;
-        border-radius: 12px;
-        margin-bottom: 12px;
-        overflow: hidden;
-        display: flex;
-        flex-direction: column;
-      }
-      .shop-item.aman {
-        border-left: 4px solid var(--success);
-      }
-      .shop-item.kurang {
-        border-left: 4px solid var(--danger);
-      }
+      /* LOGISTIK STYLES (MODE 2) */
+      .stats-container { padding: 15px 20px; }
+      .summary-card { background: #1a1a1a; border: 1px solid #333; border-radius: 12px; padding: 12px 15px; }
+      .sc-val { font-size: 1.6rem; font-weight: bold; color: var(--primary); }
+      .sc-chip { background: #252525; border: 1px solid #444; color: #ccc; font-size: 0.73rem; padding: 3px 8px; border-radius: 15px; display: inline-flex; gap: 4px; align-items: center; margin: 3px 2px; }
+      .sc-chip b { color: #fff; background: #444; padding: 1px 5px; border-radius: 8px; }
+      .finance-bar { margin: 0 20px 15px 20px; background: linear-gradient(135deg, rgba(255, 215, 0, 0.1) 0%, rgba(20, 20, 20, 0) 100%); border: 1px dashed var(--primary); padding: 10px 14px; border-radius: 10px; display: flex; justify-content: space-between; align-items: center; }
+      
+      .shop-item { background: var(--surface); border: 1px solid #333; border-radius: 10px; margin-bottom: 10px; overflow: hidden; display: flex; flex-direction: column; }
+      .shop-item.aman { border-left: 4px solid var(--success); }
+      .shop-item.kurang { border-left: 4px solid var(--danger); }
+      .item-name { font-size: 0.95rem; font-weight: bold; color: #fff; margin: 0 0 4px 0; }
+      .item-details { font-size: 0.75rem; color: #888; display: flex; flex-wrap: wrap; gap: 6px; }
+      .item-details span { background: #111; padding: 2px 7px; border-radius: 5px; border: 1px solid #2a2a2a; }
+      .item-status { font-size: 0.72rem; font-weight: bold; padding: 3px 7px; border-radius: 5px; white-space: nowrap; }
+      .status-kurang { background: rgba(255, 77, 77, 0.1); color: var(--danger); border: 1px solid rgba(255, 77, 77, 0.3); }
+      .status-aman { background: rgba(74, 222, 128, 0.1); color: var(--success); border: 1px solid rgba(74, 222, 128, 0.3); }
+      .item-footer { background: #151515; border-top: 1px dashed #333; padding: 10px 14px; display: flex; justify-content: space-between; align-items: center; }
+      .input-qty-logistik { width: 65px; padding: 6px; background: #222; border: 1px solid #555; color: #fff; border-radius: 6px; text-align: center; font-weight: bold; font-size: 0.85rem; outline: none; }
 
-      .item-main {
-        padding: 15px;
-        display: flex;
-        justify-content: space-between;
-        align-items: flex-start;
-        gap: 10px;
-      }
-      .item-info {
-        flex: 1;
-      }
-      .item-name {
-        font-size: 1rem;
-        font-weight: bold;
-        color: #fff;
-        margin: 0 0 5px 0;
-        line-height: 1.3;
-      }
-      .item-details {
-        font-size: 0.75rem;
-        color: #888;
-        display: flex;
-        flex-wrap: wrap;
-        gap: 8px;
-      }
-      .item-details span {
-        background: #111;
-        padding: 3px 8px;
-        border-radius: 6px;
-        border: 1px solid #2a2a2a;
-      }
+      /* MODAL BELANJA 2 TAB & GUDANG */
+      .belanja-card-item { background: #151515; border: 1px solid #333; border-radius: 10px; padding: 10px 12px; margin-bottom: 8px; }
+      .belanja-card-item.aman { border-left: 4px solid var(--success); }
+      .belanja-card-item.kurang { border-left: 4px solid var(--danger); }
+      .modal-tabs { display: flex; background: #111; border-bottom: 1px solid #333; }
+      .modal-tab-btn { flex: 1; padding: 12px; background: none; border: none; color: #888; font-weight: bold; font-size: 0.85rem; cursor: pointer; text-align: center; border-bottom: 2px solid transparent; }
+      .modal-tab-btn.active { color: var(--primary); border-bottom-color: var(--primary); background: #181818; }
+      .floating-add-btn { position: absolute; bottom: 20px; right: 20px; background: var(--primary); color: #000; width: 50px; height: 50px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; box-shadow: 0 4px 15px rgba(255, 215, 0, 0.4); cursor: pointer; border: none; }
 
-      .item-status {
-        font-size: 0.75rem;
-        font-weight: bold;
-        padding: 4px 8px;
-        border-radius: 6px;
-        white-space: nowrap;
-        text-align: center;
-      }
-      .status-kurang {
-        background: rgba(255, 77, 77, 0.1);
-        color: var(--danger);
-        border: 1px solid rgba(255, 77, 77, 0.3);
-      }
-      .status-aman {
-        background: rgba(74, 222, 128, 0.1);
-        color: var(--success);
-        border: 1px solid rgba(74, 222, 128, 0.3);
-      }
+      /* BOTTOM BAR */
+      .bottom-bar { position: fixed; bottom: 0; left: 0; right: 0; background: rgba(20, 20, 20, 0.95); backdrop-filter: blur(10px); padding: 12px 20px; border-top: 1px solid #333; z-index: 100; display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+      .btn-action { padding: 12px; border-radius: 10px; font-weight: bold; font-size: 0.82rem; cursor: pointer; display: flex; gap: 6px; align-items: center; justify-content: center; border: none; flex: 1; }
+      .btn-primary { background: var(--primary); color: #000; }
+      .btn-dark { background: #2a2a2a; color: var(--primary); border: 1px solid var(--primary); }
+      .btn-danger { background: #2a2a2a; color: var(--danger); border: 1px solid #444; }
 
-      .item-footer {
-        background: #151515;
-        border-top: 1px dashed #333;
-        padding: 12px 15px;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-      }
-      .ready-stock {
-        font-size: 0.85rem;
-        color: #ccc;
-        display: flex;
-        align-items: center;
-        gap: 6px;
-      }
-      .ready-stock b {
-        color: var(--primary);
-        font-size: 1.1rem;
-      }
-
-      .input-wrapper {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-      }
-      .input-wrapper label {
-        font-size: 0.7rem;
-        color: #888;
-        text-transform: uppercase;
-      }
-      .input-qty {
-        width: 70px;
-        padding: 8px;
-        background: #222;
-        border: 1px solid #555;
-        color: #fff;
-        border-radius: 8px;
-        text-align: center;
-        font-weight: bold;
-        outline: none;
-        font-size: 0.9rem;
-        transition: 0.2s;
-      }
-      .input-qty:focus {
-        border-color: var(--primary);
-        background: #000;
-      }
-
-      /* BOTTOM ACTION */
-      .bottom-bar {
-        position: fixed;
-        bottom: 0;
-        left: 0;
-        right: 0;
-        background: rgba(20, 20, 20, 0.95);
-        backdrop-filter: blur(10px);
-        padding: 15px 20px;
-        border-top: 1px solid #333;
-        z-index: 100;
-        display: flex;
-        gap: 10px;
-      }
-      .btn-out {
-        flex: 1;
-        padding: 14px;
-        background: #2a2a2a;
-        color: var(--danger);
-        border: 1px solid #444;
-        border-radius: 12px;
-        font-weight: bold;
-        font-size: 0.85rem;
-        cursor: pointer;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        gap: 8px;
-      }
-      .btn-save {
-        flex: 1.5;
-        padding: 14px;
-        background: var(--primary);
-        color: #000;
-        border: none;
-        border-radius: 12px;
-        font-weight: bold;
-        font-size: 0.85rem;
-        cursor: pointer;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        gap: 8px;
-        box-shadow: 0 4px 15px rgba(255, 215, 0, 0.2);
-      }
-      .btn-save:active {
-        transform: scale(0.98);
-      }
-
-      #loading {
-        text-align: center;
-        padding: 60px 20px;
-        color: #888;
-        font-size: 0.9rem;
-      }
-
-      /* MODALS */
-      .modal {
-        display: none;
-        position: fixed;
-        inset: 0;
-        background: rgba(0, 0, 0, 0.9);
-        backdrop-filter: blur(5px);
-        z-index: 9999;
-        flex-direction: column;
-        align-items: center;
-        justify-content: flex-end;
-      }
-      .modal-content {
-        background: var(--surface);
-        width: 100%;
-        height: 85vh;
-        border-radius: 20px 20px 0 0;
-        display: flex;
-        flex-direction: column;
-        animation: slideUp 0.3s;
-        border-top: 1px solid #444;
-      }
-      .m-head {
-        padding: 20px;
-        border-bottom: 1px solid #333;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-      }
-      .m-body {
-        padding: 20px;
-        overflow-y: auto;
-        flex-grow: 1;
-      }
-      .m-footer {
-        padding: 20px;
-        background: #111;
-        border-top: 1px solid #333;
-      }
-
-      .peserta-select-box {
-        background: #151515;
-        padding: 15px;
-        border-radius: 12px;
-        border: 1px solid #333;
-        margin-bottom: 20px;
-      }
-      .peserta-select {
-        width: 100%;
-        padding: 12px;
-        background: #222;
-        color: #fff;
-        border: 1px solid #555;
-        border-radius: 8px;
-        font-size: 0.9rem;
-        margin-top: 8px;
-        outline: none;
-      }
-
-      .item-dist-row {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding: 12px 0;
-        border-bottom: 1px dashed #333;
-      }
-      .stepper {
-        display: flex;
-        align-items: center;
-        background: #000;
-        border-radius: 8px;
-        border: 1px solid #444;
-        overflow: hidden;
-      }
-      .stepper button {
-        background: #222;
-        border: none;
-        color: var(--primary);
-        width: 35px;
-        height: 35px;
-        font-weight: bold;
-        cursor: pointer;
-        font-size: 1.2rem;
-      }
-      .stepper button:active {
-        background: #333;
-      }
-      .stepper input {
-        width: 40px;
-        background: transparent;
-        border: none;
-        color: #fff;
-        text-align: center;
-        font-weight: bold;
-        outline: none;
-        font-size: 1rem;
-      }
-
-      /* TOAST NOTIFICATION */
-      #toast {
-        position: fixed;
-        top: 80px;
-        left: 50%;
-        transform: translateX(-50%);
-        background: #4ade80;
-        color: #000;
-        padding: 10px 20px;
-        border-radius: 50px;
-        font-weight: bold;
-        font-size: 0.85rem;
-        box-shadow: 0 4px 15px rgba(74, 222, 128, 0.4);
-        z-index: 99999;
-        display: none;
-        align-items: center;
-        gap: 8px;
-        transition: opacity 0.3s;
-      }
-
-      @keyframes slideUp {
-        from {
-          transform: translateY(100%);
-        }
-        to {
-          transform: translateY(0);
-        }
-      }
+      #loading { text-align: center; padding: 50px 20px; color: #888; }
+      .modal { display: none; position: fixed; inset: 0; background: rgba(0, 0, 0, 0.9); z-index: 9999; flex-direction: column; justify-content: flex-end; }
+      .modal-content { background: var(--surface); height: 90vh; border-radius: 20px 20px 0 0; display: flex; flex-direction: column; border-top: 1px solid #444; }
+      .m-head { padding: 15px 20px; border-bottom: 1px solid #333; display: flex; justify-content: space-between; align-items: center; }
+      .m-body { padding: 15px 20px; overflow-y: auto; flex: 1; background: #121212; }
+      #toast { position: fixed; top: 70px; left: 50%; transform: translateX(-50%); background: #4ade80; color: #000; padding: 8px 18px; border-radius: 50px; font-weight: bold; font-size: 0.82rem; z-index: 99999; display: none; align-items: center; gap: 6px; }
     </style>
   </head>
   <body>
-    <div id="toast">
-      <i class="fas fa-check-circle"></i>
-      <span id="toastMsg">Tersalin ke Clipboard!</span>
-    </div>
+    <div id="toast"><i class="fas fa-check-circle"></i><span id="toastMsg">Tersalin!</span></div>
 
+    <!-- TOP NAVIGATION -->
     <div class="top-nav">
       <div class="nav-left">
-        <a href="index.html" class="back-btn"
-          ><i class="fas fa-arrow-left"></i
-        ></a>
-        <h2 style="margin: 0; font-size: 1.1rem">Rekap Logistik</h2>
+        <a href="index.html" class="back-btn"><i class="fas fa-arrow-left"></i></a>
+        <h2 style="margin: 0; font-size: 1.05rem">Sistem Terpadu (Lengkap)</h2>
       </div>
-      <button onclick="tarikDataServer()" class="btn-refresh">
-        <i class="fas fa-sync-alt"></i> Refresh
-      </button>
+      <button onclick="tarikDataSemua()" class="btn-refresh"><i class="fas fa-sync-alt"></i> Refresh</button>
     </div>
 
-    <div class="filter-box" id="filterArea" style="display: none">
-      <select
-        id="fMitra"
-        class="filter-select"
-        onchange="hitungUlangLogistik()"
-      >
-        <option value="ALL">📁 Semua Mitra</option>
-      </select>
-      <div class="filter-grid">
-        <select
-          id="fStatus"
-          class="filter-select"
-          onchange="hitungUlangLogistik()"
-        >
-          <option value="ALL">🎯 Semua Status</option>
-          <option value="LUNAS">🟢 Lunas Barang</option>
-          <option value="BELUM">🔴 Belum Lunas</option>
-        </select>
-
-        <!-- DROPDOWN CHECKBOX MULTI-PAKET -->
-        <div style="position: relative; width: 100%">
-          <div
-            id="dropdownPaketBtn"
-            onclick="toggleDropdownPaket(event)"
-            class="filter-select"
-            style="
-              display: flex;
-              justify-content: space-between;
-              align-items: center;
-              cursor: pointer;
-            "
-          >
-            <span id="labelPaketTerpilih">📦 Semua Paket Terpilih</span>
-            <i
-              class="fas fa-chevron-down"
-              style="font-size: 0.75rem; color: #888"
-            ></i>
-          </div>
-          <div
-            id="dropdownPaketContent"
-            style="
-              display: none;
-              position: absolute;
-              top: 100%;
-              left: 0;
-              right: 0;
-              background: #1e1e1e;
-              border: 1px solid #444;
-              border-radius: 8px;
-              margin-top: 5px;
-              z-index: 100;
-              max-height: 250px;
-              overflow-y: auto;
-              padding: 10px;
-              box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
-            "
-          >
-            <div
-              style="
-                display: flex;
-                justify-content: space-between;
-                padding-bottom: 8px;
-                border-bottom: 1px solid #333;
-                margin-bottom: 8px;
-                font-size: 0.75rem;
-              "
-            >
-              <span
-                onclick="ubahSemuaPaket(true)"
-                style="
-                  color: var(--primary);
-                  cursor: pointer;
-                  font-weight: bold;
-                "
-                >Pilih Semua</span
-              >
-              <span
-                onclick="ubahSemuaPaket(false)"
-                style="color: var(--danger); cursor: pointer; font-weight: bold"
-                >Hapus Semua</span
-              >
-            </div>
-            <div
-              id="listCheckboxPaket"
-              style="display: flex; flex-direction: column; gap: 6px"
-            ></div>
-          </div>
-        </div>
+    <!-- TAB MODE SWITCHER -->
+    <div class="mode-switcher">
+      <div class="mode-tab active" id="tabPeserta" onclick="switchAppMode('peserta')">
+        <i class="fas fa-user-check"></i> Checklist per Peserta
       </div>
-
-      <!-- Filter Rentang Setoran -->
-      <div class="filter-grid" style="margin-top: 10px">
-        <div
-          style="
-            display: flex;
-            gap: 8px;
-            align-items: center;
-            background: #222;
-            border: 1px solid #444;
-            border-radius: 8px;
-            padding: 0 10px;
-          "
-        >
-          <span style="color: #888; font-size: 0.75rem; font-weight: bold"
-            ><i class="fas fa-list-ol"></i> Min</span
-          >
-          <input
-            type="number"
-            id="fMinSetoran"
-            class="filter-select"
-            style="
-              border: none;
-              padding: 10px 0;
-              background: transparent;
-              background-image: none;
-            "
-            placeholder="Berapa kali..."
-            oninput="hitungUlangLogistik()"
-          />
-        </div>
-        <div
-          style="
-            display: flex;
-            gap: 8px;
-            align-items: center;
-            background: #222;
-            border: 1px solid #444;
-            border-radius: 8px;
-            padding: 0 10px;
-          "
-        >
-          <span style="color: #888; font-size: 0.75rem; font-weight: bold"
-            ><i class="fas fa-list-ol"></i> Max</span
-          >
-          <input
-            type="number"
-            id="fMaxSetoran"
-            class="filter-select"
-            style="
-              border: none;
-              padding: 10px 0;
-              background: transparent;
-              background-image: none;
-            "
-            placeholder="Berapa kali..."
-            oninput="hitungUlangLogistik()"
-          />
-        </div>
+      <div class="mode-tab" id="tabLogistik" onclick="switchAppMode('logistik')">
+        <i class="fas fa-boxes-stacked"></i> Logistik & Gudang
       </div>
     </div>
 
     <div id="loading">
-      <i
-        class="fas fa-spinner fa-spin fa-2x"
-        style="color: var(--primary); margin-bottom: 15px"
-      ></i
-      ><br />Menyinkronkan data gudang...
+      <i class="fas fa-spinner fa-spin fa-2x" style="color: var(--primary); margin-bottom: 15px;"></i><br />Memuat dan menyinkronkan seluruh data...
     </div>
 
-    <div id="content" style="display: none">
-      <!-- SEARCH CONTAINER MENGAMBANG DI ATAS -->
-      <div class="search-container">
-        <input
-          type="text"
-          id="filterInput"
-          class="search-input"
-          placeholder="🔍 Cari nama barang..."
-          onkeyup="renderListUiLokal()"
-        />
-        <button
-          class="btn-share"
-          onclick="copyToClipboard()"
-          title="Bagikan Daftar Belanja ke WhatsApp"
-        >
-          <i class="fab fa-whatsapp"></i>
-        </button>
+    <!-- MODE 1: CHECKLIST REKAP MANUAL PER PESERTA -->
+    <div id="sectionPeserta" style="display: none;">
+      <div class="filter-box">
+        <div class="search-input-wrap">
+          <i class="fas fa-search"></i>
+          <input type="text" id="inputCari" class="search-input" placeholder="Cari nama atau ID peserta..." oninput="terapkanFilterPeserta()" />
+        </div>
+        <div class="search-input-wrap">
+          <i class="fas fa-box"></i>
+          <input type="text" id="filterOrderanBarang" class="search-input" list="datalist-barang" placeholder="Filter khusus peserta yang order barang..." oninput="terapkanFilterPeserta()" />
+        </div>
+        <div class="filter-grid">
+          <select id="filterOperator" class="filter-select-normal" onchange="toggleFilterInput(); terapkanFilterPeserta();">
+            <option value="ALL">🎯 Semua Setoran</option>
+            <option value="<">Kurang dari (<)</option>
+            <option value=">">Lebih dari (>)</option>
+            <option value="=">Sama dengan (=)</option>
+          </select>
+          <input type="number" id="filterAngka" class="filter-input-normal" style="display: none" placeholder="Ketik freq..." oninput="terapkanFilterPeserta()" />
+        </div>
+        <div class="filter-grid">
+          <div class="cs-wrap">
+            <div class="cs-header" id="headMitra" onclick="toggleDrop('listMitra')">Mitra: Semua <i class="fas fa-caret-down"></i></div>
+            <div class="cs-list" id="listMitra"></div>
+          </div>
+          <div class="cs-wrap">
+            <div class="cs-header" id="headPaket" onclick="toggleDrop('listPaket')">Paket: Semua <i class="fas fa-caret-down"></i></div>
+            <div class="cs-list" id="listPaket"></div>
+          </div>
+        </div>
+        <div id="infoTotalFilter" style="font-size: 0.75rem; color: #aaa; text-align: right;"></div>
+
+        <!-- PANEL CHECKLIST MASSAL -->
+        <div id="bulkCheckArea" style="display: none; padding: 12px; background: rgba(74,222,128,0.1); border-radius: 8px; border: 1px dashed var(--success);">
+          <div style="display: flex; justify-content: space-between; align-items: center; gap: 8px; flex-wrap: wrap;">
+            <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+              <span style="font-size: 0.8rem; color: var(--success); font-weight: bold;"><i class="fas fa-check-double"></i> Aksi Massal</span>
+              <span style="background: var(--primary); color: #000; padding: 3px 10px; border-radius: 20px; font-size: 0.85rem; font-weight: 800; box-shadow: 0 0 10px rgba(255, 215, 0, 0.4);">
+                <i class="fas fa-boxes-stacked"></i> Total: <span id="lblQtyBarangMassal">0</span> Pcs
+              </span>
+            </div>
+            <button onclick="terapkanChecklistMassal(event)" style="background: var(--success); color: #000; border: none; border-radius: 6px; font-weight: bold; padding: 6px 12px; font-size: 0.78rem; cursor: pointer;">
+              <i class="fas fa-bolt"></i> Auto-Checklist
+            </button>
+          </div>
+          <div style="font-size: 0.73rem; color: #ccc; margin-top: 6px;">
+            Centang otomatis barang <b id="lblBarangMassal" style="color:#fff;"></b> untuk <b id="lblJmlPesertaMassal" style="color:var(--primary);">0</b> peserta.
+          </div>
+        </div>
       </div>
 
-      <div id="paketList" class="stats-container"></div>
+      <div id="listPeserta" style="padding: 15px 20px;"></div>
+    </div>
+
+    <!-- MODE 2: REKAP LOGISTIK & GUDANG PRO-RATA -->
+    <div id="sectionLogistik" style="display: none;">
+      <div class="filter-box">
+        <select id="fMitraLogistik" class="filter-select-normal" onchange="hitungUlangLogistik()"><option value="ALL">📁 Semua Mitra</option></select>
+        <div class="filter-grid">
+          <select id="fStatusLogistik" class="filter-select-normal" onchange="hitungUlangLogistik()">
+            <option value="ALL">🎯 Semua Status</option>
+            <option value="LUNAS">🟢 Lunas Barang</option>
+            <option value="BELUM">🔴 Belum Lunas</option>
+          </select>
+
+          <!-- MULTI CHECKBOX PAKET -->
+          <div style="position: relative; width: 100%">
+            <div id="dropdownPaketBtn" onclick="toggleDropdownPaket(event)" class="filter-select-normal" style="cursor: pointer; display: flex; justify-content: space-between; align-items: center;">
+              <span id="labelPaketTerpilih">📦 Semua Paket Dipilih</span><i class="fas fa-chevron-down" style="font-size: 0.75rem;"></i>
+            </div>
+            <div id="dropdownPaketContent" style="display: none; position: absolute; top: 100%; left: 0; right: 0; background: #1e1e1e; border: 1px solid #444; border-radius: 8px; margin-top: 5px; z-index: 100; max-height: 220px; overflow-y: auto; padding: 10px;">
+              <div style="display: flex; justify-content: space-between; padding-bottom: 6px; border-bottom: 1px solid #333; margin-bottom: 6px; font-size: 0.75rem;">
+                <span onclick="ubahSemuaPaket(true)" style="color: var(--primary); cursor: pointer; font-weight: bold;">Pilih Semua</span>
+                <span onclick="ubahSemuaPaket(false)" style="color: var(--danger); cursor: pointer; font-weight: bold;">Hapus Semua</span>
+              </div>
+              <div id="listCheckboxPaket" style="display: flex; flex-direction: column; gap: 6px;"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="filter-grid">
+          <input type="number" id="fMinSetoran" class="filter-input-normal" placeholder="Min setoran..." oninput="hitungUlangLogistik()">
+          <input type="number" id="fMaxSetoran" class="filter-input-normal" placeholder="Max setoran..." oninput="hitungUlangLogistik()">
+        </div>
+      </div>
+
+      <div class="search-input-wrap" style="margin: 15px 20px 0 20px;">
+        <i class="fas fa-search"></i>
+        <input type="text" id="filterInputLogistik" class="search-input" placeholder="🔍 Cari nama barang gudang..." onkeyup="renderListLogistikLokal()" />
+        <button onclick="copyToClipboardWA()" style="position: absolute; right: 5px; background: rgba(74,222,128,0.15); color: var(--success); border: 1px solid var(--success); padding: 6px 12px; border-radius: 6px; cursor: pointer;" title="Bagikan Rekap Belanja ke WA"><i class="fab fa-whatsapp"></i></button>
+      </div>
+
+      <div id="paketListStats" class="stats-container"></div>
 
       <div class="finance-bar">
-        <div class="finance-info">
-          <h4>Estimasi Biaya Belanja</h4>
-          <div class="val" id="estimasiBiaya">Rp 0</div>
+        <div>
+          <div style="font-size: 0.68rem; color: #aaa; text-transform: uppercase;">Estimasi Biaya Belanja</div>
+          <div class="val" id="estimasiBiaya" style="font-size: 1.15rem; font-weight: bold; color: var(--primary);">Rp 0</div>
         </div>
-        <label class="toggle-container">
-          <input
-            type="checkbox"
-            id="toggleKurang"
-            onchange="renderListUiLokal()"
-          />
-          <div class="toggle-switch"></div>
-          Hanya Kurang
+        <label style="color: #aaa; font-size: 0.75rem; display: flex; align-items: center; gap: 6px; cursor: pointer;">
+          <input type="checkbox" id="toggleKurang" onchange="renderListLogistikLokal()" style="accent-color: var(--primary);" /> Hanya Kurang
         </label>
       </div>
 
-      <div class="list-container">
-        <div class="section-title">
+      <div style="padding: 0 20px 20px 20px;">
+        <div style="font-size: 0.78rem; color: #888; margin-bottom: 8px; display: flex; justify-content: space-between; font-weight: bold;">
           <span>Stok Gudang Berjalan (Anti-Overstok)</span>
-          <span style="color: var(--primary)"><b id="lblTotal">0</b> Item</span>
+          <span style="color: var(--primary)"><b id="lblTotalBarangLogistik">0</b> Item</span>
         </div>
-        <div id="belanjaList"></div>
+        <div id="belanjaListLogistik"></div>
       </div>
     </div>
 
+    <!-- BOTTOM ACTION BAR -->
     <div class="bottom-bar">
-      <!-- Tombol Catatan Kas & Belanja -->
-      <button
-        onclick="bukaModalCatatan()"
-        class="btn-out"
-        style="
-          flex: 0.4;
-          color: var(--primary);
-          border-color: rgba(255, 215, 0, 0.3);
-          background: rgba(255, 215, 0, 0.1);
-        "
-        title="Catatan Kas & Belanja"
-      >
-        <i class="fas fa-receipt"></i>
-      </button>
-      <button onclick="bukaModalDistribusi()" class="btn-out" style="flex: 1">
-        <i class="fas fa-box-open"></i> DISTRIBUSI
-      </button>
-      <button
-        onclick="simpanBelanja()"
-        class="btn-save"
-        id="btnSave"
-        style="flex: 1.2"
-      >
-        <i class="fas fa-save"></i> SIMPAN MASUK
-      </button>
+      <!-- FITUR MODE PESERTA -->
+      <div id="barModePeserta" style="display: flex; gap: 8px; width: 100%;">
+        <button class="btn-action btn-dark" onclick="bukaModalBelanja()"><i class="fas fa-shopping-cart"></i> DAFTAR BELANJA</button>
+        <button class="btn-action btn-primary" id="btnSimpanPeserta" onclick="simpanChecklistGlobal()"><i class="fas fa-save"></i> SIMPAN CHECKLIST</button>
+      </div>
+
+      <!-- FITUR MODE LOGISTIK -->
+      <div id="barModeLogistik" style="display: none; gap: 8px; width: 100%;">
+        <button onclick="bukaModalCatatan()" class="btn-action btn-dark" style="flex: 0.3;" title="Catatan Kas Besar"><i class="fas fa-receipt"></i></button>
+        <button onclick="bukaModalDistribusi()" class="btn-action btn-danger"><i class="fas fa-box-open"></i> DISTRIBUSI</button>
+        <button onclick="simpanStokBelanjaLogistik()" id="btnSaveLogistik" class="btn-action btn-primary"><i class="fas fa-save"></i> SIMPAN MASUK</button>
+      </div>
     </div>
 
-    <!-- MODAL DISTRIBUSI KELUAR -->
+    <!-- MODAL POPUPS -->
+    <!-- MODAL 1: BELANJA 2 TAB -->
+    <div id="modalBelanja" class="modal">
+      <div class="modal-content">
+        <div class="m-head">
+          <div>
+            <h3 style="margin: 0; color: var(--primary); font-size: 1rem;"><i class="fas fa-shopping-cart"></i> Manajemen Belanja & Gudang</h3>
+            <div style="font-size: 0.7rem; color: #888">Sinkronisasi FIX_BARANG & REKAP_BELANJA</div>
+          </div>
+          <i class="fas fa-times" style="font-size: 1.3rem; color: #888; cursor: pointer" onclick="tutupModal('modalBelanja')"></i>
+        </div>
+        <div class="modal-tabs">
+          <button class="modal-tab-btn active" id="tabBtnBelanja" onclick="switchModalTab('belanja')"><i class="fas fa-list-check"></i> Daftar Belanja (Kurang)</button>
+          <button class="modal-tab-btn" id="tabBtnSudahBeli" onclick="switchModalTab('sudahBeli')"><i class="fas fa-warehouse"></i> Riwayat Di Gudang</button>
+        </div>
+        <div id="contentTabBelanja" style="display: flex; flex-direction: column; flex: 1; overflow: hidden;">
+          <div style="padding: 10px 15px; background: #151515; border-bottom: 1px dashed #333; display: flex; flex-direction: column; gap: 8px;">
+            <div style="position: relative; display: flex; align-items: center">
+              <i class="fas fa-search" style="position: absolute; left: 12px; color: #888; font-size: 0.8rem;"></i>
+              <input type="text" id="cariBarangBelanja" class="search-input" style="padding-top: 6px; padding-bottom: 6px; font-size: 0.82rem;" placeholder="Cari nama barang..." oninput="renderBelanjaList()" />
+            </div>
+            <div style="display: flex; justify-content: space-between; align-items: center; gap: 10px;">
+              <select id="filterKategoriBarang" class="filter-select-normal" style="flex: 1; padding: 6px; font-size: 0.78rem" onchange="renderBelanjaList()"><option value="ALL">📂 Semua Kategori</option></select>
+              <label style="color: #fff; font-size: 0.75rem; display: flex; align-items: center; gap: 6px; cursor: pointer;">
+                <input type="checkbox" id="chkHanyaKurang" onchange="renderBelanjaList()" checked style="accent-color: var(--primary);" /> Hanya kurang
+              </label>
+            </div>
+          </div>
+          <div style="padding: 12px; overflow-y: auto; flex: 1" id="listBelanjaContainer"></div>
+          <div style="padding: 12px 20px; background: #111; border-top: 1px solid #333;">
+            <button onclick="simpanStokBelanjaModal()" id="btnSimpanBelanjaModal" class="btn-action btn-primary" style="width: 100%;"><i class="fas fa-save"></i> SIMPAN BARANG MASUK KE GUDANG</button>
+          </div>
+        </div>
+        <div id="contentTabSudahBeli" style="display: none; flex-direction: column; flex: 1; overflow: hidden; position: relative;">
+          <div style="padding: 10px 15px; background: #151515; border-bottom: 1px dashed #333; display: flex; gap: 10px;">
+            <div style="position: relative; display: flex; align-items: center; flex: 1;">
+              <i class="fas fa-search" style="position: absolute; left: 12px; color: #888; font-size: 0.8rem;"></i>
+              <input type="text" id="cariRiwayatGudang" class="search-input" style="padding-top: 6px; padding-bottom: 6px; font-size: 0.82rem;" placeholder="Cari barang di gudang..." oninput="renderRiwayatGudangList()" />
+            </div>
+            <select id="filterKategoriRiwayat" class="filter-select-normal" style="width: 130px; padding: 6px; font-size: 0.78rem" onchange="renderRiwayatGudangList()"><option value="ALL">📂 Semua</option></select>
+          </div>
+          <div style="padding: 12px; overflow-y: auto; flex: 1" id="listRiwayatGudangContainer"></div>
+          <button class="floating-add-btn" onclick="bukaModalFormTambahBelanja()" title="Tambah Belanjaan Manual"><i class="fas fa-plus"></i></button>
+        </div>
+      </div>
+    </div>
+
+    <!-- MODAL 2: DISTRIBUSI BARANG KELUAR -->
     <div id="modalDist" class="modal">
       <div class="modal-content">
         <div class="m-head">
-          <h3 style="margin: 0; color: var(--danger)">
-            <i class="fas fa-dolly"></i> Keluarkan Barang
-          </h3>
-          <i
-            class="fas fa-times"
-            style="font-size: 1.5rem; color: #888; cursor: pointer"
-            onclick="tutupModalDistribusi()"
-          ></i>
+          <h3 style="margin: 0; color: var(--danger); font-size: 1rem;"><i class="fas fa-dolly"></i> Keluarkan Barang (Distribusi)</h3>
+          <i class="fas fa-times" style="font-size: 1.3rem; color: #888; cursor: pointer" onclick="tutupModal('modalDist')"></i>
         </div>
         <div class="m-body">
-          <div class="peserta-select-box">
-            <label>Pilih Peserta (Drop Out / Cicil):</label>
-            <select
-              id="distPeserta"
-              class="peserta-select"
-              onchange="pilihPesertaDist()"
-            >
-              <option value="">-- Pilih Peserta --</option>
-            </select>
-            <div
-              id="infoSaldo"
-              style="
-                margin-top: 12px;
-                font-size: 0.85rem;
-                color: var(--success);
-                display: none;
-              "
-            >
-              Saldo Tersedia:
-              <b
-                id="txtSaldo"
-                style="font-size: 1.2rem; display: block; margin-top: 3px"
-                >Rp 0</b
-              >
+          <div style="background: #151515; padding: 12px; border-radius: 8px; margin-bottom: 12px;">
+            <label style="font-size: 0.8rem; color: #aaa;">Pilih Peserta (Drop Out / Cicil):</label>
+            <select id="distPeserta" class="filter-select-normal" style="margin-top: 5px;" onchange="pilihPesertaDist()"><option value="">-- Pilih Peserta --</option></select>
+            <div id="infoSaldo" style="margin-top: 8px; font-size: 0.8rem; color: var(--success); display: none;">
+              Saldo Tersedia: <b id="txtSaldo" style="font-size: 1.1rem; display: block;">Rp 0</b>
             </div>
           </div>
-          <div
-            style="
-              font-size: 0.85rem;
-              color: #aaa;
-              margin-bottom: 10px;
-              font-weight: bold;
-            "
-          >
-            Pilih Barang dari Sisa Gudang:
-          </div>
+          <div style="font-size: 0.8rem; color: #aaa; margin-bottom: 8px; font-weight: bold;">Pilih Barang dari Sisa Gudang:</div>
           <div id="distItemsContainer"></div>
         </div>
-        <div class="m-footer">
-          <div
-            style="
-              display: flex;
-              justify-content: space-between;
-              align-items: center;
-              margin-bottom: 15px;
-            "
-          >
-            <span style="font-size: 0.85rem; color: #aaa"
-              >Total Nilai Diambil:</span
-            >
-            <b
-              id="txtTotalAmbil"
-              style="color: var(--danger); font-size: 1.3rem"
-              >Rp 0</b
-            >
-          </div>
-          <button
-            onclick="simpanDistribusi()"
-            class="btn-save"
-            style="
-              width: 100%;
-              background: var(--danger);
-              color: #fff;
-              padding: 16px;
-            "
-            id="btnSimpanDist"
-          >
-            PROSES BARANG KELUAR
-          </button>
+        <div style="padding: 15px; background: #111; border-top: 1px solid #333; display: flex; justify-content: space-between; align-items: center;">
+          <span>Total Nilai: <b id="txtTotalAmbil" style="color: var(--danger); font-size: 1.1rem;">Rp 0</b></span>
+          <button onclick="simpanDistribusi()" class="btn-action btn-primary" id="btnSimpanDist" style="background: var(--danger); color: #fff;">PROSES BARANG KELUAR</button>
         </div>
       </div>
     </div>
 
-    <!-- MODAL RINCIAN ITEM / PAKET -->
+    <!-- MODAL 3: RINCIAN KEBUTUHAN / PAKET / PESERTA -->
     <div id="modalDetail" class="modal">
       <div class="modal-content">
         <div class="m-head">
-          <h3 style="margin: 0; color: var(--primary)">
-            <i class="fas fa-search-plus"></i> Rincian Kebutuhan
-          </h3>
-          <i
-            class="fas fa-times"
-            style="font-size: 1.5rem; color: #888; cursor: pointer"
-            onclick="tutupDetailItem()"
-          ></i>
+          <h3 style="margin: 0; color: var(--primary); font-size: 1rem;"><i class="fas fa-search-plus"></i> Rincian Kebutuhan</h3>
+          <i class="fas fa-times" style="font-size: 1.3rem; color: #888; cursor: pointer" onclick="tutupModal('modalDetail')"></i>
         </div>
-        <div
-          style="
-            padding: 15px 20px 10px;
-            border-bottom: 1px dashed #333;
-            background: #1a1a1a;
-          "
-        >
-          <h4
-            id="modalDetailTitle"
-            style="margin: 0 0 8px 0; font-size: 1.1rem; color: #fff"
-          >
-            Nama Barang
-          </h4>
-          <div
-            style="
-              display: flex;
-              justify-content: space-between;
-              font-size: 0.85rem;
-              font-weight: bold;
-            "
-          >
+        <div style="padding: 12px 20px; border-bottom: 1px dashed #333; background: #1a1a1a;">
+          <h4 id="modalDetailTitle" style="margin: 0 0 6px 0; font-size: 1.05rem; color: #fff;">Nama Barang</h4>
+          <div style="display: flex; justify-content: space-between; font-size: 0.82rem; font-weight: bold;">
             <span id="modalDetailTarget"></span>
             <span id="modalDetailKurang"></span>
           </div>
         </div>
-        <div
-          class="m-body"
-          id="modalDetailBody"
-          style="background: #121212"
-        ></div>
+        <div class="m-body" id="modalDetailBody"></div>
       </div>
     </div>
 
-    <!-- MODAL CATATAN BELANJA -->
+    <!-- MODAL 4: CATATAN LAPORAN KAS BESAR (UPDATED FULL FITUR REKAP.HTML) -->
     <div id="modalCatatan" class="modal">
       <div class="modal-content">
         <div class="m-head">
-          <h3 style="margin: 0; color: var(--primary)">
-            <i class="fas fa-receipt"></i> Laporan Kas Besar
-          </h3>
-          <i
-            class="fas fa-times"
-            style="font-size: 1.5rem; color: #888; cursor: pointer"
-            onclick="
-              document.getElementById('modalCatatan').style.display = 'none'
-            "
-          ></i>
+          <h3 style="margin: 0; color: var(--primary); font-size: 1rem;"><i class="fas fa-receipt"></i> Laporan Kas Besar</h3>
+          <i class="fas fa-times" style="font-size: 1.3rem; color: #888; cursor: pointer" onclick="tutupModal('modalCatatan')"></i>
         </div>
-        <div class="m-body" style="background: #121212">
-          <!-- Area Ringkasan -->
-          <div
-            id="catatanHeader"
-            style="
-              display: flex;
-              flex-direction: column;
-              gap: 10px;
-              margin-bottom: 15px;
-            "
-          ></div>
+        <div class="m-body">
+          <!-- RINGKASAN REKAP KAS LENGKAP -->
+          <div id="catatanHeader" style="display: flex; flex-direction: column; gap: 8px; margin-bottom: 15px;"></div>
 
-          <!-- Form Pengeluaran Tambahan -->
-          <div
-            style="
-              background: #1a1a1a;
-              padding: 15px;
-              border-radius: 10px;
-              border: 1px dashed var(--primary);
-              margin-bottom: 20px;
-            "
-          >
-            <h4
-              style="
-                margin: 0 0 10px 0;
-                color: var(--primary);
-                font-size: 0.85rem;
-              "
-            >
-              <i class="fas fa-plus-circle"></i> Catat Pengeluaran Lain
-            </h4>
-            <div style="display: flex; gap: 8px; flex-wrap: wrap">
-              <input
-                type="text"
-                id="inputKetKas"
-                placeholder="Cth: Beli Emas, Dipinjam, dll..."
-                style="
-                  flex: 1;
-                  min-width: 150px;
-                  padding: 10px;
-                  background: #111;
-                  border: 1px solid #333;
-                  color: #fff;
-                  border-radius: 8px;
-                "
-              />
-              <input
-                type="number"
-                id="inputNominalKas"
-                placeholder="Nominal Rp..."
-                style="
-                  width: 130px;
-                  padding: 10px;
-                  background: #111;
-                  border: 1px solid #333;
-                  color: #fff;
-                  border-radius: 8px;
-                "
-              />
-              <button
-                onclick="tambahKasLain(this)"
-                style="
-                  background: var(--primary);
-                  color: #000;
-                  border: none;
-                  font-weight: bold;
-                  padding: 10px 15px;
-                  border-radius: 8px;
-                  cursor: pointer;
-                "
-              >
-                Simpan
-              </button>
+          <!-- FORM PENGELUARAN LAIN -->
+          <div style="background: #1a1a1a; padding: 12px; border-radius: 8px; border: 1px dashed var(--primary); margin-bottom: 15px;">
+            <h4 style="margin: 0 0 8px 0; color: var(--primary); font-size: 0.82rem;"><i class="fas fa-plus-circle"></i> Catat Pengeluaran Lain</h4>
+            <div style="display: flex; gap: 6px; flex-wrap: wrap;">
+              <input type="text" id="inputKetKas" placeholder="Cth: Beli Emas, Dipinjam, dll..." class="filter-input-normal" style="flex: 1; min-width: 140px; padding: 8px;">
+              <input type="number" id="inputNominalKas" placeholder="Nominal Rp..." class="filter-input-normal" style="width: 110px; padding: 8px;">
+              <button onclick="tambahKasLain(this)" style="background: var(--primary); color: #000; border: none; font-weight: bold; padding: 8px 12px; border-radius: 6px; cursor: pointer;">Simpan</button>
             </div>
           </div>
 
-          <!-- List Pengeluaran Lain -->
-          <h4
-            style="
-              color: #fff;
-              font-size: 0.9rem;
-              border-bottom: 1px dashed #444;
-              padding-bottom: 8px;
-              margin-bottom: 10px;
-            "
-          >
-            Riwayat Pengeluaran Lainnya
-          </h4>
-          <div id="kasLainListContainer" style="margin-bottom: 20px"></div>
+          <h4 style="color: #fff; font-size: 0.85rem; border-bottom: 1px dashed #444; padding-bottom: 6px; margin-bottom: 8px;">Riwayat Pengeluaran Lainnya</h4>
+          <div id="kasLainListContainer" style="margin-bottom: 15px;"></div>
 
-          <!-- List Belanja Gudang -->
-          <h4
-            style="
-              color: #fff;
-              font-size: 0.9rem;
-              border-bottom: 1px dashed #444;
-              padding-bottom: 8px;
-              margin-bottom: 10px;
-            "
-          >
-            Rincian Belanja Barang (Masuk Gudang)
-          </h4>
+          <h4 style="color: #fff; font-size: 0.85rem; border-bottom: 1px dashed #444; padding-bottom: 6px; margin-bottom: 8px;">Rincian Belanja Barang (Masuk Gudang)</h4>
           <div id="catatanListContainer"></div>
         </div>
       </div>
     </div>
 
-    <!-- Eksternal Script untuk fetchData jika ada -->
     <script src="script.js"></script>
-
     <script>
-      let masterData = {
-        peserta: [],
-        resep: [],
-        custom: [],
-        stok_dibeli: {},
-        stok_keluar: {},
-        harga_barang: {},
-        harga_jual_barang: {},
-      };
-      let listBelanjaFinal = [];
+      // STATE GLOBAL REKAP TERPADU
+      let currentAppMode = "peserta";
+      let masterDataLogistik = { peserta: [], resep: [], custom: [], stok_dibeli: {}, stok_keluar: {}, harga_barang: {}, harga_jual_barang: {}, foto_barang: {} };
+      let dataPesertaManual = [];
+      let currentFilteredPeserta = [];
+      let allDataBarangPeserta = {};
+      let saldoPeserta = {};
+      let masterBarangGlobal = {};
+      let setSudahFixServer = new Set();
+      let mapOrderanPeserta = {};
+      let listBelanjaFinalLogistik = [];
       let pesertaLolosGlobal = [];
-      let selectedPesertaSaldo = 0;
       let distCart = {};
+      let selectedPesertaSaldo = 0;
+      let dataBelanjaGlobal = [];
+      let dataRiwayatGudangGlobal = [];
 
-      function formatRp(angka) {
-        return new Intl.NumberFormat("id-ID", {
-          style: "currency",
-          currency: "IDR",
-          minimumFractionDigits: 0,
-        }).format(angka || 0);
+      function formatUang(angka) {
+        return new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR", minimumFractionDigits: 0 }).format(angka || 0);
       }
-
       function showToast(msg) {
         const toast = document.getElementById("toast");
         document.getElementById("toastMsg").innerText = msg;
         toast.style.display = "flex";
-        setTimeout(() => {
-          toast.style.display = "none";
-        }, 3000);
+        setTimeout(() => { toast.style.display = "none"; }, 2500);
+      }
+      function tutupModal(id) { document.getElementById(id).style.display = "none"; }
+
+      function switchAppMode(mode) {
+        currentAppMode = mode;
+        document.getElementById("tabPeserta").classList.toggle("active", mode === "peserta");
+        document.getElementById("tabLogistik").classList.toggle("active", mode === "logistik");
+        document.getElementById("sectionPeserta").style.display = mode === "peserta" ? "block" : "none";
+        document.getElementById("sectionLogistik").style.display = mode === "logistik" ? "block" : "none";
+        document.getElementById("barModePeserta").style.display = mode === "peserta" ? "flex" : "none";
+        document.getElementById("barModeLogistik").style.display = mode === "logistik" ? "flex" : "none";
       }
 
-      async function tarikDataServer() {
-        document.getElementById("content").style.display = "none";
-        document.getElementById("filterArea").style.display = "none";
+      /* ===================================================================
+         PENARIKAN DATA TERPADU (PARALEL)
+         =================================================================== */
+      async function tarikDataSemua() {
         document.getElementById("loading").style.display = "block";
-        document.getElementById("loading").innerHTML =
-          '<i class="fas fa-spinner fa-spin fa-2x" style="color: var(--primary); margin-bottom: 15px"></i><br />Menyinkronkan data gudang (Anti-Overstok)...';
+        document.getElementById("sectionPeserta").style.display = "none";
+        document.getElementById("sectionLogistik").style.display = "none";
 
         try {
-          const data = await fetchData("getRekapBelanja");
+          const [resStats, resMaster, resFixList, resRekap] = await Promise.all([
+            fetchData("getAdminStats"),
+            fetchData("getBarang"),
+            fetchData("getListSudahFix"),
+            fetchData("getRekapBelanja")
+          ]);
 
-          if (data && data.error) {
-            document.getElementById("loading").innerHTML =
-              `<span style='color:var(--danger);'><i class="fas fa-exclamation-triangle fa-2x" style="margin-bottom:10px;"></i><br><b>Error Database:</b><br>${data.error}</span>`;
-            return;
-          }
-
-          if (data && data.peserta) {
-            if (!data.stok_dibeli) data.stok_dibeli = {};
-            if (!data.stok_keluar) data.stok_keluar = {};
-            if (!data.harga_barang) data.harga_barang = {};
-            if (!data.harga_jual_barang) data.harga_jual_barang = {};
-            if (!data.foto_barang) data.foto_barang = {};
-
-            masterData = data;
-            buatOpsiFilter();
-            hitungUlangLogistik();
-
-            document.getElementById("loading").style.display = "none";
-            document.getElementById("filterArea").style.display = "flex";
-            document.getElementById("content").style.display = "block";
-          } else {
-            document.getElementById("loading").innerHTML =
-              '<span style=\'color:var(--danger);\'><i class="fas fa-exclamation-triangle fa-2x" style="margin-bottom:10px;"></i><br>Gagal menarik data.<br>Pastikan Deploy Versi Baru.</span>';
-          }
-        } catch (e) {
-          document.getElementById("loading").innerHTML =
-            `<span style='color:var(--danger);'><i class="fas fa-wifi fa-2x" style="margin-bottom:10px;"></i><br>Koneksi terputus. Refresh halaman.</span>`;
-        }
-      }
-
-      function buatOpsiFilter() {
-        const mitras = [...new Set(masterData.peserta.map((p) => p.mitra))]
-          .filter(Boolean)
-          .sort();
-        const pakets = [...new Set(masterData.peserta.map((p) => p.paket))]
-          .filter(Boolean)
-          .sort();
-
-        let selMitra = '<option value="ALL">📁 Semua Mitra</option>';
-        mitras.forEach((m) => {
-          if (m !== "Pusat" && m !== "Pusat (Langsung)") {
-            selMitra += `<option value="${m}">${m}</option>`;
-          }
-        });
-        document.getElementById("fMitra").innerHTML = selMitra;
-
-        // Render Checkbox Paket (Default tercentang semua / checked)
-        let containerCheckbox = document.getElementById("listCheckboxPaket");
-        containerCheckbox.innerHTML = "";
-        pakets.forEach((p) => {
-          containerCheckbox.innerHTML += `
-            <label style="display: flex; align-items: center; gap: 8px; font-size: 0.85rem; color: #fff; cursor: pointer; padding: 4px; border-radius: 4px;" onmouseover="this.style.background='#2a2a2a'" onmouseout="this.style.background='transparent'">
-              <input type="checkbox" class="chk-paket-filter" value="${p}" checked onchange="hitungUlangLogistik(); updateLabelPaketBtn();" style="width: 16px; height: 16px; accent-color: var(--primary); cursor: pointer;">
-              <span>${p}</span>
-            </label>`;
-        });
-        updateLabelPaketBtn();
-      }
-
-      function toggleDropdownPaket(e) {
-        e.stopPropagation();
-        const content = document.getElementById("dropdownPaketContent");
-        content.style.display =
-          content.style.display === "block" ? "none" : "block";
-      }
-
-      window.addEventListener("click", function (e) {
-        const dropdown = document.getElementById("dropdownPaketContent");
-        const btn = document.getElementById("dropdownPaketBtn");
-        if (
-          dropdown &&
-          btn &&
-          !btn.contains(e.target) &&
-          !dropdown.contains(e.target)
-        ) {
-          dropdown.style.display = "none";
-        }
-      });
-
-      function ubahSemuaPaket(status) {
-        document.querySelectorAll(".chk-paket-filter").forEach((chk) => {
-          chk.checked = status;
-        });
-        hitungUlangLogistik();
-        updateLabelPaketBtn();
-      }
-
-      function updateLabelPaketBtn() {
-        const checkboxes = document.querySelectorAll(".chk-paket-filter");
-        const checkedCount = document.querySelectorAll(
-          ".chk-paket-filter:checked",
-        ).length;
-        const label = document.getElementById("labelPaketTerpilih");
-
-        if (checkedCount === checkboxes.length) {
-          label.innerText = "📦 Semua Paket Terpilih";
-        } else if (checkedCount === 0) {
-          label.innerText = "⚠️ Tidak Ada Paket Dipilih";
-        } else {
-          label.innerText = `📦 ${checkedCount} Paket Dipilih`;
-        }
-      }
-
-      // =========================================================================
-      // LOGIKA ANTI-OVERSTOK (PRO-RATA BERDASARKAN SALDO/SETORAN AKTIF)
-      // =========================================================================
-      function hitungUlangLogistik() {
-        const valMitra = document.getElementById("fMitra").value;
-        const valStatus = document.getElementById("fStatus").value;
-
-        // Ambil daftar paket yang dicentang saja
-        const selectedPakets = Array.from(
-          document.querySelectorAll(".chk-paket-filter:checked"),
-        ).map((chk) => chk.value);
-
-        const minSetoran =
-          parseInt(document.getElementById("fMinSetoran").value) || 0;
-        const rawMax = document.getElementById("fMaxSetoran").value;
-        const maxSetoran = rawMax !== "" ? parseInt(rawMax) : Infinity;
-
-        let pesertaLolos = masterData.peserta.filter((p) => {
-          let passMitra = valMitra === "ALL" || p.mitra === valMitra;
-          let passPaket = selectedPakets.includes(p.paket);
-          let passStatus = true;
-
-          if (String(p.paket).includes("(Selesai/DO)")) return false;
-
-          let freqSetor = parseFloat(p.setoran_masuk) || 0;
-
-          if (valStatus === "LUNAS")
-            passStatus = p.target_barang > 0 && freqSetor >= p.target_barang;
-          else if (valStatus === "BELUM")
-            passStatus =
-              (p.target_barang > 0 && freqSetor < p.target_barang) ||
-              p.target_barang === 0;
-
-          let passSetoran = freqSetor >= minSetoran && freqSetor <= maxSetoran;
-
-          return passMitra && passPaket && passStatus && passSetoran;
-        });
-
-        pesertaLolosGlobal = pesertaLolos;
-
-        let countPaket = {};
-        pesertaLolos.forEach((p) => {
-          if (!countPaket[p.paket]) countPaket[p.paket] = 0;
-          countPaket[p.paket]++;
-        });
-
-        let idLolos = pesertaLolos.map((p) => p.id);
-        let keranjang = {};
-
-        let resepPerPaket = {};
-        masterData.resep.forEach((r) => {
-          if (!resepPerPaket[r.paket]) resepPerPaket[r.paket] = [];
-          resepPerPaket[r.paket].push(r);
-        });
-
-        // 1. Kumpulkan data barang custom (FIX_BARANG) per peserta & Hitung Total Belanja Custom-nya
-        let idPunyaCustom = [];
-        let totalCustomPerPeserta = {};
-
-        masterData.custom.forEach((c) => {
-          if (idLolos.includes(c.id_peserta)) {
-            if (!idPunyaCustom.includes(c.id_peserta))
-              idPunyaCustom.push(c.id_peserta);
-
-            let hrgJual =
-              (masterData.harga_jual_barang &&
-                masterData.harga_jual_barang[c.barang]) ||
-              masterData.harga_barang[c.barang] ||
-              0;
-            if (!totalCustomPerPeserta[c.id_peserta])
-              totalCustomPerPeserta[c.id_peserta] = 0;
-
-            totalCustomPerPeserta[c.id_peserta] += c.qty * hrgJual;
-          }
-        });
-
-        // 2. Loop setiap peserta yang lolos filter
-        pesertaLolos.forEach((p) => {
-          let paketNama = p.paket;
-
-          // AMBIL DATA SETORAN, TARGET, DAN MITRA
-          let infoSetor = p.setoran_masuk || 0;
-          let infoTarget = p.target_barang || 0;
-          let infoMitra = p.mitra || "-";
-
-          // HITUNG RASIO BERDASARKAN FREKUENSI SETORAN (BUKAN UANG)
-          let rasioBarang = 1.0;
-          if (infoTarget > 0) {
-            rasioBarang = infoSetor / infoTarget;
-            if (rasioBarang > 1) rasioBarang = 1.0;
-            if (rasioBarang < 0) rasioBarang = 0;
-          }
-
-          // JIKA DIA PUNYA BARANG CUSTOM DI FIX_BARANG / PESANAN_DETAIL
-          if (idPunyaCustom.includes(p.id)) {
-            masterData.custom.forEach((c) => {
-              if (c.id_peserta === p.id) {
-                let porsiQty = c.qty * rasioBarang;
-                if (porsiQty > 0) {
-                  if (!keranjang[c.barang])
-                    keranjang[c.barang] = {
-                      qty: 0,
-                      satuan: c.satuan,
-                      detail: [],
-                    };
-
-                  keranjang[c.barang].qty += porsiQty;
-
-                  let namaOrang = p.nama || p.id;
-                  keranjang[c.barang].detail.push({
-                    tipe: "Custom (Pro-Rata)",
-                    nama_sumber: `${namaOrang} (Custom Request)`,
-                    qty_satuan: Number(porsiQty.toFixed(2)),
-                    orang: 1,
-                    subtotal: porsiQty,
-                    list_peserta: [
-                      `${namaOrang} (Mitra: ${infoMitra}, Setor: ${infoSetor}x)`,
-                    ],
-                  });
-                }
+          let rawBarang = resMaster && resMaster.data ? resMaster.data : resMaster;
+          if (Array.isArray(rawBarang)) {
+            rawBarang.forEach((b) => {
+              if (b.nama) {
+                masterBarangGlobal[b.nama.trim().toLowerCase()] = {
+                  namaAsli: b.nama.trim(),
+                  kategori: b.kategori || "Lainnya",
+                  satuan: b.satuan || "pcs",
+                  hargaBeli: Number(b.hargaBeli || b.harga_beli) || 0,
+                  hargaJual: Number(b.hargaJual || b.harga_jual || b.harga) || 0,
+                };
               }
             });
           }
-          // JIKA TIDAK PUNYA BARANG CUSTOM -> GUNAKAN STANDAR MASTER_ISI_PAKET
-          else {
-            let resepList = resepPerPaket[paketNama] || [];
-            if (resepList.length > 0) {
-              let headerPaketText = `${paketNama} (Target: ${infoTarget}x)`;
 
-              resepList.forEach((r) => {
-                let porsiQty = r.qty * rasioBarang;
-                if (porsiQty > 0) {
-                  if (!keranjang[r.barang])
-                    keranjang[r.barang] = {
-                      qty: 0,
-                      satuan: r.satuan,
-                      detail: [],
-                    };
+          if (resFixList && resFixList.success && Array.isArray(resFixList.list)) {
+            resFixList.list.forEach((id) => setSudahFixServer.add(id));
+          }
 
-                  keranjang[r.barang].qty += porsiQty;
-
-                  keranjang[r.barang].detail.push({
-                    tipe: "Paket (Pro-Rata)",
-                    nama_sumber: headerPaketText,
-                    qty_satuan: Number(porsiQty.toFixed(2)),
-                    orang: 1,
-                    subtotal: porsiQty,
-                    list_peserta: [
-                      `${p.nama || p.id} (Mitra: ${infoMitra}, Setor: ${infoSetor}x)`,
-                    ],
-                  });
-                }
+          if (resStats && resStats.paketBreakdown) {
+            let tempAll = []; let mitraSet = new Set(); let paketSet = new Set();
+            for (let pkt in resStats.paketBreakdown) {
+              paketSet.add(pkt);
+              resStats.paketBreakdown[pkt].forEach((p) => {
+                let m = (p.mitra || "Pusat").trim();
+                mitraSet.add(m);
+                tempAll.push({ id: String(p.id || ""), nama: String(p.nama || ""), mitra: m, paket: pkt, freq: Number(p.freq) || 0, nilai_setoran: Number(p.nilai_setoran) || 0 });
               });
             }
+            dataPesertaManual = tempAll;
+            renderFilterDropdown("listMitra", mitraSet, "chk-mitra");
+            renderFilterDropdown("listPaket", paketSet, "chk-paket");
           }
-        });
 
-        listBelanjaFinal = [];
-        for (let key in keranjang) {
-          let butuh = Math.ceil(keranjang[key].qty);
-          let masuk = masterData.stok_dibeli[key] || 0;
-          let keluar = masterData.stok_keluar[key] || 0;
-          let ready = masuk - keluar;
-          if (ready < 0) ready = 0;
-          let kurang = butuh - ready;
+          if (resRekap && resRekap.peserta) {
+            if (!resRekap.stok_dibeli) resRekap.stok_dibeli = {};
+            if (!resRekap.stok_keluar) resRekap.stok_keluar = {};
+            if (!resRekap.harga_barang) resRekap.harga_barang = {};
+            if (!resRekap.harga_jual_barang) resRekap.harga_jual_barang = {};
+            if (!resRekap.foto_barang) resRekap.foto_barang = {};
+            masterDataLogistik = resRekap;
 
-          let hargaBrg = masterData.harga_barang[key] || 0;
-          let fotoBrg = masterData.foto_barang[key] || "";
+            buatOpsiFilterLogistik();
+            hitungUlangLogistik();
 
-          listBelanjaFinal.push({
-            barang: key,
-            total: butuh,
-            satuan: keranjang[key].satuan,
-            masuk: masuk,
-            keluar: keluar,
-            ready: ready,
-            kurang: kurang > 0 ? kurang : 0,
-            harga: hargaBrg,
-            foto: fotoBrg,
-            detail: keranjang[key].detail,
-          });
+            let resepMap = {};
+            (resRekap.resep || []).forEach(r => {
+                let pkt = String(r.paket).trim().toLowerCase();
+                if (!resepMap[pkt]) resepMap[pkt] = {};
+                let brg = String(r.barang).trim().toLowerCase();
+                resepMap[pkt][brg] = (resepMap[pkt][brg] || 0) + Number(r.qty || 1);
+            });
+            (resRekap.custom || []).forEach(c => {
+                let pid = String(c.id_peserta).trim();
+                if (!mapOrderanPeserta[pid]) mapOrderanPeserta[pid] = {};
+                let brg = String(c.barang).trim().toLowerCase();
+                mapOrderanPeserta[pid][brg] = (mapOrderanPeserta[pid][brg] || 0) + Number(c.qty || 1);
+            });
+            dataPesertaManual.forEach(p => {
+                let pid = String(p.id).trim(); let pkt = String(p.paket).trim().toLowerCase();
+                if (!mapOrderanPeserta[pid]) mapOrderanPeserta[pid] = {};
+                if (resepMap[pkt]) {
+                    for (let b in resepMap[pkt]) { mapOrderanPeserta[pid][b] = (mapOrderanPeserta[pid][b] || 0) + resepMap[pkt][b]; }
+                }
+            });
+          }
+        } catch (e) { console.error("Gagal sinkronisasi terpadu", e);
+        } finally {
+          document.getElementById("loading").style.display = "none";
+          switchAppMode(currentAppMode);
+
+          let datalist = document.createElement("datalist");
+          datalist.id = "datalist-barang";
+          let options = "";
+          Object.values(masterBarangGlobal).forEach(info => { options += `<option value="${info.namaAsli}">`; });
+          datalist.innerHTML = options;
+          document.body.appendChild(datalist);
         }
-        listBelanjaFinal.sort((a, b) => b.kurang - a.kurang);
-
-        renderStatsUi(pesertaLolos.length, countPaket);
-        renderListUiLokal();
       }
 
-      function renderStatsUi(totalPeserta, countPaket) {
-        const paketBox = document.getElementById("paketList");
-        let html = `<div class="summary-card">
-            <div class="sc-header"><span class="sc-val">${totalPeserta}</span><span class="sc-label">Peserta Disaring (Pro-Rata)</span></div>
-            <div class="sc-body">`;
+      /* ===================================================================
+         LOGIKA MODE 1: REKAP PESERTA & CHECKLIST MASSAL
+         =================================================================== */
+      function renderFilterDropdown(containerId, dataSet, className) {
+        const box = document.getElementById(containerId); box.innerHTML = "";
+        Array.from(dataSet).sort().forEach((item) => {
+          box.innerHTML += `<label><input type="checkbox" class="${className}" value="${item}" onchange="terapkanFilterPeserta()"> ${item}</label>`;
+        });
+      }
+      function toggleDrop(idList) {
+        document.querySelectorAll(".cs-list").forEach((l) => { if (l.id !== idList) l.classList.remove("show"); });
+        document.getElementById(idList).classList.toggle("show");
+      }
+      function toggleFilterInput() {
+        const op = document.getElementById("filterOperator").value;
+        const inp = document.getElementById("filterAngka");
+        inp.style.display = op === "ALL" ? "none" : "block";
+      }
 
-        for (let pkt in countPaket) {
-          let strPktEscaped = pkt.replace(/'/g, "\\'").replace(/"/g, "&quot;");
-          html += `<div class="sc-chip" style="cursor:pointer; transition:0.2s;" onclick="bukaDetailPaket('${strPktEscaped}')" onmouseover="this.style.borderColor='var(--primary)'" onmouseout="this.style.borderColor='#444'" title="Klik untuk rincian paket">
-              <span>${pkt}</span> <b>${countPaket[pkt]}</b>
-          </div>`;
+      function terapkanFilterPeserta() {
+        const keyword = document.getElementById("inputCari").value.toLowerCase();
+        const filterBrgText = document.getElementById("filterOrderanBarang").value.trim().toLowerCase();
+        const operator = document.getElementById("filterOperator").value;
+        const inputAngka = document.getElementById("filterAngka").value;
+        const numAngka = parseInt(inputAngka);
+        const arrMitra = Array.from(document.querySelectorAll(".chk-mitra:checked")).map((el) => el.value);
+        const arrPaket = Array.from(document.querySelectorAll(".chk-paket:checked")).map((el) => el.value);
+
+        const boxList = document.getElementById("listPeserta"); boxList.innerHTML = "";
+        if (keyword === "" && filterBrgText === "" && operator === "ALL" && arrMitra.length === 0 && arrPaket.length === 0) {
+          boxList.innerHTML = `<div style="padding:30px; text-align:center; color:#555; border:1px dashed #333; border-radius:10px;">Silakan gunakan filter pencarian peserta di atas.</div>`;
+          document.getElementById("bulkCheckArea").style.display = "none";
+          return;
         }
 
+        let totalQtyBarangFilter = 0;
+        let hasil = dataPesertaManual.filter((p) => {
+          let matchKey = keyword === "" || String(p.nama).toLowerCase().includes(keyword) || String(p.id).toLowerCase().includes(keyword);
+          let matchMitra = arrMitra.length === 0 || arrMitra.includes(p.mitra);
+          let matchPaket = arrPaket.length === 0 || arrPaket.includes(p.paket);
+          let matchFreq = operator === "ALL" || inputAngka === "" ? true : (operator === ">" ? p.freq > numAngka : operator === "<" ? p.freq < numAngka : p.freq === numAngka);
+          let matchBrg = true; let qtyBrgTerkait = 0;
+          if (filterBrgText !== "") {
+              let itemsDict = mapOrderanPeserta[p.id];
+              if (!itemsDict) matchBrg = false;
+              else {
+                  matchBrg = false;
+                  for(let brgName in itemsDict){
+                      if(brgName.includes(filterBrgText)) { matchBrg = true; qtyBrgTerkait += itemsDict[brgName]; }
+                  }
+              }
+          }
+          if (matchKey && matchMitra && matchPaket && matchFreq && matchBrg) {
+              totalQtyBarangFilter += qtyBrgTerkait; return true;
+          }
+          return false;
+        });
+
+        currentFilteredPeserta = hasil;
+        document.getElementById("infoTotalFilter").innerText = `Menampilkan ${hasil.length} Peserta`;
+        const bulkArea = document.getElementById("bulkCheckArea");
+        if (filterBrgText !== "" && hasil.length > 0) {
+            bulkArea.style.display = "block";
+            document.getElementById("lblBarangMassal").innerText = `"${filterBrgText}"`;
+            document.getElementById("lblJmlPesertaMassal").innerText = hasil.length;
+            document.getElementById("lblQtyBarangMassal").innerText = totalQtyBarangFilter;
+        } else { bulkArea.style.display = "none"; }
+
+        if (hasil.length > 0) {
+          hasil.slice(0, 50).forEach((p) => {
+            let isSudah = setSudahFixServer.has(p.id);
+            let badgeHtml = isSudah ? `<span class="badge-status-pilih badge-sudah" id="badge-status-wrap-${p.id}"><i class="fas fa-check-circle"></i> Sudah Dipilih</span>` : `<span class="badge-status-pilih badge-belum" id="badge-status-wrap-${p.id}"><i class="fas fa-clock"></i> Belum Dipilih</span>`;
+            boxList.innerHTML += `
+              <div class="peserta-item-wrapper">
+                <div class="peserta-header" onclick="toggleDropdownPesanan('${p.id}', '${p.nama.replace(/'/g, "\\'")}', '${p.paket.replace(/'/g, "\\'")}')">
+                  <div style="flex:1;">
+                    <div style="color:#fff; font-weight:bold; font-size:0.9rem; margin-bottom:4px; display:flex; justify-content:space-between;">
+                      <span>${p.nama} <span style="font-size:0.75rem; color:#aaa;">- ${p.mitra}</span></span>${badgeHtml}
+                    </div>
+                    <div style="display:flex; gap:4px; flex-wrap:wrap; margin-bottom:4px;">
+                      <span class="badge-freq"><i class="fas fa-coins"></i> ${p.freq}x Setor</span>
+                      <span class="badge-mitra">${p.paket}</span>
+                      <span class="badge-mitra" style="background: rgba(255, 255, 255, 0.1); color: #ddd; border-color: #555;">Rp ${formatUang(p.nilai_setoran)}/Setor</span>
+                    </div>
+                    <div style="display:flex; justify-content:space-between; align-items:flex-end;">
+                      <span style="color:#666; font-size:0.73rem;">ID: ${p.id}</span>
+                      <div style="text-align: right; display: flex; flex-direction: column; gap: 3px; align-items: flex-end;">
+                        <span id="badge-saldo-${p.id}" class="saldo-badge" style="display:none; background: rgba(74,222,128,0.15); color: var(--success); padding: 2px 6px; border-radius: 4px; font-weight: bold; font-size: 0.72rem;"></span>
+                      </div>
+                    </div>
+                  </div>
+                  <i id="icon-${p.id}" class="fas fa-chevron-right" style="color:#555; padding-left:10px;"></i>
+                </div>
+                <div id="dropdown-${p.id}" class="pesanan-container">
+                  <div id="loading-${p.id}" style="text-align:center; padding:10px; color:var(--primary); display:none;"><i class="fas fa-spinner fa-spin"></i> Memuat rincian...</div>
+                  <div id="summary-box-${p.id}"></div><div id="list-barang-${p.id}"></div>
+                </div>
+              </div>`;
+          });
+        } else {
+          boxList.innerHTML = `<div style="padding:20px; text-align:center; color:#ff4d4d; font-size:0.85rem;">Peserta tidak ditemukan dari kriteria tersebut.</div>`;
+        }
+      }
+
+      async function toggleDropdownPesanan(id, pNama, pPaket) {
+        const dropdown = document.getElementById(`dropdown-${id}`);
+        const icon = document.getElementById(`icon-${id}`);
+        if (dropdown.style.display === "block") { dropdown.style.display = "none"; icon.classList.replace("fa-chevron-down", "fa-chevron-right"); }
+        else {
+          dropdown.style.display = "block"; icon.classList.replace("fa-chevron-right", "fa-chevron-down");
+          if (!allDataBarangPeserta[id]) {
+            document.getElementById(`loading-${id}`).style.display = "block";
+            try {
+              const [resDetail, resProfil] = await Promise.all([
+                fetchData("getDetailPesananPeserta", { id_peserta: id }, "POST"),
+                fetchData("getDetailAdmin", { id: id })
+              ]);
+              if (resProfil && !resProfil.error) {
+                let saldoInt = Number(resProfil.saldo) || 0;
+                saldoPeserta[id] = saldoInt;
+                const badge = document.getElementById(`badge-saldo-${id}`);
+                if (badge) { badge.innerText = "Saldo Akhir: " + formatUang(saldoInt); badge.style.display = "inline-block"; }
+              }
+              if (resDetail && resDetail.success) {
+                allDataBarangPeserta[id] = resDetail.data.map((b) => {
+                  let st = b.sumber === "FIX" ? (b.status_fix !== undefined ? b.status_fix : b.status) : (b.status_fix !== undefined ? b.status_fix : 1);
+                  let namaClean = b.nama_barang ? b.nama_barang.trim().toLowerCase() : "";
+                  let hrgSatuan = Number(b.harga_satuan);
+                  if (isNaN(hrgSatuan) || hrgSatuan === 0) {
+                      let masterInfo = masterBarangGlobal[namaClean];
+                      hrgSatuan = masterInfo && masterInfo.hargaJual > 0 ? masterInfo.hargaJual : 0;
+                  }
+                  return { ...b, status_fix: st == 1 || st === "1" ? 1 : 0, harga_satuan: hrgSatuan };
+                });
+                renderBarangPeserta(id, pNama, pPaket);
+              }
+            } catch (e) { console.error(e); } finally { document.getElementById(`loading-${id}`).style.display = "none"; }
+          }
+        }
+      }
+
+      function renderBarangPeserta(id, pNama, pPaket) {
+        const boxList = document.getElementById(`list-barang-${id}`);
+        const summaryBox = document.getElementById(`summary-box-${id}`);
+        boxList.innerHTML = "";
+        const items = allDataBarangPeserta[id] || [];
+        if (items.length === 0) return;
+
+        let isSudahFix = setSudahFixServer.has(id);
+        let editBtn = isSudahFix ? `<button class="btn-edit-mode" onclick="renderBarangPeserta('${id}', '${pNama.replace(/'/g, "\\'")}', '${pPaket.replace(/'/g, "\\'")}')"><i class="fas fa-edit"></i> Edit Pilihan Barang</button>` : "";
+
+        summaryBox.innerHTML = `
+          <button class="btn-wa" onclick="bagikanWA('${id}', '${pNama.replace(/'/g, "\\'")}', '${pPaket.replace(/'/g, "\\'")}')"><i class="fab fa-whatsapp"></i> Kirim Konfirmasi Fix (WA)</button>
+          <button class="btn-select-all" onclick="togglePilihSemuaBarang('${id}', '${pNama.replace(/'/g, "\\'")}', '${pPaket.replace(/'/g, "\\'")}')"><i class="fas fa-check-double"></i> Pilih / Batalkan Semua Barang</button>
+          ${editBtn}
+          <div style="margin-top: 8px; margin-bottom: 8px; background: #111; padding: 8px; border-radius: 6px; border: 1px dashed #444;">
+             <div style="font-size:0.73rem; color:#aaa; margin-bottom:4px;">Tambah Barang Manual (Auto Save):</div>
+             <div style="display:flex; gap:5px;">
+                <input type="text" id="input-add-brg-${id}" list="datalist-barang" class="filter-input-normal" style="flex:1; padding:5px; font-size:0.78rem;" placeholder="Ketik nama barang...">
+                <input type="number" id="input-add-qty-${id}" class="filter-input-normal" style="width:45px; padding:5px; font-size:0.78rem; text-align:center;" value="1" min="1">
+                <button onclick="tambahBarangSatuPeserta('${id}')" style="background:var(--success); color:#000; border:none; border-radius:5px; font-weight:bold; padding:0 10px; cursor:pointer;"><i class="fas fa-save"></i></button>
+             </div>
+          </div>
+          <div class="summary-box">
+            <div class="sum-row"><span>Saldo Akhir:</span> <b style="color:var(--primary);">${formatUang(saldoPeserta[id])}</b></div>
+            <div class="sum-row"><span>Total Terpilih:</span> <b id="tot-pilih-${id}" style="color:var(--danger);">Rp 0</b></div>
+            <div class="sum-row sisa"><span>Sisa Saldo:</span> <b id="sisa-saldo-${id}" style="color:var(--success);">${formatUang(saldoPeserta[id])}</b></div>
+          </div>`;
+
+        items.forEach((b, index) => {
+          let isChecked = b.status_fix == 1 ? "checked" : "";
+          let hrgSatuan = Number(b.harga_satuan) || 0;
+          let subtotal = hrgSatuan * (Number(b.qty) || 0);
+          b.total_harga = subtotal;
+
+          boxList.innerHTML += `
+            <div class="barang-card ${isChecked}" id="card-${id}-${index}">
+              <div style="flex: 1; overflow:hidden;">
+                <div style="color:#fff; font-weight:bold; font-size:0.83rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${b.nama_barang}</div>
+                <div style="font-size:0.73rem; color:#888;">Subtotal: <span id="subtotal-${id}-${index}" style="color:var(--primary); font-weight:bold;">${formatUang(subtotal)}</span></div>
+              </div>
+              <div style="display:flex; align-items:center; gap:8px;">
+                <input type="number" class="input-qty-custom" id="qty-${id}-${index}" value="${b.qty}" min="0" oninput="ubahQtyItem('${id}', ${index})">
+                <div class="custom-checkbox" onclick="toggleCheckItem('${id}', ${index})"><i class="fas fa-check"></i></div>
+              </div>
+            </div>`;
+        });
+        updateUIPeserta(id);
+      }
+
+      function ubahQtyItem(id, index) {
+        let item = allDataBarangPeserta[id][index];
+        let inputEl = document.getElementById(`qty-${id}-${index}`);
+        let newQty = parseInt(inputEl.value) || 0;
+        item.qty = newQty;
+        item.total_harga = (Number(item.harga_satuan) || 0) * newQty;
+        document.getElementById(`subtotal-${id}-${index}`).innerText = formatUang(item.total_harga);
+        updateUIPeserta(id);
+        perbaruiBadgeStatusPeserta(id);
+      }
+
+      function toggleCheckItem(id, index) {
+        let item = allDataBarangPeserta[id][index];
+        let card = document.getElementById(`card-${id}-${index}`);
+        if (card.classList.contains("checked")) { item.status_fix = 0; card.classList.remove("checked"); }
+        else { item.status_fix = 1; card.classList.add("checked"); }
+        updateUIPeserta(id);
+        perbaruiBadgeStatusPeserta(id);
+      }
+
+      function togglePilihSemuaBarang(id, pNama, pPaket) {
+        let items = allDataBarangPeserta[id] || [];
+        let semuaTercentang = items.every(b => b.status_fix == 1);
+        items.forEach(b => b.status_fix = semuaTercentang ? 0 : 1);
+        renderBarangPeserta(id, pNama, pPaket);
+        perbaruiBadgeStatusPeserta(id);
+      }
+
+      function perbaruiBadgeStatusPeserta(id) {
+        const wrapBadge = document.getElementById(`badge-status-wrap-${id}`); if (!wrapBadge) return;
+        let isSudah = allDataBarangPeserta[id] && allDataBarangPeserta[id].some(b => b.status_fix == 1 && b.qty > 0);
+        if (isSudah) { setSudahFixServer.add(id); wrapBadge.outerHTML = `<span class="badge-status-pilih badge-sudah" id="badge-status-wrap-${id}"><i class="fas fa-check-circle"></i> Sudah Dipilih</span>`; }
+        else { setSudahFixServer.delete(id); wrapBadge.outerHTML = `<span class="badge-status-pilih badge-belum" id="badge-status-wrap-${id}"><i class="fas fa-clock"></i> Belum Dipilih</span>`; }
+      }
+
+      function hitungTotalPeserta(id) {
+        let total = 0;
+        if (allDataBarangPeserta[id]) {
+          allDataBarangPeserta[id].forEach((b) => { if (b.status_fix == 1) total += parseFloat(b.total_harga) || 0; });
+        }
+        return total;
+      }
+
+      function updateUIPeserta(id) {
+        let totalPilih = hitungTotalPeserta(id);
+        let saldoAwal = saldoPeserta[id] || 0;
+        let sisa = saldoAwal - totalPilih;
+        const totEl = document.getElementById(`tot-pilih-${id}`); if (totEl) totEl.innerText = formatUang(totalPilih);
+        const elSisa = document.getElementById(`sisa-saldo-${id}`);
+        if (elSisa) {
+          elSisa.innerText = formatUang(sisa);
+          elSisa.style.color = sisa < 0 ? "var(--danger)" : (sisa === 0 ? "#888" : "var(--success)");
+        }
+      }
+
+      function bagikanWA(id, nama, paket) {
+        let itemsFix = (allDataBarangPeserta[id] || []).filter((b) => b.status_fix == 1 && b.qty > 0);
+        if (itemsFix.length === 0) return alert("Belum ada barang yang dicentang!");
+        let totalPilih = hitungTotalPeserta(id);
+        let saldoAwal = saldoPeserta[id] || 0;
+        let sisa = saldoAwal - totalPilih;
+        let text = `📦 *KONFIRMASI REKAP BARANG NIZAMI*\n\n👤 *Nama:* ${nama}\n💳 *Paket:* ${paket}\n💰 *Saldo Akhir:* ${formatUang(saldoAwal)}\n\n*Rincian Barang Fix:*\n`;
+        itemsFix.forEach((b) => { text += `▪️ ${b.qty}x ${b.nama_barang} (${formatUang(b.total_harga)})\n`; });
+        text += `\n---------------------------\n*Total Nilai Barang:* ${formatUang(totalPilih)}\n*Sisa Saldo:* ${formatUang(sisa)}\n\n_Mohon dicek kembali, terima kasih._ 🙏`;
+        window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`, "_blank");
+      }
+
+      async function tambahBarangSatuPeserta(id) {
+        let inputBrg = document.getElementById(`input-add-brg-${id}`).value.trim();
+        let inputQty = parseInt(document.getElementById(`input-add-qty-${id}`).value);
+        if (!inputBrg || isNaN(inputQty) || inputQty <= 0) return alert("Input barang dan Qty tidak valid.");
+        let key = inputBrg.toLowerCase();
+        let info = masterBarangGlobal[key];
+        let hrgSatuan = info ? info.hargaJual : 0;
+        let namaAsli = info ? info.namaAsli : inputBrg;
+
+        let existingIndex = allDataBarangPeserta[id].findIndex(b => b.nama_barang.toLowerCase() === key);
+        if (existingIndex !== -1) {
+          allDataBarangPeserta[id][existingIndex].qty = inputQty;
+          allDataBarangPeserta[id][existingIndex].total_harga = inputQty * allDataBarangPeserta[id][existingIndex].harga_satuan;
+          allDataBarangPeserta[id][existingIndex].status_fix = 1;
+        } else {
+          allDataBarangPeserta[id].push({ nama_barang: namaAsli, qty: inputQty, harga_satuan: hrgSatuan, total_harga: hrgSatuan * inputQty, status_fix: 1, sumber: "MANUAL" });
+        }
+        let pInfo = dataPesertaManual.find(p => p.id === id) || {};
+        renderBarangPeserta(id, pInfo.nama || "", pInfo.paket || "");
+        let itemsPeserta = allDataBarangPeserta[id].map((b) => ({ ...b, status_fix: b.status_fix == 1 ? 1 : 0, status: b.status_fix == 1 ? 1 : 0 }));
+        await fetchData("simpanRekapManual", { id_peserta: id, nama_peserta: pInfo.nama || "", jenis_paket: pInfo.paket || "", mitra: pInfo.mitra || "ADMIN", items: itemsPeserta }, "POST");
+        setSudahFixServer.add(id); perbaruiBadgeStatusPeserta(id);
+      }
+
+      async function terapkanChecklistMassal(event) {
+        const filterBrgText = document.getElementById("filterOrderanBarang").value.trim().toLowerCase();
+        if (!filterBrgText || !currentFilteredPeserta.length) return alert("Pilih filter barang dan pastikan ada peserta yang tampil.");
+        if (!confirm(`Centang massal barang "${filterBrgText}" untuk ${currentFilteredPeserta.length} peserta?`)) return;
+
+        for (let p of currentFilteredPeserta) {
+          let id = p.id;
+          if (!allDataBarangPeserta[id]) {
+            try {
+              const res = await fetchData("getDetailPesananPeserta", { id_peserta: id }, "POST");
+              if (res && res.success) allDataBarangPeserta[id] = res.data.map(b => ({ ...b, status_fix: b.status == 1 ? 1 : 0 }));
+            } catch(e){}
+          }
+          if (allDataBarangPeserta[id]) {
+            allDataBarangPeserta[id].forEach(b => { if (b.nama_barang.toLowerCase().includes(filterBrgText)) b.status_fix = 1; });
+            await fetchData("simpanRekapManual", { id_peserta: id, nama_peserta: p.nama, jenis_paket: p.paket, mitra: p.mitra, items: allDataBarangPeserta[id] }, "POST");
+            setSudahFixServer.add(id); perbaruiBadgeStatusPeserta(id);
+          }
+        }
+        showToast("Massal checklist selesai disimpan!");
+      }
+
+      async function simpanChecklistGlobal() {
+        const keys = Object.keys(allDataBarangPeserta); if (!keys.length) return alert("Belum ada rincian peserta terbuka.");
+        for (let id of keys) {
+          let p = dataPesertaManual.find(x => x.id === id) || {};
+          await fetchData("simpanRekapManual", { id_peserta: id, nama_peserta: p.nama||"", jenis_paket: p.paket||"", mitra: p.mitra||"ADMIN", items: allDataBarangPeserta[id] }, "POST");
+        }
+        showToast("Checklist peserta disimpan!");
+      }
+
+      /* MODAL BELANJA 2 TAB */
+      function switchModalTab(tabName) {
+        document.getElementById("tabBtnBelanja").classList.toggle("active", tabName === "belanja");
+        document.getElementById("tabBtnSudahBeli").classList.toggle("active", tabName === "sudahBeli");
+        document.getElementById("contentTabBelanja").style.display = tabName === "belanja" ? "flex" : "none";
+        document.getElementById("contentTabSudahBeli").style.display = tabName === "sudahBeli" ? "flex" : "none";
+        if (tabName === "sudahBeli") loadRiwayatGudang();
+      }
+
+      async function bukaModalBelanja() {
+        document.getElementById("modalBelanja").style.display = "flex";
+        switchModalTab("belanja");
+        try {
+          const res = await fetchData("getBelanjaFix");
+          if (res && res.success) {
+            dataBelanjaGlobal = res.data;
+            setupKategoriDropdownModal();
+            renderBelanjaList();
+          }
+        } catch (e) { alert("Terjadi kesalahan jaringan."); }
+      }
+
+      function setupKategoriDropdownModal() {
+        let kategoriSet = new Set();
+        dataBelanjaGlobal.forEach((b) => {
+          let key = b.barang.trim().toLowerCase();
+          kategoriSet.add(masterBarangGlobal[key] ? masterBarangGlobal[key].kategori : "Lainnya");
+        });
+        let optHtml = `<option value="ALL">📂 Semua Kategori</option>`;
+        Array.from(kategoriSet).sort().forEach((kat) => { optHtml += `<option value="${kat}">${kat}</option>`; });
+        document.getElementById("filterKategoriBarang").innerHTML = optHtml;
+        document.getElementById("filterKategoriRiwayat").innerHTML = optHtml;
+      }
+
+      function renderBelanjaList() {
+        const container = document.getElementById("listBelanjaContainer");
+        const hanyaKurang = document.getElementById("chkHanyaKurang").checked;
+        const keyword = document.getElementById("cariBarangBelanja").value.toLowerCase();
+        const selectedKategori = document.getElementById("filterKategoriBarang").value;
+        container.innerHTML = "";
+
+        let tampil = dataBelanjaGlobal.filter((b) => {
+          let key = b.barang.trim().toLowerCase();
+          let info = masterBarangGlobal[key] || { kategori: "Lainnya" };
+          return (hanyaKurang ? b.kurang > 0 : true) && (keyword === "" || b.barang.toLowerCase().includes(keyword)) && (selectedKategori === "ALL" || info.kategori === selectedKategori);
+        });
+
+        if (!tampil.length) { container.innerHTML = `<div style="text-align:center; color:#888; padding:20px;">Tidak ada barang yang sesuai!</div>`; return; }
+
+        tampil.forEach((b) => {
+          let key = b.barang.trim().toLowerCase();
+          let info = masterBarangGlobal[key] || { kategori: "Lainnya", satuan: "pcs", hargaBeli: 0, hargaJual: 0 };
+          let isAman = b.kurang === 0;
+          container.innerHTML += `
+            <div class="belanja-card-item ${isAman ? "aman" : "kurang"}">
+              <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 6px;">
+                <div>
+                  <span style="font-size: 0.6rem; background: #222; color: var(--primary); padding: 1px 5px; border-radius: 3px; font-weight: bold;">${info.kategori}</span>
+                  <b style="color: #fff; font-size: 0.88rem; margin-left: 4px;">${b.barang}</b>
+                </div>
+                <span class="item-status ${isAman ? 'status-aman' : 'status-kurang'}">${isAman ? "AMAN" : "KURANG " + b.kurang}</span>
+              </div>
+              <div style="display: flex; justify-content: space-between; align-items: center; background: #111; padding: 6px 10px; font-size: 0.75rem; border-radius: 6px;">
+                <span>Target: <b>${b.butuh}</b> | Stok: <b style="color:var(--success);">${b.masuk}</b></span>
+                <div style="display: flex; align-items: center; gap: 4px;">
+                  <span style="color: var(--primary); font-weight: bold;">+ Masuk:</span>
+                  <input type="number" class="input-beli-stok" data-nama="${b.barang}" placeholder="0" min="0" style="width: 50px; background: #000; border: 1px solid var(--primary); color: #fff; padding: 3px; border-radius: 4px; text-align: center; font-weight: bold;">
+                </div>
+              </div>
+            </div>`;
+        });
+      }
+
+      async function loadRiwayatGudang() {
+        const container = document.getElementById("listRiwayatGudangContainer");
+        container.innerHTML = `<div style="text-align:center; padding:20px; color:var(--primary);"><i class="fas fa-spinner fa-spin"></i> Memuat...</div>`;
+        try {
+          const res = await fetchData("getRekapBelanja");
+          if (res && res.stok_dibeli) {
+            dataRiwayatGudangGlobal = [];
+            for (let namaBrg in res.stok_dibeli) {
+              let info = masterBarangGlobal[namaBrg.trim().toLowerCase()] || { kategori: "Lainnya", satuan: "pcs" };
+              dataRiwayatGudangGlobal.push({ barang: namaBrg, qty: res.stok_dibeli[namaBrg] || 0, satuan: info.satuan, kategori: info.kategori });
+            }
+            renderRiwayatGudangList();
+          }
+        } catch (e) { container.innerHTML = `<div style="text-align:center; color:#ff4d4d;">Gagal memuat gudang.</div>`; }
+      }
+
+      function renderRiwayatGudangList() {
+        const container = document.getElementById("listRiwayatGudangContainer");
+        const keyword = document.getElementById("cariRiwayatGudang").value.toLowerCase();
+        const selectedKat = document.getElementById("filterKategoriRiwayat").value;
+        container.innerHTML = "";
+
+        let hasil = dataRiwayatGudangGlobal.filter(item => (keyword === "" || item.barang.toLowerCase().includes(keyword)) && (selectedKat === "ALL" || item.kategori === selectedKat));
+        if (!hasil.length) { container.innerHTML = `<div style="text-align:center; color:#888; padding:20px;">Tidak ada riwayat cocok.</div>`; return; }
+
+        hasil.forEach((item) => {
+          container.innerHTML += `
+            <div class="belanja-card-item aman" style="margin-bottom: 6px; padding: 8px 12px; display: flex; justify-content: space-between; align-items: center;">
+              <div>
+                <span style="font-size: 0.6rem; background: #222; color: var(--primary); padding: 1px 5px; border-radius: 3px; font-weight: bold;">${item.kategori}</span>
+                <div style="color: #fff; font-weight: bold; font-size: 0.85rem; margin-top: 2px;">${item.barang}</div>
+              </div>
+              <span style="font-size: 0.8rem; font-weight: bold; color: var(--success); background: rgba(74,222,128,0.1); padding: 2px 8px; border-radius: 4px;">${item.qty} ${item.satuan}</span>
+            </div>`;
+        });
+      }
+
+      async function simpanStokBelanjaModal() {
+        let itemsToSave = [];
+        document.querySelectorAll(".input-beli-stok").forEach((inp) => {
+          let val = parseInt(inp.value);
+          let namaBrg = inp.getAttribute("data-nama");
+          let info = masterBarangGlobal[namaBrg.trim().toLowerCase()] || { satuan: "pcs" };
+          if (val > 0) itemsToSave.push({ nama: namaBrg, qty: val, satuan: info.satuan });
+        });
+        if (!itemsToSave.length) return alert("Belum ada angka input barang.");
+        await fetchData("simpanBelanja", { items: itemsToSave }, "POST");
+        showToast("Stok masuk berhasil disimpan!");
+        tutupModal("modalBelanja");
+        tarikDataSemua();
+      }
+
+      function bukaModalFormTambahBelanja() {
+        let nama = prompt("Nama Barang baru yang dibeli:"); if (!nama || !nama.trim()) return;
+        let qty = parseInt(prompt("Jumlah (Qty) dibeli:", "1")); if (isNaN(qty) || qty <= 0) return alert("Qty tidak valid!");
+        let satuan = prompt("Satuan (Pcs/Dus/Pack):", "Pcs") || "Pcs";
+        fetchData("simpanBelanja", { items: [{ nama: nama.trim(), qty: qty, satuan: satuan.trim() }] }, "POST").then(() => {
+          showToast("Belanjaan berhasil ditambahkan!"); loadRiwayatGudang();
+        });
+      }
+
+      /* LOGIKA MODE 2: REKAP LOGISTIK & STOK GUDANG PRO-RATA */
+      function buatOpsiFilterLogistik() {
+        const mitras = [...new Set(masterDataLogistik.peserta.map(p => p.mitra))].filter(Boolean).sort();
+        const pakets = [...new Set(masterDataLogistik.peserta.map(p => p.paket))].filter(Boolean).sort();
+        let selMitra = '<option value="ALL">📁 Semua Mitra</option>';
+        mitras.forEach(m => selMitra += `<option value="${m}">${m}</option>`);
+        document.getElementById("fMitraLogistik").innerHTML = selMitra;
+
+        let containerCheckbox = document.getElementById("listCheckboxPaket"); containerCheckbox.innerHTML = "";
+        pakets.forEach(p => {
+          containerCheckbox.innerHTML += `<label style="display:flex; align-items:center; gap:6px; font-size:0.8rem; color:#fff; cursor:pointer;"><input type="checkbox" class="chk-paket-filter" value="${p}" checked onchange="hitungUlangLogistik(); updateLabelPaketBtn();"> <span>${p}</span></label>`;
+        });
+        updateLabelPaketBtn();
+      }
+
+      function toggleDropdownPaket(e) { e.stopPropagation(); const c = document.getElementById("dropdownPaketContent"); c.style.display = c.style.display === "block" ? "none" : "block"; }
+      function ubahSemuaPaket(st) { document.querySelectorAll(".chk-paket-filter").forEach(chk => chk.checked = st); hitungUlangLogistik(); updateLabelPaketBtn(); }
+      function updateLabelPaketBtn() {
+        const count = document.querySelectorAll(".chk-paket-filter:checked").length;
+        document.getElementById("labelPaketTerpilih").innerText = count === document.querySelectorAll(".chk-paket-filter").length ? "📦 Semua Paket Dipilih" : `📦 ${count} Paket Dipilih`;
+      }
+
+      function hitungUlangLogistik() {
+        const valMitra = document.getElementById("fMitraLogistik").value;
+        const valStatus = document.getElementById("fStatusLogistik").value;
+        const selectedPakets = Array.from(document.querySelectorAll(".chk-paket-filter:checked")).map(c => c.value);
+        const minSetor = parseInt(document.getElementById("fMinSetoran").value) || 0;
+        const rawMax = document.getElementById("fMaxSetoran").value;
+        const maxSetor = rawMax !== "" ? parseInt(rawMax) : Infinity;
+
+        let pesertaLolos = masterDataLogistik.peserta.filter(p => {
+          let passM = valMitra === "ALL" || p.mitra === valMitra;
+          let passP = selectedPakets.includes(p.paket);
+          let freqSetor = parseFloat(p.setoran_masuk) || 0;
+          let passS = valStatus === "ALL" ? true : (valStatus === "LUNAS" ? freqSetor >= p.target_barang : freqSetor < p.target_barang);
+          let passR = freqSetor >= minSetor && freqSetor <= maxSetor;
+          return passM && passP && passS && passR;
+        });
+
+        pesertaLolosGlobal = pesertaLolos;
+        let countPaket = {};
+        pesertaLolos.forEach((p) => { if (!countPaket[p.paket]) countPaket[p.paket] = 0; countPaket[p.paket]++; });
+
+        let keranjang = {};
+        let resepPerPaket = {};
+        (masterDataLogistik.resep||[]).forEach(r => { if (!resepPerPaket[r.paket]) resepPerPaket[r.paket] = []; resepPerPaket[r.paket].push(r); });
+
+        let customPerPeserta = {};
+        (masterDataLogistik.custom || []).forEach(c => {
+          let pid = String(c.id_peserta).trim();
+          if (!customPerPeserta[pid]) customPerPeserta[pid] = [];
+          customPerPeserta[pid].push(c);
+        });
+
+        pesertaLolos.forEach(p => {
+          let pid = String(p.id).trim();
+          let rasio = p.target_barang > 0 ? Math.min(1.0, (p.setoran_masuk||0)/p.target_barang) : 1.0;
+          
+          let resepList = resepPerPaket[p.paket] || [];
+          resepList.forEach(r => {
+            let porsi = r.qty * rasio;
+            if (porsi > 0) {
+              let keyBrg = r.barang.trim();
+              if (!keranjang[keyBrg]) keranjang[keyBrg] = { qty: 0, satuan: r.satuan, detail: [] };
+              keranjang[keyBrg].qty += porsi;
+              keranjang[keyBrg].detail.push({ tipe: "Paket (Pro-Rata)", nama_sumber: p.paket, qty_satuan: Number(porsi.toFixed(2)), list_peserta: [`${p.nama||p.id} (Mitra: ${p.mitra||'-'}, Setor: ${p.setoran_masuk||0}x)`], subtotal: porsi });
+            }
+          });
+
+          let customList = customPerPeserta[pid] || [];
+          customList.forEach(c => {
+            let porsi = (Number(c.qty) || 1) * rasio;
+            if (porsi > 0) {
+              let keyBrg = c.barang.trim();
+              let sat = c.satuan || "pcs";
+              if (!keranjang[keyBrg]) keranjang[keyBrg] = { qty: 0, satuan: sat, detail: [] };
+              keranjang[keyBrg].qty += porsi;
+              keranjang[keyBrg].detail.push({ tipe: "Custom Order", nama_sumber: `Custom: ${p.nama||p.id}`, qty_satuan: Number(porsi.toFixed(2)), list_peserta: [`${p.nama||p.id} (Mitra: ${p.mitra||'-'}, Custom Order)`], subtotal: porsi });
+            }
+          });
+        });
+
+        listBelanjaFinalLogistik = [];
+        for (let key in keranjang) {
+          let butuh = Math.ceil(keranjang[key].qty);
+          let masuk = masterDataLogistik.stok_dibeli[key] || 0;
+          let keluar = masterDataLogistik.stok_keluar[key] || 0;
+          let ready = Math.max(0, masuk - keluar);
+          let kurang = Math.max(0, butuh - ready);
+          let fotoBrg = masterDataLogistik.foto_barang[key] || "";
+          listBelanjaFinalLogistik.push({ barang: key, total: butuh, satuan: keranjang[key].satuan, masuk, keluar, ready, kurang, harga: masterDataLogistik.harga_barang[key]||0, foto: fotoBrg, detail: keranjang[key].detail });
+        }
+        listBelanjaFinalLogistik.sort((a,b) => b.kurang - a.kurang);
+        renderStatsUiLogistik(pesertaLolos.length, countPaket);
+        renderListLogistikLokal();
+      }
+
+      function renderStatsUiLogistik(totalPeserta, countPaket) {
+        const paketBox = document.getElementById("paketListStats");
+        let html = `<div class="summary-card"><div class="sc-header" style="display:flex; align-items:baseline; gap:8px;"><span class="sc-val">${totalPeserta}</span><span style="font-size:0.75rem; color:#aaa; text-transform:uppercase;">Peserta Disaring (Pro-Rata)</span></div><div style="margin-top:8px;">`;
+        for (let pkt in countPaket) {
+          let strPktEscaped = pkt.replace(/'/g, "\\'");
+          html += `<div class="sc-chip" onclick="bukaDetailPaket('${strPktEscaped}')" style="cursor:pointer;" title="Klik untuk rincian paket"><span>${pkt}</span> <b>${countPaket[pkt]}</b></div>`;
+        }
         html += `</div></div>`;
         paketBox.innerHTML = html;
       }
 
-      function renderListUiLokal() {
-        const query = document
-          .getElementById("filterInput")
-          .value.toLowerCase();
+      function renderListLogistikLokal() {
+        const query = document.getElementById("filterInputLogistik").value.toLowerCase();
         const onlyKurang = document.getElementById("toggleKurang").checked;
+        let container = document.getElementById("belanjaListLogistik"); container.innerHTML = "";
+        let estimasi = 0;
 
-        let estimasiBiaya = 0;
-
-        let barangTampil = listBelanjaFinal.filter((item) => {
-          let isUang =
-            item.barang.toLowerCase().includes("uang") ||
-            item.satuan.toLowerCase().includes("rupiah") ||
-            item.satuan.toLowerCase() === "rp";
-          let hargaAsli = isUang ? 1 : item.harga;
-
-          if (onlyKurang) {
-            if (item.kurang > 0) {
-              estimasiBiaya += item.kurang * hargaAsli;
-            }
-          } else {
-            estimasiBiaya += item.total * hargaAsli;
-          }
-
-          let matchQuery = item.barang.toLowerCase().includes(query);
-          let matchToggle = onlyKurang ? item.kurang > 0 : true;
-          return matchQuery && matchToggle;
+        let barangTampil = listBelanjaFinalLogistik.filter(b => {
+          let isUang = b.barang.toLowerCase().includes("uang") || b.satuan.toLowerCase().includes("rupiah") || b.satuan.toLowerCase() === "rp";
+          let hrgAsli = isUang ? 1 : b.harga;
+          if (onlyKurang ? b.kurang > 0 : true) estimasi += (onlyKurang ? b.kurang : b.total) * hrgAsli;
+          return (onlyKurang ? b.kurang > 0 : true) && b.barang.toLowerCase().includes(query);
         });
 
-        document.getElementById("estimasiBiaya").innerText =
-          formatRp(estimasiBiaya);
+        document.getElementById("lblTotalBarangLogistik").innerText = barangTampil.length;
+        document.getElementById("estimasiBiaya").innerText = formatUang(estimasi);
 
-        const container = document.getElementById("belanjaList");
-        container.innerHTML = "";
-        document.getElementById("lblTotal").innerText = barangTampil.length;
-
-        if (barangTampil.length === 0) {
-          container.innerHTML =
-            '<div style="padding:40px 20px; text-align:center; color:#555; border:1px dashed #333; border-radius:12px;">Barang tidak ditemukan.</div>';
-          return;
-        }
+        if (!barangTampil.length) { container.innerHTML = `<div style="padding:30px; text-align:center; color:#555; border:1px dashed #333; border-radius:10px;">Barang tidak ditemukan.</div>`; return; }
 
         barangTampil.forEach((b, index) => {
-          let strNamaBarangEscaped = b.barang.replace(/'/g, "\\'").replace(/"/g, "&quot;");
+          let strNamaEscaped = b.barang.replace(/'/g, "\\'").replace(/"/g, "&quot;");
           let isAman = b.kurang === 0;
-          let clsAman = isAman ? "aman" : "kurang";
-
-          let statusBdg = isAman
-            ? `<div id="badge_status_${index}" class="item-status status-aman">LENGKAP</div>`
-            : `<div id="badge_status_${index}" class="item-status status-kurang" style="cursor:pointer; text-decoration:underline;" onclick="event.stopPropagation(); bukaDetailItem('${strNamaBarangEscaped}')" title="Klik untuk lihat rincian">KURANG ${b.kurang.toLocaleString("id-ID")}</div>`;
-
-          let isUang = b.barang.toLowerCase().includes("uang") || b.satuan.toLowerCase().includes("rupiah") || b.satuan.toLowerCase() === "rp";
-
-          let infoHargaHTML = "";
-          if (!isUang) {
-            let totalDanaDibutuhkan = b.kurang * b.harga;
-            infoHargaHTML = `
-              <div style="margin-top: 10px; padding: 8px 10px; background: rgba(255, 215, 0, 0.05); border: 1px solid #333; border-radius: 8px; display: flex; flex-direction: column; gap: 4px; font-size: 0.75rem;">
-                  <div style="display: flex; justify-content: space-between;">
-                      <span style="color: #aaa;">Harga Acuan:</span>
-                      <b style="color: #fff;">${formatRp(b.harga)}<span style="color: #666; font-weight: normal;"> / ${b.satuan}</span></b>
-                  </div>
-                  <div style="display: flex; justify-content: space-between; border-top: 1px dashed #444; padding-top: 4px; margin-top: 2px;">
-                      <span style="color: #aaa;">Butuh Dana:</span>
-                      ${b.kurang > 0 ? `<b style="color: var(--primary); font-size: 0.85rem;">${formatRp(totalDanaDibutuhkan)}</b>` : `<b style="color: var(--success);">Rp 0 (Stok Aman)</b>`}
-                  </div>
-              </div>
-            `;
-          }
-
-          let imgTag = b.foto ? `<img src="${b.foto}" style="width:100%; height:100%; object-fit:cover; border-radius:6px;" onerror="this.outerHTML='<i class=\\'fas fa-box\\' style=\\'font-size:2rem; color:#444;\\'></i>'"/>` : `<i class="fas fa-image" style="font-size:2rem; color:#444;"></i>`;
+          let statusBdg = isAman ? `<div id="badge_status_${index}" class="item-status status-aman">AMAN</div>` : `<div id="badge_status_${index}" class="item-status status-kurang" style="cursor:pointer;" onclick="event.stopPropagation(); bukaDetailItem('${strNamaEscaped}')">KURANG ${b.kurang}</div>`;
+          let imgTag = b.foto ? `<img src="${b.foto}" style="width:100%; height:100%; object-fit:cover; border-radius:6px;"/>` : `<i class="fas fa-image" style="font-size:1.8rem; color:#444;"></i>`;
 
           container.innerHTML += `
-            <div class="shop-item ${clsAman}">
-                <div onclick="let body = this.nextElementSibling; let icon = this.querySelector('.fa-chevron-down'); if(body.style.display==='none'){body.style.display='block'; icon.style.transform='rotate(180deg)';}else{body.style.display='none'; icon.style.transform='rotate(0deg)';}" 
-                     style="padding: 12px 15px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; transition: background 0.2s;" 
-                     onmouseover="this.style.background='#222'" onmouseout="this.style.background='transparent'">
-                    
-                    <div style="flex: 1; padding-right: 10px;">
-                        <h4 class="item-name" style="margin: 0 0 4px 0; font-size: 0.95rem;">${b.barang}</h4>
-                        <div style="font-size: 0.75rem; color: #888;">Target: <b style="color: #fff;">${b.total.toLocaleString("id-ID")}</b> ${b.satuan}</div>
-                    </div>
-                    
-                    <div style="display: flex; align-items: center; gap: 10px;">
-                        ${statusBdg}
-                        <i class="fas fa-chevron-down" style="color: #666; font-size: 0.9rem; transition: transform 0.3s;"></i>
-                    </div>
+            <div class="shop-item ${isAman ? 'aman' : 'kurang'}">
+              <div onclick="let body = this.nextElementSibling; let icon = this.querySelector('.fa-chevron-down'); if(body.style.display==='none'){body.style.display='block'; icon.style.transform='rotate(180deg)';}else{body.style.display='none'; icon.style.transform='rotate(0deg)';}" 
+                   style="padding: 12px 14px; display: flex; justify-content: space-between; align-items: center; cursor: pointer;">
+                <div style="flex:1; padding-right:8px;">
+                  <h4 class="item-name">${b.barang}</h4>
+                  <div style="font-size: 0.75rem; color: #888;">Target: <b style="color: #fff;">${b.total}</b> ${b.satuan} | Stok: <b style="color:var(--primary);">${b.ready}</b></div>
                 </div>
-
-                <div style="display: none; border-top: 1px dashed #333; background: #151515;">
-                    <div style="padding: 15px; display: flex; gap: 15px; align-items: flex-start;">
-                        <div style="width: 80px; height: 80px; flex-shrink: 0; background: #111; border: 1px solid #333; border-radius: 8px; display: flex; justify-content: center; align-items: center; overflow: hidden;">
-                            ${imgTag}
-                        </div>
-                        <div style="flex: 1;">
-                            <div class="item-details" style="margin-bottom: 8px;">
-                                <span onclick="event.stopPropagation(); bukaDetailItem('${strNamaBarangEscaped}')" style="cursor:pointer; border-color:var(--primary); color:var(--primary); background:rgba(255,215,0,0.1);" title="Klik untuk lihat rincian peserta">
-                                    <i class="fas fa-users"></i> Rincian Peserta
-                                </span>
-                                <span>Masuk: <b id="lbl_masuk_${index}">${b.masuk.toLocaleString("id-ID")}</b></span>
-                                <span>Keluar: ${b.keluar.toLocaleString("id-ID")}</span>
-                            </div>
-                            ${infoHargaHTML}
-                        </div>
+                <div style="display: flex; align-items: center; gap: 8px;">${statusBdg}<i class="fas fa-chevron-down" style="color: #666; font-size: 0.85rem; transition: 0.3s;"></i></div>
+              </div>
+              <div style="display: none; border-top: 1px dashed #333; background: #151515;">
+                <div style="padding: 12px 14px; display: flex; gap: 12px; align-items: flex-start;">
+                  <div style="width: 70px; height: 70px; flex-shrink: 0; background: #111; border: 1px solid #333; border-radius: 8px; display: flex; justify-content: center; align-items: center;">${imgTag}</div>
+                  <div style="flex: 1;">
+                    <div class="item-details" style="margin-bottom: 6px;">
+                      <span onclick="event.stopPropagation(); bukaDetailItem('${strNamaEscaped}')" style="cursor:pointer; color:var(--primary); border-color:var(--primary);"><i class="fas fa-users"></i> Rincian Peserta</span>
+                      <span>Masuk: <b id="lbl_masuk_${index}">${b.masuk}</b></span>
+                      <span>Keluar: ${b.keluar}</span>
                     </div>
-                    
-                    <div class="item-footer">
-                        <div class="ready-stock">Sisa Gudang: <b id="lbl_sisa_${index}">${b.ready.toLocaleString("id-ID")}</b>&nbsp;${b.satuan}</div>
-                        <div class="input-wrapper" style="gap: 12px;">
-                            <div style="display:flex; flex-direction:column; gap:4px; align-items:center;">
-                                <label style="font-size:0.65rem;">Harga Satuan</label>
-                                <input type="number" id="input_hrg_${index}" class="input-qty" style="width: 85px;" value="${b.harga || ''}" placeholder="Rp" oninput="kalkulasiRealtime(${index}, ${b.total}, ${b.masuk}, ${b.keluar})">
-                            </div>
-                            <div style="display:flex; flex-direction:column; gap:4px; align-items:center;">
-                                <label style="font-size:0.65rem;">+ Tambah Qty</label>
-                                <input type="number" id="input_qty_${index}" class="input-qty input-tambah-stok" data-name="${b.barang}" data-sat="${b.satuan}" data-idx="${index}" placeholder="0" min="0" oninput="kalkulasiRealtime(${index}, ${b.total}, ${b.masuk}, ${b.keluar})">
-                            </div>
-                        </div>
-                    </div>
+                    <div style="font-size:0.75rem; color:#aaa;">Harga Acuan: <b style="color:#fff;">${formatUang(b.harga)}</b></div>
+                  </div>
                 </div>
+                <div class="item-footer">
+                  <div style="font-size:0.8rem; color:#ccc;">Sisa Gudang: <b id="lbl_sisa_${index}" style="color:var(--primary);">${b.ready}</b> ${b.satuan}</div>
+                  <div style="display:flex; gap:8px;">
+                    <input type="number" id="input_hrg_${index}" class="input-qty-logistik" value="${b.harga||''}" placeholder="Rp" oninput="kalkulasiRealtimeLogistik(${index}, ${b.total}, ${b.masuk}, ${b.keluar})">
+                    <input type="number" id="input_qty_${index}" class="input-qty-logistik input-tambah-stok-logistik" data-name="${b.barang}" data-sat="${b.satuan}" data-idx="${index}" placeholder="+Qty" min="0" oninput="kalkulasiRealtimeLogistik(${index}, ${b.total}, ${b.masuk}, ${b.keluar})">
+                  </div>
+                </div>
+              </div>
             </div>`;
-                
-          
         });
       }
 
-      function copyToClipboard() {
-        if (listBelanjaFinal.length === 0) return alert("Daftar kosong!");
-        const valMitra =
-          document.getElementById("fMitra").options[
-            document.getElementById("fMitra").selectedIndex
-          ].text;
-
-        const checkedPakets = Array.from(
-          document.querySelectorAll(".chk-paket-filter:checked"),
-        ).map((chk) => chk.value);
-        const valPaket =
-          checkedPakets.length ===
-          document.querySelectorAll(".chk-paket-filter").length
-            ? "Semua Paket"
-            : `${checkedPakets.length} Paket Dipilih`;
-
-        let text = `🛒 *CATATAN BELANJA NIZAMI (PRO-RATA)*\n📝 Filter Mitra: ${valMitra}\n📦 Filter Paket: ${valPaket}\n\n`;
-        let countKurang = 0;
-        let estimasiRupiah = 0;
-
-        listBelanjaFinal.forEach((b) => {
-          if (b.kurang > 0) {
-            text += `• ${b.barang} : *Kurang ${b.kurang.toLocaleString("id-ID")}${b.satuan}*\n`;
-            countKurang++;
-            let isUang =
-              b.barang.toLowerCase().includes("uang") ||
-              b.satuan.toLowerCase().includes("rupiah") ||
-              b.satuan.toLowerCase() === "rp";
-            let hargaAsli = isUang ? 1 : b.harga;
-            estimasiRupiah += b.kurang * hargaAsli;
-          }
-        });
-
-        if (countKurang === 0)
-          text += "✅ Semua stok barang sudah aman/lengkap! 🎉";
-        else
-          text += `\n_Total ${countKurang} jenis barang yang harus dibeli._\n💰 *Estimasi Budget Modal:* ${formatRp(estimasiRupiah)}`;
-
-        navigator.clipboard
-          .writeText(text)
-          .then(() => showToast("Daftar belanja disalin ke WA!"));
+      function kalkulasiRealtimeLogistik(idx, target, currentMasuk, currentKeluar) {
+        let inputQty = parseInt(document.getElementById(`input_qty_${idx}`).value) || 0;
+        let newMasuk = currentMasuk + inputQty;
+        let newReady = Math.max(0, newMasuk - currentKeluar);
+        let newKurang = Math.max(0, target - newReady);
+        let lblMasuk = document.getElementById(`lbl_masuk_${idx}`); if(lblMasuk) lblMasuk.innerText = newMasuk;
+        let lblSisa = document.getElementById(`lbl_sisa_${idx}`); if(lblSisa) lblSisa.innerText = newReady;
+        let badge = document.getElementById(`badge_status_${idx}`);
+        if(badge) {
+          badge.className = newKurang === 0 ? "item-status status-aman" : "item-status status-kurang";
+          badge.innerText = newKurang === 0 ? "AMAN" : "KURANG " + newKurang;
+        }
       }
 
-      async function simpanBelanja() {
+      function copyToClipboardWA() {
+        let text = `🛒 *REKAP BELANJA GUDANG (LOGISTIK)*\n\n`;
+        listBelanjaFinalLogistik.forEach(b => { if (b.kurang > 0) text += `• ${b.barang}: *Kurang ${b.kurang} ${b.satuan}*\n`; });
+        navigator.clipboard.writeText(text).then(() => showToast("Disalin ke WhatsApp!"));
+      }
+
+      async function simpanStokBelanjaLogistik() {
         let itemsToSave = [];
-        document.querySelectorAll(".input-tambah-stok").forEach((inp) => {
+        document.querySelectorAll(".input-tambah-stok-logistik").forEach((inp) => {
           let val = parseInt(inp.value);
           if (val > 0) {
             let idx = inp.getAttribute("data-idx");
-            let hrgVal = parseInt(document.getElementById(`input_hrg_${idx}`).value) || 0; // Tarik Harga
-            itemsToSave.push({
-              nama: inp.getAttribute("data-name"),
-              satuan: inp.getAttribute("data-sat"),
-              qty: val,
-              harga_satuan: hrgVal
-            });
+            let hrgVal = parseInt(document.getElementById(`input_hrg_${idx}`).value) || 0;
+            itemsToSave.push({ nama: inp.getAttribute("data-name"), satuan: inp.getAttribute("data-sat"), qty: val, harga_satuan: hrgVal });
           }
         });
-
-        if (itemsToSave.length === 0) return alert("Belum ada angka penambahan stok yang diisi.");
-        if (!confirm(`Simpan penambahan untuk ${itemsToSave.length} jenis barang ini ke gudang?`)) return;
-
-        const btn = document.getElementById("btnSave");
-        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Menyimpan...';
-        btn.disabled = true;
-
-        const res = await fetchData("simpanBelanja", { items: itemsToSave }, "POST");
-        if (res && res.success) {
-          showToast("Stok berhasil ditambahkan!");
-          tarikDataServer();
-        } else alert("Gagal menyimpan data.");
-
-        btn.innerHTML = '<i class="fas fa-save"></i> SIMPAN MASUK';
-        btn.disabled = false;
-      }
-     
-      function bukaModalDistribusi() {
-        const sel = document.getElementById("distPeserta");
-        sel.innerHTML = '<option value="">-- Pilih Peserta --</option>';
-
-        masterData.peserta.forEach((p) => {
-          if (!String(p.paket).includes("(Selesai/DO)")) {
-            sel.innerHTML += `<option value="${p.id}">${p.nama} (${p.id}) -${p.paket}</option>`;
-          }
-        });
-
-        distCart = {};
-        document.getElementById("infoSaldo").style.display = "none";
-        document.getElementById("txtTotalAmbil").innerText = "Rp 0";
-        renderDistItems();
-        document.getElementById("modalDist").style.display = "flex";
+        if (!itemsToSave.length) return alert("Belum ada input stok barang.");
+        await fetchData("simpanBelanja", { items: itemsToSave }, "POST");
+        showToast("Stok berhasil disimpan!");
+        tarikDataSemua();
       }
 
-      function tutupModalDistribusi() {
-        document.getElementById("modalDist").style.display = "none";
-      }
-
-      function pilihPesertaDist() {
-        const id = document.getElementById("distPeserta").value;
-        if (!id) {
-          document.getElementById("infoSaldo").style.display = "none";
-          selectedPesertaSaldo = 0;
-          return;
-        }
-        const p = masterData.peserta.find((x) => x.id === id);
-        if (p) {
-          selectedPesertaSaldo = p.saldo_rp;
-          document.getElementById("txtSaldo").innerText =
-            formatRp(selectedPesertaSaldo);
-          document.getElementById("infoSaldo").style.display = "block";
-        }
-      }
-
-      function renderDistItems() {
-        const container = document.getElementById("distItemsContainer");
-        container.innerHTML = "";
-        let adaReady = false;
-
-        listBelanjaFinal.forEach((b) => {
-          if (b.ready > 0) {
-            adaReady = true;
-            let hrg = masterData.harga_barang[b.barang] || 0;
-            let curQty = distCart[b.barang] ? distCart[b.barang].qty : 0;
-
-            container.innerHTML += `
-                 <div class="item-dist-row">
-                    <div style="flex:1; padding-right:10px;">
-                        <div style="color:#fff; font-weight:bold; font-size:0.9rem; margin-bottom:2px;">${b.barang}</div>
-                        <div style="font-size:0.75rem; color:#aaa;">${formatRp(hrg)} &bull; Sisa: <span style="color:var(--success)">${b.ready.toLocaleString("id-ID")}</span></div>
-                    </div>
-                    <div class="stepper">
-                        <button onclick="updateCartDist('${b.barang.replace(/'/g, "\\'")}', ${hrg},${b.ready}, -1)">-</button>
-                        <input type="text" readonly value="${curQty}">
-                        <button onclick="updateCartDist('${b.barang.replace(/'/g, "\\'")}', ${hrg},${b.ready}, 1)">+</button>
-                    </div>
-                 </div>`;
-          }
-        });
-
-        if (!adaReady)
-          container.innerHTML =
-            "<div style='color:#666; text-align:center; padding:30px; border:1px dashed #333; border-radius:12px;'>Sisa Gudang (Ready Stock) masih kosong.</div>";
-      }
-
-      function updateCartDist(nmBarang, hrg, maxReady, change) {
-        if (!distCart[nmBarang]) distCart[nmBarang] = { qty: 0, harga: hrg };
-        let newQty = distCart[nmBarang].qty + change;
-        if (newQty < 0) newQty = 0;
-        if (newQty > maxReady)
-          return alert("Gagal! Melebihi batas Ready Stock di gudang.");
-
-        distCart[nmBarang].qty = newQty;
-        if (distCart[nmBarang].qty === 0) delete distCart[nmBarang];
-
-        renderDistItems();
-        hitungTotalDist();
-      }
-
-      function hitungTotalDist() {
-        let total = 0;
-        for (let k in distCart) total += distCart[k].qty * distCart[k].harga;
-
-        const txtTotal = document.getElementById("txtTotalAmbil");
-        txtTotal.innerText = formatRp(total);
-        if (selectedPesertaSaldo > 0 && total > selectedPesertaSaldo)
-          txtTotal.style.color = "var(--danger)";
-        else txtTotal.style.color = "var(--success)";
-      }
-
-      async function simpanDistribusi() {
-        const idPeserta = document.getElementById("distPeserta").value;
-        let itemsOut = [];
-        let totalRp = 0;
-
-        for (let k in distCart) {
-          itemsOut.push({ nama: k, qty: distCart[k].qty });
-          totalRp += distCart[k].qty * distCart[k].harga;
-        }
-
-        if (itemsOut.length === 0)
-          return alert("Belum ada barang yang dipilih untuk dikeluarkan.");
-        if (!idPeserta) return alert("Pilih peserta terlebih dahulu.");
-        if (totalRp > selectedPesertaSaldo) {
-          if (
-            !confirm(
-              `PERINGATAN: Nilai barang (Rp ${totalRp.toLocaleString("id-ID")}) melebihi saldo peserta (Rp${selectedPesertaSaldo.toLocaleString("id-ID")}). Tetap lanjutkan?`,
-            )
-          )
-            return;
-        }
-        if (
-          !confirm(
-            `Keluarkan ${itemsOut.length} jenis barang dari Gudang untuk peserta ini?\n\nOtomatis merubah status peserta menjadi Selesai/DO.`,
-          )
-        )
-          return;
-
-        const btn = document.getElementById("btnSimpanDist");
-        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
-        btn.disabled = true;
-
-        const payload = {
-          items: itemsOut,
-          idPeserta: idPeserta,
-          tandaiLunas: true,
-        };
-        const res = await fetchData("simpanDistribusi", payload, "POST");
-
-        if (res && res.success) {
-          showToast("Berhasil mendistribusikan barang!");
-          tutupModalDistribusi();
-          tarikDataServer();
-        } else alert("Gagal memproses: " + (res ? res.error : ""));
-
-        btn.innerHTML = "PROSES BARANG KELUAR";
-        btn.disabled = false;
-      }
-
+      /* DRILL-DOWN SUB-MODAL LOGISTIK */
       function bukaDetailItem(namaBarang) {
-        let b = listBelanjaFinal.find((x) => x.barang === namaBarang);
-        if (!b) return;
-
-        // 1. KELOMPOKKAN DATA BERDASARKAN NAMA SUMBER (Paket / Custom)
+        let b = listBelanjaFinalLogistik.find((x) => x.barang === namaBarang); if (!b) return;
         let grupDetail = {};
         b.detail.forEach((d) => {
           let key = d.nama_sumber;
-          if (!grupDetail[key]) {
-            grupDetail[key] = {
-              total_porsi: 0,
-              tipe: d.tipe,
-              list: [],
-            };
-          }
-          // Akumulasi total porsi per paket
+          if (!grupDetail[key]) grupDetail[key] = { total_porsi: 0, list: [] };
           grupDetail[key].total_porsi += d.subtotal;
-
-          // Masukkan daftar peserta ke dalam grup ini
-          grupDetail[key].list.push({
-            infoPeserta: d.list_peserta[0],
-            porsi: d.qty_satuan,
-          });
+          grupDetail[key].list.push({ infoPeserta: d.list_peserta[0], porsi: d.qty_satuan });
         });
-
         let html = ``;
-
-        // 2. RENDER HTML SECARA ACCORDION (DROPDOWN)
         for (let sumber in grupDetail) {
           let grup = grupDetail[sumber];
-          let jumlahPeserta = grup.list.length;
-
-          // Membulatkan total porsi grup agar rapi (maksimal 2 desimal)
-          let totalPorsiStr = Number(grup.total_porsi.toFixed(2));
-
-          // Bedakan ikon antara Paket biasa dan Request Custom
-          let iconTitle = grup.tipe.includes("Custom")
-            ? "fa-user-edit"
-            : "fa-box-open";
-
-          // Susun elemen list rincian pesertanya
-          let rincianHtml = grup.list
-            .map(
-              (p) => `
-              <div style="display:flex; justify-content:space-between; align-items:center; background:#111; padding:10px; border-radius:8px; border:1px solid #2a2a2a; margin-bottom:6px;">
-                  <span style="color:#aaa; font-size:0.75rem; flex:1; line-height:1.4;">${p.infoPeserta}</span>
-                  <b style="color:var(--primary); font-size:0.85rem; margin-left:10px; white-space:nowrap;">${p.porsi} <span style="font-size:0.7rem; color:#888;">${b.satuan}</span></b>
-              </div>
-          `,
-            )
-            .join("");
-
-          // Render Body Accordion
+          let rincianHtml = grup.list.map(p => `
+            <div style="display:flex; justify-content:space-between; background:#111; padding:8px 10px; border-radius:6px; border:1px solid #2a2a2a; margin-bottom:4px; font-size:0.78rem;">
+              <span style="color:#aaa;">${p.infoPeserta}</span><b style="color:var(--primary);">${p.porsi} ${b.satuan}</b>
+            </div>`).join("");
           html += `
-            <div style="background:#1e1e1e; margin-bottom:12px; border-radius:10px; border:1px solid #333; overflow:hidden;">
-                
-                <!-- HEADER DROPDOWN (Bisa Diklik) -->
-                <div onclick="let body = this.nextElementSibling; let icon = this.querySelector('.fa-chevron-down'); if(body.style.display==='none'){body.style.display='block'; icon.style.transform='rotate(180deg)';}else{body.style.display='none'; icon.style.transform='rotate(0deg)';}" 
-                     style="padding:15px 12px; cursor:pointer; display:flex; justify-content:space-between; align-items:center; background:#222; transition:0.2s;" 
-                     onmouseover="this.style.background='#2a2a2a'" onmouseout="this.style.background='#222'">
-                    
-                    <div>
-                        <div style="color:var(--primary); font-weight:bold; margin-bottom:6px; font-size:0.95rem; display:flex; align-items:center; gap:8px;">
-                            <i class="fas ${iconTitle}"></i> ${sumber}
-                        </div>
-                        <div style="font-size:0.8rem; color:#ccc;">
-                            Total Alokasi: <b style="color:#fff; font-size:0.9rem;">${totalPorsiStr} ${b.satuan}</b> <span style="color:#888; margin-left:4px;">(${jumlahPeserta} Peserta)</span>
-                        </div>
-                    </div>
-                    
-                    <!-- Ikon Panah Dropdown -->
-                    <i class="fas fa-chevron-down" style="color:#888; font-size:1.1rem; transition:transform 0.3s;"></i>
-                </div>
-                
-                <!-- BODY DROPDOWN (Rincian Disembunyikan Default) -->
-                <div style="display:none; padding:15px 12px; background:#151515; border-top:1px dashed #333;">
-                    <div style="font-size:0.75rem; color:#888; margin-bottom:10px; text-transform:uppercase; letter-spacing:1px; font-weight:bold;">
-                        <i class="fas fa-list-ul"></i> Rincian Porsi Peserta:
-                    </div>
-                    ${rincianHtml}
-                </div>
-                
+            <div style="background:#1e1e1e; margin-bottom:10px; border-radius:8px; border:1px solid #333; overflow:hidden;">
+              <div onclick="let body = this.nextElementSibling; if(body.style.display==='none'){body.style.display='block';}else{body.style.display='none';}" style="padding:10px 12px; cursor:pointer; background:#222; display:flex; justify-content:space-between;">
+                <b style="color:var(--primary); font-size:0.88rem;">📦 ${sumber}</b>
+                <span style="font-size:0.8rem; color:#fff;">Total: ${Number(grup.total_porsi.toFixed(2))} ${b.satuan}</span>
+              </div>
+              <div style="display:none; padding:10px; background:#151515;">${rincianHtml}</div>
             </div>`;
         }
-
-        // Tampilkan ke Modal
         document.getElementById("modalDetailTitle").innerText = namaBarang;
         document.getElementById("modalDetailBody").innerHTML = html;
-        document.getElementById("modalDetailTarget").innerText =
-          `Total Porsi Target: ${b.total.toLocaleString("id-ID")} ${b.satuan}`;
-        document.getElementById("modalDetailKurang").innerText =
-          `Status: ${b.kurang > 0 ? "Kurang " + b.kurang.toLocaleString("id-ID") : "Lengkap/Aman"}`;
-
-        document.getElementById("modalDetailTarget").style.color =
-          "var(--primary)";
-        document.getElementById("modalDetailKurang").style.color =
-          b.kurang > 0 ? "var(--danger)" : "var(--success)";
+        document.getElementById("modalDetailTarget").innerText = `Target: ${b.total} ${b.satuan}`;
+        document.getElementById("modalDetailKurang").innerText = b.kurang > 0 ? "Kurang " + b.kurang : "Lengkap";
         document.getElementById("modalDetail").style.display = "flex";
       }
 
-      function tutupDetailItem() {
-        document.getElementById("modalDetail").style.display = "none";
-      }
-
       function bukaDetailPaket(namaPaket) {
-        let pesertaPaket = pesertaLolosGlobal.filter(
-          (p) => p.paket === namaPaket,
-        );
-        let jumlahPeserta = pesertaPaket.length;
-        if (jumlahPeserta === 0) return;
-
-        let resepPaket = masterData.resep.filter((r) => r.paket === namaPaket);
-        let listKebutuhanHTML = "";
-
-        if (resepPaket.length > 0) {
-          resepPaket.forEach((r) => {
-            let totalButuh = r.qty * jumlahPeserta;
-            listKebutuhanHTML += `
-                <div style="display:flex; justify-content:space-between; align-items:center; padding:8px 0; border-bottom:1px solid #333; font-size:0.85rem;">
-                    <div>
-                        <div style="color:#fff; font-weight:bold;">${r.barang}</div>
-                        <div style="color:#aaa;">Resep: ${r.qty}${r.satuan} / orang</div>
-                    </div>
-                    <div style="text-align:right;">
-                        <div style="color:var(--primary); font-weight:bold;">Standar: ${totalButuh.toLocaleString("id-ID")} ${r.satuan}</div>
-                    </div>
-                </div>`;
-          });
-        } else {
-          listKebutuhanHTML = `<div style="color:#888; font-size:0.85rem; font-style:italic;">Belum ada resep tercatat untuk paket ini.</div>`;
-        }
-
-        let listPesertaHTML = "";
-        pesertaPaket.forEach((p) => {
-          listPesertaHTML += `
-            <div onclick="bukaDetailPeserta('${p.id}')" style="background:#2a2a2a; padding:10px 12px; border-radius:6px; margin-bottom:6px; border:1px solid #444; display:flex; justify-content:space-between; align-items:center; cursor:pointer; transition: background 0.2s;" onmouseover="this.style.background='#333'" onmouseout="this.style.background='#2a2a2a'" title="Klik untuk lihat rincian peserta">
-                <div>
-                    <b style="color:#fff; font-size:0.9rem;">${p.nama || p.id}</b>
-                    <div style="font-size:0.75rem; color:var(--success);">Saldo: ${formatRp(p.saldo_rp)}</div>
-                </div>
-                <span style="color:#aaa; background:#111; padding:3px 8px; border-radius:4px;"><i class="fas fa-map-marker-alt" style="color:var(--primary)"></i> ${p.mitra || "-"}</span>
-            </div>`;
-        });
+        let pesertaPaket = pesertaLolosGlobal.filter(p => p.paket === namaPaket);
+        let resepPaket = masterDataLogistik.resep.filter(r => r.paket === namaPaket);
+        let listKebutuhanHTML = resepPaket.map(r => `<div style="display:flex; justify-content:space-between; padding:6px 0; border-bottom:1px solid #333; font-size:0.82rem;"><span style="color:#fff;">${r.barang}</span><b style="color:var(--primary);">${r.qty * pesertaPaket.length} ${r.satuan}</b></div>`).join("");
+        let listPesertaHTML = pesertaPaket.map(p => `
+          <div onclick="bukaDetailPeserta('${p.id}')" style="background:#2a2a2a; padding:8px 10px; border-radius:6px; margin-bottom:4px; border:1px solid #444; display:flex; justify-content:space-between; cursor:pointer;">
+            <b style="color:#fff; font-size:0.85rem;">${p.nama||p.id}</b><span style="color:var(--success); font-size:0.78rem;">${formatUang(p.saldo_rp)}</span>
+          </div>`).join("");
 
         let html = `
-        <div style="background:#1e1e1e; padding:15px; border-radius:10px; border:1px solid #333; margin-bottom:15px;">
-            <h4 style="color:var(--primary); margin:0 0 10px 0; font-size:0.9rem;"><i class="fas fa-boxes"></i> Standar Resep Paket</h4>
-            <div style="max-height:200px; overflow-y:auto; padding-right:5px;">
-                ${listKebutuhanHTML}
-            </div>
-        </div>
-        <div style="background:#1e1e1e; padding:15px; border-radius:10px; border:1px solid #333;">
-            <h4 style="color:var(--success); margin:0 0 10px 0; font-size:0.9rem;"><i class="fas fa-users"></i> Daftar Peserta (Pro-Rata Saldo)</h4>
-            <div style="max-height:200px; overflow-y:auto; padding-right:5px;">
-                ${listPesertaHTML}
-            </div>
-        </div>`;
-
-        document.getElementById("modalDetailTitle").innerText =
-          `📦 ${namaPaket}`;
-        document.getElementById("modalDetailTarget").innerText =
-          `Jumlah: ${jumlahPeserta} Peserta`;
-        document.getElementById("modalDetailTarget").style.color = "#fff";
-        document.getElementById("modalDetailKurang").innerText = ``;
+          <div style="background:#1e1e1e; padding:12px; border-radius:8px; border:1px solid #333; margin-bottom:10px;">
+            <h4 style="color:var(--primary); margin:0 0 8px 0; font-size:0.85rem;">Standar Resep Paket</h4>${listKebutuhanHTML}
+          </div>
+          <div style="background:#1e1e1e; padding:12px; border-radius:8px; border:1px solid #333;">
+            <h4 style="color:var(--success); margin:0 0 8px 0; font-size:0.85rem;">Daftar Peserta (${pesertaPaket.length})</h4>${listPesertaHTML}
+          </div>`;
+        document.getElementById("modalDetailTitle").innerText = `📦 Paket ${namaPaket}`;
         document.getElementById("modalDetailBody").innerHTML = html;
-
         document.getElementById("modalDetail").style.display = "flex";
       }
 
       function bukaDetailPeserta(idPeserta) {
-        let peserta = masterData.peserta.find((p) => p.id === idPeserta);
-        if (!peserta) return alert("Data peserta tidak ditemukan!");
-
-        let barangPeserta = [];
-        let customItems = masterData.custom.filter(
-          (c) => c.id_peserta === idPeserta,
-        );
-
-        if (customItems.length > 0) {
-          customItems.forEach((c) => {
-            barangPeserta.push({
-              barang: c.barang,
-              qty: c.qty,
-              satuan: c.satuan,
-            });
-          });
-        } else {
-          let resepPaket = masterData.resep.filter(
-            (r) => r.paket === peserta.paket,
-          );
-          resepPaket.forEach((r) => {
-            barangPeserta.push({
-              barang: r.barang,
-              qty: r.qty,
-              satuan: r.satuan,
-            });
-          });
-        }
-
-        let listBarangHtml = "";
-        if (barangPeserta.length > 0) {
-          barangPeserta.forEach((bp, idx) => {
-            let hrgJual =
-              (masterData.harga_jual_barang &&
-                masterData.harga_jual_barang[bp.barang]) ||
-              0;
-            let subtotalItem = bp.qty * hrgJual;
-
-            listBarangHtml += `
-                  <div style="background:#222; padding:10px; border-radius:8px; margin-bottom:8px; border:1px solid #333; display:flex; justify-content:space-between; align-items:center;">
-                      <div style="display:flex; align-items:center; gap:10px; flex:1;">
-                          <input type="checkbox" class="chk-item-peserta" checked data-harga="${hrgJual}" data-subtotal="${subtotalItem}" onchange="hitungSisaSaldoPeserta(${peserta.saldo_rp})" style="width:18px; height:18px; accent-color:var(--primary); cursor:pointer;">
-                          <div>
-                              <div style="color:#fff; font-weight:bold; font-size:0.85rem;">${bp.barang}</div>
-                              <div style="color:#888; font-size:0.75rem;">Jumlah: ${bp.qty} ${bp.satuan} &bull; Harga Jual: ${formatRp(hrgJual)}</div>
-                          </div>
-                      </div>
-                      <div style="text-align:right;">
-                          <b style="color:var(--primary); font-size:0.85rem;">${formatRp(subtotalItem)}</b>
-                      </div>
-                  </div>`;
-          });
-        } else {
-          listBarangHtml = `<div style="color:#888; font-size:0.8rem; font-style:italic;">Tidak ada rincian barang untuk peserta ini.</div>`;
-        }
+        let peserta = masterDataLogistik.peserta.find(p => p.id === idPeserta); if (!peserta) return;
+        let resepPaket = masterDataLogistik.resep.filter(r => r.paket === peserta.paket);
+        let listBarangHtml = resepPaket.map(bp => {
+          let hrgJual = masterDataLogistik.harga_jual_barang[bp.barang] || 0;
+          let subtotal = bp.qty * hrgJual;
+          return `
+            <div style="background:#222; padding:8px; border-radius:6px; margin-bottom:6px; display:flex; justify-content:space-between; align-items:center;">
+              <div style="display:flex; align-items:center; gap:8px;">
+                <input type="checkbox" class="chk-item-peserta" checked data-subtotal="${subtotal}" onchange="hitungSisaSaldoPeserta(${peserta.saldo_rp})" style="accent-color:var(--primary);">
+                <span style="color:#fff; font-size:0.82rem;">${bp.barang} (${bp.qty} ${bp.satuan})</span>
+              </div>
+              <b style="color:var(--primary); font-size:0.82rem;">${formatUang(subtotal)}</b>
+            </div>`;
+        }).join("");
 
         let html = `
-          <div style="background:#1e1e1e; padding:15px; border-radius:10px; border:1px solid #333; margin-bottom:15px;">
-              <h4 style="color:var(--primary); margin:0 0 10px 0; font-size:0.9rem;"><i class="fas fa-user-circle"></i> Informasi Peserta</h4>
-              <div style="font-size:0.85rem; color:#ccc; display:flex; flex-direction:column; gap:5px;">
-                  <div><b>ID:</b> ${peserta.id}</div>
-                  <div><b>Nama:</b> ${peserta.nama || "-"}</div>
-                  <div><b>Mitra:</b> ${peserta.mitra || "-"}</div>
-                  <div><b>Paket:</b> ${peserta.paket || "-"}</div>
-                  <div><b>Saldo / Setoran:</b> <span style="color:var(--success); font-weight:bold;">${formatRp(peserta.saldo_rp)}</span></div>
-              </div>
+          <div style="background:#1e1e1e; padding:12px; border-radius:8px; margin-bottom:10px;">
+            <div style="font-size:0.82rem; color:#ccc;"><b>Nama:</b> ${peserta.nama||peserta.id} | <b>Saldo:</b> <span style="color:var(--success); font-weight:bold;">${formatUang(peserta.saldo_rp)}</span></div>
           </div>
-
-          <div style="background:#1e1e1e; padding:15px; border-radius:10px; border:1px solid #333; margin-bottom:15px;">
-              <h4 style="color:var(--success); margin:0 0 10px 0; font-size:0.9rem;"><i class="fas fa-check-square"></i> Pilih Barang (Antisipasi Belum Tuntas)</h4>
-              <div style="max-height:220px; overflow-y:auto; padding-right:5px;">
-                  ${listBarangHtml}
-              </div>
-          </div>
-
-          <div style="background:#151515; padding:15px; border-radius:10px; border:1px solid #333; display:flex; flex-direction:column; gap:8px;">
-              <div style="display:flex; justify-content:space-between; font-size:0.85rem;">
-                  <span style="color:#aaa;">Total Belanja Dipilih:</span>
-                  <b id="lblTotalBelanjaModal" style="color:var(--danger);">Rp 0</b>
-              </div>
-              <div style="display:flex; justify-content:space-between; font-size:0.9rem; border-top:1px dashed #333; padding-top:6px;">
-                  <span style="color:#fff; font-weight:bold;">Sisa Saldo / Kembalian:</span>
-                  <b id="lblSisaSaldoModal" style="color:var(--success);">Rp 0</b>
-              </div>
+          <div style="background:#1e1e1e; padding:12px; border-radius:8px; margin-bottom:10px;">${listBarangHtml}</div>
+          <div style="background:#151515; padding:10px; border-radius:8px; display:flex; justify-content:space-between; font-size:0.85rem;">
+            <span>Sisa Saldo:</span><b id="lblSisaSaldoModal" style="color:var(--success);">Rp 0</b>
           </div>`;
-
-        document.getElementById("modalDetailTitle").innerText =
-          `👤 Rincian: ${peserta.nama || peserta.id}`;
-        document.getElementById("modalDetailTarget").innerText =
-          `Mitra: ${peserta.mitra}`;
-        document.getElementById("modalDetailTarget").style.color =
-          "var(--primary)";
-        document.getElementById("modalDetailKurang").innerText =
-          `Paket: ${peserta.paket}`;
-        document.getElementById("modalDetailKurang").style.color = "#aaa";
+        document.getElementById("modalDetailTitle").innerText = `👤 Peserta: ${peserta.nama||peserta.id}`;
         document.getElementById("modalDetailBody").innerHTML = html;
-
         document.getElementById("modalDetail").style.display = "flex";
         hitungSisaSaldoPeserta(peserta.saldo_rp);
       }
 
       function hitungSisaSaldoPeserta(totalSaldo) {
         let totalBelanja = 0;
-        document.querySelectorAll(".chk-item-peserta").forEach((chk) => {
-          if (chk.checked) {
-            totalBelanja += parseFloat(chk.getAttribute("data-subtotal")) || 0;
-          }
-        });
-
-        let sisaSaldo = totalSaldo - totalBelanja;
-        let elTotal = document.getElementById("lblTotalBelanjaModal");
+        document.querySelectorAll(".chk-item-peserta").forEach((chk) => { if (chk.checked) totalBelanja += parseFloat(chk.getAttribute("data-subtotal")) || 0; });
+        let sisa = totalSaldo - totalBelanja;
         let elSisa = document.getElementById("lblSisaSaldoModal");
-
-        if (elTotal) elTotal.innerText = formatRp(totalBelanja);
-        if (elSisa) {
-          elSisa.innerText = formatRp(sisaSaldo);
-          elSisa.style.color =
-            sisaSaldo < 0 ? "var(--danger)" : "var(--success)";
-        }
+        if (elSisa) { elSisa.innerText = formatUang(sisa); elSisa.style.color = sisa < 0 ? "var(--danger)" : "var(--success)"; }
       }
 
+      /* DISTRIBUSI & KAS BESAR */
+      function bukaModalDistribusi() {
+        const sel = document.getElementById("distPeserta"); sel.innerHTML = '<option value="">-- Pilih Peserta --</option>';
+        masterDataLogistik.peserta.forEach(p => sel.innerHTML += `<option value="${p.id}">${p.nama} (${p.id}) - ${p.paket}</option>`);
+        distCart = {}; document.getElementById("infoSaldo").style.display = "none";
+        document.getElementById("txtTotalAmbil").innerText = "Rp 0";
+        renderDistItems(); document.getElementById("modalDist").style.display = "flex";
+      }
+      function pilihPesertaDist() {
+        const id = document.getElementById("distPeserta").value; if (!id) return;
+        const p = masterDataLogistik.peserta.find(x => x.id === id);
+        if (p) { selectedPesertaSaldo = p.saldo_rp; document.getElementById("txtSaldo").innerText = formatUang(selectedPesertaSaldo); document.getElementById("infoSaldo").style.display = "block"; }
+      }
+      function renderDistItems() {
+        const container = document.getElementById("distItemsContainer"); container.innerHTML = "";
+        listBelanjaFinalLogistik.forEach((b) => {
+          if (b.ready > 0) {
+            let curQty = distCart[b.barang] ? distCart[b.barang].qty : 0;
+            container.innerHTML += `
+              <div style="display:flex; justify-content:space-between; align-items:center; padding:8px 0; border-bottom:1px dashed #333;">
+                <div><div style="color:#fff; font-size:0.85rem;">${b.barang}</div><div style="font-size:0.75rem; color:#aaa;">Sisa Gudang: ${b.ready}</div></div>
+                <div style="display:flex; align-items:center; gap:6px;">
+                  <button onclick="updateCartDist('${b.barang.replace(/'/g, "\\'")}', ${b.harga}, ${b.ready}, -1)" style="padding:2px 8px;">-</button>
+                  <span style="color:#fff; font-weight:bold;">${curQty}</span>
+                  <button onclick="updateCartDist('${b.barang.replace(/'/g, "\\'")}', ${b.harga}, ${b.ready}, 1)" style="padding:2px 8px;">+</button>
+                </div>
+              </div>`;
+          }
+        });
+      }
+      function updateCartDist(nm, hrg, maxR, change) {
+        if (!distCart[nm]) distCart[nm] = { qty: 0, harga: hrg };
+        let nq = distCart[nm].qty + change; if (nq < 0 || nq > maxR) return;
+        distCart[nm].qty = nq; if (distCart[nm].qty === 0) delete distCart[nm];
+        renderDistItems(); hitungTotalDist();
+      }
+      function hitungTotalDist() {
+        let tot = 0; for (let k in distCart) tot += distCart[k].qty * distCart[k].harga;
+        document.getElementById("txtTotalAmbil").innerText = formatUang(tot);
+      }
+      async function simpanDistribusi() {
+        const idPeserta = document.getElementById("distPeserta").value;
+        let itemsOut = []; for (let k in distCart) itemsOut.push({ nama: k, qty: distCart[k].qty });
+        if (!itemsOut.length || !idPeserta) return alert("Pilih peserta dan barang.");
+        await fetchData("simpanDistribusi", { items: itemsOut, idPeserta: idPeserta, tandaiLunas: true }, "POST");
+        showToast("Distribusi berhasil!"); tutupModal("modalDist"); tarikDataSemua();
+      }
+
+      /* PERBAIKAN UTAMA: MODAL LAPORAN KAS BESAR LENGKAP */
       function bukaModalCatatan() {
         let totalSetoranAll = 0;
-        masterData.peserta.forEach((p) => {
-          totalSetoranAll += parseFloat(p.saldo_rp) || 0;
-        });
+        masterDataLogistik.peserta.forEach(p => totalSetoranAll += parseFloat(p.saldo_rp) || 0);
 
         let totalTerpakaiBarang = 0;
         let listHTML = "";
-        let countBarang = 0;
 
-        listBelanjaFinal.forEach((b) => {
+        listBelanjaFinalLogistik.forEach((b) => {
           if (b.masuk > 0) {
-            let isUang =
-              b.barang.toLowerCase().includes("uang") ||
-              b.satuan.toLowerCase().includes("rupiah") ||
-              b.satuan.toLowerCase() === "rp";
-            let hargaAsli = isUang ? 1 : b.harga;
-            let subTotal = b.masuk * hargaAsli;
+            let hrgSatuan = b.harga || 0;
+            let sub = b.masuk * hrgSatuan;
+            totalTerpakaiBarang += sub;
 
-            if (!isUang) totalTerpakaiBarang += subTotal;
+            let txtKalkulasiHarga = hrgSatuan > 0 ? ` (x ${formatUang(hrgSatuan)})` : "";
 
             listHTML += `
-                  <div style="background:#1e1e1e; padding:10px; border-radius:8px; border:1px solid #333; margin-bottom:8px; display:flex; justify-content:space-between; align-items:center;">
-                      <div style="flex:1;">
-                          <div style="color:#fff; font-weight:bold; font-size:0.85rem;">${b.barang}</div>
-                          <div style="color:#888; font-size:0.75rem;">Masuk: ${b.masuk.toLocaleString("id-ID")} ${b.satuan} <span style="color:#555;">(x ${formatRp(hargaAsli)})</span></div>
-                      </div>
-                      <div style="text-align:right; margin-right:15px;">
-                          <b style="color:var(--primary); font-size:0.9rem;">${!isUang ? formatRp(subTotal) : '<span style="color:#555; font-size:0.75rem;">(Bukan)</span>'}</b>
-                      </div>
-                      <div style="display:flex; align-items:center; border-left:1px dashed #444; padding-left:10px;">
-                          <button onclick="promptEditStok('${b.barang.replace(/'/g, "\\'")}', ${b.masuk})" style="background:transparent; border:none; color:#888; font-size:1rem; cursor:pointer;" title="Edit Jumlah Masuk">
-                              <i class="fas fa-edit"></i>
-                          </button>
-                      </div>
-                  </div>`;
-            countBarang++;
+              <div style="background:#1e1e1e; padding:10px 12px; border-radius:8px; margin-bottom:8px; display:flex; justify-content:space-between; align-items:center;">
+                <div>
+                  <b style="color:#fff; font-size:0.85rem;">${b.barang}</b>
+                  <div style="font-size:0.75rem; color:#aaa; margin-top:2px;">
+                    Masuk: ${b.masuk} ${b.satuan}<span style="color:#888;">${txtKalkulasiHarga}</span>
+                  </div>
+                </div>
+                <div style="display:flex; align-items:center; gap:10px;">
+                  <b style="color:var(--primary); font-size:0.85rem;">${formatUang(sub)}</b>
+                  <button onclick="promptEditStok('${b.barang.replace(/'/g, "\\'")}', ${b.masuk})" style="background:none; border:none; color:#888; cursor:pointer; padding:4px;"><i class="fas fa-edit"></i></button>
+                </div>
+              </div>`;
           }
         });
-        if (countBarang === 0)
-          listHTML = `<div style="text-align:center; color:#666; padding:20px; font-style:italic; border:1px dashed #333; border-radius:10px;">Belum ada riwayat belanja barang.</div>`;
 
         let totalKasLain = 0;
         let htmlKasLain = "";
-        if (masterData.kas_lain && masterData.kas_lain.length > 0) {
-          masterData.kas_lain.forEach((k) => {
+        if (masterDataLogistik.kas_lain && masterDataLogistik.kas_lain.length) {
+          masterDataLogistik.kas_lain.forEach((k) => {
             totalKasLain += k.nominal;
-
             htmlKasLain += `
-                  <div style="background:#1e1e1e; padding:10px; border-radius:8px; border:1px solid #333; margin-bottom:8px; display:flex; justify-content:space-between; align-items:center;">
-                      <div style="flex:1;">
-                          <div style="color:#fff; font-size:0.85rem;">${k.keterangan}</div>
-                          <div style="color:var(--danger); font-weight:bold; font-size:0.9rem;">${formatRp(k.nominal)}</div>
-                      </div>
-                      <div style="display:flex; gap:12px; align-items:center; border-left:1px dashed #444; padding-left:12px;">
-                          <button onclick="promptEditKasLain('${k.waktu}', '${k.keterangan.replace(/'/g, "\\'")}', ${k.nominal})" style="background:transparent; border:none; color:#888; font-size:1rem; cursor:pointer;" title="Edit Kas">
-                              <i class="fas fa-edit"></i>
-                          </button>
-                          <button onclick="hapusRiwayatKasLain('${k.waktu}')" style="background:transparent; border:none; color:var(--danger); font-size:1rem; cursor:pointer;" title="Hapus Kas">
-                              <i class="fas fa-trash"></i>
-                          </button>
-                      </div>
-                  </div>`;
+              <div style="background:#1e1e1e; padding:10px 12px; border-radius:8px; margin-bottom:8px; display:flex; justify-content:space-between; align-items:center;">
+                <div>
+                  <div style="color:#fff; font-size:0.85rem; font-weight:bold;">${k.keterangan}</div>
+                  <b style="color:var(--danger); font-size:0.85rem;">${formatUang(k.nominal)}</b>
+                </div>
+                <div style="display:flex; gap:8px;">
+                  <button onclick="promptEditKasLain('${k.waktu}', '${k.keterangan.replace(/'/g, "\\'")}', ${k.nominal})" style="background:none; border:none; color:#888; cursor:pointer; padding:4px;"><i class="fas fa-edit"></i></button>
+                  <button onclick="hapusRiwayatKasLain('${k.waktu}')" style="background:none; border:none; color:var(--danger); cursor:pointer; padding:4px;"><i class="fas fa-trash"></i></button>
+                </div>
+              </div>`;
           });
-        } else {
-          htmlKasLain = `<div style="text-align:center; color:#666; padding:20px; font-style:italic; border:1px dashed #333; border-radius:10px;">Belum ada pengeluaran lain-lain.</div>`;
         }
 
-        let totalSeluruhPengeluaran = totalTerpakaiBarang + totalKasLain;
-        let sisaDana = totalSetoranAll - totalSeluruhPengeluaran;
-        let sisaColor = sisaDana < 0 ? "var(--danger)" : "var(--success)";
+        let totalUangTerpakaiSemua = totalTerpakaiBarang + totalKasLain;
+        let sisaSaldoKasUtama = totalSetoranAll - totalUangTerpakaiSemua;
 
         document.getElementById("catatanHeader").innerHTML = `
-              <div style="background:#1e1e1e; padding:12px 15px; border-radius:10px; border:1px solid #333; display:flex; justify-content:space-between; align-items:center;">
-                  <span style="color:#aaa; font-size:0.85rem;">Total Setoran Keseluruhan</span>
-                  <b style="color:#fff; font-size:1.1rem;">${formatRp(totalSetoranAll)}</b>
-              </div>
-              <div style="background:#1e1e1e; padding:12px 15px; border-radius:10px; border:1px solid #333; display:flex; justify-content:space-between; align-items:center;">
-                  <span style="color:#aaa; font-size:0.85rem;">Total Uang Terpakai (Semua)</span>
-                  <b style="color:var(--danger); font-size:1.1rem;">${formatRp(totalSeluruhPengeluaran)}</b>
-              </div>
-              <div style="background:rgba(74, 222, 128, 0.1); padding:15px; border-radius:10px; border:1px dashed var(--success); display:flex; justify-content:space-between; align-items:center;">
-                  <span style="color:var(--success); font-weight:bold; font-size:0.9rem;">Sisa Saldo Kas Utama</span>
-                  <b style="color:${sisaColor}; font-size:1.3rem;">${formatRp(sisaDana)}</b>
-              </div>
-          `;
+          <div style="background:#1e1e1e; padding:10px 14px; border-radius:8px; display:flex; justify-content:space-between; align-items:center; border:1px solid #333;">
+            <span style="color:#aaa; font-size:0.82rem;">Total Setoran Keseluruhan</span>
+            <b style="color:#fff; font-size:0.95rem;">${formatUang(totalSetoranAll)}</b>
+          </div>
+          <div style="background:#1e1e1e; padding:10px 14px; border-radius:8px; display:flex; justify-content:space-between; align-items:center; border:1px solid #333;">
+            <span style="color:var(--danger); font-size:0.82rem; font-weight:bold;">Total Uang Terpakai (Semua)</span>
+            <b style="color:var(--danger); font-size:0.95rem;">${formatUang(totalUangTerpakaiSemua)}</b>
+          </div>
+          <div style="background:rgba(74,222,128,0.1); padding:12px 14px; border-radius:8px; border:1px dashed var(--success); display:flex; justify-content:space-between; align-items:center;">
+            <span style="color:var(--success); font-weight:bold; font-size:0.85rem;">Sisa Saldo Kas Utama</span>
+            <b style="color:var(--success); font-size:1.1rem;">${formatUang(sisaSaldoKasUtama)}</b>
+          </div>`;
 
-        document.getElementById("kasLainListContainer").innerHTML = htmlKasLain;
-        document.getElementById("catatanListContainer").innerHTML = listHTML;
+        document.getElementById("kasLainListContainer").innerHTML = htmlKasLain || `<div style="color:#666; font-size:0.8rem; text-align:center; padding:10px;">Belum ada pengeluaran lain.</div>`;
+        document.getElementById("catatanListContainer").innerHTML = listHTML || `<div style="color:#666; font-size:0.8rem; text-align:center; padding:10px;">Belum ada belanja barang.</div>`;
         document.getElementById("modalCatatan").style.display = "flex";
       }
 
       async function tambahKasLain(btn) {
-        const ket = document.getElementById("inputKetKas").value;
-        const nom = document.getElementById("inputNominalKas").value;
-
-        if (!ket || !nom)
-          return alert("Harap isi keterangan dan nominal pengeluaran!");
-
-        const oldText = btn.innerHTML;
-        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
-        btn.disabled = true;
-
-        const res = await fetchData(
-          "simpanKasLain",
-          { keterangan: ket, nominal: nom },
-          "POST",
-        );
-
-        if (res && res.success) {
-          showToast("Pengeluaran lain berhasil dicatat!");
-          document.getElementById("inputKetKas").value = "";
-          document.getElementById("inputNominalKas").value = "";
-          document.getElementById("modalCatatan").style.display = "none";
-          tarikDataServer();
-        } else alert("Gagal menyimpan data.");
-
-        btn.innerHTML = oldText;
-        btn.disabled = false;
+        const ket = document.getElementById("inputKetKas").value; const nom = document.getElementById("inputNominalKas").value;
+        if (!ket || !nom) return alert("Isi keterangan dan nominal!");
+        await fetchData("simpanKasLain", { keterangan: ket, nominal: nom }, "POST");
+        showToast("Pengeluaran dicatat!"); tutupModal("modalCatatan"); tarikDataSemua();
       }
-
       async function promptEditStok(nama, qtyLama) {
-        let input = prompt(
-          `Edit Jumlah Barang Masuk untuk:\n"${nama}"\n\nIsi dengan angka baru (Isi 0 jika ingin me-reset/menghapus barang ini dari riwayat):`,
-          qtyLama,
-        );
-        if (input === null || input === "") return;
-
-        let qtyBaru = parseInt(input);
-        if (isNaN(qtyBaru) || qtyBaru < 0)
-          return alert(
-            "Jumlah tidak valid! Harus berupa angka 0 atau lebih positif.",
-          );
-
-        document.getElementById("modalCatatan").style.display = "none";
-        document.getElementById("loading").style.display = "block";
-
-        const res = await fetchData(
-          "editStokBelanja",
-          { namaBarang: nama, qtyBaru: qtyBaru },
-          "POST",
-        );
-        if (res && res.success) {
-          showToast("Jumlah barang masuk berhasil diubah!");
-          tarikDataServer();
-        } else {
-          alert("Gagal update data.");
-          document.getElementById("loading").style.display = "none";
-        }
+        let input = prompt(`Edit Stok Masuk "${nama}":`, qtyLama); if (input === null) return;
+        await fetchData("editStokBelanja", { namaBarang: nama, qtyBaru: parseInt(input)||0 }, "POST");
+        showToast("Stok diubah!"); tutupModal("modalCatatan"); tarikDataSemua();
       }
-
       async function hapusRiwayatKasLain(waktu) {
-        if (
-          !confirm(
-            "Yakin ingin menghapus catatan pengeluaran ini secara permanen?",
-          )
-        )
-          return;
-
-        document.getElementById("modalCatatan").style.display = "none";
-        document.getElementById("loading").style.display = "block";
-
-        const res = await fetchData("hapusKasLain", { waktu: waktu }, "POST");
-        if (res && res.success) {
-          showToast("Catatan berhasil dihapus!");
-          tarikDataServer();
-        } else {
-          alert("Gagal menghapus catatan.");
-          document.getElementById("loading").style.display = "none";
-        }
+        if (!confirm("Hapus catatan ini?")) return;
+        await fetchData("hapusKasLain", { waktu: waktu }, "POST");
+        showToast("Dihapus!"); tutupModal("modalCatatan"); tarikDataSemua();
       }
-
       async function promptEditKasLain(waktu, ketLama, nomLama) {
-        let newKet = prompt("Edit Keterangan Pengeluaran:", ketLama);
-        if (newKet === null || newKet.trim() === "") return;
-
-        let newNom = prompt("Edit Nominal (Rp):", nomLama);
-        if (newNom === null || newNom.trim() === "") return;
-
-        let nomBaru = parseInt(newNom);
-        if (isNaN(nomBaru))
-          return alert("Nominal harus berupa angka murni tanpa titik/koma!");
-
-        document.getElementById("modalCatatan").style.display = "none";
-        document.getElementById("loading").style.display = "block";
-
-        const res = await fetchData(
-          "editKasLain",
-          { waktu: waktu, keterangan: newKet, nominal: nomBaru },
-          "POST",
-        );
-        if (res && res.success) {
-          showToast("Catatan berhasil diperbarui!");
-          tarikDataServer();
-        } else {
-          alert("Gagal mengubah catatan.");
-          document.getElementById("loading").style.display = "none";
-        }
+        let k = prompt("Edit Keterangan:", ketLama); let n = prompt("Edit Nominal:", nomLama);
+        if (!k || !n) return;
+        await fetchData("editKasLain", { waktu: waktu, keterangan: k, nominal: parseInt(n)||0 }, "POST");
+        showToast("Diperbarui!"); tutupModal("modalCatatan"); tarikDataSemua();
       }
-      tarikDataServer();
 
-      function kalkulasiRealtime(idx, target, currentMasuk, currentKeluar) {
-        let inputQty = parseInt(document.getElementById(`input_qty_${idx}`).value) || 0;
-        
-        let newMasuk = currentMasuk + inputQty;
-        let newReady = newMasuk - currentKeluar;
-        if (newReady < 0) newReady = 0;
-        
-        let newKurang = target - newReady;
-        if (newKurang < 0) newKurang = 0;
-
-        // Update Label UI secara Live!
-        let lblMasuk = document.getElementById(`lbl_masuk_${idx}`);
-        if(lblMasuk) {
-            lblMasuk.innerText = newMasuk.toLocaleString("id-ID");
-            lblMasuk.style.color = inputQty > 0 ? "var(--primary)" : "#fff";
-        }
-        
-        let lblSisa = document.getElementById(`lbl_sisa_${idx}`);
-        if(lblSisa) {
-            lblSisa.innerText = newReady.toLocaleString("id-ID");
-            lblSisa.style.color = inputQty > 0 ? "var(--primary)" : "var(--primary)";
-        }
-
-        let badge = document.getElementById(`badge_status_${idx}`);
-        if(badge) {
-            if(newKurang === 0) {
-                badge.className = "item-status status-aman";
-                badge.innerText = "LENGKAP";
-            } else {
-                badge.className = "item-status status-kurang";
-                badge.innerText = "KURANG " + newKurang.toLocaleString("id-ID");
-            }
-        }
-      }
+      window.onload = tarikDataSemua;
     </script>
   </body>
 </html>
