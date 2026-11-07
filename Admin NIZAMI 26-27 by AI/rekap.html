@@ -754,15 +754,27 @@
             <option value="<">Kurang dari (<)</option>
             <option value=">">Lebih dari (>)</option>
             <option value="=">Sama dengan (=)</option>
+            <option value="BETWEEN">Rentang (Min - Max)</option>
           </select>
-          <input
-            type="number"
-            id="filterAngka"
-            class="filter-input-normal"
-            style="display: none"
-            placeholder="Ketik freq..."
-            oninput="terapkanFilterPeserta()"
-          />
+
+          <!-- Input Min & Max Setoran -->
+          <div id="wrapInputSetoran" style="display: none; gap: 5px">
+            <input
+              type="number"
+              id="filterAngka"
+              class="filter-input-normal"
+              placeholder="Min..."
+              oninput="terapkanFilterPeserta()"
+            />
+            <input
+              type="number"
+              id="filterAngkaMax"
+              class="filter-input-normal"
+              style="display: none"
+              placeholder="Max..."
+              oninput="terapkanFilterPeserta()"
+            />
+          </div>
         </div>
         <div class="filter-grid">
           <div class="cs-wrap">
@@ -1857,8 +1869,24 @@
 
       function toggleFilterInput() {
         const op = document.getElementById("filterOperator").value;
-        const inp = document.getElementById("filterAngka");
-        inp.style.display = op === "ALL" ? "none" : "block";
+        const wrap = document.getElementById("wrapInputSetoran");
+        const inpMin = document.getElementById("filterAngka");
+        const inpMax = document.getElementById("filterAngkaMax");
+
+        if (op === "ALL") {
+          wrap.style.display = "none";
+        } else if (op === "BETWEEN") {
+          wrap.style.display = "flex";
+          inpMin.style.display = "block";
+          inpMin.placeholder = "Min freq...";
+          inpMax.style.display = "block";
+          inpMax.placeholder = "Max freq...";
+        } else {
+          wrap.style.display = "flex";
+          inpMin.style.display = "block";
+          inpMin.placeholder = "Ketik freq...";
+          inpMax.style.display = "none";
+        }
       }
 
       function terapkanFilterPeserta() {
@@ -1871,7 +1899,12 @@
           .toLowerCase();
         const operator = document.getElementById("filterOperator").value;
         const inputAngka = document.getElementById("filterAngka").value;
+        const inputAngkaMax = document.getElementById("filterAngkaMax")
+          ? document.getElementById("filterAngkaMax").value
+          : "";
         const numAngka = parseInt(inputAngka);
+        const numAngkaMax = parseInt(inputAngkaMax);
+
         const arrMitra = Array.from(
           document.querySelectorAll(".chk-mitra:checked"),
         ).map((el) => el.value);
@@ -1902,14 +1935,18 @@
             String(p.id).toLowerCase().includes(keyword);
           let matchMitra = arrMitra.length === 0 || arrMitra.includes(p.mitra);
           let matchPaket = arrPaket.length === 0 || arrPaket.includes(p.paket);
-          let matchFreq =
-            operator === "ALL" || inputAngka === ""
-              ? true
-              : operator === ">"
-                ? p.freq > numAngka
-                : operator === "<"
-                  ? p.freq < numAngka
-                  : p.freq === numAngka;
+
+          // LOGIKA SETORAN BARU (TERMASUK RENTANG MIN - MAX)
+          let matchFreq = true;
+          if (operator === "BETWEEN") {
+            let min = isNaN(numAngka) ? 0 : numAngka;
+            let max = isNaN(numAngkaMax) ? Infinity : numAngkaMax;
+            matchFreq = p.freq >= min && p.freq <= max;
+          } else if (operator !== "ALL" && inputAngka !== "") {
+            if (operator === ">") matchFreq = p.freq > numAngka;
+            else if (operator === "<") matchFreq = p.freq < numAngka;
+            else if (operator === "=") matchFreq = p.freq === numAngka;
+          }
 
           let matchStatusFix = true;
           if (filterStatusFixGlobal === "SUDAH") {
