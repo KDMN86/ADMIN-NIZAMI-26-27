@@ -1005,6 +1005,50 @@
             oninput="hitungUlangLogistik()"
           />
         </div>
+
+        <!-- TOGGLE GABUNG FIX_BARANG -->
+        <div
+          style="
+            margin-top: 5px;
+            padding: 8px 12px;
+            background: rgba(255, 215, 0, 0.08);
+            border: 1px dashed rgba(255, 215, 0, 0.3);
+            border-radius: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+          "
+        >
+          <label
+            style="
+              color: var(--primary);
+              font-size: 0.8rem;
+              font-weight: bold;
+              display: flex;
+              align-items: center;
+              gap: 8px;
+              cursor: pointer;
+            "
+          >
+            <input
+              type="checkbox"
+              id="chkGabungFixBarang"
+              onchange="hitungUlangLogistik()"
+              style="accent-color: var(--primary); width: 16px; height: 16px"
+            />
+            <i class="fas fa-layer-group"></i> Gabungkan Kebutuhan dari Sheet
+            FIX_BARANG
+          </label>
+          <span
+            id="badgeInfoFixBarang"
+            style="
+              font-size: 0.72rem;
+              color: var(--success);
+              font-weight: bold;
+              display: none;
+            "
+          ></span>
+        </div>
       </div>
 
       <div class="search-input-wrap" style="margin: 15px 20px 0 20px">
@@ -1579,7 +1623,7 @@
     <script>
       // STATE GLOBAL REKAP TERPADU
       let currentAppMode = "peserta";
-      let filterStatusFixGlobal = "ALL"; // State filter tombol status (ALL, SUDAH, BELUM)
+      let filterStatusFixGlobal = "ALL";
       let masterDataLogistik = {
         peserta: [],
         resep: [],
@@ -1603,6 +1647,7 @@
       let selectedPesertaSaldo = 0;
       let dataBelanjaGlobal = [];
       let dataRiwayatGudangGlobal = [];
+      let dataFixBarangGlobal = []; // Data barang dari sheet FIX_BARANG
 
       function formatUang(angka) {
         return new Intl.NumberFormat("id-ID", {
@@ -1643,9 +1688,6 @@
           mode === "logistik" ? "flex" : "none";
       }
 
-      /* ===================================================================
-   FUNGSI HANDLER TOMBOL FILTER STATUS (ALL / SUDAH / BELUM)
-   =================================================================== */
       function setFilterStatusFix(status) {
         filterStatusFixGlobal = status;
         const btnAll = document.getElementById("btnFilterAllFix");
@@ -1668,14 +1710,14 @@
         document.getElementById("sectionLogistik").style.display = "none";
 
         try {
-          const [resStats, resMaster, resFixList, resRekap] = await Promise.all(
-            [
+          const [resStats, resMaster, resFixList, resRekap, resBelanjaFix] =
+            await Promise.all([
               fetchData("getAdminStats"),
               fetchData("getBarang"),
               fetchData("getListSudahFix"),
               fetchData("getRekapBelanja"),
-            ],
-          );
+              fetchData("getBelanjaFix"),
+            ]);
 
           let rawBarang =
             resMaster && resMaster.data ? resMaster.data : resMaster;
@@ -1701,6 +1743,14 @@
             Array.isArray(resFixList.list)
           ) {
             resFixList.list.forEach((id) => setSudahFixServer.add(String(id)));
+          }
+
+          if (
+            resBelanjaFix &&
+            resBelanjaFix.success &&
+            Array.isArray(resBelanjaFix.data)
+          ) {
+            dataFixBarangGlobal = resBelanjaFix.data;
           }
 
           if (resStats && resStats.paketBreakdown) {
@@ -1788,51 +1838,16 @@
       /* ===================================================================
    LOGIKA MODE 1: REKAP PESERTA & CHECKLIST MASSAL
    =================================================================== */
-      // PERBAIKAN: Automatic Check & Label Header untuk Paket Mingguan
       function renderFilterDropdown(containerId, dataSet, className) {
         const box = document.getElementById(containerId);
         box.innerHTML = "";
         Array.from(dataSet)
           .sort()
           .forEach((item) => {
-            // Centang default jika ini filter paket dan namanya mengandung kata "mingguan"
-            let isDefaultChecked = false;
-            if (
-              className === "chk-paket" &&
-              item.toLowerCase().includes("mingguan")
-            ) {
-              isDefaultChecked = true;
-            }
-            box.innerHTML += `<label><input type="checkbox" class="${className}" value="${item}" ${isDefaultChecked ? "checked" : ""} onchange="terapkanFilterPeserta(); updateHeadPaketText();"> ${item}</label>`;
+            box.innerHTML += `<label><input type="checkbox" class="${className}" value="${item}" onchange="terapkanFilterPeserta()"> ${item}</label>`;
           });
-
-        if (className === "chk-paket") {
-          updateHeadPaketText();
-        }
       }
 
-      // FUNGSI PEMBANTU: Memperbarui Label Teks Header Dropdown Paket
-      function updateHeadPaketText() {
-        const checkedPaket = Array.from(
-          document.querySelectorAll(".chk-paket:checked"),
-        ).map((el) => el.value);
-        const totalPaket = document.querySelectorAll(".chk-paket").length;
-        const headEl = document.getElementById("headPaket");
-        if (!headEl) return;
-
-        if (checkedPaket.length === 0 || checkedPaket.length === totalPaket) {
-          headEl.innerHTML = `Paket: Semua <i class="fas fa-caret-down"></i>`;
-        } else {
-          const isAllMingguan = checkedPaket.every((p) =>
-            p.toLowerCase().includes("mingguan"),
-          );
-          if (isAllMingguan) {
-            headEl.innerHTML = `Paket: Mingguan (${checkedPaket.length}) <i class="fas fa-caret-down"></i>`;
-          } else {
-            headEl.innerHTML = `Paket: ${checkedPaket.length} Terpilih <i class="fas fa-caret-down"></i>`;
-          }
-        }
-      }
       function toggleDrop(idList) {
         document.querySelectorAll(".cs-list").forEach((l) => {
           if (l.id !== idList) l.classList.remove("show");
@@ -1865,9 +1880,7 @@
         ).map((el) => el.value);
 
         const boxList = document.getElementById("listPeserta");
-        boxList.innerHTML = "";
 
-        // Tampilkan pesan petunjuk jika tidak ada kriteria filter yang aktif
         if (
           keyword === "" &&
           filterBrgText === "" &&
@@ -1898,7 +1911,6 @@
                   ? p.freq < numAngka
                   : p.freq === numAngka;
 
-          // Filter Berdasarkan Status (SUDAH / BELUM / ALL)
           let matchStatusFix = true;
           if (filterStatusFixGlobal === "SUDAH") {
             matchStatusFix = setSudahFixServer.has(p.id);
@@ -1953,39 +1965,43 @@
           bulkArea.style.display = "none";
         }
 
+        // OPTIMASI PERFORMA: Gabungkan HTML lebih dulu, baru masukkan ke DOM sekaligus
         if (hasil.length > 0) {
+          let htmlBuffer = "";
           hasil.slice(0, 50).forEach((p) => {
             let isSudah = setSudahFixServer.has(p.id);
             let badgeHtml = isSudah
               ? `<span class="badge-status-pilih badge-sudah" id="badge-status-wrap-${p.id}"><i class="fas fa-check-circle"></i> Sudah Dipilih</span>`
               : `<span class="badge-status-pilih badge-belum" id="badge-status-wrap-${p.id}"><i class="fas fa-clock"></i> Belum Dipilih</span>`;
-            boxList.innerHTML += `
-        <div class="peserta-item-wrapper">
-          <div class="peserta-header" onclick="toggleDropdownPesanan('${p.id}', '${p.nama.replace(/'/g, "\\'")}', '${p.paket.replace(/'/g, "\\'")}')">
-            <div style="flex:1;">
-              <div style="color:#fff; font-weight:bold; font-size:0.9rem; margin-bottom:4px; display:flex; justify-content:space-between;">
-                <span>${p.nama} <span style="font-size:0.75rem; color:#aaa;">- ${p.mitra}</span></span>${badgeHtml}
-              </div>
-              <div style="display:flex; gap:4px; flex-wrap:wrap; margin-bottom:4px;">
-                <span class="badge-freq"><i class="fas fa-coins"></i> ${p.freq}x Setor</span>
-                <span class="badge-mitra">${p.paket}</span>
-                <span class="badge-mitra" style="background: rgba(255, 255, 255, 0.1); color: #ddd; border-color: #555;">Rp ${formatUang(p.nilai_setoran)}/Setor</span>
-              </div>
-              <div style="display:flex; justify-content:space-between; align-items:flex-end;">
-                <span style="color:#666; font-size:0.73rem;">ID: ${p.id}</span>
-                <div style="text-align: right; display: flex; flex-direction: column; gap: 3px; align-items: flex-end;">
-                  <span id="badge-saldo-${p.id}" class="saldo-badge" style="display:none; background: rgba(74,222,128,0.15); color: var(--success); padding: 2px 6px; border-radius: 4px; font-weight: bold; font-size: 0.72rem;"></span>
-                </div>
+
+            htmlBuffer += `
+      <div class="peserta-item-wrapper">
+        <div class="peserta-header" onclick="toggleDropdownPesanan('${p.id}', '${p.nama.replace(/'/g, "\\'")}', '${p.paket.replace(/'/g, "\\'")}')">
+          <div style="flex:1;">
+            <div style="color:#fff; font-weight:bold; font-size:0.9rem; margin-bottom:4px; display:flex; justify-content:space-between;">
+              <span>${p.nama} <span style="font-size:0.75rem; color:#aaa;">- ${p.mitra}</span></span>${badgeHtml}
+            </div>
+            <div style="display:flex; gap:4px; flex-wrap:wrap; margin-bottom:4px;">
+              <span class="badge-freq"><i class="fas fa-coins"></i> ${p.freq}x Setor</span>
+              <span class="badge-mitra">${p.paket}</span>
+              <span class="badge-mitra" style="background: rgba(255, 255, 255, 0.1); color: #ddd; border-color: #555;">Rp ${formatUang(p.nilai_setoran)}/Setor</span>
+            </div>
+            <div style="display:flex; justify-content:space-between; align-items:flex-end;">
+              <span style="color:#666; font-size:0.73rem;">ID: ${p.id}</span>
+              <div style="text-align: right; display: flex; flex-direction: column; gap: 3px; align-items: flex-end;">
+                <span id="badge-saldo-${p.id}" class="saldo-badge" style="display:none; background: rgba(74,222,128,0.15); color: var(--success); padding: 2px 6px; border-radius: 4px; font-weight: bold; font-size: 0.72rem;"></span>
               </div>
             </div>
-            <i id="icon-${p.id}" class="fas fa-chevron-right" style="color:#555; padding-left:10px;"></i>
           </div>
-          <div id="dropdown-${p.id}" class="pesanan-container">
-            <div id="loading-${p.id}" style="text-align:center; padding:10px; color:var(--primary); display:none;"><i class="fas fa-spinner fa-spin"></i> Memuat rincian...</div>
-            <div id="summary-box-${p.id}"></div><div id="list-barang-${p.id}"></div>
-          </div>
-        </div>`;
+          <i id="icon-${p.id}" class="fas fa-chevron-right" style="color:#555; padding-left:10px;"></i>
+        </div>
+        <div id="dropdown-${p.id}" class="pesanan-container">
+          <div id="loading-${p.id}" style="text-align:center; padding:10px; color:var(--primary); display:none;"><i class="fas fa-spinner fa-spin"></i> Memuat rincian...</div>
+          <div id="summary-box-${p.id}"></div><div id="list-barang-${p.id}"></div>
+        </div>
+      </div>`;
           });
+          boxList.innerHTML = htmlBuffer; // Hanya 1x Render DOM
         } else {
           boxList.innerHTML = `<div style="padding:20px; text-align:center; color:#ff4d4d; font-size:0.85rem;">Peserta tidak ditemukan dari kriteria tersebut.</div>`;
         }
@@ -2574,7 +2590,10 @@
         let containerCheckbox = document.getElementById("listCheckboxPaket");
         containerCheckbox.innerHTML = "";
         pakets.forEach((p) => {
-          containerCheckbox.innerHTML += `<label style="display:flex; align-items:center; gap:6px; font-size:0.8rem; color:#fff; cursor:pointer;"><input type="checkbox" class="chk-paket-filter" value="${p}" checked onchange="hitungUlangLogistik(); updateLabelPaketBtn();"> <span>${p}</span></label>`;
+          // POIN 1: DEFAULT PILIH SEMUA PAKET KECUALI PAKET MINGGUAN
+          let isMingguan = p.toLowerCase().includes("mingguan");
+          let isChecked = !isMingguan ? "checked" : "";
+          containerCheckbox.innerHTML += `<label style="display:flex; align-items:center; gap:6px; font-size:0.8rem; color:#fff; cursor:pointer;"><input type="checkbox" class="chk-paket-filter" value="${p}" ${isChecked} onchange="hitungUlangLogistik(); updateLabelPaketBtn();"> <span>${p}</span></label>`;
         });
         updateLabelPaketBtn();
       }
@@ -2594,13 +2613,31 @@
       }
 
       function updateLabelPaketBtn() {
-        const count = document.querySelectorAll(
+        const allCheckboxes = document.querySelectorAll(".chk-paket-filter");
+        const checkedBoxes = document.querySelectorAll(
           ".chk-paket-filter:checked",
-        ).length;
-        document.getElementById("labelPaketTerpilih").innerText =
-          count === document.querySelectorAll(".chk-paket-filter").length
-            ? "📦 Semua Paket Dipilih"
-            : `📦 ${count} Paket Dipilih`;
+        );
+        const count = checkedBoxes.length;
+
+        if (count === allCheckboxes.length) {
+          document.getElementById("labelPaketTerpilih").innerText =
+            "📦 Semua Paket Dipilih";
+        } else if (count === 0) {
+          document.getElementById("labelPaketTerpilih").innerText =
+            "📦 Tidak Ada Paket Dipilih";
+        } else {
+          let checkedVals = Array.from(checkedBoxes).map((c) => c.value);
+          let adaMingguan = checkedVals.some((val) =>
+            val.toLowerCase().includes("mingguan"),
+          );
+          if (!adaMingguan) {
+            document.getElementById("labelPaketTerpilih").innerText =
+              `📦 ${count} Paket Harian Dipilih`;
+          } else {
+            document.getElementById("labelPaketTerpilih").innerText =
+              `📦 ${count} Paket Dipilih`;
+          }
+        }
       }
 
       function hitungUlangLogistik() {
@@ -2697,6 +2734,63 @@
             }
           });
         });
+
+        // PENGGABUNGAN DENGAN DATA SHEET FIX_BARANG
+        const chkGabungFix = document.getElementById("chkGabungFixBarang");
+        const isGabungFix = chkGabungFix && chkGabungFix.checked;
+        const badgeFix = document.getElementById("badgeInfoFixBarang");
+
+        if (isGabungFix && dataFixBarangGlobal.length > 0) {
+          let totalQtyFixDitimpa = 0;
+          dataFixBarangGlobal.forEach((fb) => {
+            if (fb.barang && fb.butuh > 0) {
+              let keyBrg = fb.barang.trim();
+              let sat = fb.satuan || "pcs";
+              if (!keranjang[keyBrg]) {
+                keranjang[keyBrg] = { qty: 0, satuan: sat, detail: [] };
+              }
+              keranjang[keyBrg].qty += Number(fb.butuh);
+              totalQtyFixDitimpa += Number(fb.butuh);
+
+              // BACA RINCIAN PESERTA DARI SHEET FIX_BARANG
+              if (
+                fb.detail &&
+                Array.isArray(fb.detail) &&
+                fb.detail.length > 0
+              ) {
+                fb.detail.forEach((p) => {
+                  let namaP = p.nama || p.id_peserta || "Peserta";
+                  let mitraP = p.mitra ? ` (Mitra: ${p.mitra})` : "";
+                  let qtyP = p.qty || 1;
+
+                  keranjang[keyBrg].detail.push({
+                    tipe: "Sheet FIX_BARANG",
+                    nama_sumber: "Fix Peserta (Sheet FIX_BARANG)",
+                    qty_satuan: Number(qtyP),
+                    list_peserta: [`${namaP}${mitraP} - ${qtyP} ${sat}`],
+                    subtotal: Number(qtyP),
+                  });
+                });
+              } else {
+                // Fallback jika detail kosong
+                keranjang[keyBrg].detail.push({
+                  tipe: "Sheet FIX_BARANG",
+                  nama_sumber: "Fix Peserta (Sheet FIX_BARANG)",
+                  qty_satuan: Number(fb.butuh),
+                  list_peserta: [`Total Fix: ${fb.butuh} ${sat}`],
+                  subtotal: Number(fb.butuh),
+                });
+              }
+            }
+          });
+
+          if (badgeFix) {
+            badgeFix.style.display = "inline";
+            badgeFix.innerText = `+${totalQtyFixDitimpa} Pcs dari Fix`;
+          }
+        } else {
+          if (badgeFix) badgeFix.style.display = "none";
+        }
 
         listBelanjaFinalLogistik = [];
         for (let key in keranjang) {
