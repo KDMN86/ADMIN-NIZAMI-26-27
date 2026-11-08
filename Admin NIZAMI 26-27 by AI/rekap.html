@@ -3254,7 +3254,49 @@
         showToast(`Pilihan barang ${pNama} berhasil dibatalkan!`);
       }
 
-      function bukaModalCatatan() {
+     /* ===================================================================
+   AUDIT KAS REAL (UANG CASH + REKENING vs KAS UTAMA)
+   =================================================================== */
+function hitungAuditKasReal(sisaKasUtama) {
+  const cash = parseFloat(document.getElementById("inputUangCash").value) || 0;
+  const bank = parseFloat(document.getElementById("inputUangBank").value) || 0;
+  const totalReal = cash + bank;
+  const selisih = totalReal - sisaKasUtama;
+
+  // Simpan input ke localStorage agar tidak terhapus saat modal ditutup
+  localStorage.setItem("kas_real_cash", cash || "");
+  localStorage.setItem("kas_real_bank", bank || "");
+
+  // Update tampilan total uang real
+  const txtTotalReal = document.getElementById("txtTotalUangReal");
+  if (txtTotalReal) txtTotalReal.innerText = formatUang(totalReal);
+
+  // Update status selisih (Lebih / Pas / Kurang)
+  const badgeSelisih = document.getElementById("badgeSelisihKas");
+  if (badgeSelisih) {
+    if (selisih === 0) {
+      badgeSelisih.style.background = "rgba(74, 222, 128, 0.15)";
+      badgeSelisih.style.color = "var(--success)";
+      badgeSelisih.style.border = "1px solid var(--success)";
+      badgeSelisih.innerHTML = `<i class="fas fa-check-circle"></i> PAS / SEIMBANG (Rp 0)`;
+    } else if (selisih > 0) {
+      badgeSelisih.style.background = "rgba(59, 130, 246, 0.15)";
+      badgeSelisih.style.color = "#60a5fa";
+      badgeSelisih.style.border = "1px solid #3b82f6";
+      badgeSelisih.innerHTML = `<i class="fas fa-arrow-up"></i> LEBIH (+${formatUang(selisih)})`;
+    } else {
+      badgeSelisih.style.background = "rgba(255, 77, 77, 0.15)";
+      badgeSelisih.style.color = "var(--danger)";
+      badgeSelisih.style.border = "1px solid var(--danger)";
+      badgeSelisih.innerHTML = `<i class="fas fa-exclamation-triangle"></i> KURANG (-${formatUang(Math.abs(selisih))})`;
+    }
+  }
+}
+
+/* ===================================================================
+   MODAL LAPORAN KAS BESAR
+   =================================================================== */
+function bukaModalCatatan() {
   let totalSetoranAll = 0;
   masterDataLogistik.peserta.forEach(
     (p) => (totalSetoranAll += parseFloat(p.saldo_rp) || 0)
@@ -3271,7 +3313,6 @@
 
       let txtKalkulasiHarga = hrgSatuan > 0 ? ` (x ${formatUang(hrgSatuan)})` : "";
 
-      // Ambil riwayat belanja dari backend (masterDataLogistik.riwayat_belanja)
       let riwayatItems =
         (masterDataLogistik.riwayat_belanja &&
           masterDataLogistik.riwayat_belanja[b.barang]) ||
@@ -3319,7 +3360,6 @@
               <button onclick="event.stopPropagation(); promptEditStok('${strBarangEscaped}', ${b.masuk})" style="background:none; border:none; color:#888; cursor:pointer; padding:4px;" title="Edit Stok"><i class="fas fa-edit"></i></button>
             </div>
           </div>
-          <!-- CONTAINER DROPDOWN HISTORI BELANJA -->
           <div id="drop-histori-${idx}" style="display:none; padding:10px; background:#141414; border-top:1px dashed #333;">
             <div style="font-size:0.72rem; color:var(--primary); font-weight:bold; margin-bottom:6px; text-transform:uppercase; display:flex; align-items:center; gap:5px;">
               <i class="fas fa-history"></i> Histori Transaksi Masuk (${riwayatItems.length || 1} Batch)
@@ -3343,7 +3383,7 @@
           </div>
           <div style="display:flex; gap:8px;">
             <button onclick="promptEditKasLain('${k.waktu}', '${k.keterangan.replace(/'/g, "\\'")}', ${k.nominal})" style="background:none; border:none; color:#888; cursor:pointer; padding:4px;"><i class="fas fa-edit"></i></button>
-            <button onclick="hapusRiwayatKasLain('${k.waktu}')" style="background:none; border:none; color:var(--danger); cursor:pointer; padding:4px;"><i class="fas fa-trash"></i></button>
+            <button onclick="hapusRiwayatKasLain('${k.waktu}')" style="background:none; border:none; color:var(--danger); cursor:padding:4px;"><i class="fas fa-trash"></i></button>
           </div>
         </div>`;
     });
@@ -3351,6 +3391,10 @@
 
   let totalUangTerpakaiSemua = totalTerpakaiBarang + totalKasLain;
   let sisaSaldoKasUtama = totalSetoranAll - totalUangTerpakaiSemua;
+
+  // Membaca nominal tersimpan dari localStorage
+  let savedCash = localStorage.getItem("kas_real_cash") || "";
+  let savedBank = localStorage.getItem("kas_real_bank") || "";
 
   document.getElementById("catatanHeader").innerHTML = `
     <div style="background:#1e1e1e; padding:10px 14px; border-radius:8px; display:flex; justify-content:space-between; align-items:center; border:1px solid #333;">
@@ -3364,6 +3408,28 @@
     <div style="background:rgba(74,222,128,0.1); padding:12px 14px; border-radius:8px; border:1px dashed var(--success); display:flex; justify-content:space-between; align-items:center;">
       <span style="color:var(--success); font-weight:bold; font-size:0.85rem;">Sisa Saldo Kas Utama</span>
       <b style="color:var(--success); font-size:1.1rem;">${formatUang(sisaSaldoKasUtama)}</b>
+    </div>
+
+    <!-- PANEL AUDIT REAL KAS FISIK & REKENING -->
+    <div style="background:#1a1a1a; padding:12px; border-radius:10px; border:1px solid #444; margin-top:6px;">
+      <div style="font-size:0.8rem; color:var(--primary); font-weight:bold; margin-bottom:8px; display:flex; align-items:center; justify-content:space-between;">
+        <span><i class="fas fa-wallet"></i> Hitung Audit Uang Real (Fisik)</span>
+        <span id="badgeSelisihKas" style="font-size:0.75rem; padding:3px 8px; border-radius:6px; font-weight:bold;"></span>
+      </div>
+      <div style="display:grid; grid-template-columns: 1fr 1fr; gap:8px; margin-bottom:8px;">
+        <div>
+          <label style="font-size:0.7rem; color:#aaa; display:block; margin-bottom:3px;">💵 Uang Cash / Tunai</label>
+          <input type="number" id="inputUangCash" class="filter-input-normal" value="${savedCash}" placeholder="Rp 0" style="padding:6px 8px; font-size:0.82rem;" oninput="hitungAuditKasReal(${sisaSaldoKasUtama})">
+        </div>
+        <div>
+          <label style="font-size:0.7rem; color:#aaa; display:block; margin-bottom:3px;">🏦 Total di Rekening Bank</label>
+          <input type="number" id="inputUangBank" class="filter-input-normal" value="${savedBank}" placeholder="Rp 0" style="padding:6px 8px; font-size:0.82rem;" oninput="hitungAuditKasReal(${sisaSaldoKasUtama})">
+        </div>
+      </div>
+      <div style="display:flex; justify-content:space-between; align-items:center; padding-top:6px; border-top:1px dashed #333; font-size:0.82rem;">
+        <span style="color:#ddd; font-weight:bold;">Total Uang Real Ada:</span>
+        <b id="txtTotalUangReal" style="color:#fff; font-size:0.98rem;">Rp 0</b>
+      </div>
     </div>`;
 
   document.getElementById("kasLainListContainer").innerHTML =
@@ -3373,8 +3439,10 @@
     listHTML ||
     `<div style="color:#666; font-size:0.8rem; text-align:center; padding:10px;">Belum ada belanja barang.</div>`;
   document.getElementById("modalCatatan").style.display = "flex";
-}
 
+  // Hitung audit saldo langsung saat modal dibuka
+  hitungAuditKasReal(sisaSaldoKasUtama);
+}
       async function tambahKasLain(btn) {
         const ket = document.getElementById("inputKetKas").value;
         const nom = document.getElementById("inputNominalKas").value;
