@@ -759,21 +759,8 @@
 
           <!-- Input Min & Max Setoran -->
           <div id="wrapInputSetoran" style="display: none; gap: 5px">
-            <input
-              type="number"
-              id="filterAngka"
-              class="filter-input-normal"
-              placeholder="Min..."
-              oninput="terapkanFilterPeserta()"
-            />
-            <input
-              type="number"
-              id="filterAngkaMax"
-              class="filter-input-normal"
-              style="display: none"
-              placeholder="Max..."
-              oninput="terapkanFilterPeserta()"
-            />
+            <input type="number" id="filterAngka" class="filter-input-normal" placeholder="Min..." oninput="terapkanFilterPesertaDebounced()"/>
+<input type="number" id="filterAngkaMax" class="filter-input-normal" style="display: none" placeholder="Max..." oninput="terapkanFilterPesertaDebounced()"/>
           </div>
         </div>
         <div class="filter-grid">
@@ -1002,20 +989,8 @@
         </div>
 
         <div class="filter-grid">
-          <input
-            type="number"
-            id="fMinSetoran"
-            class="filter-input-normal"
-            placeholder="Min setoran..."
-            oninput="hitungUlangLogistik()"
-          />
-          <input
-            type="number"
-            id="fMaxSetoran"
-            class="filter-input-normal"
-            placeholder="Max setoran..."
-            oninput="hitungUlangLogistik()"
-          />
+         <input type="number" id="fMinSetoran" class="filter-input-normal" placeholder="Min setoran..." oninput="hitungUlangLogistikDebounced()"/>
+<input type="number" id="fMaxSetoran" class="filter-input-normal" placeholder="Max setoran..." oninput="hitungUlangLogistikDebounced()"/>
         </div>
 
         <!-- TOGGLE GABUNG FIX_BARANG -->
@@ -1642,6 +1617,7 @@
         custom: [],
         stok_dibeli: {},
         stok_keluar: {},
+        riwayat_belanja: {},
         harga_barang: {},
         harga_jual_barang: {},
         foto_barang: {},
@@ -1792,6 +1768,7 @@
           if (resRekap && resRekap.peserta) {
             if (!resRekap.stok_dibeli) resRekap.stok_dibeli = {};
             if (!resRekap.stok_keluar) resRekap.stok_keluar = {};
+            if (!resRekap.riwayat_belanja) resRekap.riwayat_belanja = {};
             if (!resRekap.harga_barang) resRekap.harga_barang = {};
             if (!resRekap.harga_jual_barang) resRekap.harga_jual_barang = {};
             if (!resRekap.foto_barang) resRekap.foto_barang = {};
@@ -2981,30 +2958,54 @@
           .then(() => showToast("Disalin ke WhatsApp!"));
       }
 
-      async function simpanStokBelanjaLogistik() {
-        let itemsToSave = [];
-        document
-          .querySelectorAll(".input-tambah-stok-logistik")
-          .forEach((inp) => {
-            let val = parseInt(inp.value);
-            if (val > 0) {
-              let idx = inp.getAttribute("data-idx");
-              let hrgVal =
-                parseInt(document.getElementById(`input_hrg_${idx}`).value) ||
-                0;
-              itemsToSave.push({
-                nama: inp.getAttribute("data-name"),
-                satuan: inp.getAttribute("data-sat"),
-                qty: val,
-                harga_satuan: hrgVal,
-              });
-            }
-          });
-        if (!itemsToSave.length) return alert("Belum ada input stok barang.");
-        await fetchData("simpanBelanja", { items: itemsToSave }, "POST");
-        showToast("Stok berhasil disimpan!");
-        tarikDataSemua();
+     async function simpanStokBelanjaLogistik() {
+  let itemsToSave = [];
+  document
+    .querySelectorAll(".input-tambah-stok-logistik")
+    .forEach((inp) => {
+      let val = parseInt(inp.value);
+      if (val > 0) {
+        let idx = inp.getAttribute("data-idx");
+        let hrgVal =
+          parseInt(document.getElementById(`input_hrg_${idx}`).value) || 0;
+        itemsToSave.push({
+          nama: inp.getAttribute("data-name"),
+          satuan: inp.getAttribute("data-sat"),
+          qty: val,
+          harga_satuan: hrgVal,
+        });
       }
+    });
+
+  if (!itemsToSave.length) return alert("Belum ada input stok barang.");
+
+  // 1. Ambil elemen tombol SIMPAN MASUK
+  const btn = document.getElementById("btnSaveLogistik");
+  const originalHtml = btn ? btn.innerHTML : `<i class="fas fa-save"></i> SIMPAN MASUK`;
+
+  // 2. Pasang status Loading
+  if (btn) {
+    btn.disabled = true;
+    btn.style.opacity = "0.7";
+    btn.innerHTML = `<i class="fas fa-spinner fa-spin"></i> MENYIMPAN...`;
+  }
+
+  try {
+    // 3. Eksekusi pengiriman data ke server
+    await fetchData("simpanBelanja", { items: itemsToSave }, "POST");
+    showToast("Stok berhasil disimpan!");
+    await tarikDataSemua();
+  } catch (e) {
+    alert("Gagal menyimpan stok: " + (e.message || e));
+  } finally {
+    // 4. Kembalikan tombol ke kondisi semula setelah selesai
+    if (btn) {
+      btn.disabled = false;
+      btn.style.opacity = "1";
+      btn.innerHTML = originalHtml;
+    }
+  }
+}
 
       /* ===================================================================
    DRILL-DOWN SUB-MODAL LOGISTIK
@@ -3254,45 +3255,87 @@
       }
 
       function bukaModalCatatan() {
-        let totalSetoranAll = 0;
-        masterDataLogistik.peserta.forEach(
-          (p) => (totalSetoranAll += parseFloat(p.saldo_rp) || 0),
-        );
+  let totalSetoranAll = 0;
+  masterDataLogistik.peserta.forEach(
+    (p) => (totalSetoranAll += parseFloat(p.saldo_rp) || 0)
+  );
 
-        let totalTerpakaiBarang = 0;
-        let listHTML = "";
+  let totalTerpakaiBarang = 0;
+  let listHTML = "";
 
-        listBelanjaFinalLogistik.forEach((b) => {
-          if (b.masuk > 0) {
-            let hrgSatuan = b.harga || 0;
-            let sub = b.masuk * hrgSatuan;
-            totalTerpakaiBarang += sub;
+  listBelanjaFinalLogistik.forEach((b, idx) => {
+    if (b.masuk > 0) {
+      let hrgSatuan = b.harga || 0;
+      let sub = b.masuk * hrgSatuan;
+      totalTerpakaiBarang += sub;
 
-            let txtKalkulasiHarga =
-              hrgSatuan > 0 ? ` (x ${formatUang(hrgSatuan)})` : "";
+      let txtKalkulasiHarga = hrgSatuan > 0 ? ` (x ${formatUang(hrgSatuan)})` : "";
 
-            listHTML += `
-        <div style="background:#1e1e1e; padding:10px 12px; border-radius:8px; margin-bottom:8px; display:flex; justify-content:space-between; align-items:center;">
-          <div>
-            <b style="color:#fff; font-size:0.85rem;">${b.barang}</b>
-            <div style="font-size:0.75rem; color:#aaa; margin-top:2px;">
-              Masuk: ${b.masuk} ${b.satuan}<span style="color:#888;">${txtKalkulasiHarga}</span>
+      // Ambil riwayat belanja dari backend (masterDataLogistik.riwayat_belanja)
+      let riwayatItems =
+        (masterDataLogistik.riwayat_belanja &&
+          masterDataLogistik.riwayat_belanja[b.barang]) ||
+        [];
+
+      let htmlRiwayat = "";
+      if (riwayatItems.length > 0) {
+        riwayatItems.forEach((r, rIdx) => {
+          htmlRiwayat += `
+            <div style="display:flex; justify-content:space-between; align-items:center; background:#111; padding:6px 10px; border-radius:6px; margin-bottom:4px; font-size:0.75rem; border:1px solid #2a2a2a;">
+              <div>
+                <span style="color:#aaa;"><i class="far fa-clock"></i> ${r.waktu || "Batch #" + (rIdx + 1)}</span>
+                <div style="color:#fff; font-weight:bold; margin-top:1px;">+ ${r.qty} ${r.satuan} <span style="color:#888; font-weight:normal;">(@ ${formatUang(r.harga_satuan)})</span></div>
+              </div>
+              <b style="color:var(--primary);">${formatUang(r.total)}</b>
+            </div>`;
+        });
+      } else {
+        htmlRiwayat = `
+          <div style="display:flex; justify-content:space-between; align-items:center; background:#111; padding:6px 10px; border-radius:6px; font-size:0.75rem; border:1px solid #2a2a2a;">
+            <div>
+              <span style="color:#aaa;"><i class="fas fa-boxes-stacked"></i> Akumulasi Total Masuk</span>
+              <div style="color:#fff; font-weight:bold; margin-top:1px;">+ ${b.masuk} ${b.satuan} <span style="color:#888; font-weight:normal;">(@ ${formatUang(hrgSatuan)})</span></div>
+            </div>
+            <b style="color:var(--primary);">${formatUang(sub)}</b>
+          </div>`;
+      }
+
+      let strBarangEscaped = b.barang.replace(/'/g, "\\'").replace(/"/g, "&quot;");
+
+      listHTML += `
+        <div style="background:#1e1e1e; border-radius:8px; margin-bottom:8px; border:1px solid #333; overflow:hidden;">
+          <div onclick="toggleHistoriBelanjaModal(${idx})" style="padding:10px 12px; display:flex; justify-content:space-between; align-items:center; cursor:pointer; background:#1e1e1e; user-select:none;">
+            <div>
+              <div style="display:flex; align-items:center; gap:6px;">
+                <b style="color:#fff; font-size:0.85rem;">${b.barang}</b>
+                <i class="fas fa-chevron-down" id="icon-histori-${idx}" style="color:#888; font-size:0.75rem; transition:transform 0.2s;"></i>
+              </div>
+              <div style="font-size:0.75rem; color:#aaa; margin-top:2px;">
+                Masuk: ${b.masuk} ${b.satuan}<span style="color:#888;">${txtKalkulasiHarga}</span>
+              </div>
+            </div>
+            <div style="display:flex; align-items:center; gap:10px;">
+              <b style="color:var(--primary); font-size:0.85rem;">${formatUang(sub)}</b>
+              <button onclick="event.stopPropagation(); promptEditStok('${strBarangEscaped}', ${b.masuk})" style="background:none; border:none; color:#888; cursor:pointer; padding:4px;" title="Edit Stok"><i class="fas fa-edit"></i></button>
             </div>
           </div>
-          <div style="display:flex; align-items:center; gap:10px;">
-            <b style="color:var(--primary); font-size:0.85rem;">${formatUang(sub)}</b>
-            <button onclick="promptEditStok('${b.barang.replace(/'/g, "\\'")}', ${b.masuk})" style="background:none; border:none; color:#888; cursor:pointer; padding:4px;"><i class="fas fa-edit"></i></button>
+          <!-- CONTAINER DROPDOWN HISTORI BELANJA -->
+          <div id="drop-histori-${idx}" style="display:none; padding:10px; background:#141414; border-top:1px dashed #333;">
+            <div style="font-size:0.72rem; color:var(--primary); font-weight:bold; margin-bottom:6px; text-transform:uppercase; display:flex; align-items:center; gap:5px;">
+              <i class="fas fa-history"></i> Histori Transaksi Masuk (${riwayatItems.length || 1} Batch)
+            </div>
+            ${htmlRiwayat}
           </div>
         </div>`;
-          }
-        });
+    }
+  });
 
-        let totalKasLain = 0;
-        let htmlKasLain = "";
-        if (masterDataLogistik.kas_lain && masterDataLogistik.kas_lain.length) {
-          masterDataLogistik.kas_lain.forEach((k) => {
-            totalKasLain += k.nominal;
-            htmlKasLain += `
+  let totalKasLain = 0;
+  let htmlKasLain = "";
+  if (masterDataLogistik.kas_lain && masterDataLogistik.kas_lain.length) {
+    masterDataLogistik.kas_lain.forEach((k) => {
+      totalKasLain += k.nominal;
+      htmlKasLain += `
         <div style="background:#1e1e1e; padding:10px 12px; border-radius:8px; margin-bottom:8px; display:flex; justify-content:space-between; align-items:center;">
           <div>
             <div style="color:#fff; font-size:0.85rem; font-weight:bold;">${k.keterangan}</div>
@@ -3303,13 +3346,13 @@
             <button onclick="hapusRiwayatKasLain('${k.waktu}')" style="background:none; border:none; color:var(--danger); cursor:pointer; padding:4px;"><i class="fas fa-trash"></i></button>
           </div>
         </div>`;
-          });
-        }
+    });
+  }
 
-        let totalUangTerpakaiSemua = totalTerpakaiBarang + totalKasLain;
-        let sisaSaldoKasUtama = totalSetoranAll - totalUangTerpakaiSemua;
+  let totalUangTerpakaiSemua = totalTerpakaiBarang + totalKasLain;
+  let sisaSaldoKasUtama = totalSetoranAll - totalUangTerpakaiSemua;
 
-        document.getElementById("catatanHeader").innerHTML = `
+  document.getElementById("catatanHeader").innerHTML = `
     <div style="background:#1e1e1e; padding:10px 14px; border-radius:8px; display:flex; justify-content:space-between; align-items:center; border:1px solid #333;">
       <span style="color:#aaa; font-size:0.82rem;">Total Setoran Keseluruhan</span>
       <b style="color:#fff; font-size:0.95rem;">${formatUang(totalSetoranAll)}</b>
@@ -3323,14 +3366,14 @@
       <b style="color:var(--success); font-size:1.1rem;">${formatUang(sisaSaldoKasUtama)}</b>
     </div>`;
 
-        document.getElementById("kasLainListContainer").innerHTML =
-          htmlKasLain ||
-          `<div style="color:#666; font-size:0.8rem; text-align:center; padding:10px;">Belum ada pengeluaran lain.</div>`;
-        document.getElementById("catatanListContainer").innerHTML =
-          listHTML ||
-          `<div style="color:#666; font-size:0.8rem; text-align:center; padding:10px;">Belum ada belanja barang.</div>`;
-        document.getElementById("modalCatatan").style.display = "flex";
-      }
+  document.getElementById("kasLainListContainer").innerHTML =
+    htmlKasLain ||
+    `<div style="color:#666; font-size:0.8rem; text-align:center; padding:10px;">Belum ada pengeluaran lain.</div>`;
+  document.getElementById("catatanListContainer").innerHTML =
+    listHTML ||
+    `<div style="color:#666; font-size:0.8rem; text-align:center; padding:10px;">Belum ada belanja barang.</div>`;
+  document.getElementById("modalCatatan").style.display = "flex";
+}
 
       async function tambahKasLain(btn) {
         const ket = document.getElementById("inputKetKas").value;
@@ -3380,6 +3423,38 @@
         tutupModal("modalCatatan");
         tarikDataSemua();
       }
+
+      function toggleHistoriBelanjaModal(idx) {
+  const drop = document.getElementById(`drop-histori-${idx}`);
+  const icon = document.getElementById(`icon-histori-${idx}`);
+  if (!drop) return;
+  if (drop.style.display === "none" || drop.style.display === "") {
+    drop.style.display = "block";
+    if (icon) icon.style.transform = "rotate(180deg)";
+  } else {
+    drop.style.display = "none";
+    if (icon) icon.style.transform = "rotate(0deg)";
+  }
+}
+
+// ===================================================================
+// OPTIMASI PERFORMA INPUT (DEBOUNCE FILTER)
+// ===================================================================
+let timerDebounceLogistik = null;
+function hitungUlangLogistikDebounced() {
+  clearTimeout(timerDebounceLogistik);
+  timerDebounceLogistik = setTimeout(() => {
+    hitungUlangLogistik();
+  }, 350); // Menunggu 350ms setelah berhenti mengetik
+}
+
+let timerDebouncePeserta = null;
+function terapkanFilterPesertaDebounced() {
+  clearTimeout(timerDebouncePeserta);
+  timerDebouncePeserta = setTimeout(() => {
+    terapkanFilterPeserta();
+  }, 300); // Menunggu 300ms setelah berhenti mengetik
+}
 
       window.onload = tarikDataSemua;
     </script>
