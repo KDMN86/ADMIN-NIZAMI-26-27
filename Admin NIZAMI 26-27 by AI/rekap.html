@@ -671,6 +671,23 @@
         color: var(--primary);
         border: 1px solid var(--primary);
       }
+/* WARNA TOMBOL FILTER STOK LOGISTIK */
+#btnStokAll.active {
+  background: rgba(255, 215, 0, 0.15);
+  color: var(--primary);
+  border: 1px solid var(--primary);
+}
+#btnStokKurang.active {
+  background: rgba(255, 77, 77, 0.15);
+  color: var(--danger);
+  border: 1px solid var(--danger);
+}
+#btnStokAman.active {
+  background: rgba(74, 222, 128, 0.15);
+  color: var(--success);
+  border: 1px solid var(--success);
+}
+
     </style>
   </head>
   <body>
@@ -990,7 +1007,7 @@
 
         <div class="filter-grid">
          <input type="number" id="fMinSetoran" class="filter-input-normal" placeholder="Min setoran..." oninput="hitungUlangLogistikDebounced()"/>
-<input type="number" id="fMaxSetoran" class="filter-input-normal" placeholder="Max setoran..." oninput="hitungUlangLogistikDebounced()"/>
+         <input type="number" id="fMaxSetoran" class="filter-input-normal" placeholder="Max setoran..." oninput="hitungUlangLogistikDebounced()"/>
         </div>
 
         <!-- TOGGLE GABUNG FIX_BARANG -->
@@ -1038,35 +1055,9 @@
         </div>
       </div>
 
-      <div class="search-input-wrap" style="margin: 15px 20px 0 20px">
-        <i class="fas fa-search"></i>
-        <input
-          type="text"
-          id="filterInputLogistik"
-          class="search-input"
-          placeholder="🔍 Cari nama barang gudang..."
-          onkeyup="renderListLogistikLokal()"
-        />
-        <button
-          onclick="copyToClipboardWA()"
-          style="
-            position: absolute;
-            right: 5px;
-            background: rgba(74, 222, 128, 0.15);
-            color: var(--success);
-            border: 1px solid var(--success);
-            padding: 6px 12px;
-            border-radius: 6px;
-            cursor: pointer;
-          "
-          title="Bagikan Rekap Belanja ke WA"
-        >
-          <i class="fab fa-whatsapp"></i>
-        </button>
-      </div>
-
       <div id="paketListStats" class="stats-container"></div>
 
+      <!-- ESTIMASI BIAYA & TOMBOL SALIN WA -->
       <div class="finance-bar">
         <div>
           <div
@@ -1082,27 +1073,70 @@
             Rp 0
           </div>
         </div>
-        <label
+        <button
+          onclick="copyToClipboardWA()"
           style="
-            color: #aaa;
-            font-size: 0.75rem;
+            background: rgba(74, 222, 128, 0.15);
+            color: var(--success);
+            border: 1px solid var(--success);
+            padding: 6px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.78rem;
+            font-weight: bold;
             display: flex;
             align-items: center;
             gap: 6px;
-            cursor: pointer;
           "
+          title="Bagikan Rekap Belanja ke WA"
         >
-          <input
-            type="checkbox"
-            id="toggleKurang"
-            onchange="renderListLogistikLokal()"
-            style="accent-color: var(--primary)"
-          />
-          Hanya Kurang
-        </label>
+          <i class="fab fa-whatsapp"></i> Salin WA
+        </button>
       </div>
 
+      <!-- AREA PENCARIAN & DAFTAR BARANG GUDANG -->
       <div style="padding: 0 20px 20px 20px">
+        
+        <!-- KOLOM CARI BARANG (POSISI BARU: DI ATAS DAFTAR BARANG) -->
+        <div class="search-input-wrap" style="margin-bottom: 10px;">
+          <i class="fas fa-search"></i>
+          <input
+            type="text"
+            id="filterInputLogistik"
+            class="search-input"
+            placeholder="🔍 Cari nama barang gudang..."
+            onkeyup="renderListLogistikLokal()"
+          />
+        </div>
+
+        <!-- 3 TOMBOL FILTER STATUS STOK BARANG -->
+        <div class="status-filter-group" style="margin-bottom: 12px;">
+          <button
+            type="button"
+            id="btnStokAll"
+            class="btn-filter-status active"
+            onclick="setFilterStokLogistik('ALL')"
+          >
+            <i class="fas fa-list"></i> Semua
+          </button>
+          <button
+            type="button"
+            id="btnStokKurang"
+            class="btn-filter-status"
+            onclick="setFilterStokLogistik('KURANG')"
+          >
+            <i class="fas fa-exclamation-triangle"></i> Kurang
+          </button>
+          <button
+            type="button"
+            id="btnStokAman"
+            class="btn-filter-status"
+            onclick="setFilterStokLogistik('AMAN')"
+          >
+            <i class="fas fa-check-circle"></i> Aman
+          </button>
+        </div>
+
         <div
           style="
             font-size: 0.78rem;
@@ -1501,110 +1535,69 @@
       </div>
     </div>
 
-    <!-- MODAL 4: CATATAN LAPORAN KAS BESAR (UPDATED FULL FITUR REKAP.HTML) -->
-    <div id="modalCatatan" class="modal">
-      <div class="modal-content">
-        <div class="m-head">
-          <h3 style="margin: 0; color: var(--primary); font-size: 1rem">
-            <i class="fas fa-receipt"></i> Laporan Kas Besar
-          </h3>
-          <i
-            class="fas fa-times"
-            style="font-size: 1.3rem; color: #888; cursor: pointer"
-            onclick="tutupModal('modalCatatan')"
-          ></i>
+    <!-- MODAL 4: CATATAN LAPORAN KAS BESAR (STICKY, SEARCH & ACCORDION) -->
+<div id="modalCatatan" class="modal">
+  <div class="modal-content">
+    <div class="m-head">
+      <h3 style="margin: 0; color: var(--primary); font-size: 1rem">
+        <i class="fas fa-receipt"></i> Laporan Kas Besar
+      </h3>
+      <i class="fas fa-times" style="font-size: 1.3rem; color: #888; cursor: pointer" onclick="tutupModal('modalCatatan')"></i>
+    </div>
+    <div class="m-body" style="padding-top: 10px;">
+      
+      <!-- COLLAPSIBLE 1: RINGKASAN & AUDIT KAS REAL -->
+      <div style="background: #1e1e1e; border: 1px solid #333; border-radius: 10px; margin-bottom: 10px; overflow: hidden;">
+        <div onclick="toggleSectionCatatan('secRingkasanKas', 'iconRingkasanKas')" style="padding: 10px 14px; background: #252525; display: flex; justify-content: space-between; align-items: center; cursor: pointer; user-select: none;">
+          <span style="font-size: 0.83rem; font-weight: bold; color: var(--primary);"><i class="fas fa-calculator"></i> Ringkasan Saldo & Audit Kas Fisik</span>
+          <i class="fas fa-chevron-down" id="iconRingkasanKas" style="color: #888; font-size: 0.8rem; transition: transform 0.2s;"></i>
         </div>
-        <div class="m-body">
-          <!-- RINGKASAN REKAP KAS LENGKAP -->
-          <div
-            id="catatanHeader"
-            style="
-              display: flex;
-              flex-direction: column;
-              gap: 8px;
-              margin-bottom: 15px;
-            "
-          ></div>
-
-          <!-- FORM PENGELUARAN LAIN -->
-          <div
-            style="
-              background: #1a1a1a;
-              padding: 12px;
-              border-radius: 8px;
-              border: 1px dashed var(--primary);
-              margin-bottom: 15px;
-            "
-          >
-            <h4
-              style="
-                margin: 0 0 8px 0;
-                color: var(--primary);
-                font-size: 0.82rem;
-              "
-            >
-              <i class="fas fa-plus-circle"></i> Catat Pengeluaran Lain
-            </h4>
-            <div style="display: flex; gap: 6px; flex-wrap: wrap">
-              <input
-                type="text"
-                id="inputKetKas"
-                placeholder="Cth: Beli Emas, Dipinjam, dll..."
-                class="filter-input-normal"
-                style="flex: 1; min-width: 140px; padding: 8px"
-              />
-              <input
-                type="number"
-                id="inputNominalKas"
-                placeholder="Nominal Rp..."
-                class="filter-input-normal"
-                style="width: 110px; padding: 8px"
-              />
-              <button
-                onclick="tambahKasLain(this)"
-                style="
-                  background: var(--primary);
-                  color: #000;
-                  border: none;
-                  font-weight: bold;
-                  padding: 8px 12px;
-                  border-radius: 6px;
-                  cursor: pointer;
-                "
-              >
-                Simpan
-              </button>
-            </div>
-          </div>
-
-          <h4
-            style="
-              color: #fff;
-              font-size: 0.85rem;
-              border-bottom: 1px dashed #444;
-              padding-bottom: 6px;
-              margin-bottom: 8px;
-            "
-          >
-            Riwayat Pengeluaran Lainnya
-          </h4>
-          <div id="kasLainListContainer" style="margin-bottom: 15px"></div>
-
-          <h4
-            style="
-              color: #fff;
-              font-size: 0.85rem;
-              border-bottom: 1px dashed #444;
-              padding-bottom: 6px;
-              margin-bottom: 8px;
-            "
-          >
-            Rincian Belanja Barang (Masuk Gudang)
-          </h4>
-          <div id="catatanListContainer"></div>
+        <div id="secRingkasanKas" style="display: block; padding: 10px 14px; background: #181818;">
+          <div id="catatanHeader" style="display: flex; flex-direction: column; gap: 8px;"></div>
         </div>
       </div>
+
+      <!-- COLLAPSIBLE 2: CATAT & RIWAYAT PENGELUARAN LAIN -->
+      <div style="background: #1e1e1e; border: 1px solid #333; border-radius: 10px; margin-bottom: 15px; overflow: hidden;">
+        <div onclick="toggleSectionCatatan('secPengeluaranLain', 'iconPengeluaranLain')" style="padding: 10px 14px; background: #252525; display: flex; justify-content: space-between; align-items: center; cursor: pointer; user-select: none;">
+          <span style="font-size: 0.83rem; font-weight: bold; color: var(--danger);"><i class="fas fa-wallet"></i> Catat & Riwayat Pengeluaran Lainnya</span>
+          <i class="fas fa-chevron-down" id="iconPengeluaranLain" style="color: #888; font-size: 0.8rem; transition: transform 0.2s; transform: rotate(180deg);"></i>
+        </div>
+        <div id="secPengeluaranLain" style="display: none; padding: 12px; background: #181818;">
+          <div style="background: #1a1a1a; padding: 10px; border-radius: 8px; border: 1px dashed var(--primary); margin-bottom: 10px;">
+            <h4 style="margin: 0 0 6px 0; color: var(--primary); font-size: 0.78rem;">
+              <i class="fas fa-plus-circle"></i> Catat Pengeluaran Baru
+            </h4>
+            <div style="display: flex; gap: 6px; flex-wrap: wrap;">
+              <input type="text" id="inputKetKas" placeholder="Cth: Beli Emas, Dipinjam..." class="filter-input-normal" style="flex: 1; min-width: 140px; padding: 6px 8px; font-size: 0.8rem;">
+              <input type="number" id="inputNominalKas" placeholder="Nominal Rp..." class="filter-input-normal" style="width: 100px; padding: 6px 8px; font-size: 0.8rem;">
+              <button onclick="tambahKasLain(this)" style="background: var(--primary); color: #000; border: none; font-weight: bold; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 0.8rem;">Simpan</button>
+            </div>
+          </div>
+          <div id="kasLainListContainer"></div>
+        </div>
+      </div>
+
+      <!-- STICKY HEADER & SEARCH BAR BARANG -->
+      <div style="position: sticky; top: -10px; background: #121212; padding: 8px 0; z-index: 20; border-bottom: 1px dashed #444; margin-bottom: 10px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+          <h4 style="color: #fff; font-size: 0.85rem; margin: 0;">
+            <i class="fas fa-boxes-stacked"></i> Rincian Belanja Barang (Masuk Gudang)
+          </h4>
+          <span id="lblTotalItemCatatan" style="font-size: 0.75rem; color: var(--primary); font-weight: bold;">0 Item</span>
+        </div>
+        <div class="search-input-wrap" style="margin: 0;">
+          <i class="fas fa-search" style="position: absolute; left: 10px; color: #888; font-size: 0.8rem;"></i>
+          <input type="text" id="cariBarangCatatan" class="search-input" placeholder="🔍 Cari nama barang di laporan kas..." oninput="filterBarangCatatan()" style="padding: 6px 10px 6px 32px; font-size: 0.82rem;">
+        </div>
+      </div>
+
+      <!-- LIST BARANG BELANJA -->
+      <div id="catatanListContainer"></div>
+
     </div>
+  </div>
+</div>
 
     <script src="script.js"></script>
     <script>
@@ -2882,96 +2875,149 @@
         renderListLogistikLokal();
       }
 
-      function renderStatsUiLogistik(totalPeserta, countPaket) {
-        const paketBox = document.getElementById("paketListStats");
-        let html = `<div class="summary-card"><div class="sc-header" style="display:flex; align-items:baseline; gap:8px;"><span class="sc-val">${totalPeserta}</span><span style="font-size:0.75rem; color:#aaa; text-transform:uppercase;">Peserta Disaring (Pro-Rata)</span></div><div style="margin-top:8px;">`;
-        for (let pkt in countPaket) {
-          let strPktEscaped = pkt.replace(/'/g, "\\'");
-          html += `<div class="sc-chip" onclick="bukaDetailPaket('${strPktEscaped}')" style="cursor:pointer;" title="Klik untuk rincian paket"><span>${pkt}</span> <b>${countPaket[pkt]}</b></div>`;
-        }
-        html += `</div></div>`;
-        paketBox.innerHTML = html;
-      }
+     /* ===================================================================
+   TOGGLE DROPDOWN STATS PAKET LOGISTIK
+   =================================================================== */
+function toggleStatsDropdown() {
+  const body = document.getElementById("statsPaketBody");
+  const icon = document.getElementById("statsPaketIcon");
+  if (!body) return;
+  if (body.style.display === "none" || body.style.display === "") {
+    body.style.display = "block";
+    if (icon) icon.style.transform = "rotate(180deg)";
+  } else {
+    body.style.display = "none";
+    if (icon) icon.style.transform = "rotate(0deg)";
+  }
+}
 
-      function renderListLogistikLokal() {
-        const query = document
-          .getElementById("filterInputLogistik")
-          .value.toLowerCase();
-        const onlyKurang = document.getElementById("toggleKurang").checked;
-        let container = document.getElementById("belanjaListLogistik");
-        container.innerHTML = "";
-        let estimasi = 0;
+function renderStatsUiLogistik(totalPeserta, countPaket) {
+  const paketBox = document.getElementById("paketListStats");
+  
+  let chipsHtml = "";
+  for (let pkt in countPaket) {
+    let strPktEscaped = pkt.replace(/'/g, "\\'");
+    chipsHtml += `<div class="sc-chip" onclick="bukaDetailPaket('${strPktEscaped}')" style="cursor:pointer;" title="Klik untuk rincian paket"><span>${pkt}</span> <b>${countPaket[pkt]}</b></div>`;
+  }
 
-        let barangTampil = listBelanjaFinalLogistik.filter((b) => {
-          let isUang =
-            b.barang.toLowerCase().includes("uang") ||
-            b.satuan.toLowerCase().includes("rupiah") ||
-            b.satuan.toLowerCase() === "rp";
-          let hrgAsli = isUang ? 1 : b.harga;
-          if (onlyKurang ? b.kurang > 0 : true)
-            estimasi += (onlyKurang ? b.kurang : b.total) * hrgAsli;
-          return (
-            (onlyKurang ? b.kurang > 0 : true) &&
-            b.barang.toLowerCase().includes(query)
-          );
-        });
-
-        document.getElementById("lblTotalBarangLogistik").innerText =
-          barangTampil.length;
-        document.getElementById("estimasiBiaya").innerText =
-          formatUang(estimasi);
-
-        if (!barangTampil.length) {
-          container.innerHTML = `<div style="padding:30px; text-align:center; color:#555; border:1px dashed #333; border-radius:10px;">Barang tidak ditemukan.</div>`;
-          return;
-        }
-
-        barangTampil.forEach((b, index) => {
-          let strNamaEscaped = b.barang
-            .replace(/'/g, "\\'")
-            .replace(/"/g, "&quot;");
-          let isAman = b.kurang === 0;
-          let statusBdg = isAman
-            ? `<div id="badge_status_${index}" class="item-status status-aman">AMAN</div>`
-            : `<div id="badge_status_${index}" class="item-status status-kurang" style="cursor:pointer;" onclick="event.stopPropagation(); bukaDetailItem('${strNamaEscaped}')">KURANG ${b.kurang}</div>`;
-          let imgTag = b.foto
-            ? `<img src="${b.foto}" style="width:100%; height:100%; object-fit:cover; border-radius:6px;"/>`
-            : `<i class="fas fa-image" style="font-size:1.8rem; color:#444;"></i>`;
-
-          container.innerHTML += `
-      <div class="shop-item ${isAman ? "aman" : "kurang"}">
-        <div onclick="let body = this.nextElementSibling; let icon = this.querySelector('.fa-chevron-down'); if(body.style.display==='none'){body.style.display='block'; icon.style.transform='rotate(180deg)';}else{body.style.display='none'; icon.style.transform='rotate(0deg)';}" 
-             style="padding: 12px 14px; display: flex; justify-content: space-between; align-items: center; cursor: pointer;">
-          <div style="flex:1; padding-right:8px;">
-            <h4 class="item-name">${b.barang}</h4>
-            <div style="font-size: 0.75rem; color: #888;">Target: <b style="color: #fff;">${b.total}</b> ${b.satuan} | Stok: <b style="color:var(--primary);">${b.ready}</b></div>
-          </div>
-          <div style="display: flex; align-items: center; gap: 8px;">${statusBdg}<i class="fas fa-chevron-down" style="color: #666; font-size: 0.85rem; transition: 0.3s;"></i></div>
+  let html = `
+    <div class="summary-card" style="padding:0; overflow:hidden;">
+      <div onclick="toggleStatsDropdown()" style="padding:12px 15px; display:flex; justify-content:space-between; align-items:center; cursor:pointer; user-select:none; background:#1a1a1a;">
+        <div style="display:flex; align-items:baseline; gap:8px;">
+          <span class="sc-val">${totalPeserta}</span>
+          <span style="font-size:0.75rem; color:#aaa; text-transform:uppercase; font-weight:bold;">Peserta Disaring (Pro-Rata)</span>
         </div>
-        <div style="display: none; border-top: 1px dashed #333; background: #151515;">
-          <div style="padding: 12px 14px; display: flex; gap: 12px; align-items: flex-start;">
-            <div style="width: 70px; height: 70px; flex-shrink: 0; background: #111; border: 1px solid #333; border-radius: 8px; display: flex; justify-content: center; align-items: center;">${imgTag}</div>
-            <div style="flex: 1;">
-              <div class="item-details" style="margin-bottom: 6px;">
-                <span onclick="event.stopPropagation(); bukaDetailItem('${strNamaEscaped}')" style="cursor:pointer; color:var(--primary); border-color:var(--primary);"><i class="fas fa-users"></i> Rincian Peserta</span>
-                <span>Masuk: <b id="lbl_masuk_${index}">${b.masuk}</b></span>
-                <span>Keluar: ${b.keluar}</span>
-              </div>
-              <div style="font-size:0.75rem; color:#aaa;">Harga Acuan: <b style="color:#fff;">${formatUang(b.harga)}</b></div>
-            </div>
-          </div>
-          <div class="item-footer">
-            <div style="font-size:0.8rem; color:#ccc;">Sisa Gudang: <b id="lbl_sisa_${index}" style="color:var(--primary);">${b.ready}</b> ${b.satuan}</div>
-            <div style="display:flex; gap:8px;">
-              <input type="number" id="input_hrg_${index}" class="input-qty-logistik" value="${b.harga || ""}" placeholder="Rp" oninput="kalkulasiRealtimeLogistik(${index}, ${b.total}, ${b.masuk}, ${b.keluar})">
-              <input type="number" id="input_qty_${index}" class="input-qty-logistik input-tambah-stok-logistik" data-name="${b.barang}" data-sat="${b.satuan}" data-idx="${index}" placeholder="+Qty" min="0" oninput="kalkulasiRealtimeLogistik(${index}, ${b.total}, ${b.masuk}, ${b.keluar})">
-            </div>
-          </div>
+        <div style="display:flex; align-items:center; gap:8px;">
+          <span style="font-size:0.72rem; color:var(--primary); font-weight:bold;">Lihat Rincian</span>
+          <i class="fas fa-chevron-down" id="statsPaketIcon" style="color:#888; font-size:0.8rem; transition:transform 0.2s;"></i>
         </div>
-      </div>`;
-        });
-      }
+      </div>
+      <div id="statsPaketBody" style="display:none; padding:10px 15px 12px 15px; background:#141414; border-top:1px dashed #333;">
+        ${chipsHtml || '<div style="font-size:0.75rem; color:#666;">Tidak ada paket aktif.</div>'}
+      </div>
+    </div>`;
 
+  paketBox.innerHTML = html;
+}
+
+     // State filter status stok logistik (ALL / KURANG / AMAN)
+let filterStokLogistikGlobal = "ALL";
+
+function setFilterStokLogistik(status) {
+  filterStokLogistikGlobal = status;
+  const btnAll = document.getElementById("btnStokAll");
+  const btnKurang = document.getElementById("btnStokKurang");
+  const btnAman = document.getElementById("btnStokAman");
+
+  if (btnAll) btnAll.classList.toggle("active", status === "ALL");
+  if (btnKurang) btnKurang.classList.toggle("active", status === "KURANG");
+  if (btnAman) btnAman.classList.toggle("active", status === "AMAN");
+
+  renderListLogistikLokal();
+}
+
+function renderListLogistikLokal() {
+  const query = (document.getElementById("filterInputLogistik").value || "").toLowerCase();
+  let container = document.getElementById("belanjaListLogistik");
+  container.innerHTML = "";
+  let estimasi = 0;
+
+  // Hitung estimasi total biaya belanja untuk semua barang yang KURANG
+  listBelanjaFinalLogistik.forEach((b) => {
+    if (b.kurang > 0) {
+      let isUang =
+        b.barang.toLowerCase().includes("uang") ||
+        b.satuan.toLowerCase().includes("rupiah") ||
+        b.satuan.toLowerCase() === "rp";
+      let hrgAsli = isUang ? 1 : b.harga;
+      estimasi += b.kurang * hrgAsli;
+    }
+  });
+
+  // Filter barang berdasarkan nama pencarian DAN tombol filter status stok (ALL / KURANG / AMAN)
+  let barangTampil = listBelanjaFinalLogistik.filter((b) => {
+    let matchStatus = true;
+    if (filterStokLogistikGlobal === "KURANG") {
+      matchStatus = b.kurang > 0;
+    } else if (filterStokLogistikGlobal === "AMAN") {
+      matchStatus = b.kurang === 0;
+    }
+    return matchStatus && b.barang.toLowerCase().includes(query);
+  });
+
+  document.getElementById("lblTotalBarangLogistik").innerText = barangTampil.length;
+  document.getElementById("estimasiBiaya").innerText = formatUang(estimasi);
+
+  if (!barangTampil.length) {
+    container.innerHTML = `<div style="padding:30px; text-align:center; color:#555; border:1px dashed #333; border-radius:10px;">Barang tidak ditemukan.</div>`;
+    return;
+  }
+
+  barangTampil.forEach((b, index) => {
+    let strNamaEscaped = b.barang
+      .replace(/'/g, "\\'")
+      .replace(/"/g, "&quot;");
+    let isAman = b.kurang === 0;
+    let statusBdg = isAman
+      ? `<div id="badge_status_${index}" class="item-status status-aman">AMAN</div>`
+      : `<div id="badge_status_${index}" class="item-status status-kurang" style="cursor:pointer;" onclick="event.stopPropagation(); bukaDetailItem('${strNamaEscaped}')">KURANG ${b.kurang}</div>`;
+    let imgTag = b.foto
+      ? `<img src="${b.foto}" style="width:100%; height:100%; object-fit:cover; border-radius:6px;"/>`
+      : `<i class="fas fa-image" style="font-size:1.8rem; color:#444;"></i>`;
+
+    container.innerHTML += `
+<div class="shop-item ${isAman ? "aman" : "kurang"}">
+  <div onclick="let body = this.nextElementSibling; let icon = this.querySelector('.fa-chevron-down'); if(body.style.display==='none'){body.style.display='block'; icon.style.transform='rotate(180deg)';}else{body.style.display='none'; icon.style.transform='rotate(0deg)';}" 
+       style="padding: 12px 14px; display: flex; justify-content: space-between; align-items: center; cursor: pointer;">
+    <div style="flex:1; padding-right:8px;">
+      <h4 class="item-name">${b.barang}</h4>
+      <div style="font-size: 0.75rem; color: #888;">Target: <b style="color: #fff;">${b.total}</b> ${b.satuan} | Stok: <b style="color:var(--primary);">${b.ready}</b></div>
+    </div>
+    <div style="display: flex; align-items: center; gap: 8px;">${statusBdg}<i class="fas fa-chevron-down" style="color: #666; font-size: 0.85rem; transition: 0.3s;"></i></div>
+  </div>
+  <div style="display: none; border-top: 1px dashed #333; background: #151515;">
+    <div style="padding: 12px 14px; display: flex; gap: 12px; align-items: flex-start;">
+      <div style="width: 70px; height: 70px; flex-shrink: 0; background: #111; border: 1px solid #333; border-radius: 8px; display: flex; justify-content: center; align-items: center;">${imgTag}</div>
+      <div style="flex: 1;">
+        <div class="item-details" style="margin-bottom: 6px;">
+          <span onclick="event.stopPropagation(); bukaDetailItem('${strNamaEscaped}')" style="cursor:pointer; color:var(--primary); border-color:var(--primary);"><i class="fas fa-users"></i> Rincian Peserta</span>
+          <span>Masuk: <b id="lbl_masuk_${index}">${b.masuk}</b></span>
+          <span>Keluar: ${b.keluar}</span>
+        </div>
+        <div style="font-size:0.75rem; color:#aaa;">Harga Acuan: <b style="color:#fff;">${formatUang(b.harga)}</b></div>
+      </div>
+    </div>
+    <div class="item-footer">
+      <div style="font-size:0.8rem; color:#ccc;">Sisa Gudang: <b id="lbl_sisa_${index}" style="color:var(--primary);">${b.ready}</b> ${b.satuan}</div>
+      <div style="display:flex; gap:8px;">
+        <input type="number" id="input_hrg_${index}" class="input-qty-logistik" value="${b.harga || ""}" placeholder="Rp" oninput="kalkulasiRealtimeLogistik(${index}, ${b.total}, ${b.masuk}, ${b.keluar})">
+        <input type="number" id="input_qty_${index}" class="input-qty-logistik input-tambah-stok-logistik" data-name="${b.barang}" data-sat="${b.satuan}" data-idx="${index}" placeholder="+Qty" min="0" oninput="kalkulasiRealtimeLogistik(${index}, ${b.total}, ${b.masuk}, ${b.keluar})">
+      </div>
+    </div>
+  </div>
+</div>`;
+  });
+}
       function kalkulasiRealtimeLogistik(
         idx,
         target,
@@ -3304,16 +3350,40 @@
         showToast(`Pilihan barang ${pNama} berhasil dibatalkan!`);
       }
 
-     /* ===================================================================
-   AUDIT KAS REAL (UANG CASH + REKENING vs KAS UTAMA)
+ /* ===================================================================
+   AUDIT KAS REAL (AUTO FORMAT RIBUAN/JUTAAN RUPIAH LIVE)
    =================================================================== */
-function hitungAuditKasReal(sisaKasUtama) {
-  const cash = parseFloat(document.getElementById("inputUangCash").value) || 0;
-  const bank = parseFloat(document.getElementById("inputUangBank").value) || 0;
+function formatRibuanInput(el) {
+  // Ambil hanya digit angka
+  let rawValue = el.value.replace(/\D/g, "");
+  if (!rawValue) {
+    el.value = "";
+    return 0;
+  }
+  // Ubah ke format angka dengan titik ribuan (id-ID)
+  let nominal = parseInt(rawValue, 10) || 0;
+  el.value = new Intl.NumberFormat("id-ID").format(nominal);
+  return nominal;
+}
+
+function parseNominalInput(id) {
+  const el = document.getElementById(id);
+  if (!el) return 0;
+  return parseInt(el.value.replace(/\D/g, ""), 10) || 0;
+}
+
+function hitungAuditKasReal(sisaKasUtama, elInput) {
+  // Format tampilan angka yang sedang diketik secara langsung
+  if (elInput) {
+    formatRibuanInput(elInput);
+  }
+
+  const cash = parseNominalInput("inputUangCash");
+  const bank = parseNominalInput("inputUangBank");
   const totalReal = cash + bank;
   const selisih = totalReal - sisaKasUtama;
 
-  // Simpan input ke localStorage agar tidak terhapus saat modal ditutup
+  // Simpan nilai murni ke localStorage
   localStorage.setItem("kas_real_cash", cash || "");
   localStorage.setItem("kas_real_bank", bank || "");
 
@@ -3344,7 +3414,63 @@ function hitungAuditKasReal(sisaKasUtama) {
 }
 
 /* ===================================================================
-   MODAL LAPORAN KAS BESAR
+   HELPER TOGGLE COLLAPSIBLE SECTION & SEARCH FILTER KAS
+   =================================================================== */
+function toggleSectionCatatan(idSection, idIcon) {
+  const sec = document.getElementById(idSection);
+  const icon = document.getElementById(idIcon);
+  if (!sec) return;
+  if (sec.style.display === "none" || sec.style.display === "") {
+    sec.style.display = "block";
+    if (icon) icon.style.transform = "rotate(0deg)";
+  } else {
+    sec.style.display = "none";
+    if (icon) icon.style.transform = "rotate(180deg)";
+  }
+}
+
+function filterBarangCatatan() {
+  const q = (document.getElementById("cariBarangCatatan").value || "").toLowerCase().trim();
+  const items = document.querySelectorAll(".item-catatan-barang");
+  let totalTampil = 0;
+
+  items.forEach((el) => {
+    const nama = (el.getAttribute("data-nama") || "").toLowerCase();
+    if (q === "" || nama.includes(q)) {
+      el.style.display = "block";
+      totalTampil++;
+    } else {
+      el.style.display = "none";
+    }
+  });
+
+  const lbl = document.getElementById("lblTotalItemCatatan");
+  if (lbl) lbl.innerText = `${totalTampil} Item`;
+}
+
+async function ubahQtyStokCatatan(nama, qtyBaru) {
+  let valBaru = parseInt(qtyBaru);
+  if (isNaN(valBaru) || valBaru < 0) valBaru = 0;
+  
+  try {
+    await fetchData(
+      "editStokBelanja",
+      { namaBarang: nama, qtyBaru: valBaru },
+      "POST"
+    );
+    showToast(`Stok ${nama} diubah jadi ${valBaru}!`);
+    await tarikDataSemua();
+    bukaModalCatatan();
+  } catch (e) {
+    alert("Gagal mengubah stok: " + (e.message || e));
+  }
+}
+
+/* ===================================================================
+   MODAL LAPORAN KAS BESAR (UPDATED WITH QUICK EDIT & FITUR CARI)
+   =================================================================== */
+/* ===================================================================
+   MODAL LAPORAN KAS BESAR (UPDATED WITH QUICK EDIT & FITUR CARI)
    =================================================================== */
 function bukaModalCatatan() {
   let totalSetoranAll = 0;
@@ -3354,9 +3480,11 @@ function bukaModalCatatan() {
 
   let totalTerpakaiBarang = 0;
   let listHTML = "";
+  let itemCount = 0;
 
   listBelanjaFinalLogistik.forEach((b, idx) => {
     if (b.masuk > 0) {
+      itemCount++;
       let hrgSatuan = b.harga || 0;
       let sub = b.masuk * hrgSatuan;
       totalTerpakaiBarang += sub;
@@ -3394,22 +3522,30 @@ function bukaModalCatatan() {
       let strBarangEscaped = b.barang.replace(/'/g, "\\'").replace(/"/g, "&quot;");
 
       listHTML += `
-        <div style="background:#1e1e1e; border-radius:8px; margin-bottom:8px; border:1px solid #333; overflow:hidden;">
-          <div onclick="toggleHistoriBelanjaModal(${idx})" style="padding:10px 12px; display:flex; justify-content:space-between; align-items:center; cursor:pointer; background:#1e1e1e; user-select:none;">
-            <div>
+        <div class="item-catatan-barang" data-nama="${b.barang.toLowerCase()}" style="background:#1e1e1e; border-radius:8px; margin-bottom:8px; border:1px solid #333; overflow:hidden;">
+          <div onclick="toggleHistoriBelanjaModal(${idx})" style="padding:8px 12px; display:flex; justify-content:space-between; align-items:center; cursor:pointer; background:#1e1e1e; user-select:none;">
+            <div style="flex:1; padding-right:8px;">
               <div style="display:flex; align-items:center; gap:6px;">
                 <b style="color:#fff; font-size:0.85rem;">${b.barang}</b>
                 <i class="fas fa-chevron-down" id="icon-histori-${idx}" style="color:#888; font-size:0.75rem; transition:transform 0.2s;"></i>
               </div>
               <div style="font-size:0.75rem; color:#aaa; margin-top:2px;">
-                Masuk: ${b.masuk} ${b.satuan}<span style="color:#888;">${txtKalkulasiHarga}</span>
+                Masuk: <b style="color:var(--primary);">${b.masuk} ${b.satuan}</b><span style="color:#888;">${txtKalkulasiHarga}</span>
               </div>
             </div>
-            <div style="display:flex; align-items:center; gap:10px;">
+            
+            <div style="display:flex; align-items:center; gap:8px;">
               <b style="color:var(--primary); font-size:0.85rem;">${formatUang(sub)}</b>
-              <button onclick="event.stopPropagation(); promptEditStok('${strBarangEscaped}', ${b.masuk})" style="background:none; border:none; color:#888; cursor:pointer; padding:4px;" title="Edit Stok"><i class="fas fa-edit"></i></button>
+              
+              <!-- TOMBOL EDIT JUMLAH BARANG (TAMBAH / KURANG / DIRECT) -->
+              <div style="display:flex; align-items:center; gap:2px; background:#111; padding:2px 4px; border-radius:6px; border:1px solid #333;">
+                <button onclick="event.stopPropagation(); ubahQtyStokCatatan('${strBarangEscaped}', ${b.masuk - 1})" style="background:#2a2a2a; color:#fff; border:none; width:22px; height:22px; border-radius:4px; font-weight:bold; cursor:pointer;" title="Kurangi 1">-</button>
+                <button onclick="event.stopPropagation(); ubahQtyStokCatatan('${strBarangEscaped}', ${b.masuk + 1})" style="background:#2a2a2a; color:#fff; border:none; width:22px; height:22px; border-radius:4px; font-weight:bold; cursor:pointer;" title="Tambah 1">+</button>
+                <button onclick="event.stopPropagation(); promptEditStok('${strBarangEscaped}', ${b.masuk})" style="background:none; border:none; color:#888; cursor:pointer; padding:2px 4px;" title="Edit Langsung"><i class="fas fa-edit"></i></button>
+              </div>
             </div>
           </div>
+          
           <div id="drop-histori-${idx}" style="display:none; padding:10px; background:#141414; border-top:1px dashed #333;">
             <div style="font-size:0.72rem; color:var(--primary); font-weight:bold; margin-bottom:6px; text-transform:uppercase; display:flex; align-items:center; gap:5px;">
               <i class="fas fa-history"></i> Histori Transaksi Masuk (${riwayatItems.length || 1} Batch)
@@ -3426,14 +3562,14 @@ function bukaModalCatatan() {
     masterDataLogistik.kas_lain.forEach((k) => {
       totalKasLain += k.nominal;
       htmlKasLain += `
-        <div style="background:#1e1e1e; padding:10px 12px; border-radius:8px; margin-bottom:8px; display:flex; justify-content:space-between; align-items:center;">
+        <div style="background:#1e1e1e; padding:8px 10px; border-radius:8px; margin-bottom:6px; display:flex; justify-content:space-between; align-items:center;">
           <div>
-            <div style="color:#fff; font-size:0.85rem; font-weight:bold;">${k.keterangan}</div>
-            <b style="color:var(--danger); font-size:0.85rem;">${formatUang(k.nominal)}</b>
+            <div style="color:#fff; font-size:0.82rem; font-weight:bold;">${k.keterangan}</div>
+            <b style="color:var(--danger); font-size:0.82rem;">${formatUang(k.nominal)}</b>
           </div>
-          <div style="display:flex; gap:8px;">
-            <button onclick="promptEditKasLain('${k.waktu}', '${k.keterangan.replace(/'/g, "\\'")}', ${k.nominal})" style="background:none; border:none; color:#888; cursor:pointer; padding:4px;"><i class="fas fa-edit"></i></button>
-            <button onclick="hapusRiwayatKasLain('${k.waktu}')" style="background:none; border:none; color:var(--danger); cursor:padding:4px;"><i class="fas fa-trash"></i></button>
+          <div style="display:flex; gap:6px;">
+            <button onclick="promptEditKasLain('${k.waktu}', '${k.keterangan.replace(/'/g, "\\'")}', ${k.nominal})" style="background:none; border:none; color:#888; cursor:pointer; padding:2px;"><i class="fas fa-edit"></i></button>
+            <button onclick="hapusRiwayatKasLain('${k.waktu}')" style="background:none; border:none; color:var(--danger); cursor:pointer; padding:2px;"><i class="fas fa-trash"></i></button>
           </div>
         </div>`;
     });
@@ -3442,55 +3578,58 @@ function bukaModalCatatan() {
   let totalUangTerpakaiSemua = totalTerpakaiBarang + totalKasLain;
   let sisaSaldoKasUtama = totalSetoranAll - totalUangTerpakaiSemua;
 
-  // Membaca nominal tersimpan dari localStorage
   let savedCash = localStorage.getItem("kas_real_cash") || "";
   let savedBank = localStorage.getItem("kas_real_bank") || "";
 
   document.getElementById("catatanHeader").innerHTML = `
-    <div style="background:#1e1e1e; padding:10px 14px; border-radius:8px; display:flex; justify-content:space-between; align-items:center; border:1px solid #333;">
-      <span style="color:#aaa; font-size:0.82rem;">Total Setoran Keseluruhan</span>
-      <b style="color:#fff; font-size:0.95rem;">${formatUang(totalSetoranAll)}</b>
+    <div style="background:#1e1e1e; padding:8px 12px; border-radius:8px; display:flex; justify-content:space-between; align-items:center; border:1px solid #333;">
+      <span style="color:#aaa; font-size:0.8rem;">Total Setoran Keseluruhan</span>
+      <b style="color:#fff; font-size:0.9rem;">${formatUang(totalSetoranAll)}</b>
     </div>
-    <div style="background:#1e1e1e; padding:10px 14px; border-radius:8px; display:flex; justify-content:space-between; align-items:center; border:1px solid #333;">
-      <span style="color:var(--danger); font-size:0.82rem; font-weight:bold;">Total Uang Terpakai (Semua)</span>
-      <b style="color:var(--danger); font-size:0.95rem;">${formatUang(totalUangTerpakaiSemua)}</b>
+    <div style="background:#1e1e1e; padding:8px 12px; border-radius:8px; display:flex; justify-content:space-between; align-items:center; border:1px solid #333;">
+      <span style="color:var(--danger); font-size:0.8rem; font-weight:bold;">Total Uang Terpakai (Semua)</span>
+      <b style="color:var(--danger); font-size:0.9rem;">${formatUang(totalUangTerpakaiSemua)}</b>
     </div>
-    <div style="background:rgba(74,222,128,0.1); padding:12px 14px; border-radius:8px; border:1px dashed var(--success); display:flex; justify-content:space-between; align-items:center;">
-      <span style="color:var(--success); font-weight:bold; font-size:0.85rem;">Sisa Saldo Kas Utama</span>
-      <b style="color:var(--success); font-size:1.1rem;">${formatUang(sisaSaldoKasUtama)}</b>
+    <div style="background:rgba(74,222,128,0.1); padding:10px 12px; border-radius:8px; border:1px dashed var(--success); display:flex; justify-content:space-between; align-items:center;">
+      <span style="color:var(--success); font-weight:bold; font-size:0.82rem;">Sisa Saldo Kas Utama</span>
+      <b style="color:var(--success); font-size:1.05rem;">${formatUang(sisaSaldoKasUtama)}</b>
     </div>
 
     <!-- PANEL AUDIT REAL KAS FISIK & REKENING -->
-    <div style="background:#1a1a1a; padding:12px; border-radius:10px; border:1px solid #444; margin-top:6px;">
-      <div style="font-size:0.8rem; color:var(--primary); font-weight:bold; margin-bottom:8px; display:flex; align-items:center; justify-content:space-between;">
-        <span><i class="fas fa-wallet"></i> Hitung Audit Uang Real (Fisik)</span>
-        <span id="badgeSelisihKas" style="font-size:0.75rem; padding:3px 8px; border-radius:6px; font-weight:bold;"></span>
+    <div style="background:#1a1a1a; padding:10px; border-radius:8px; border:1px solid #444; margin-top:4px;">
+      <div style="font-size:0.78rem; color:var(--primary); font-weight:bold; margin-bottom:6px; display:flex; align-items:center; justify-content:space-between;">
+        <span><i class="fas fa-wallet"></i> Audit Uang Real (Fisik & Rekening)</span>
+        <span id="badgeSelisihKas" style="font-size:0.72rem; padding:2px 6px; border-radius:5px; font-weight:bold;"></span>
       </div>
-      <div style="display:grid; grid-template-columns: 1fr 1fr; gap:8px; margin-bottom:8px;">
+      <div style="display:grid; grid-template-columns: 1fr 1fr; gap:6px; margin-bottom:6px;">
         <div>
-          <label style="font-size:0.7rem; color:#aaa; display:block; margin-bottom:3px;">💵 Uang Cash / Tunai</label>
-          <input type="number" id="inputUangCash" class="filter-input-normal" value="${savedCash}" placeholder="Rp 0" style="padding:6px 8px; font-size:0.82rem;" oninput="hitungAuditKasReal(${sisaSaldoKasUtama})">
+          <label style="font-size:0.68rem; color:#aaa; display:block; margin-bottom:2px;">💵 Uang Cash</label>
+          <input type="text" inputmode="numeric" id="inputUangCash" class="filter-input-normal" value="${savedCash ? new Intl.NumberFormat('id-ID').format(savedCash) : ''}" placeholder="Rp 0" style="padding:5px 7px; font-size:0.8rem; font-weight:bold; color:var(--primary);" oninput="hitungAuditKasReal(${sisaSaldoKasUtama}, this)">
         </div>
         <div>
-          <label style="font-size:0.7rem; color:#aaa; display:block; margin-bottom:3px;">🏦 Total di Rekening Bank</label>
-          <input type="number" id="inputUangBank" class="filter-input-normal" value="${savedBank}" placeholder="Rp 0" style="padding:6px 8px; font-size:0.82rem;" oninput="hitungAuditKasReal(${sisaSaldoKasUtama})">
+          <label style="font-size:0.68rem; color:#aaa; display:block; margin-bottom:2px;">🏦 Rekening Bank</label>
+          <input type="text" inputmode="numeric" id="inputUangBank" class="filter-input-normal" value="${savedBank ? new Intl.NumberFormat('id-ID').format(savedBank) : ''}" placeholder="Rp 0" style="padding:5px 7px; font-size:0.8rem; font-weight:bold; color:var(--primary);" oninput="hitungAuditKasReal(${sisaSaldoKasUtama}, this)">
         </div>
       </div>
-      <div style="display:flex; justify-content:space-between; align-items:center; padding-top:6px; border-top:1px dashed #333; font-size:0.82rem;">
+      <div style="display:flex; justify-content:space-between; align-items:center; padding-top:4px; border-top:1px dashed #333; font-size:0.8rem;">
         <span style="color:#ddd; font-weight:bold;">Total Uang Real Ada:</span>
-        <b id="txtTotalUangReal" style="color:#fff; font-size:0.98rem;">Rp 0</b>
+        <b id="txtTotalUangReal" style="color:#fff; font-size:0.92rem;">Rp 0</b>
       </div>
     </div>`;
 
+  document.getElementById("lblTotalItemCatatan").innerText = `${itemCount} Item`;
   document.getElementById("kasLainListContainer").innerHTML =
     htmlKasLain ||
-    `<div style="color:#666; font-size:0.8rem; text-align:center; padding:10px;">Belum ada pengeluaran lain.</div>`;
+    `<div style="color:#666; font-size:0.78rem; text-align:center; padding:8px;">Belum ada pengeluaran lain.</div>`;
   document.getElementById("catatanListContainer").innerHTML =
     listHTML ||
-    `<div style="color:#666; font-size:0.8rem; text-align:center; padding:10px;">Belum ada belanja barang.</div>`;
+    `<div style="color:#666; font-size:0.78rem; text-align:center; padding:15px;">Belum ada belanja barang.</div>`;
+
+  // Reset pencarian & tampilkan modal
+  const searchInp = document.getElementById("cariBarangCatatan");
+  if (searchInp) searchInp.value = "";
   document.getElementById("modalCatatan").style.display = "flex";
 
-  // Hitung audit saldo langsung saat modal dibuka
   hitungAuditKasReal(sisaSaldoKasUtama);
 }
       async function tambahKasLain(btn) {
