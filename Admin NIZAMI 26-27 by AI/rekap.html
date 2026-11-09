@@ -2701,58 +2701,99 @@
         });
 
         pesertaLolos.forEach((p) => {
-          let pid = String(p.id).trim();
-          let rasio =
-            p.target_barang > 0
-              ? Math.min(1.0, (p.setoran_masuk || 0) / p.target_barang)
-              : 1.0;
+  let pid = String(p.id).trim();
+  let rasio =
+    p.target_barang > 0
+      ? Math.min(1.0, (p.setoran_masuk || 0) / p.target_barang)
+      : 1.0;
 
-          let resepList = resepPerPaket[p.paket] || [];
-          resepList.forEach((r) => {
-            let porsi = r.qty * rasio;
-            if (porsi > 0) {
-              let keyBrg = r.barang.trim();
-              if (!keranjang[keyBrg])
-                keranjang[keyBrg] = { qty: 0, satuan: r.satuan, detail: [] };
-              keranjang[keyBrg].qty += porsi;
-              keranjang[keyBrg].detail.push({
-                tipe: "Paket (Pro-Rata)",
-                nama_sumber: p.paket,
-                qty_satuan: Number(porsi.toFixed(2)),
-                list_peserta: [
-                  `${p.nama || p.id} (Mitra: ${p.mitra || "-"}, Setor: ${p.setoran_masuk || 0}x)`,
-                ],
-                subtotal: porsi,
-              });
-            }
-          });
+  // 1. Ambil jumlah setoran & nilai per setoran
+  let totalSetor = p.setoran_masuk || 0;
+  let nilaiPerSetor = Number(p.nilai_setoran || p.setoran_rp || p.nilai_setor) || 0;
+  let infoSetoranStr = `Setor: ${totalSetor}x` + (nilaiPerSetor > 0 ? ` @ ${formatUang(nilaiPerSetor)}` : "");
 
-          let customList = customPerPeserta[pid] || [];
-          customList.forEach((c) => {
-            let porsi = (Number(c.qty) || 1) * rasio;
-            if (porsi > 0) {
-              let keyBrg = c.barang.trim();
-              let sat = c.satuan || "pcs";
-              if (!keranjang[keyBrg])
-                keranjang[keyBrg] = { qty: 0, satuan: sat, detail: [] };
-              keranjang[keyBrg].qty += porsi;
-              keranjang[keyBrg].detail.push({
-                tipe: "Custom Order",
-                nama_sumber: `Custom: ${p.nama || p.id}`,
-                qty_satuan: Number(porsi.toFixed(2)),
-                list_peserta: [
-                  `${p.nama || p.id} (Mitra: ${p.mitra || "-"}, Custom Order)`,
-                ],
-                subtotal: porsi,
-              });
-            }
-          });
-        });
+  // 2. Resep Paket
+  let resepList = resepPerPaket[p.paket] || [];
+  resepList.forEach((r) => {
+    let porsi = r.qty * rasio;
+    if (porsi > 0) {
+      let keyBrg = r.barang.trim();
+      if (!keranjang[keyBrg])
+        keranjang[keyBrg] = { qty: 0, satuan: r.satuan, detail: [] };
+      keranjang[keyBrg].qty += porsi;
+      keranjang[keyBrg].detail.push({
+        tipe: "Paket (Pro-Rata)",
+        nama_sumber: p.paket,
+        qty_satuan: Number(porsi.toFixed(2)),
+        list_peserta: [
+          `${p.nama || p.id} (Mitra: ${p.mitra || "-"}, ${infoSetoranStr})`,
+        ],
+        subtotal: porsi,
+      });
+    }
+  });
 
-        // PENGGABUNGAN DENGAN DATA SHEET FIX_BARANG
+  // 3. Custom Order Peserta
+  let customList = customPerPeserta[pid] || [];
+  customList.forEach((c) => {
+    let porsi = (Number(c.qty) || 1) * rasio;
+    if (porsi > 0) {
+      let keyBrg = c.barang.trim();
+      let sat = c.satuan || "pcs";
+      if (!keranjang[keyBrg])
+        keranjang[keyBrg] = { qty: 0, satuan: sat, detail: [] };
+      keranjang[keyBrg].qty += porsi;
+      keranjang[keyBrg].detail.push({
+        tipe: "Custom Order",
+        nama_sumber: `Custom: ${p.nama || p.id}`,
+        qty_satuan: Number(porsi.toFixed(2)),
+        list_peserta: [
+          `${p.nama || p.id} (Mitra: ${p.mitra || "-"}, Custom Order, ${infoSetoranStr})`,
+        ],
+        subtotal: porsi,
+      });
+    }
+  });
+});
+
+       // PENGGABUNGAN DENGAN DATA SHEET FIX_BARANG
         const chkGabungFix = document.getElementById("chkGabungFixBarang");
         const isGabungFix = chkGabungFix && chkGabungFix.checked;
         const badgeFix = document.getElementById("badgeInfoFixBarang");
+
+        // 1. Buat Peta Informasi Setoran Peserta (Lookup Map)
+        let mapPesertaInfo = {};
+        if (masterDataLogistik.peserta) {
+          masterDataLogistik.peserta.forEach((p) => {
+            let idKey = String(p.id || "").trim().toLowerCase();
+            let namaKey = String(p.nama || "").trim().toLowerCase();
+
+            let pMan = dataPesertaManual.find(
+              (m) =>
+                String(m.id || "").trim().toLowerCase() === idKey ||
+                String(m.nama || "").trim().toLowerCase() === namaKey
+            );
+
+            let info = {
+              freq: p.setoran_masuk || (pMan ? pMan.freq : 0),
+              nilai_setor: pMan ? (pMan.nilai_setoran || 0) : 0,
+            };
+
+            if (idKey) mapPesertaInfo[idKey] = info;
+            if (namaKey) mapPesertaInfo[namaKey] = info;
+          });
+        }
+
+        dataPesertaManual.forEach((p) => {
+          let idKey = String(p.id || "").trim().toLowerCase();
+          let namaKey = String(p.nama || "").trim().toLowerCase();
+          if (idKey && !mapPesertaInfo[idKey]) {
+            mapPesertaInfo[idKey] = { freq: p.freq || 0, nilai_setor: p.nilai_setoran || 0 };
+          }
+          if (namaKey && !mapPesertaInfo[namaKey]) {
+            mapPesertaInfo[namaKey] = { freq: p.freq || 0, nilai_setor: p.nilai_setoran || 0 };
+          }
+        });
 
         if (isGabungFix && dataFixBarangGlobal.length > 0) {
           let totalQtyFixDitimpa = 0;
@@ -2766,7 +2807,7 @@
               keranjang[keyBrg].qty += Number(fb.butuh);
               totalQtyFixDitimpa += Number(fb.butuh);
 
-              // BACA RINCIAN PESERTA DARI SHEET FIX_BARANG
+              // 2. BACA RINCIAN PESERTA DARI SHEET FIX_BARANG & TAMPILKAN INFO SETORAN
               if (
                 fb.detail &&
                 Array.isArray(fb.detail) &&
@@ -2774,14 +2815,23 @@
               ) {
                 fb.detail.forEach((p) => {
                   let namaP = p.nama || p.id_peserta || "Peserta";
-                  let mitraP = p.mitra ? ` (Mitra: ${p.mitra})` : "";
+                  let mitraP = p.mitra || "-";
                   let qtyP = p.qty || 1;
+
+                  // Ambil data setoran peserta dari lookup map
+                  let keyId = String(p.id_peserta || "").trim().toLowerCase();
+                  let keyNama = String(p.nama || "").trim().toLowerCase();
+                  let infoP = mapPesertaInfo[keyId] || mapPesertaInfo[keyNama] || { freq: 0, nilai_setor: 0 };
+
+                  let infoSetoranStr = `Setor: ${infoP.freq}x` + (infoP.nilai_setor > 0 ? ` @ ${formatUang(infoP.nilai_setor)}` : "");
 
                   keranjang[keyBrg].detail.push({
                     tipe: "Sheet FIX_BARANG",
                     nama_sumber: "Fix Peserta (Sheet FIX_BARANG)",
                     qty_satuan: Number(qtyP),
-                    list_peserta: [`${namaP}${mitraP} - ${qtyP} ${sat}`],
+                    list_peserta: [
+                      `${namaP} (Mitra: ${mitraP}, ${infoSetoranStr})`,
+                    ],
                     subtotal: Number(qtyP),
                   });
                 });
