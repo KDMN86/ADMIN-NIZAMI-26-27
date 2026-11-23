@@ -671,23 +671,22 @@
         color: var(--primary);
         border: 1px solid var(--primary);
       }
-/* WARNA TOMBOL FILTER STOK LOGISTIK */
-#btnStokAll.active {
-  background: rgba(255, 215, 0, 0.15);
-  color: var(--primary);
-  border: 1px solid var(--primary);
-}
-#btnStokKurang.active {
-  background: rgba(255, 77, 77, 0.15);
-  color: var(--danger);
-  border: 1px solid var(--danger);
-}
-#btnStokAman.active {
-  background: rgba(74, 222, 128, 0.15);
-  color: var(--success);
-  border: 1px solid var(--success);
-}
-
+      /* WARNA TOMBOL FILTER STOK LOGISTIK */
+      #btnStokAll.active {
+        background: rgba(255, 215, 0, 0.15);
+        color: var(--primary);
+        border: 1px solid var(--primary);
+      }
+      #btnStokKurang.active {
+        background: rgba(255, 77, 77, 0.15);
+        color: var(--danger);
+        border: 1px solid var(--danger);
+      }
+      #btnStokAman.active {
+        background: rgba(74, 222, 128, 0.15);
+        color: var(--success);
+        border: 1px solid var(--success);
+      }
     </style>
   </head>
   <body>
@@ -776,8 +775,21 @@
 
           <!-- Input Min & Max Setoran -->
           <div id="wrapInputSetoran" style="display: none; gap: 5px">
-            <input type="number" id="filterAngka" class="filter-input-normal" placeholder="Min..." oninput="terapkanFilterPesertaDebounced()"/>
-<input type="number" id="filterAngkaMax" class="filter-input-normal" style="display: none" placeholder="Max..." oninput="terapkanFilterPesertaDebounced()"/>
+            <input
+              type="number"
+              id="filterAngka"
+              class="filter-input-normal"
+              placeholder="Min..."
+              oninput="terapkanFilterPesertaDebounced()"
+            />
+            <input
+              type="number"
+              id="filterAngkaMax"
+              class="filter-input-normal"
+              style="display: none"
+              placeholder="Max..."
+              oninput="terapkanFilterPesertaDebounced()"
+            />
           </div>
         </div>
         <div class="filter-grid">
@@ -1006,8 +1018,20 @@
         </div>
 
         <div class="filter-grid">
-         <input type="number" id="fMinSetoran" class="filter-input-normal" placeholder="Min setoran..." oninput="hitungUlangLogistikDebounced()"/>
-         <input type="number" id="fMaxSetoran" class="filter-input-normal" placeholder="Max setoran..." oninput="hitungUlangLogistikDebounced()"/>
+          <input
+            type="number"
+            id="fMinSetoran"
+            class="filter-input-normal"
+            placeholder="Min setoran..."
+            oninput="hitungUlangLogistikDebounced()"
+          />
+          <input
+            type="number"
+            id="fMaxSetoran"
+            class="filter-input-normal"
+            placeholder="Max setoran..."
+            oninput="hitungUlangLogistikDebounced()"
+          />
         </div>
 
         <!-- TOGGLE GABUNG FIX_BARANG -->
@@ -1096,9 +1120,8 @@
 
       <!-- AREA PENCARIAN & DAFTAR BARANG GUDANG -->
       <div style="padding: 0 20px 20px 20px">
-        
         <!-- KOLOM CARI BARANG (POSISI BARU: DI ATAS DAFTAR BARANG) -->
-        <div class="search-input-wrap" style="margin-bottom: 10px;">
+        <div class="search-input-wrap" style="margin-bottom: 10px">
           <i class="fas fa-search"></i>
           <input
             type="text"
@@ -1110,7 +1133,7 @@
         </div>
 
         <!-- 3 TOMBOL FILTER STATUS STOK BARANG -->
-        <div class="status-filter-group" style="margin-bottom: 12px;">
+        <div class="status-filter-group" style="margin-bottom: 12px">
           <button
             type="button"
             id="btnStokAll"
@@ -1536,68 +1559,243 @@
     </div>
 
     <!-- MODAL 4: CATATAN LAPORAN KAS BESAR (STICKY, SEARCH & ACCORDION) -->
-<div id="modalCatatan" class="modal">
-  <div class="modal-content">
-    <div class="m-head">
-      <h3 style="margin: 0; color: var(--primary); font-size: 1rem">
-        <i class="fas fa-receipt"></i> Laporan Kas Besar
-      </h3>
-      <i class="fas fa-times" style="font-size: 1.3rem; color: #888; cursor: pointer" onclick="tutupModal('modalCatatan')"></i>
-    </div>
-    <div class="m-body" style="padding-top: 10px;">
-      
-      <!-- COLLAPSIBLE 1: RINGKASAN & AUDIT KAS REAL -->
-      <div style="background: #1e1e1e; border: 1px solid #333; border-radius: 10px; margin-bottom: 10px; overflow: hidden;">
-        <div onclick="toggleSectionCatatan('secRingkasanKas', 'iconRingkasanKas')" style="padding: 10px 14px; background: #252525; display: flex; justify-content: space-between; align-items: center; cursor: pointer; user-select: none;">
-          <span style="font-size: 0.83rem; font-weight: bold; color: var(--primary);"><i class="fas fa-calculator"></i> Ringkasan Saldo & Audit Kas Fisik</span>
-          <i class="fas fa-chevron-down" id="iconRingkasanKas" style="color: #888; font-size: 0.8rem; transition: transform 0.2s;"></i>
+    <div id="modalCatatan" class="modal">
+      <div class="modal-content">
+        <div class="m-head">
+          <h3 style="margin: 0; color: var(--primary); font-size: 1rem">
+            <i class="fas fa-receipt"></i> Laporan Kas Besar
+          </h3>
+          <i
+            class="fas fa-times"
+            style="font-size: 1.3rem; color: #888; cursor: pointer"
+            onclick="tutupModal('modalCatatan')"
+          ></i>
         </div>
-        <div id="secRingkasanKas" style="display: block; padding: 10px 14px; background: #181818;">
-          <div id="catatanHeader" style="display: flex; flex-direction: column; gap: 8px;"></div>
-        </div>
-      </div>
-
-      <!-- COLLAPSIBLE 2: CATAT & RIWAYAT PENGELUARAN LAIN -->
-      <div style="background: #1e1e1e; border: 1px solid #333; border-radius: 10px; margin-bottom: 15px; overflow: hidden;">
-        <div onclick="toggleSectionCatatan('secPengeluaranLain', 'iconPengeluaranLain')" style="padding: 10px 14px; background: #252525; display: flex; justify-content: space-between; align-items: center; cursor: pointer; user-select: none;">
-          <span style="font-size: 0.83rem; font-weight: bold; color: var(--danger);"><i class="fas fa-wallet"></i> Catat & Riwayat Pengeluaran Lainnya</span>
-          <i class="fas fa-chevron-down" id="iconPengeluaranLain" style="color: #888; font-size: 0.8rem; transition: transform 0.2s; transform: rotate(180deg);"></i>
-        </div>
-        <div id="secPengeluaranLain" style="display: none; padding: 12px; background: #181818;">
-          <div style="background: #1a1a1a; padding: 10px; border-radius: 8px; border: 1px dashed var(--primary); margin-bottom: 10px;">
-            <h4 style="margin: 0 0 6px 0; color: var(--primary); font-size: 0.78rem;">
-              <i class="fas fa-plus-circle"></i> Catat Pengeluaran Baru
-            </h4>
-            <div style="display: flex; gap: 6px; flex-wrap: wrap;">
-              <input type="text" id="inputKetKas" placeholder="Cth: Beli Emas, Dipinjam..." class="filter-input-normal" style="flex: 1; min-width: 140px; padding: 6px 8px; font-size: 0.8rem;">
-              <input type="number" id="inputNominalKas" placeholder="Nominal Rp..." class="filter-input-normal" style="width: 100px; padding: 6px 8px; font-size: 0.8rem;">
-              <button onclick="tambahKasLain(this)" style="background: var(--primary); color: #000; border: none; font-weight: bold; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 0.8rem;">Simpan</button>
+        <div class="m-body" style="padding-top: 10px">
+          <!-- COLLAPSIBLE 1: RINGKASAN & AUDIT KAS REAL -->
+          <div
+            style="
+              background: #1e1e1e;
+              border: 1px solid #333;
+              border-radius: 10px;
+              margin-bottom: 10px;
+              overflow: hidden;
+            "
+          >
+            <div
+              onclick="
+                toggleSectionCatatan('secRingkasanKas', 'iconRingkasanKas')
+              "
+              style="
+                padding: 10px 14px;
+                background: #252525;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                cursor: pointer;
+                user-select: none;
+              "
+            >
+              <span
+                style="
+                  font-size: 0.83rem;
+                  font-weight: bold;
+                  color: var(--primary);
+                "
+                ><i class="fas fa-calculator"></i> Ringkasan Saldo & Audit Kas
+                Fisik</span
+              >
+              <i
+                class="fas fa-chevron-down"
+                id="iconRingkasanKas"
+                style="
+                  color: #888;
+                  font-size: 0.8rem;
+                  transition: transform 0.2s;
+                "
+              ></i>
+            </div>
+            <div
+              id="secRingkasanKas"
+              style="display: block; padding: 10px 14px; background: #181818"
+            >
+              <div
+                id="catatanHeader"
+                style="display: flex; flex-direction: column; gap: 8px"
+              ></div>
             </div>
           </div>
-          <div id="kasLainListContainer"></div>
+
+          <!-- COLLAPSIBLE 2: CATAT & RIWAYAT PENGELUARAN LAIN -->
+          <div
+            style="
+              background: #1e1e1e;
+              border: 1px solid #333;
+              border-radius: 10px;
+              margin-bottom: 15px;
+              overflow: hidden;
+            "
+          >
+            <div
+              onclick="
+                toggleSectionCatatan(
+                  'secPengeluaranLain',
+                  'iconPengeluaranLain',
+                )
+              "
+              style="
+                padding: 10px 14px;
+                background: #252525;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                cursor: pointer;
+                user-select: none;
+              "
+            >
+              <span
+                style="
+                  font-size: 0.83rem;
+                  font-weight: bold;
+                  color: var(--danger);
+                "
+                ><i class="fas fa-wallet"></i> Catat & Riwayat Pengeluaran
+                Lainnya</span
+              >
+              <i
+                class="fas fa-chevron-down"
+                id="iconPengeluaranLain"
+                style="
+                  color: #888;
+                  font-size: 0.8rem;
+                  transition: transform 0.2s;
+                  transform: rotate(180deg);
+                "
+              ></i>
+            </div>
+            <div
+              id="secPengeluaranLain"
+              style="display: none; padding: 12px; background: #181818"
+            >
+              <div
+                style="
+                  background: #1a1a1a;
+                  padding: 10px;
+                  border-radius: 8px;
+                  border: 1px dashed var(--primary);
+                  margin-bottom: 10px;
+                "
+              >
+                <h4
+                  style="
+                    margin: 0 0 6px 0;
+                    color: var(--primary);
+                    font-size: 0.78rem;
+                  "
+                >
+                  <i class="fas fa-plus-circle"></i> Catat Pengeluaran Baru
+                </h4>
+                <div style="display: flex; gap: 6px; flex-wrap: wrap">
+                  <input
+                    type="text"
+                    id="inputKetKas"
+                    placeholder="Cth: Beli Emas, Dipinjam..."
+                    class="filter-input-normal"
+                    style="
+                      flex: 1;
+                      min-width: 140px;
+                      padding: 6px 8px;
+                      font-size: 0.8rem;
+                    "
+                  />
+                  <input
+                    type="number"
+                    id="inputNominalKas"
+                    placeholder="Nominal Rp..."
+                    class="filter-input-normal"
+                    style="width: 100px; padding: 6px 8px; font-size: 0.8rem"
+                  />
+                  <button
+                    onclick="tambahKasLain(this)"
+                    style="
+                      background: var(--primary);
+                      color: #000;
+                      border: none;
+                      font-weight: bold;
+                      padding: 6px 12px;
+                      border-radius: 6px;
+                      cursor: pointer;
+                      font-size: 0.8rem;
+                    "
+                  >
+                    Simpan
+                  </button>
+                </div>
+              </div>
+              <div id="kasLainListContainer"></div>
+            </div>
+          </div>
+
+          <!-- STICKY HEADER & SEARCH BAR BARANG -->
+          <div
+            style="
+              position: sticky;
+              top: -10px;
+              background: #121212;
+              padding: 8px 0;
+              z-index: 20;
+              border-bottom: 1px dashed #444;
+              margin-bottom: 10px;
+            "
+          >
+            <div
+              style="
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                margin-bottom: 6px;
+              "
+            >
+              <h4 style="color: #fff; font-size: 0.85rem; margin: 0">
+                <i class="fas fa-boxes-stacked"></i> Rincian Belanja Barang
+                (Masuk Gudang)
+              </h4>
+              <span
+                id="lblTotalItemCatatan"
+                style="
+                  font-size: 0.75rem;
+                  color: var(--primary);
+                  font-weight: bold;
+                "
+                >0 Item</span
+              >
+            </div>
+            <div class="search-input-wrap" style="margin: 0">
+              <i
+                class="fas fa-search"
+                style="
+                  position: absolute;
+                  left: 10px;
+                  color: #888;
+                  font-size: 0.8rem;
+                "
+              ></i>
+              <input
+                type="text"
+                id="cariBarangCatatan"
+                class="search-input"
+                placeholder="🔍 Cari nama barang di laporan kas..."
+                oninput="filterBarangCatatan()"
+                style="padding: 6px 10px 6px 32px; font-size: 0.82rem"
+              />
+            </div>
+          </div>
+
+          <!-- LIST BARANG BELANJA -->
+          <div id="catatanListContainer"></div>
         </div>
       </div>
-
-      <!-- STICKY HEADER & SEARCH BAR BARANG -->
-      <div style="position: sticky; top: -10px; background: #121212; padding: 8px 0; z-index: 20; border-bottom: 1px dashed #444; margin-bottom: 10px;">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
-          <h4 style="color: #fff; font-size: 0.85rem; margin: 0;">
-            <i class="fas fa-boxes-stacked"></i> Rincian Belanja Barang (Masuk Gudang)
-          </h4>
-          <span id="lblTotalItemCatatan" style="font-size: 0.75rem; color: var(--primary); font-weight: bold;">0 Item</span>
-        </div>
-        <div class="search-input-wrap" style="margin: 0;">
-          <i class="fas fa-search" style="position: absolute; left: 10px; color: #888; font-size: 0.8rem;"></i>
-          <input type="text" id="cariBarangCatatan" class="search-input" placeholder="🔍 Cari nama barang di laporan kas..." oninput="filterBarangCatatan()" style="padding: 6px 10px 6px 32px; font-size: 0.82rem;">
-        </div>
-      </div>
-
-      <!-- LIST BARANG BELANJA -->
-      <div id="catatanListContainer"></div>
-
     </div>
-  </div>
-</div>
 
     <script src="script.js"></script>
     <script>
@@ -2658,6 +2856,24 @@
         const rawMax = document.getElementById("fMaxSetoran").value;
         const maxSetor = rawMax !== "" ? parseInt(rawMax) : Infinity;
 
+        const chkGabungFix = document.getElementById("chkGabungFixBarang");
+        const isGabungFix = chkGabungFix && chkGabungFix.checked;
+        const badgeFix = document.getElementById("badgeInfoFixBarang");
+
+        // Kumpulkan semua ID peserta yang sudah ada di FIX_BARANG
+        let setIdSudahFix = new Set();
+        if (dataFixBarangGlobal.length > 0) {
+          dataFixBarangGlobal.forEach((fb) => {
+            if (fb.detail && Array.isArray(fb.detail)) {
+              fb.detail.forEach((d) => {
+                if (d.id_peserta) {
+                  setIdSudahFix.add(String(d.id_peserta).trim().toUpperCase());
+                }
+              });
+            }
+          });
+        }
+
         let pesertaLolos = masterDataLogistik.peserta.filter((p) => {
           let passM = valMitra === "ALL" || p.mitra === valMitra;
           let passP = selectedPakets.includes(p.paket);
@@ -2686,90 +2902,104 @@
           resepPerPaket[r.paket].push(r);
         });
 
+        // Hanya ambil dari DATA_PESANAN_DETAIL (abaikan item dengan sumber "FIX" agar tidak double)
         let customPerPeserta = {};
         (masterDataLogistik.custom || []).forEach((c) => {
-          let pid = String(c.id_peserta).trim();
+          let pid = String(c.id_peserta).trim().toUpperCase();
+          if (c.sumber === "FIX" || setIdSudahFix.has(pid)) return;
           if (!customPerPeserta[pid]) customPerPeserta[pid] = [];
           customPerPeserta[pid].push(c);
         });
 
         pesertaLolos.forEach((p) => {
-  let pid = String(p.id).trim();
-  let rasio =
-    p.target_barang > 0
-      ? Math.min(1.0, (p.setoran_masuk || 0) / p.target_barang)
-      : 1.0;
+          let pid = String(p.id).trim().toUpperCase();
 
-  // 1. Ambil jumlah setoran & nilai per setoran
-  let totalSetor = p.setoran_masuk || 0;
-  let nilaiPerSetor = Number(p.nilai_setoran || p.setoran_rp || p.nilai_setor) || 0;
-  let infoSetoranStr = `Setor: ${totalSetor}x` + (nilaiPerSetor > 0 ? ` @ ${formatUang(nilaiPerSetor)}` : "");
+          // Jika mode gabung FIX_BARANG aktif dan peserta sudah ada di FIX_BARANG,
+          // lewati perhitungan proyeksi paket & DATA_PESANAN_DETAIL agar tidak double
+          if (isGabungFix && setIdSudahFix.has(pid)) {
+            return;
+          }
 
-  // 2. Resep Paket
-  let resepList = resepPerPaket[p.paket] || [];
-  resepList.forEach((r) => {
-    let porsi = r.qty * rasio;
-    if (porsi > 0) {
-      let keyBrg = r.barang.trim();
-      if (!keranjang[keyBrg])
-        keranjang[keyBrg] = { qty: 0, satuan: r.satuan, detail: [] };
-      keranjang[keyBrg].qty += porsi;
-      keranjang[keyBrg].detail.push({
-        tipe: "Paket (Pro-Rata)",
-        nama_sumber: p.paket,
-        qty_satuan: Number(porsi.toFixed(2)),
-        list_peserta: [
-          `${p.nama || p.id} (Mitra: ${p.mitra || "-"}, ${infoSetoranStr})`,
-        ],
-        subtotal: porsi,
-      });
-    }
-  });
+          let rasio =
+            p.target_barang > 0
+              ? Math.min(1.0, (p.setoran_masuk || 0) / p.target_barang)
+              : 1.0;
 
-  // 3. Custom Order Peserta
-  let customList = customPerPeserta[pid] || [];
-  customList.forEach((c) => {
-    let porsi = (Number(c.qty) || 1) * rasio;
-    if (porsi > 0) {
-      let keyBrg = c.barang.trim();
-      let sat = c.satuan || "pcs";
-      if (!keranjang[keyBrg])
-        keranjang[keyBrg] = { qty: 0, satuan: sat, detail: [] };
-      keranjang[keyBrg].qty += porsi;
-      keranjang[keyBrg].detail.push({
-        tipe: "Custom Order",
-        nama_sumber: `Custom: ${p.nama || p.id}`,
-        qty_satuan: Number(porsi.toFixed(2)),
-        list_peserta: [
-          `${p.nama || p.id} (Mitra: ${p.mitra || "-"}, Custom Order, ${infoSetoranStr})`,
-        ],
-        subtotal: porsi,
-      });
-    }
-  });
-});
+          let totalSetor = p.setoran_masuk || 0;
+          let nilaiPerSetor =
+            Number(p.nilai_setoran || p.setoran_rp || p.nilai_setor) || 0;
+          let infoSetoranStr =
+            `Setor: ${totalSetor}x` +
+            (nilaiPerSetor > 0 ? ` @ ${formatUang(nilaiPerSetor)}` : "");
 
-       // PENGGABUNGAN DENGAN DATA SHEET FIX_BARANG
-        const chkGabungFix = document.getElementById("chkGabungFixBarang");
-        const isGabungFix = chkGabungFix && chkGabungFix.checked;
-        const badgeFix = document.getElementById("badgeInfoFixBarang");
+          // 1. Resep Paket
+          let resepList = resepPerPaket[p.paket] || [];
+          resepList.forEach((r) => {
+            let porsi = r.qty * rasio;
+            if (porsi > 0) {
+              let keyBrg = r.barang.trim();
+              if (!keranjang[keyBrg])
+                keranjang[keyBrg] = { qty: 0, satuan: r.satuan, detail: [] };
+              keranjang[keyBrg].qty += porsi;
+              keranjang[keyBrg].detail.push({
+                tipe: "Paket (Pro-Rata)",
+                nama_sumber: p.paket,
+                qty_satuan: Number(porsi.toFixed(2)),
+                list_peserta: [
+                  `${p.nama || p.id} (Mitra: ${p.mitra || "-"}, ${infoSetoranStr})`,
+                ],
+                subtotal: porsi,
+              });
+            }
+          });
 
-        // 1. Buat Peta Informasi Setoran Peserta (Lookup Map)
+          // 2. Custom Order Peserta (Hanya dari DATA_PESANAN_DETAIL bagi yang belum di FIX_BARANG)
+          let customList = customPerPeserta[pid] || [];
+          customList.forEach((c) => {
+            let porsi = (Number(c.qty) || 1) * rasio;
+            if (porsi > 0) {
+              let keyBrg = c.barang.trim();
+              let sat = c.satuan || "pcs";
+              if (!keranjang[keyBrg])
+                keranjang[keyBrg] = { qty: 0, satuan: sat, detail: [] };
+              keranjang[keyBrg].qty += porsi;
+              keranjang[keyBrg].detail.push({
+                tipe: "Custom Order",
+                nama_sumber: `Custom: ${p.nama || p.id}`,
+                qty_satuan: Number(porsi.toFixed(2)),
+                list_peserta: [
+                  `${p.nama || p.id} (Mitra: ${p.mitra || "-"}, Custom Order, ${infoSetoranStr})`,
+                ],
+                subtotal: porsi,
+              });
+            }
+          });
+        });
+
+        // Peta Informasi Setoran Peserta
         let mapPesertaInfo = {};
         if (masterDataLogistik.peserta) {
           masterDataLogistik.peserta.forEach((p) => {
-            let idKey = String(p.id || "").trim().toLowerCase();
-            let namaKey = String(p.nama || "").trim().toLowerCase();
+            let idKey = String(p.id || "")
+              .trim()
+              .toLowerCase();
+            let namaKey = String(p.nama || "")
+              .trim()
+              .toLowerCase();
 
             let pMan = dataPesertaManual.find(
               (m) =>
-                String(m.id || "").trim().toLowerCase() === idKey ||
-                String(m.nama || "").trim().toLowerCase() === namaKey
+                String(m.id || "")
+                  .trim()
+                  .toLowerCase() === idKey ||
+                String(m.nama || "")
+                  .trim()
+                  .toLowerCase() === namaKey,
             );
 
             let info = {
               freq: p.setoran_masuk || (pMan ? pMan.freq : 0),
-              nilai_setor: pMan ? (pMan.nilai_setoran || 0) : 0,
+              nilai_setor: pMan ? pMan.nilai_setoran || 0 : 0,
             };
 
             if (idKey) mapPesertaInfo[idKey] = info;
@@ -2778,16 +3008,27 @@
         }
 
         dataPesertaManual.forEach((p) => {
-          let idKey = String(p.id || "").trim().toLowerCase();
-          let namaKey = String(p.nama || "").trim().toLowerCase();
+          let idKey = String(p.id || "")
+            .trim()
+            .toLowerCase();
+          let namaKey = String(p.nama || "")
+            .trim()
+            .toLowerCase();
           if (idKey && !mapPesertaInfo[idKey]) {
-            mapPesertaInfo[idKey] = { freq: p.freq || 0, nilai_setor: p.nilai_setoran || 0 };
+            mapPesertaInfo[idKey] = {
+              freq: p.freq || 0,
+              nilai_setor: p.nilai_setoran || 0,
+            };
           }
           if (namaKey && !mapPesertaInfo[namaKey]) {
-            mapPesertaInfo[namaKey] = { freq: p.freq || 0, nilai_setor: p.nilai_setoran || 0 };
+            mapPesertaInfo[namaKey] = {
+              freq: p.freq || 0,
+              nilai_setor: p.nilai_setoran || 0,
+            };
           }
         });
 
+        // 3. Tambahkan Data dari Sheet FIX_BARANG (1x saja tanpa duplikasi)
         if (isGabungFix && dataFixBarangGlobal.length > 0) {
           let totalQtyFixDitimpa = 0;
           dataFixBarangGlobal.forEach((fb) => {
@@ -2800,7 +3041,6 @@
               keranjang[keyBrg].qty += Number(fb.butuh);
               totalQtyFixDitimpa += Number(fb.butuh);
 
-              // 2. BACA RINCIAN PESERTA DARI SHEET FIX_BARANG & TAMPILKAN INFO SETORAN
               if (
                 fb.detail &&
                 Array.isArray(fb.detail) &&
@@ -2811,12 +3051,20 @@
                   let mitraP = p.mitra || "-";
                   let qtyP = p.qty || 1;
 
-                  // Ambil data setoran peserta dari lookup map
-                  let keyId = String(p.id_peserta || "").trim().toLowerCase();
-                  let keyNama = String(p.nama || "").trim().toLowerCase();
-                  let infoP = mapPesertaInfo[keyId] || mapPesertaInfo[keyNama] || { freq: 0, nilai_setor: 0 };
+                  let keyId = String(p.id_peserta || "")
+                    .trim()
+                    .toLowerCase();
+                  let keyNama = String(p.nama || "")
+                    .trim()
+                    .toLowerCase();
+                  let infoP = mapPesertaInfo[keyId] ||
+                    mapPesertaInfo[keyNama] || { freq: 0, nilai_setor: 0 };
 
-                  let infoSetoranStr = `Setor: ${infoP.freq}x` + (infoP.nilai_setor > 0 ? ` @ ${formatUang(infoP.nilai_setor)}` : "");
+                  let infoSetoranStr =
+                    `Setor: ${infoP.freq}x` +
+                    (infoP.nilai_setor > 0
+                      ? ` @ ${formatUang(infoP.nilai_setor)}`
+                      : "");
 
                   keranjang[keyBrg].detail.push({
                     tipe: "Sheet FIX_BARANG",
@@ -2829,7 +3077,6 @@
                   });
                 });
               } else {
-                // Fallback jika detail kosong
                 keranjang[keyBrg].detail.push({
                   tipe: "Sheet FIX_BARANG",
                   nama_sumber: "Fix Peserta (Sheet FIX_BARANG)",
@@ -2874,33 +3121,32 @@
         renderStatsUiLogistik(pesertaLolos.length, countPaket);
         renderListLogistikLokal();
       }
-
-     /* ===================================================================
+      /* ===================================================================
    TOGGLE DROPDOWN STATS PAKET LOGISTIK
    =================================================================== */
-function toggleStatsDropdown() {
-  const body = document.getElementById("statsPaketBody");
-  const icon = document.getElementById("statsPaketIcon");
-  if (!body) return;
-  if (body.style.display === "none" || body.style.display === "") {
-    body.style.display = "block";
-    if (icon) icon.style.transform = "rotate(180deg)";
-  } else {
-    body.style.display = "none";
-    if (icon) icon.style.transform = "rotate(0deg)";
-  }
-}
+      function toggleStatsDropdown() {
+        const body = document.getElementById("statsPaketBody");
+        const icon = document.getElementById("statsPaketIcon");
+        if (!body) return;
+        if (body.style.display === "none" || body.style.display === "") {
+          body.style.display = "block";
+          if (icon) icon.style.transform = "rotate(180deg)";
+        } else {
+          body.style.display = "none";
+          if (icon) icon.style.transform = "rotate(0deg)";
+        }
+      }
 
-function renderStatsUiLogistik(totalPeserta, countPaket) {
-  const paketBox = document.getElementById("paketListStats");
-  
-  let chipsHtml = "";
-  for (let pkt in countPaket) {
-    let strPktEscaped = pkt.replace(/'/g, "\\'");
-    chipsHtml += `<div class="sc-chip" onclick="bukaDetailPaket('${strPktEscaped}')" style="cursor:pointer;" title="Klik untuk rincian paket"><span>${pkt}</span> <b>${countPaket[pkt]}</b></div>`;
-  }
+      function renderStatsUiLogistik(totalPeserta, countPaket) {
+        const paketBox = document.getElementById("paketListStats");
 
-  let html = `
+        let chipsHtml = "";
+        for (let pkt in countPaket) {
+          let strPktEscaped = pkt.replace(/'/g, "\\'");
+          chipsHtml += `<div class="sc-chip" onclick="bukaDetailPaket('${strPktEscaped}')" style="cursor:pointer;" title="Klik untuk rincian paket"><span>${pkt}</span> <b>${countPaket[pkt]}</b></div>`;
+        }
+
+        let html = `
     <div class="summary-card" style="padding:0; overflow:hidden;">
       <div onclick="toggleStatsDropdown()" style="padding:12px 15px; display:flex; justify-content:space-between; align-items:center; cursor:pointer; user-select:none; background:#1a1a1a;">
         <div style="display:flex; align-items:baseline; gap:8px;">
@@ -2917,75 +3163,80 @@ function renderStatsUiLogistik(totalPeserta, countPaket) {
       </div>
     </div>`;
 
-  paketBox.innerHTML = html;
-}
+        paketBox.innerHTML = html;
+      }
 
-     // State filter status stok logistik (ALL / KURANG / AMAN)
-let filterStokLogistikGlobal = "ALL";
+      // State filter status stok logistik (ALL / KURANG / AMAN)
+      let filterStokLogistikGlobal = "ALL";
 
-function setFilterStokLogistik(status) {
-  filterStokLogistikGlobal = status;
-  const btnAll = document.getElementById("btnStokAll");
-  const btnKurang = document.getElementById("btnStokKurang");
-  const btnAman = document.getElementById("btnStokAman");
+      function setFilterStokLogistik(status) {
+        filterStokLogistikGlobal = status;
+        const btnAll = document.getElementById("btnStokAll");
+        const btnKurang = document.getElementById("btnStokKurang");
+        const btnAman = document.getElementById("btnStokAman");
 
-  if (btnAll) btnAll.classList.toggle("active", status === "ALL");
-  if (btnKurang) btnKurang.classList.toggle("active", status === "KURANG");
-  if (btnAman) btnAman.classList.toggle("active", status === "AMAN");
+        if (btnAll) btnAll.classList.toggle("active", status === "ALL");
+        if (btnKurang)
+          btnKurang.classList.toggle("active", status === "KURANG");
+        if (btnAman) btnAman.classList.toggle("active", status === "AMAN");
 
-  renderListLogistikLokal();
-}
+        renderListLogistikLokal();
+      }
 
-function renderListLogistikLokal() {
-  const query = (document.getElementById("filterInputLogistik").value || "").toLowerCase();
-  let container = document.getElementById("belanjaListLogistik");
-  container.innerHTML = "";
-  let estimasi = 0;
+      function renderListLogistikLokal() {
+        const query = (
+          document.getElementById("filterInputLogistik").value || ""
+        ).toLowerCase();
+        let container = document.getElementById("belanjaListLogistik");
+        container.innerHTML = "";
+        let estimasi = 0;
 
-  // Hitung estimasi total biaya belanja untuk semua barang yang KURANG
-  listBelanjaFinalLogistik.forEach((b) => {
-    if (b.kurang > 0) {
-      let isUang =
-        b.barang.toLowerCase().includes("uang") ||
-        b.satuan.toLowerCase().includes("rupiah") ||
-        b.satuan.toLowerCase() === "rp";
-      let hrgAsli = isUang ? 1 : b.harga;
-      estimasi += b.kurang * hrgAsli;
-    }
-  });
+        // Hitung estimasi total biaya belanja untuk semua barang yang KURANG
+        listBelanjaFinalLogistik.forEach((b) => {
+          if (b.kurang > 0) {
+            let isUang =
+              b.barang.toLowerCase().includes("uang") ||
+              b.satuan.toLowerCase().includes("rupiah") ||
+              b.satuan.toLowerCase() === "rp";
+            let hrgAsli = isUang ? 1 : b.harga;
+            estimasi += b.kurang * hrgAsli;
+          }
+        });
 
-  // Filter barang berdasarkan nama pencarian DAN tombol filter status stok (ALL / KURANG / AMAN)
-  let barangTampil = listBelanjaFinalLogistik.filter((b) => {
-    let matchStatus = true;
-    if (filterStokLogistikGlobal === "KURANG") {
-      matchStatus = b.kurang > 0;
-    } else if (filterStokLogistikGlobal === "AMAN") {
-      matchStatus = b.kurang === 0;
-    }
-    return matchStatus && b.barang.toLowerCase().includes(query);
-  });
+        // Filter barang berdasarkan nama pencarian DAN tombol filter status stok (ALL / KURANG / AMAN)
+        let barangTampil = listBelanjaFinalLogistik.filter((b) => {
+          let matchStatus = true;
+          if (filterStokLogistikGlobal === "KURANG") {
+            matchStatus = b.kurang > 0;
+          } else if (filterStokLogistikGlobal === "AMAN") {
+            matchStatus = b.kurang === 0;
+          }
+          return matchStatus && b.barang.toLowerCase().includes(query);
+        });
 
-  document.getElementById("lblTotalBarangLogistik").innerText = barangTampil.length;
-  document.getElementById("estimasiBiaya").innerText = formatUang(estimasi);
+        document.getElementById("lblTotalBarangLogistik").innerText =
+          barangTampil.length;
+        document.getElementById("estimasiBiaya").innerText =
+          formatUang(estimasi);
 
-  if (!barangTampil.length) {
-    container.innerHTML = `<div style="padding:30px; text-align:center; color:#555; border:1px dashed #333; border-radius:10px;">Barang tidak ditemukan.</div>`;
-    return;
-  }
+        if (!barangTampil.length) {
+          container.innerHTML = `<div style="padding:30px; text-align:center; color:#555; border:1px dashed #333; border-radius:10px;">Barang tidak ditemukan.</div>`;
+          return;
+        }
 
-  barangTampil.forEach((b, index) => {
-    let strNamaEscaped = b.barang
-      .replace(/'/g, "\\'")
-      .replace(/"/g, "&quot;");
-    let isAman = b.kurang === 0;
-    let statusBdg = isAman
-      ? `<div id="badge_status_${index}" class="item-status status-aman">AMAN</div>`
-      : `<div id="badge_status_${index}" class="item-status status-kurang" style="cursor:pointer;" onclick="event.stopPropagation(); bukaDetailItem('${strNamaEscaped}')">KURANG ${b.kurang}</div>`;
-    let imgTag = b.foto
-      ? `<img src="${b.foto}" style="width:100%; height:100%; object-fit:cover; border-radius:6px;"/>`
-      : `<i class="fas fa-image" style="font-size:1.8rem; color:#444;"></i>`;
+        barangTampil.forEach((b, index) => {
+          let strNamaEscaped = b.barang
+            .replace(/'/g, "\\'")
+            .replace(/"/g, "&quot;");
+          let isAman = b.kurang === 0;
+          let statusBdg = isAman
+            ? `<div id="badge_status_${index}" class="item-status status-aman">AMAN</div>`
+            : `<div id="badge_status_${index}" class="item-status status-kurang" style="cursor:pointer;" onclick="event.stopPropagation(); bukaDetailItem('${strNamaEscaped}')">KURANG ${b.kurang}</div>`;
+          let imgTag = b.foto
+            ? `<img src="${b.foto}" style="width:100%; height:100%; object-fit:cover; border-radius:6px;"/>`
+            : `<i class="fas fa-image" style="font-size:1.8rem; color:#444;"></i>`;
 
-    container.innerHTML += `
+          container.innerHTML += `
 <div class="shop-item ${isAman ? "aman" : "kurang"}">
   <div onclick="let body = this.nextElementSibling; let icon = this.querySelector('.fa-chevron-down'); if(body.style.display==='none'){body.style.display='block'; icon.style.transform='rotate(180deg)';}else{body.style.display='none'; icon.style.transform='rotate(0deg)';}" 
        style="padding: 12px 14px; display: flex; justify-content: space-between; align-items: center; cursor: pointer;">
@@ -3016,8 +3267,8 @@ function renderListLogistikLokal() {
     </div>
   </div>
 </div>`;
-  });
-}
+        });
+      }
       function kalkulasiRealtimeLogistik(
         idx,
         target,
@@ -3054,54 +3305,57 @@ function renderListLogistikLokal() {
           .then(() => showToast("Disalin ke WhatsApp!"));
       }
 
-     async function simpanStokBelanjaLogistik() {
-  let itemsToSave = [];
-  document
-    .querySelectorAll(".input-tambah-stok-logistik")
-    .forEach((inp) => {
-      let val = parseInt(inp.value);
-      if (val > 0) {
-        let idx = inp.getAttribute("data-idx");
-        let hrgVal =
-          parseInt(document.getElementById(`input_hrg_${idx}`).value) || 0;
-        itemsToSave.push({
-          nama: inp.getAttribute("data-name"),
-          satuan: inp.getAttribute("data-sat"),
-          qty: val,
-          harga_satuan: hrgVal,
-        });
+      async function simpanStokBelanjaLogistik() {
+        let itemsToSave = [];
+        document
+          .querySelectorAll(".input-tambah-stok-logistik")
+          .forEach((inp) => {
+            let val = parseInt(inp.value);
+            if (val > 0) {
+              let idx = inp.getAttribute("data-idx");
+              let hrgVal =
+                parseInt(document.getElementById(`input_hrg_${idx}`).value) ||
+                0;
+              itemsToSave.push({
+                nama: inp.getAttribute("data-name"),
+                satuan: inp.getAttribute("data-sat"),
+                qty: val,
+                harga_satuan: hrgVal,
+              });
+            }
+          });
+
+        if (!itemsToSave.length) return alert("Belum ada input stok barang.");
+
+        // 1. Ambil elemen tombol SIMPAN MASUK
+        const btn = document.getElementById("btnSaveLogistik");
+        const originalHtml = btn
+          ? btn.innerHTML
+          : `<i class="fas fa-save"></i> SIMPAN MASUK`;
+
+        // 2. Pasang status Loading
+        if (btn) {
+          btn.disabled = true;
+          btn.style.opacity = "0.7";
+          btn.innerHTML = `<i class="fas fa-spinner fa-spin"></i> MENYIMPAN...`;
+        }
+
+        try {
+          // 3. Eksekusi pengiriman data ke server
+          await fetchData("simpanBelanja", { items: itemsToSave }, "POST");
+          showToast("Stok berhasil disimpan!");
+          await tarikDataSemua();
+        } catch (e) {
+          alert("Gagal menyimpan stok: " + (e.message || e));
+        } finally {
+          // 4. Kembalikan tombol ke kondisi semula setelah selesai
+          if (btn) {
+            btn.disabled = false;
+            btn.style.opacity = "1";
+            btn.innerHTML = originalHtml;
+          }
+        }
       }
-    });
-
-  if (!itemsToSave.length) return alert("Belum ada input stok barang.");
-
-  // 1. Ambil elemen tombol SIMPAN MASUK
-  const btn = document.getElementById("btnSaveLogistik");
-  const originalHtml = btn ? btn.innerHTML : `<i class="fas fa-save"></i> SIMPAN MASUK`;
-
-  // 2. Pasang status Loading
-  if (btn) {
-    btn.disabled = true;
-    btn.style.opacity = "0.7";
-    btn.innerHTML = `<i class="fas fa-spinner fa-spin"></i> MENYIMPAN...`;
-  }
-
-  try {
-    // 3. Eksekusi pengiriman data ke server
-    await fetchData("simpanBelanja", { items: itemsToSave }, "POST");
-    showToast("Stok berhasil disimpan!");
-    await tarikDataSemua();
-  } catch (e) {
-    alert("Gagal menyimpan stok: " + (e.message || e));
-  } finally {
-    // 4. Kembalikan tombol ke kondisi semula setelah selesai
-    if (btn) {
-      btn.disabled = false;
-      btn.style.opacity = "1";
-      btn.innerHTML = originalHtml;
-    }
-  }
-}
 
       /* ===================================================================
    DRILL-DOWN SUB-MODAL LOGISTIK
@@ -3350,156 +3604,159 @@ function renderListLogistikLokal() {
         showToast(`Pilihan barang ${pNama} berhasil dibatalkan!`);
       }
 
- /* ===================================================================
+      /* ===================================================================
    AUDIT KAS REAL (AUTO FORMAT RIBUAN/JUTAAN RUPIAH LIVE)
    =================================================================== */
-function formatRibuanInput(el) {
-  // Ambil hanya digit angka
-  let rawValue = el.value.replace(/\D/g, "");
-  if (!rawValue) {
-    el.value = "";
-    return 0;
-  }
-  // Ubah ke format angka dengan titik ribuan (id-ID)
-  let nominal = parseInt(rawValue, 10) || 0;
-  el.value = new Intl.NumberFormat("id-ID").format(nominal);
-  return nominal;
-}
+      function formatRibuanInput(el) {
+        // Ambil hanya digit angka
+        let rawValue = el.value.replace(/\D/g, "");
+        if (!rawValue) {
+          el.value = "";
+          return 0;
+        }
+        // Ubah ke format angka dengan titik ribuan (id-ID)
+        let nominal = parseInt(rawValue, 10) || 0;
+        el.value = new Intl.NumberFormat("id-ID").format(nominal);
+        return nominal;
+      }
 
-function parseNominalInput(id) {
-  const el = document.getElementById(id);
-  if (!el) return 0;
-  return parseInt(el.value.replace(/\D/g, ""), 10) || 0;
-}
+      function parseNominalInput(id) {
+        const el = document.getElementById(id);
+        if (!el) return 0;
+        return parseInt(el.value.replace(/\D/g, ""), 10) || 0;
+      }
 
-function hitungAuditKasReal(sisaKasUtama, elInput) {
-  // Format tampilan angka yang sedang diketik secara langsung
-  if (elInput) {
-    formatRibuanInput(elInput);
-  }
+      function hitungAuditKasReal(sisaKasUtama, elInput) {
+        // Format tampilan angka yang sedang diketik secara langsung
+        if (elInput) {
+          formatRibuanInput(elInput);
+        }
 
-  const cash = parseNominalInput("inputUangCash");
-  const bank = parseNominalInput("inputUangBank");
-  const totalReal = cash + bank;
-  const selisih = totalReal - sisaKasUtama;
+        const cash = parseNominalInput("inputUangCash");
+        const bank = parseNominalInput("inputUangBank");
+        const totalReal = cash + bank;
+        const selisih = totalReal - sisaKasUtama;
 
-  // Simpan nilai murni ke localStorage
-  localStorage.setItem("kas_real_cash", cash || "");
-  localStorage.setItem("kas_real_bank", bank || "");
+        // Simpan nilai murni ke localStorage
+        localStorage.setItem("kas_real_cash", cash || "");
+        localStorage.setItem("kas_real_bank", bank || "");
 
-  // Update tampilan total uang real
-  const txtTotalReal = document.getElementById("txtTotalUangReal");
-  if (txtTotalReal) txtTotalReal.innerText = formatUang(totalReal);
+        // Update tampilan total uang real
+        const txtTotalReal = document.getElementById("txtTotalUangReal");
+        if (txtTotalReal) txtTotalReal.innerText = formatUang(totalReal);
 
-  // Update status selisih (Lebih / Pas / Kurang)
-  const badgeSelisih = document.getElementById("badgeSelisihKas");
-  if (badgeSelisih) {
-    if (selisih === 0) {
-      badgeSelisih.style.background = "rgba(74, 222, 128, 0.15)";
-      badgeSelisih.style.color = "var(--success)";
-      badgeSelisih.style.border = "1px solid var(--success)";
-      badgeSelisih.innerHTML = `<i class="fas fa-check-circle"></i> PAS / SEIMBANG (Rp 0)`;
-    } else if (selisih > 0) {
-      badgeSelisih.style.background = "rgba(59, 130, 246, 0.15)";
-      badgeSelisih.style.color = "#60a5fa";
-      badgeSelisih.style.border = "1px solid #3b82f6";
-      badgeSelisih.innerHTML = `<i class="fas fa-arrow-up"></i> LEBIH (+${formatUang(selisih)})`;
-    } else {
-      badgeSelisih.style.background = "rgba(255, 77, 77, 0.15)";
-      badgeSelisih.style.color = "var(--danger)";
-      badgeSelisih.style.border = "1px solid var(--danger)";
-      badgeSelisih.innerHTML = `<i class="fas fa-exclamation-triangle"></i> KURANG (-${formatUang(Math.abs(selisih))})`;
-    }
-  }
-}
+        // Update status selisih (Lebih / Pas / Kurang)
+        const badgeSelisih = document.getElementById("badgeSelisihKas");
+        if (badgeSelisih) {
+          if (selisih === 0) {
+            badgeSelisih.style.background = "rgba(74, 222, 128, 0.15)";
+            badgeSelisih.style.color = "var(--success)";
+            badgeSelisih.style.border = "1px solid var(--success)";
+            badgeSelisih.innerHTML = `<i class="fas fa-check-circle"></i> PAS / SEIMBANG (Rp 0)`;
+          } else if (selisih > 0) {
+            badgeSelisih.style.background = "rgba(59, 130, 246, 0.15)";
+            badgeSelisih.style.color = "#60a5fa";
+            badgeSelisih.style.border = "1px solid #3b82f6";
+            badgeSelisih.innerHTML = `<i class="fas fa-arrow-up"></i> LEBIH (+${formatUang(selisih)})`;
+          } else {
+            badgeSelisih.style.background = "rgba(255, 77, 77, 0.15)";
+            badgeSelisih.style.color = "var(--danger)";
+            badgeSelisih.style.border = "1px solid var(--danger)";
+            badgeSelisih.innerHTML = `<i class="fas fa-exclamation-triangle"></i> KURANG (-${formatUang(Math.abs(selisih))})`;
+          }
+        }
+      }
 
-/* ===================================================================
+      /* ===================================================================
    HELPER TOGGLE COLLAPSIBLE SECTION & SEARCH FILTER KAS
    =================================================================== */
-function toggleSectionCatatan(idSection, idIcon) {
-  const sec = document.getElementById(idSection);
-  const icon = document.getElementById(idIcon);
-  if (!sec) return;
-  if (sec.style.display === "none" || sec.style.display === "") {
-    sec.style.display = "block";
-    if (icon) icon.style.transform = "rotate(0deg)";
-  } else {
-    sec.style.display = "none";
-    if (icon) icon.style.transform = "rotate(180deg)";
-  }
-}
+      function toggleSectionCatatan(idSection, idIcon) {
+        const sec = document.getElementById(idSection);
+        const icon = document.getElementById(idIcon);
+        if (!sec) return;
+        if (sec.style.display === "none" || sec.style.display === "") {
+          sec.style.display = "block";
+          if (icon) icon.style.transform = "rotate(0deg)";
+        } else {
+          sec.style.display = "none";
+          if (icon) icon.style.transform = "rotate(180deg)";
+        }
+      }
 
-function filterBarangCatatan() {
-  const q = (document.getElementById("cariBarangCatatan").value || "").toLowerCase().trim();
-  const items = document.querySelectorAll(".item-catatan-barang");
-  let totalTampil = 0;
+      function filterBarangCatatan() {
+        const q = (document.getElementById("cariBarangCatatan").value || "")
+          .toLowerCase()
+          .trim();
+        const items = document.querySelectorAll(".item-catatan-barang");
+        let totalTampil = 0;
 
-  items.forEach((el) => {
-    const nama = (el.getAttribute("data-nama") || "").toLowerCase();
-    if (q === "" || nama.includes(q)) {
-      el.style.display = "block";
-      totalTampil++;
-    } else {
-      el.style.display = "none";
-    }
-  });
+        items.forEach((el) => {
+          const nama = (el.getAttribute("data-nama") || "").toLowerCase();
+          if (q === "" || nama.includes(q)) {
+            el.style.display = "block";
+            totalTampil++;
+          } else {
+            el.style.display = "none";
+          }
+        });
 
-  const lbl = document.getElementById("lblTotalItemCatatan");
-  if (lbl) lbl.innerText = `${totalTampil} Item`;
-}
+        const lbl = document.getElementById("lblTotalItemCatatan");
+        if (lbl) lbl.innerText = `${totalTampil} Item`;
+      }
 
-async function ubahQtyStokCatatan(nama, qtyBaru) {
-  let valBaru = parseInt(qtyBaru);
-  if (isNaN(valBaru) || valBaru < 0) valBaru = 0;
-  
-  try {
-    await fetchData(
-      "editStokBelanja",
-      { namaBarang: nama, qtyBaru: valBaru },
-      "POST"
-    );
-    showToast(`Stok ${nama} diubah jadi ${valBaru}!`);
-    await tarikDataSemua();
-    bukaModalCatatan();
-  } catch (e) {
-    alert("Gagal mengubah stok: " + (e.message || e));
-  }
-}
+      async function ubahQtyStokCatatan(nama, qtyBaru) {
+        let valBaru = parseInt(qtyBaru);
+        if (isNaN(valBaru) || valBaru < 0) valBaru = 0;
 
-/* ===================================================================
+        try {
+          await fetchData(
+            "editStokBelanja",
+            { namaBarang: nama, qtyBaru: valBaru },
+            "POST",
+          );
+          showToast(`Stok ${nama} diubah jadi ${valBaru}!`);
+          await tarikDataSemua();
+          bukaModalCatatan();
+        } catch (e) {
+          alert("Gagal mengubah stok: " + (e.message || e));
+        }
+      }
+
+      /* ===================================================================
    MODAL LAPORAN KAS BESAR (UPDATED WITH QUICK EDIT & FITUR CARI)
    =================================================================== */
-/* ===================================================================
+      /* ===================================================================
    MODAL LAPORAN KAS BESAR (UPDATED WITH QUICK EDIT & FITUR CARI)
    =================================================================== */
-function bukaModalCatatan() {
-  let totalSetoranAll = 0;
-  masterDataLogistik.peserta.forEach(
-    (p) => (totalSetoranAll += parseFloat(p.saldo_rp) || 0)
-  );
+      function bukaModalCatatan() {
+        let totalSetoranAll = 0;
+        masterDataLogistik.peserta.forEach(
+          (p) => (totalSetoranAll += parseFloat(p.saldo_rp) || 0),
+        );
 
-  let totalTerpakaiBarang = 0;
-  let listHTML = "";
-  let itemCount = 0;
+        let totalTerpakaiBarang = 0;
+        let listHTML = "";
+        let itemCount = 0;
 
-  listBelanjaFinalLogistik.forEach((b, idx) => {
-    if (b.masuk > 0) {
-      itemCount++;
-      let hrgSatuan = b.harga || 0;
-      let sub = b.masuk * hrgSatuan;
-      totalTerpakaiBarang += sub;
+        listBelanjaFinalLogistik.forEach((b, idx) => {
+          if (b.masuk > 0) {
+            itemCount++;
+            let hrgSatuan = b.harga || 0;
+            let sub = b.masuk * hrgSatuan;
+            totalTerpakaiBarang += sub;
 
-      let txtKalkulasiHarga = hrgSatuan > 0 ? ` (x ${formatUang(hrgSatuan)})` : "";
+            let txtKalkulasiHarga =
+              hrgSatuan > 0 ? ` (x ${formatUang(hrgSatuan)})` : "";
 
-      let riwayatItems =
-        (masterDataLogistik.riwayat_belanja &&
-          masterDataLogistik.riwayat_belanja[b.barang]) ||
-        [];
+            let riwayatItems =
+              (masterDataLogistik.riwayat_belanja &&
+                masterDataLogistik.riwayat_belanja[b.barang]) ||
+              [];
 
-      let htmlRiwayat = "";
-      if (riwayatItems.length > 0) {
-        riwayatItems.forEach((r, rIdx) => {
-          htmlRiwayat += `
+            let htmlRiwayat = "";
+            if (riwayatItems.length > 0) {
+              riwayatItems.forEach((r, rIdx) => {
+                htmlRiwayat += `
             <div style="display:flex; justify-content:space-between; align-items:center; background:#111; padding:6px 10px; border-radius:6px; margin-bottom:4px; font-size:0.75rem; border:1px solid #2a2a2a;">
               <div>
                 <span style="color:#aaa;"><i class="far fa-clock"></i> ${r.waktu || "Batch #" + (rIdx + 1)}</span>
@@ -3507,9 +3764,9 @@ function bukaModalCatatan() {
               </div>
               <b style="color:var(--primary);">${formatUang(r.total)}</b>
             </div>`;
-        });
-      } else {
-        htmlRiwayat = `
+              });
+            } else {
+              htmlRiwayat = `
           <div style="display:flex; justify-content:space-between; align-items:center; background:#111; padding:6px 10px; border-radius:6px; font-size:0.75rem; border:1px solid #2a2a2a;">
             <div>
               <span style="color:#aaa;"><i class="fas fa-boxes-stacked"></i> Akumulasi Total Masuk</span>
@@ -3517,11 +3774,13 @@ function bukaModalCatatan() {
             </div>
             <b style="color:var(--primary);">${formatUang(sub)}</b>
           </div>`;
-      }
+            }
 
-      let strBarangEscaped = b.barang.replace(/'/g, "\\'").replace(/"/g, "&quot;");
+            let strBarangEscaped = b.barang
+              .replace(/'/g, "\\'")
+              .replace(/"/g, "&quot;");
 
-      listHTML += `
+            listHTML += `
         <div class="item-catatan-barang" data-nama="${b.barang.toLowerCase()}" style="background:#1e1e1e; border-radius:8px; margin-bottom:8px; border:1px solid #333; overflow:hidden;">
           <div onclick="toggleHistoriBelanjaModal(${idx})" style="padding:8px 12px; display:flex; justify-content:space-between; align-items:center; cursor:pointer; background:#1e1e1e; user-select:none;">
             <div style="flex:1; padding-right:8px;">
@@ -3553,15 +3812,15 @@ function bukaModalCatatan() {
             ${htmlRiwayat}
           </div>
         </div>`;
-    }
-  });
+          }
+        });
 
-  let totalKasLain = 0;
-  let htmlKasLain = "";
-  if (masterDataLogistik.kas_lain && masterDataLogistik.kas_lain.length) {
-    masterDataLogistik.kas_lain.forEach((k) => {
-      totalKasLain += k.nominal;
-      htmlKasLain += `
+        let totalKasLain = 0;
+        let htmlKasLain = "";
+        if (masterDataLogistik.kas_lain && masterDataLogistik.kas_lain.length) {
+          masterDataLogistik.kas_lain.forEach((k) => {
+            totalKasLain += k.nominal;
+            htmlKasLain += `
         <div style="background:#1e1e1e; padding:8px 10px; border-radius:8px; margin-bottom:6px; display:flex; justify-content:space-between; align-items:center;">
           <div>
             <div style="color:#fff; font-size:0.82rem; font-weight:bold;">${k.keterangan}</div>
@@ -3572,16 +3831,16 @@ function bukaModalCatatan() {
             <button onclick="hapusRiwayatKasLain('${k.waktu}')" style="background:none; border:none; color:var(--danger); cursor:pointer; padding:2px;"><i class="fas fa-trash"></i></button>
           </div>
         </div>`;
-    });
-  }
+          });
+        }
 
-  let totalUangTerpakaiSemua = totalTerpakaiBarang + totalKasLain;
-  let sisaSaldoKasUtama = totalSetoranAll - totalUangTerpakaiSemua;
+        let totalUangTerpakaiSemua = totalTerpakaiBarang + totalKasLain;
+        let sisaSaldoKasUtama = totalSetoranAll - totalUangTerpakaiSemua;
 
-  let savedCash = localStorage.getItem("kas_real_cash") || "";
-  let savedBank = localStorage.getItem("kas_real_bank") || "";
+        let savedCash = localStorage.getItem("kas_real_cash") || "";
+        let savedBank = localStorage.getItem("kas_real_bank") || "";
 
-  document.getElementById("catatanHeader").innerHTML = `
+        document.getElementById("catatanHeader").innerHTML = `
     <div style="background:#1e1e1e; padding:8px 12px; border-radius:8px; display:flex; justify-content:space-between; align-items:center; border:1px solid #333;">
       <span style="color:#aaa; font-size:0.8rem;">Total Setoran Keseluruhan</span>
       <b style="color:#fff; font-size:0.9rem;">${formatUang(totalSetoranAll)}</b>
@@ -3604,11 +3863,11 @@ function bukaModalCatatan() {
       <div style="display:grid; grid-template-columns: 1fr 1fr; gap:6px; margin-bottom:6px;">
         <div>
           <label style="font-size:0.68rem; color:#aaa; display:block; margin-bottom:2px;">💵 Uang Cash</label>
-          <input type="text" inputmode="numeric" id="inputUangCash" class="filter-input-normal" value="${savedCash ? new Intl.NumberFormat('id-ID').format(savedCash) : ''}" placeholder="Rp 0" style="padding:5px 7px; font-size:0.8rem; font-weight:bold; color:var(--primary);" oninput="hitungAuditKasReal(${sisaSaldoKasUtama}, this)">
+          <input type="text" inputmode="numeric" id="inputUangCash" class="filter-input-normal" value="${savedCash ? new Intl.NumberFormat("id-ID").format(savedCash) : ""}" placeholder="Rp 0" style="padding:5px 7px; font-size:0.8rem; font-weight:bold; color:var(--primary);" oninput="hitungAuditKasReal(${sisaSaldoKasUtama}, this)">
         </div>
         <div>
           <label style="font-size:0.68rem; color:#aaa; display:block; margin-bottom:2px;">🏦 Rekening Bank</label>
-          <input type="text" inputmode="numeric" id="inputUangBank" class="filter-input-normal" value="${savedBank ? new Intl.NumberFormat('id-ID').format(savedBank) : ''}" placeholder="Rp 0" style="padding:5px 7px; font-size:0.8rem; font-weight:bold; color:var(--primary);" oninput="hitungAuditKasReal(${sisaSaldoKasUtama}, this)">
+          <input type="text" inputmode="numeric" id="inputUangBank" class="filter-input-normal" value="${savedBank ? new Intl.NumberFormat("id-ID").format(savedBank) : ""}" placeholder="Rp 0" style="padding:5px 7px; font-size:0.8rem; font-weight:bold; color:var(--primary);" oninput="hitungAuditKasReal(${sisaSaldoKasUtama}, this)">
         </div>
       </div>
       <div style="display:flex; justify-content:space-between; align-items:center; padding-top:4px; border-top:1px dashed #333; font-size:0.8rem;">
@@ -3617,21 +3876,22 @@ function bukaModalCatatan() {
       </div>
     </div>`;
 
-  document.getElementById("lblTotalItemCatatan").innerText = `${itemCount} Item`;
-  document.getElementById("kasLainListContainer").innerHTML =
-    htmlKasLain ||
-    `<div style="color:#666; font-size:0.78rem; text-align:center; padding:8px;">Belum ada pengeluaran lain.</div>`;
-  document.getElementById("catatanListContainer").innerHTML =
-    listHTML ||
-    `<div style="color:#666; font-size:0.78rem; text-align:center; padding:15px;">Belum ada belanja barang.</div>`;
+        document.getElementById("lblTotalItemCatatan").innerText =
+          `${itemCount} Item`;
+        document.getElementById("kasLainListContainer").innerHTML =
+          htmlKasLain ||
+          `<div style="color:#666; font-size:0.78rem; text-align:center; padding:8px;">Belum ada pengeluaran lain.</div>`;
+        document.getElementById("catatanListContainer").innerHTML =
+          listHTML ||
+          `<div style="color:#666; font-size:0.78rem; text-align:center; padding:15px;">Belum ada belanja barang.</div>`;
 
-  // Reset pencarian & tampilkan modal
-  const searchInp = document.getElementById("cariBarangCatatan");
-  if (searchInp) searchInp.value = "";
-  document.getElementById("modalCatatan").style.display = "flex";
+        // Reset pencarian & tampilkan modal
+        const searchInp = document.getElementById("cariBarangCatatan");
+        if (searchInp) searchInp.value = "";
+        document.getElementById("modalCatatan").style.display = "flex";
 
-  hitungAuditKasReal(sisaSaldoKasUtama);
-}
+        hitungAuditKasReal(sisaSaldoKasUtama);
+      }
       async function tambahKasLain(btn) {
         const ket = document.getElementById("inputKetKas").value;
         const nom = document.getElementById("inputNominalKas").value;
@@ -3682,36 +3942,36 @@ function bukaModalCatatan() {
       }
 
       function toggleHistoriBelanjaModal(idx) {
-  const drop = document.getElementById(`drop-histori-${idx}`);
-  const icon = document.getElementById(`icon-histori-${idx}`);
-  if (!drop) return;
-  if (drop.style.display === "none" || drop.style.display === "") {
-    drop.style.display = "block";
-    if (icon) icon.style.transform = "rotate(180deg)";
-  } else {
-    drop.style.display = "none";
-    if (icon) icon.style.transform = "rotate(0deg)";
-  }
-}
+        const drop = document.getElementById(`drop-histori-${idx}`);
+        const icon = document.getElementById(`icon-histori-${idx}`);
+        if (!drop) return;
+        if (drop.style.display === "none" || drop.style.display === "") {
+          drop.style.display = "block";
+          if (icon) icon.style.transform = "rotate(180deg)";
+        } else {
+          drop.style.display = "none";
+          if (icon) icon.style.transform = "rotate(0deg)";
+        }
+      }
 
-// ===================================================================
-// OPTIMASI PERFORMA INPUT (DEBOUNCE FILTER)
-// ===================================================================
-let timerDebounceLogistik = null;
-function hitungUlangLogistikDebounced() {
-  clearTimeout(timerDebounceLogistik);
-  timerDebounceLogistik = setTimeout(() => {
-    hitungUlangLogistik();
-  }, 350); // Menunggu 350ms setelah berhenti mengetik
-}
+      // ===================================================================
+      // OPTIMASI PERFORMA INPUT (DEBOUNCE FILTER)
+      // ===================================================================
+      let timerDebounceLogistik = null;
+      function hitungUlangLogistikDebounced() {
+        clearTimeout(timerDebounceLogistik);
+        timerDebounceLogistik = setTimeout(() => {
+          hitungUlangLogistik();
+        }, 350); // Menunggu 350ms setelah berhenti mengetik
+      }
 
-let timerDebouncePeserta = null;
-function terapkanFilterPesertaDebounced() {
-  clearTimeout(timerDebouncePeserta);
-  timerDebouncePeserta = setTimeout(() => {
-    terapkanFilterPeserta();
-  }, 300); // Menunggu 300ms setelah berhenti mengetik
-}
+      let timerDebouncePeserta = null;
+      function terapkanFilterPesertaDebounced() {
+        clearTimeout(timerDebouncePeserta);
+        timerDebouncePeserta = setTimeout(() => {
+          terapkanFilterPeserta();
+        }, 300); // Menunggu 300ms setelah berhenti mengetik
+      }
 
       window.onload = tarikDataSemua;
     </script>
