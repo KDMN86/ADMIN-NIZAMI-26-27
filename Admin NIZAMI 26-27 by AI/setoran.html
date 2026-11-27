@@ -1288,12 +1288,18 @@
             minimumFractionDigits: 0,
           }).format(p.harga);
 
-          // Susunan Teks Per Item (Meniru Struk)
+          // Hitung posisi baru dan sisa setoran
+          let posisiBaru = p.freq + item.qty;
+          let targetSetor = p.target_total || (pNama.includes("mingguan") ? 40 : 330);
+          let sisaSetor = Math.max(0, targetSetor - posisiBaru);
+          let teksSisa = sisaSetor === 0 ? "LUNAS ✅" : `${sisaSetor}x lagi`;
+
+          // Susunan Teks Per Item (Meniru Struk + Sisa Setoran)
           msgRincian += `*${p.nama}* ${displaySub}\n`;
           msgRincian += `   Paket: ${p.paket}\n`;
           msgRincian += `   Jml Setor: ${item.qty}x @ ${displayHarga}\n`;
-          msgRincian += `   Posisi: Ke-${p.freq} ➔ Ke-${p.freq + item.qty}\n`;
-
+          msgRincian += `   Posisi: Ke-${p.freq} ➔ Ke-${posisiBaru}\n`;
+          msgRincian += `   Sisa Setoran: ${teksSisa}\n`; // <--- BARIS BARU
           // Tampilkan Potongan & Saldo hanya jika ada potongan admin
           if (totalAdmin > 0) {
             let displayAdmin = new Intl.NumberFormat("id-ID", {
